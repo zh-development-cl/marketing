@@ -1,0 +1,119 @@
+{
+  "voiceId": "0cheeVA5B3Cv6DGq65cT",
+  "model": "eleven_multilingual_v2",
+  "scenes": {
+    "hook": {
+      "file": "vo/hook.mp3",
+      "duration": 1.579,
+      "captions": [
+        {
+          "text": "¿Qué es ZH Development?",
+          "start": 0,
+          "end": 1.579
+        }
+      ]
+    },
+    "imagine": {
+      "file": "vo/imagine.mp3",
+      "duration": 1.811,
+      "captions": [
+        {
+          "text": "Imagina que esta es tu empresa:",
+          "start": 0,
+          "end": 1.811
+        }
+      ]
+    },
+    "chaos": {
+      "file": "vo/chaos.mp3",
+      "duration": 3.251,
+      "captions": [
+        {
+          "text": "mensajes, planillas, correos, cobros…",
+          "start": 0,
+          "end": 2.45
+        },
+        {
+          "text": "todo a mano.",
+          "start": 2.45,
+          "end": 3.251
+        }
+      ]
+    },
+    "step1": {
+      "file": "vo/step1.mp3",
+      "duration": 5.619,
+      "captions": [
+        {
+          "text": "En ZH partimos con una llamada de 30 minutos",
+          "start": 0,
+          "end": 2.612
+        },
+        {
+          "text": "para entender tu operación y encontrar lo que más tiempo te quita.",
+          "start": 2.612,
+          "end": 5.619
+        }
+      ]
+    },
+    "step2": {
+      "file": "vo/step2.mp3",
+      "duration": 3.529,
+      "captions": [
+        {
+          "text": "Después recibes una propuesta escrita,",
+          "start": 0,
+          "end": 1.8
+        },
+        {
+          "text": "con alcance, plazo y precio.",
+          "start": 1.8,
+          "end": 3.529
+        }
+      ]
+    },
+    "step3": {
+      "file": "vo/step3.mp3",
+      "duration": 5.851,
+      "captions": [
+        {
+          "text": "Construimos por etapas, con entregas que puedes probar,",
+          "start": 0,
+          "end": 2.856
+        },
+        {
+          "text": "y usamos IA solo donde aporta, siempre con revisión humana.",
+          "start": 2.856,
+          "end": 5.851
+        }
+      ]
+    },
+    "step4": {
+      "file": "vo/step4.mp3",
+      "duration": 1.765,
+      "captions": [
+        {
+          "text": "Y todo queda a nombre de tu empresa.",
+          "start": 0,
+          "end": 1.765
+        }
+      ]
+    },
+    "outro": {
+      "file": "vo/outro.mp3",
+      "duration": 6.269,
+      "captions": [
+        {
+          "text": "Software a medida que conecta tu operación.",
+          "start": 0,
+          "end": 4.261
+        },
+        {
+          "text": "Agenda tu llamada de 30 minutos.",
+          "start": 4.261,
+          "end": 6.269
+        }
+      ]
+    }
+  }
+}

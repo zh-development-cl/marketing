@@ -1,6 +1,6 @@
 # Reel 01 · ¿Qué es ZH Development?
 
-Formato: 1080x1920, 30 fps, 33 s. Motion graphics oscuros, sin personas, un acento de color (`#8FB0FF` sobre oscuro). Voz en off en español neutro con acento chileno suave. Subtítulos siempre visibles. Música: agregarla desde la biblioteca de Instagram al publicar.
+Formato: 1080x1920, 30 fps, ~37 s (la duración la fija la voz). Motion graphics oscuros, sin personas, un acento de color (`#8FB0FF` sobre oscuro). Voz en off en español neutro con acento chileno suave. Subtítulos siempre visibles. Música: agregarla desde la biblioteca de Instagram al publicar.
 
 Composición Remotion: `video/src/scenes/Reel01.tsx`. Timing en frames en `video/src/timeline.ts`.
 
@@ -36,7 +36,10 @@ Caption: "¿Qué es ZH Development? Software a medida, automatización e IA para
 
 Hashtags (máx. 5): #softwareamedida #automatizacion #pymeschile #inteligenciaartificial #chile
 
-## Decisiones pendientes
+## Voz
 
-- Voz: grabación de Lorenzo o voz sintética (ElevenLabs necesita clave).
+Generada con ElevenLabs (`video/scripts/voiceover.mjs`), voz "Alejandro - Conversations" (chileno, id `0cheeVA5B3Cv6DGq65cT`), modelo multilingual v2. Un clip por escena en `video/public/vo/` y los tiempos en `video/src/vo.json`; el timeline y los subtítulos se calculan desde ahí. Para cambiar la voz: `node scripts/voiceover.mjs <voiceId>` y volver a renderizar. Cada corrida gasta ~535 caracteres.
+
+## Pendiente
+
 - Revisar el nombre que aparece en la tarjeta de llamada ("Lorenzo · ZH Development").

@@ -1,34 +1,50 @@
-// Timing del reel 01 en frames (30 fps). Un cambio aquí mueve escena y subtítulos juntos.
+// Timing del reel 01 en frames (30 fps). Las escenas duran lo diseñado o lo que dure su voz en off, lo que sea mayor.
+import vo from './vo.json';
+
 export const FPS = 30;
 const s = (sec: number) => Math.round(sec * FPS);
 
-export const scenes = {
-  hook: {from: s(0), dur: s(3)},
-  imagine: {from: s(3), dur: s(2.5)},
-  chaos: {from: s(5.5), dur: s(4.5)},
-  step1: {from: s(10), dur: s(4)},
-  step2: {from: s(14), dur: s(4)},
-  step3: {from: s(18), dur: s(6)},
-  step4: {from: s(24), dur: s(3)},
-  outro: {from: s(27), dur: s(6)},
-} as const;
+// La voz entra unos frames después del inicio de cada escena, para que primero se vea el fundido.
+export const VO_OFFSET = 5;
+const TAIL = 0.45; // segundos de aire después de la última palabra
 
-export const TOTAL = s(33);
+type SceneKey = 'hook' | 'imagine' | 'chaos' | 'step1' | 'step2' | 'step3' | 'step4' | 'outro';
+
+const designed: Record<SceneKey, number> = {
+  hook: s(3),
+  imagine: s(2.5),
+  chaos: s(4.5),
+  step1: s(4),
+  step2: s(4),
+  step3: s(6),
+  step4: s(3),
+  outro: s(6),
+};
+
+const order: SceneKey[] = ['hook', 'imagine', 'chaos', 'step1', 'step2', 'step3', 'step4', 'outro'];
+
+type VoScene = {file: string; duration: number; captions: Array<{text: string; start: number; end: number}>};
+const voScenes = vo.scenes as Record<SceneKey, VoScene>;
+
+let cursor = 0;
+export const scenes = Object.fromEntries(
+  order.map((key) => {
+    const withVoice = VO_OFFSET + s(voScenes[key].duration + TAIL);
+    const dur = Math.max(designed[key], withVoice);
+    const entry = {from: cursor, dur, audio: voScenes[key].file};
+    cursor += dur;
+    return [key, entry];
+  }),
+) as Record<SceneKey, {from: number; dur: number; audio: string}>;
+
+export const TOTAL = cursor;
 
 export type Caption = {from: number; to: number; text: string};
 
-export const captions: Caption[] = [
-  {from: s(0.2), to: s(2.9), text: '¿Qué es ZH Development?'},
-  {from: s(3.0), to: s(5.4), text: 'Imagina que esta es tu empresa:'},
-  {from: s(5.5), to: s(8.2), text: 'mensajes, planillas, correos, cobros…'},
-  {from: s(8.2), to: s(9.9), text: 'todo a mano.'},
-  {from: s(10.0), to: s(12.0), text: 'En ZH partimos con una llamada de 30 minutos'},
-  {from: s(12.0), to: s(13.9), text: 'para encontrar lo que más tiempo te quita.'},
-  {from: s(14.0), to: s(16.0), text: 'Después recibes una propuesta escrita,'},
-  {from: s(16.0), to: s(17.9), text: 'con alcance, plazo y precio.'},
-  {from: s(18.0), to: s(20.5), text: 'Construimos por etapas, con entregas que puedes probar,'},
-  {from: s(20.5), to: s(23.9), text: 'y usamos IA solo donde aporta, siempre con revisión humana.'},
-  {from: s(24.0), to: s(26.9), text: 'Y todo queda a nombre de tu empresa.'},
-  {from: s(27.2), to: s(30.0), text: 'Software a medida que conecta tu operación.'},
-  {from: s(30.0), to: s(32.8), text: 'Agenda tu llamada de 30 minutos.'},
-];
+export const captions: Caption[] = order.flatMap((key) =>
+  voScenes[key].captions.map((c) => ({
+    from: scenes[key].from + VO_OFFSET + s(c.start),
+    to: scenes[key].from + VO_OFFSET + s(c.end) + s(0.3),
+    text: c.text,
+  })),
+);

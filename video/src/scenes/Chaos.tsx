@@ -57,7 +57,7 @@ export const Chaos: React.FC = () => {
       <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
         <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2}}>
           {labels.map((l, i) => {
-            const at = 18 + i * 18;
+            const at = 14 + i * 17;
             const p = spring({frame: frame - at, fps, config: {damping: 12, stiffness: 150}});
             return (
               <div
@@ -79,7 +79,7 @@ export const Chaos: React.FC = () => {
             );
           })}
           {(() => {
-            const p = spring({frame: frame - 96, fps, config: {damping: 11, stiffness: 120}});
+            const p = spring({frame: frame - 80, fps, config: {damping: 11, stiffness: 120}});
             return (
               <div
                 style={{

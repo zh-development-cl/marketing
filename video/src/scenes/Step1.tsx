@@ -104,7 +104,7 @@ export const Step1: React.FC = () => {
         </div>
         <div style={{marginTop: 22, display: 'flex', flexDirection: 'column', gap: 12}}>
           {findings.map((f, i) => {
-            const p = spring({frame: frame - 40 - i * 12, fps, config: {damping: 14, stiffness: 140}});
+            const p = spring({frame: frame - 90 - i * 14, fps, config: {damping: 14, stiffness: 140}});
             return (
               <div
                 key={f}

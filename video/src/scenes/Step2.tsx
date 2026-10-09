@@ -74,7 +74,7 @@ export const Step2: React.FC = () => {
           </div>
         </div>
         <Row
-          at={22}
+          at={40}
           label="Alcance"
           value={
             <>
@@ -86,8 +86,8 @@ export const Step2: React.FC = () => {
             </>
           }
         />
-        <Row at={46} label="Plazo" value="6 semanas · entregas cada semana" strong />
-        <Row at={64} label="Precio" value="Cerrado. Sin sorpresas." strong />
+        <Row at={70} label="Plazo" value="6 semanas · entregas cada semana" strong />
+        <Row at={95} label="Precio" value="Cerrado. Sin sorpresas." strong />
       </div>
     </AbsoluteFill>
   );

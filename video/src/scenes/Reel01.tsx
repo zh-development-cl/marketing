@@ -1,9 +1,9 @@
 import React from 'react';
-import {AbsoluteFill, Sequence} from 'remotion';
+import {AbsoluteFill, Audio, Sequence, staticFile} from 'remotion';
 import {Background} from '../components/Background';
 import {Captions} from '../components/Captions';
 import {SceneFade} from '../components/SceneFade';
-import {captions, scenes} from '../timeline';
+import {captions, scenes, VO_OFFSET} from '../timeline';
 import {Chaos} from './Chaos';
 import {Hook} from './Hook';
 import {Imagine} from './Imagine';
@@ -32,6 +32,9 @@ export const Reel01: React.FC = () => (
         <SceneFade>
           <Scene />
         </SceneFade>
+        <Sequence from={VO_OFFSET} name={`vo-${key}`}>
+          <Audio src={staticFile(scenes[key].audio)} />
+        </Sequence>
       </Sequence>
     ))}
     <Captions items={captions} />

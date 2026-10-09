@@ -9,8 +9,8 @@ export const Outro: React.FC = () => {
   const {fps} = useVideoConfig();
   const logo = spring({frame, fps, config: {damping: 14, stiffness: 90}});
   const text = spring({frame: frame - 14, fps, config: {damping: 16}});
-  const cta = spring({frame: frame - 70, fps, config: {damping: 12, stiffness: 140}});
-  const pulse = 1 + 0.02 * Math.sin((frame - 70) / 6) * (frame > 70 ? 1 : 0);
+  const cta = spring({frame: frame - 125, fps, config: {damping: 12, stiffness: 140}});
+  const pulse = 1 + 0.02 * Math.sin((frame - 125) / 6) * (frame > 125 ? 1 : 0);
   const glow = 0.35 + 0.1 * Math.sin(frame / 15);
   return (
     <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
