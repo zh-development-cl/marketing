@@ -6,3 +6,5 @@ renders/
 *.mov
 .env
 .env.*
+video/node_modules/
+video/out/
