@@ -52,9 +52,10 @@ Lo que hay que replicar: estructura caos → proceso en pasos → resultado → 
 
 Motion graphics programáticos (Remotion: React renderizado a MP4 1080x1920 a 30 fps). Los mockups son HTML/CSS con los tokens reales de la landing; las animaciones 3D de tarjetas se hacen con transforms CSS; el timing se sincroniza con la voz en off. Voz: grabación de Lorenzo o voz sintética (requiere clave de ElevenLabs u otro proveedor). Música: agregarla desde la biblioteca de Instagram al publicar, para no tener problemas de licencia.
 
-## Instagram: estado y pendientes
+## Instagram: estado (2026-10-09)
 
-- @zhdevelopment ya existe: perfil privado, nombre "ZHDevelopment", 8 seguidores, 0 seguidos. Falta confirmar si es de ZH.
-- Si no es de ZH, estaban libres el 2026-10-09: @zhdevelopment.cl (recomendado), @zh.development, @zh_development, @zhdev.cl. @zhdev está tomado.
-- Lorenzo crea la cuenta (Claude no crea cuentas ni ingresa contraseñas). Conviene cuenta profesional vinculada a una página de Facebook para publicar por la API de Meta desde la nube más adelante.
-- Extensión Claude in Chrome en el Mac de Lorenzo: pendiente de instalar e iniciar sesión. El Mac se usa solo para el navegador.
+- Cuenta: `@zhdevelopment.cl`, profesional (Empresa), vinculada a la página de Facebook "Zh Development" (creada desde el perfil personal de Lorenzo, con autenticación en dos pasos).
+- Perfil: foto `brand/instagram/profile-1080.png`, bio y datos en `docs/instagram-perfil.md`. Portada de Facebook en `brand/facebook/cover-1640x624.png` (fuente: `brand/facebook/cover.html`).
+- Fuentes de marca descargadas en `brand/fonts/` (Funnel Display, Funnel Sans, IBM Plex Mono; licencia OFL).
+- Pendiente para publicar por API: app en developers.facebook.com con Instagram Graph API y token de larga duración de la página.
+- Claude in Chrome no está conectado a la sesión de la nube; la publicación manual la hace Lorenzo desde su navegador.
