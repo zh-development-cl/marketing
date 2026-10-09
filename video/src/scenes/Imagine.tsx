@@ -22,7 +22,7 @@ export const Imagine: React.FC = () => {
       <div
         style={{
           position: 'absolute',
-          top: 230,
+          top: 280,
           fontFamily: fonts.display,
           fontWeight: 600,
           fontSize: 66,
@@ -40,11 +40,11 @@ export const Imagine: React.FC = () => {
       <div
         style={{
           position: 'absolute',
-          top: 440,
+          top: 470,
           transform: `translateY(${interpolate(phone, [0, 1], [700, 0])}px)`,
         }}
       >
-        <div style={{transform: 'scale(0.82)', transformOrigin: 'top center'}}>
+        <div style={{transform: 'scale(0.72)', transformOrigin: 'top center'}}>
           <Phone notifications={chaosNotifications} startAt={18} gap={10} />
         </div>
       </div>

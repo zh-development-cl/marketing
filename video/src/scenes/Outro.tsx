@@ -62,7 +62,19 @@ export const Outro: React.FC = () => {
       </div>
       <div
         style={{
-          marginTop: 40,
+          marginTop: 18,
+          fontFamily: fonts.sans,
+          fontWeight: 500,
+          fontSize: 32,
+          color: colors.text2,
+          opacity: cta,
+        }}
+      >
+        link en la bio
+      </div>
+      <div
+        style={{
+          marginTop: 28,
           fontFamily: fonts.mono,
           fontSize: 30,
           letterSpacing: '0.08em',

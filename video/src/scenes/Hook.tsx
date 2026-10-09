@@ -36,6 +36,7 @@ export const Hook: React.FC = () => {
     <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center', padding: 80}}>
       <div
         style={{
+          transform: `scale(${interpolate(frame, [0, 90], [1, 1.07])})`,
           fontFamily: fonts.display,
           fontWeight: 600,
           letterSpacing: '-0.03em',

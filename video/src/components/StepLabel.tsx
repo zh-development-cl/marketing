@@ -9,7 +9,7 @@ export const StepLabel: React.FC<{n: string; title: string; subtitle?: string}> 
   const p = spring({frame, fps, config: {damping: 16, stiffness: 120}});
   const line = spring({frame: frame - 6, fps, config: {damping: 18}});
   return (
-    <div style={{position: 'absolute', top: 190, left: 0, right: 0, textAlign: 'center'}}>
+    <div style={{position: 'absolute', top: 250, left: 0, right: 0, textAlign: 'center'}}>
       <div
         style={{
           display: 'inline-block',
