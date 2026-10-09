@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>Portada Facebook ZH Development</title>
+<style>
+  @font-face { font-family: "Funnel Display"; src: url("../fonts/FunnelDisplay-600.ttf"); font-weight: 600; }
+  @font-face { font-family: "Funnel Sans"; src: url("../fonts/FunnelSans-400.ttf"); font-weight: 400; }
+  @font-face { font-family: "IBM Plex Mono"; src: url("../fonts/IBMPlexMono-500.ttf"); font-weight: 500; }
+  html, body { margin: 0; }
+  body { width: 1640px; height: 624px; overflow: hidden; background: #07090F; color: #EDF0F5; }
+  .cover {
+    position: relative; width: 1640px; height: 624px;
+    background:
+      radial-gradient(900px 500px at 78% 40%, rgba(36, 92, 228, 0.28), transparent 70%),
+      linear-gradient(180deg, #0D1119 0%, #07090F 100%);
+  }
+  .grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(to right, #1B2230 1px, transparent 1px),
+      linear-gradient(to bottom, #1B2230 1px, transparent 1px);
+    background-size: 82px 82px;
+    opacity: 0.45;
+    mask-image: linear-gradient(90deg, transparent 0%, #000 35%, #000 65%, transparent 100%);
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 35%, #000 65%, transparent 100%);
+  }
+  /* Área segura: lo que se ve en celular (640x360 centrado) */
+  .safe {
+    position: absolute; left: 50%; top: 52px; transform: translateX(-50%);
+    width: 1100px; height: 380px;
+    display: flex; align-items: center; justify-content: space-between; gap: 48px;
+  }
+  .text { max-width: 800px; }
+  .label {
+    font-family: "IBM Plex Mono"; font-weight: 500; font-size: 22px; letter-spacing: 0.18em;
+    color: #8FB0FF; text-transform: uppercase; margin-bottom: 16px;
+  }
+  h1 {
+    font-family: "Funnel Display"; font-weight: 600; font-size: 62px; line-height: 1.04;
+    letter-spacing: -0.02em; margin: 0 0 16px;
+  }
+  h1 em { font-style: normal; color: #8FB0FF; }
+  p {
+    font-family: "Funnel Sans"; font-weight: 400; font-size: 27px; line-height: 1.35;
+    color: #9AA4B5; margin: 0;
+  }
+  .steps {
+    display: flex; gap: 12px; margin-top: 24px;
+    font-family: "IBM Plex Mono"; font-weight: 500; font-size: 20px; letter-spacing: 0.04em;
+  }
+  .step {
+    border: 1px solid #2A3345; border-radius: 999px; padding: 10px 20px; color: #9AA4B5;
+    background: rgba(13, 17, 25, 0.8);
+  }
+  .step b { color: #8FB0FF; font-weight: 500; margin-right: 8px; }
+  .logo { flex: none; width: 250px; filter: drop-shadow(0 0 48px rgba(36, 92, 228, 0.35)); }
+  .logo svg { width: 100%; height: auto; display: block; }
+  .domain {
+    position: absolute; right: 0; bottom: 0;
+    font-family: "IBM Plex Mono"; font-weight: 500; font-size: 20px; letter-spacing: 0.08em; color: #7C879A;
+  }
+</style>
+</head>
+<body>
+<div class="cover">
+  <div class="grid"></div>
+  <div class="safe">
+    <div class="text">
+      <div class="label">Software · Automatización · IA</div>
+      <h1>Software a medida que conecta <em>tu operación.</em></h1>
+      <p>Unimos tus sistemas, automatizamos lo repetitivo y aplicamos IA con revisión humana.</p>
+      <div class="steps">
+        <span class="step"><b>01</b>Entender</span>
+        <span class="step"><b>02</b>Diseñar</span>
+        <span class="step"><b>03</b>Construir</span>
+        <span class="step"><b>04</b>Mejorar</span>
+      </div>
+    </div>
+    <div class="logo">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 630.685">
+      <path fill="#EDF0F5" stroke="var(--mark-line, none)" pathLength="1" d="M884.87 40.66L884.62 195.48A13.23 13.23 0 0 1 871.42 208.69L737.02 208.93A193.66 193.66 0 0 0 661.15 224.56L649.62 229.49A192.09 192.09 0 0 0 564.02 301.63L454.22 471.11A96.97 96.97 0 0 1 372.84 515.36L172.96 515.38A19.99 19.99 0 0 1 159.02 481.05L466.46 182.08A46.7 46.7 0 0 0 480.61 148.16L479.75 58.37A52.68 52.68 0 0 0 427.11 6.19L31.28 5.92A31.22 31.22 0 0 0 0.05 37.13L0.04 95.81A0.12 0.12 0 0 0 0.05 95.86L3.57 103.16A28.23 28.23 0 0 0 28.97 119.11L332.51 119.33A17.19 17.19 0 0 1 344.5 148.83L19.36 465.68A64.09 64.09 0 0 0 0 511.67L0.11 585.18A44.31 44.31 0 0 0 3.08 601.06L5.44 607.17A36.73 36.73 0 0 0 39.71 630.69L390.37 630.62A172.65 172.65 0 0 0 536.41 550L641.19 383.7A131.65 131.65 0 0 1 752.58 322.23L873.08 322.23A11.54 11.54 0 0 1 884.63 333.76L884.87 591.36A39.33 39.33 0 0 0 924.2 630.66L960.1 630.66A39.9 39.9 0 0 0 1000 590.76L999.92 38.33A28.89 28.89 0 0 0 997.96 27.87L996.7 24.63A35.77 35.77 0 0 0 965.09 1.86L927.56 0.05A40.73 40.73 0 0 0 884.87 40.66Z"/>
+      <path fill="#245CE4" d="M619.87 0.6C605.08 1.26 599.81 2.72 593.14 8.07C590.16 10.46 587.99 12.66 586.7 14.59C586.04 15.54 585.16 16.76 584.72 17.3C583.69 18.57 582.18 21.62 581.81 23.16C581.64 23.82 581.15 25.13 580.74 26.09C579.57 28.65 579.49 216.99 580.64 217.99C581.79 218.97 583.4 217.99 589.19 212.74C591.04 211.06 593.53 209.01 594.7 208.2C596.66 206.86 599.85 204.37 606.28 199.24C607.57 198.19 609.28 196.95 610.06 196.44C610.82 195.95 612.16 195.09 613.04 194.53C615.36 193.02 618.12 191.38 620.8 189.92C622.09 189.21 624.1 188.09 625.24 187.45C628.12 185.84 630.03 184.89 638.79 180.74C640.28 180.06 642.26 179.1 643.19 178.64C644.14 178.2 645.34 177.76 645.87 177.66C646.41 177.57 647.73 177.08 648.78 176.54C649.85 176.03 650.9 175.61 651.1 175.61C651.29 175.61 652.05 175.27 652.78 174.86C653.51 174.44 654.88 173.95 655.81 173.76C656.76 173.56 658.08 173.12 658.74 172.78C659.42 172.44 660.72 172.05 661.59 171.9C662.47 171.78 663.96 171.32 664.91 170.93C666.21 170.36 667.28 170.1 669.43 169.88C670.97 169.7 673.24 169.29 674.43 168.95C675.66 168.61 677.27 168.19 678.05 168.04C679.78 167.7 680.81 166.87 681.17 165.53C681.88 162.92 681.59 3.43 680.86 2.48C679.66 0.92 677.83 0.18 676 0.53C675.02 0.7 669.89 0.87 662.47 0.97C652.1 1.09 644.87 0.99 628.17 0.48C626.37 0.43 622.63 0.48 619.87 0.6Z"/>
+    </svg>
+    </div>
+  </div>
+</div>
+</body>
+</html>
