@@ -62,8 +62,8 @@ const COLUMNS: Column[] = [
 ];
 
 const KPIS: Array<[string, string]> = [
-  ['23', 'consultas nuevas'],
-  ['92 %', 'respondidos por el asistente'],
+  ['22', 'consultas nuevas'],
+  ['92 %', 'respondidas solas'],
   ['40 s', 'primera respuesta'],
 ];
 

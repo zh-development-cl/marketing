@@ -137,7 +137,8 @@ ffmpeg(['-i', raw, '-af', TEMPO !== 1 ? `atempo=${TEMPO}` : 'anull', '-ar', '441
 const master = path.join(tmp, 'take-norm.wav');
 normalize(stretched, master);
 fs.mkdirSync(outDir, {recursive: true});
-fs.copyFileSync(master, path.join(outDir, 'toma-completa.wav'));
+const takeDur = Number(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', master]).toString().trim());
+ffmpeg(['-i', master, '-af', 'afade=t=out:st=' + Math.max(0, takeDur - 0.08).toFixed(3) + ':d=0.08', '-c:a', 'pcm_s16le', path.join(outDir, 'toma-completa.wav')]); // misma cola suave al final de la toma
 
 // ---------- 2. Palabras sobre el audio final ----------
 const heard = process.env.VO_DRY_RUN ? [] : await transcribe(master);
@@ -188,7 +189,8 @@ order.forEach((scene, i) => {
   const file = `${scene}.wav`; // WAV: una codificación con pérdida menos en la cadena (la voz llega con más aire arriba de 5 kHz)
   // La última escena termina donde termina la toma: se rellena 0,25 s y se funde en 120 ms para que la última palabra no muera cortada.
   const isLast = i === order.length - 1;
-  const fadeOut = isLast ? `apad=pad_dur=0.25,afade=t=out:st=${(cutEnd - cutStart + 0.25 - 0.12).toFixed(3)}:d=0.12` : `afade=t=out:st=${(cutEnd - cutStart - 0.03).toFixed(3)}:d=0.03`;
+  // La última escena: fundido de 80 ms ANTES del relleno (la toma termina en seco sobre la última /s/) y 0,25 s de aire.
+  const fadeOut = isLast ? `afade=t=out:st=${(cutEnd - cutStart - 0.08).toFixed(3)}:d=0.08,apad=pad_dur=0.25` : `afade=t=out:st=${(cutEnd - cutStart - 0.03).toFixed(3)}:d=0.03`;
   ffmpeg(['-i', master, '-af', `atrim=${cutStart.toFixed(3)}:${cutEnd.toFixed(3)},asetpts=PTS-STARTPTS,afade=t=in:d=0.02,${fadeOut}`, '-ar', '44100', '-ac', '1', '-c:a', 'pcm_s16le', path.join(outDir, file)]);
   const captions = caps.map((c) => ({
     text: c.text,

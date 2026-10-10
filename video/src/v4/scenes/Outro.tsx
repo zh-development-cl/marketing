@@ -50,13 +50,13 @@ export const Outro: React.FC = () => {
   const fill = prog(frame, tFill, 12);
   const accentIn = prog(frame, tDot + 10, 8, outExpo); // el bloque nace cuando la tarjeta ya es un punto
   const glow = prog(frame, tFill, 30);
-  const dim = prog(frame, tEnd, 14);
+  const dim = prog(frame, tEnd - 8, 12); // el cierre se funde del todo antes de que entre el ícono (tEnd + 4)
   const press = prog(frame, tClick, 3, outQuart) * (1 - prog(frame, tClick + 5, 7, outQuart)); // clic con easing
   const pressed = press > 0.2;
   const ctaPress = 1 - 0.1 * press;
   return (
     <AbsoluteFill>
-      <div style={{position: 'absolute', inset: 0, opacity: 1 - dim * 0.95, filter: dim > 0 ? `blur(${dim * 12}px)` : undefined}}>
+      <div style={{position: 'absolute', inset: 0, opacity: 1 - dim, filter: dim > 0 ? `blur(${dim * 12}px)` : undefined}}>
         {/* Punto → bloque azul del logo (el bloque está en (630,110) del viewBox 1000 → en px del lienzo) */}
         <div style={{position: 'absolute', left: LOGO_X, top: LOGO_Y}}>
           <LogoDraw width={LOGO_W} draw={draw} fill={fill} accentIn={accentIn} glow={glow * 0.8 * (0.92 + 0.08 * Math.sin(frame / 9))} />
@@ -72,7 +72,7 @@ export const Outro: React.FC = () => {
           <Typewriter words={tagWords} size={44} weight={400} boldWeight={700} style={{textAlign: 'center', maxWidth: 900}} />
         </div>
         {/* CTA + cursor */}
-        <div style={{position: 'absolute', left: 0, right: 0, top: LOGO_Y + 560, display: 'flex', justifyContent: 'center'}}>
+        <div style={{position: 'absolute', left: 0, right: 0, top: LOGO_Y + 540, display: 'flex', justifyContent: 'center'}}>
           <Pop at={tCta} from={0.7}>
             <div
               style={{
@@ -93,14 +93,15 @@ export const Outro: React.FC = () => {
         </div>
         {/* Toque (dedo) sobre el botón: onda que se expande + punto; no hay mouse en un celular */}
         {frame >= tClick - 1 && frame < tClick + 18 ? (
-          <div style={{position: 'absolute', left: 540 + 150, top: LOGO_Y + 560 + 44, width: 0, height: 0, pointerEvents: 'none'}}>
+          <div style={{position: 'absolute', left: 540 + 150, top: LOGO_Y + 540 + 44, width: 0, height: 0, pointerEvents: 'none'}}>
             <div style={{position: 'absolute', left: -70, top: -70, width: 140, height: 140, borderRadius: 70, border: `3px solid ${accent.text}`, opacity: 0.7 * (1 - prog(frame, tClick, 16)), transform: `scale(${0.35 + 1.1 * prog(frame, tClick, 16, outQuart)})`}} />
             <div style={{position: 'absolute', left: -16, top: -16, width: 32, height: 32, borderRadius: 16, background: '#FFFFFF', opacity: 0.9 * (1 - prog(frame, tClick + 2, 8)), transform: `scale(${1 - 0.4 * prog(frame, tClick, 6)})`, boxShadow: '0 0 24px rgba(255,255,255,0.6)'}} />
           </div>
         ) : null}
-        <div style={{position: 'absolute', left: 0, right: 0, top: LOGO_Y + 648, textAlign: 'center'}}>
-          <Pop at={tWhy} from={0.6} config={{damping: 11, stiffness: 200}}>
-            <div style={{fontFamily: fonts.display, fontWeight: 700, fontSize: 68, letterSpacing: '-0.03em', color: accent.text, lineHeight: 1}}>¿qué esperas?</div>
+        {/* Remate bajo el botón: más chico que el botón para no competir con él, con aire arriba y abajo */}
+        <div style={{position: 'absolute', left: 0, right: 0, top: LOGO_Y + 662, textAlign: 'center'}}>
+          <Pop at={tWhy} from={0.6} config={{damping: 14, stiffness: 180}}>
+            <div style={{fontFamily: fonts.display, fontWeight: 700, fontSize: 52, letterSpacing: '-0.03em', color: accent.text, lineHeight: 1}}>¿qué esperas?</div>
           </Pop>
         </div>
         <BlurIn at={tLink} style={{position: 'absolute', left: 0, right: 0, top: LOGO_Y + 740, textAlign: 'center', fontFamily: fonts.sans, fontSize: 32, color: ink.text2}}>

@@ -17,7 +17,7 @@ const loc = (a: number) => a - L;
 const tTitle = 6; // entra cuando el título del paso 01 ya terminó de salir
 const tRing = loc(beat('step2', 'Después')) - 12; // el anillo nace con la primera palabra (nunca pantalla vacía)
 const tChips = ['alcance', 'plazo', 'precio'].map((w) => loc(beat('step2', w)) - 3); // lo visual 1–2 frames delante del audio
-const tPaper = loc(beat('step2', 'precio')) + 26; // las tres fichas quedan ~0,9 s a la vista
+const tPaper = loc(beat('step2', 'precio')) + 12; // las tres fichas quedan ~0,5 s a la vista; el papel gana ese tiempo
 const tRows = tPaper + 10;
 const tStamp = loc(beat('step2', 'sorpresas')) - 2; // timbre "sin sorpresas" sobre la propuesta
 const END = loc(sc.to) + 8;
@@ -90,7 +90,7 @@ export const Step2: React.FC = () => {
             <Paper page="cover" revealRows={rows} company="Tu Empresa" />
             {/* Timbre "sin sorpresas": cae con fuerza sobre la hoja */}
             {frame >= tStamp ? (
-              <div style={{position: 'absolute', right: 64, top: 690, transform: 'rotate(-9deg)'}}>
+              <div style={{position: 'absolute', right: 40, top: 744, transform: 'rotate(-9deg)'}}>
                 <Pop at={tStamp} from={1.7} config={{damping: 14, stiffness: 260}}>
                   <div
                     style={{

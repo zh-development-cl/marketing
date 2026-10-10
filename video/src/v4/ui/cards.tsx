@@ -69,6 +69,8 @@ const WA: WaData[] = [
   {name: 'Tu Empresa', time: '08:12', from: 'Pía', fromColor: '#E85FB4', msgs: ['me pueden cotizar 20?']},
   {name: 'Don Jorge', time: '10:30', msgs: ['hola?', 'alguien?']},
   {name: 'Camila Rojas', time: 'ahora', msgs: ['Hola! tienen stock del modelo azul?'], notif: true},
+  {name: 'Proveedor Sur', time: '16:48', msgs: ['llegó la OC 588?', 'necesito confirmar hoy']},
+  {name: 'Tu Empresa', time: '17:20', from: 'Ferretería Lagos', fromColor: '#6BC4F2', msgs: ['me mandas la factura de nuevo?']},
 ];
 
 // Chat de WhatsApp (modo oscuro): cabecera con burbuja verde, nombre y hora; mensajes entrantes en burbujas.
@@ -124,11 +126,12 @@ export const WhatsAppCard: React.FC<CardProps> = ({variant, style}) => {
 
 const XL_W = 320;
 const XL_H = 160;
-const XL_FILES = ['inventario_FINAL_v3.xlsx', 'cobros_pendientes.xlsx', 'ventas_octubre (2).xlsx'];
+const XL_FILES = ['inventario_FINAL_v3.xlsx', 'cobros_pendientes.xlsx', 'ventas_octubre (2).xlsx', 'cotizaciones_pendientes.xlsx'];
 const XL_TABLES: Array<Array<[string, string, string]>> = [
   [['producto', 'stock', 'precio'], ['modelo azul', '12', '24.990'], ['modelo rojo', '#REF!', '19.990']],
   [['cliente', 'monto', 'vence'], ['Com. Andes', '384.900', 'vencida'], ['Ferr. Lagos', '129.500', '15-09']],
   [['fecha', 'venta', 'total'], ['01-10', '14', '349.860'], ['02-10', '#¡VALOR!', '0']],
+  [['cliente', 'ítems', 'estado'], ['Pía', '20', 'sin enviar'], ['tienda.lu', '6', '#N/D']],
 ];
 
 // Planilla de Excel: cabecera verde con nombre de archivo, columnas A/B/C y un #REF! en rojo seleccionado.
@@ -267,6 +270,7 @@ const INV: Array<{n: string; client: string; total: string; due: string; stamp: 
   {n: '1043', client: 'Comercial Andes', total: '$ 384.900', due: '28-09-2026', stamp: 'VENCIDA', rot: -12},
   {n: '1037', client: 'Ferretería Lagos', total: '$ 129.500', due: '15-09-2026', stamp: 'VENCIDA', rot: -9},
   {n: '1051', client: 'Distribuidora Norte', total: '$ 1.204.300', due: '02-10-2026', stamp: 'VENCIDA', rot: -15},
+  {n: '1052', client: 'Minimarket Rojas', total: '$ 86.400', due: '30-09-2026', stamp: 'VENCIDA', rot: -11},
 ];
 
 // Factura electrónica en papel: número, cliente, total y timbre rojo rotado "VENCIDA" con borde doble.
@@ -323,6 +327,8 @@ const GM: Array<{from: string; time: string; subject: string; preview: string}> 
   {from: 'Cliente Pérez', time: '09:15', subject: 'RE: RE: RE: cotización', preview: 'Hola, sigo esperando la cotización que me…'},
   {from: 'Proveedor Sur', time: '12:05', subject: 'Orden de compra 588', preview: 'Adjunto la orden, confirmar recepción por…'},
   {from: 'Contabilidad', time: '17:15', subject: 'Factura 1043 vencida', preview: 'Recordatorio: el pago venció hace 12 días…'},
+  {from: 'Comercial Andes', time: '17:52', subject: 'RE: factura 1043', preview: 'Hola, ¿me reenvían la factura? No la encuentro…'},
+  {from: 'Distribuidora Norte', time: '16:05', subject: 'Cotización urgente', preview: 'Necesitamos precio por 40 unidades para mañana…'},
 ];
 
 // Correo de Gmail: M de colores, remitente, hora azul, asunto en negrita y vista previa gris.
@@ -398,6 +404,7 @@ const BK: Array<{title: string; body: string; time: string}> = [
   {title: 'Transferencia recibida', body: 'Tienes un abono que no está c…', time: '14:50'},
   {title: 'Pago rechazado', body: 'La transferencia a Proveedor Sur no s…', time: '09:14'},
   {title: 'Cartola disponible', body: 'Tienes 14 movimientos sin categori…', time: '18:20'},
+  {title: 'Abono sin identificar', body: 'Recibiste $ 129.500 de una cuenta no reg…', time: '17:58'},
 ];
 
 // Notificación de banco: fondo azul muy oscuro, ícono de banco, "Banco", título, texto cortado y hora.

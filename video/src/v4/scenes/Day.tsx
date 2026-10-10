@@ -3,60 +3,31 @@ import {AbsoluteFill, useCurrentFrame} from 'remotion';
 import {Moving} from '../fx/MotionBlur';
 import {inOutQuart, outExpo, prog, tween} from '../fx/ease';
 import {TimeRuler} from '../ui/TimeRuler';
-import {accent, fonts, ink, status} from '../tokens';
+import {accent, fonts, ink} from '../tokens';
 import {beat, beatEnd, scenes} from '../timeline';
 import type {SfxCue} from '../sound';
-import {CARDS, CardFace, EVENTS, HANDOFF, HEAP_SCALE, dimFor, heapPlace, hourOf} from './dayData';
-import {CardAt} from '../ui/cards';
-import {hash, inQuart} from '../fx/ease';
+import {CARDS, CardFace, HANDOFF, T1, dimFor, hourAt} from './dayData';
 
 // Escena 2 · el día en time-lapse. Arriba una regla 08:00 → 19:00 con un cabezal que acelera y la hora grande;
 // cada vez que cruza una hora de evento entra desde la derecha, con latigazo, una tarjeta real con su hora y se
-// acomoda en un montón desordenado. La voz resalta lo que nombra (WhatsApp → azul, planillas → verde, pagos →
-// naranja) y abajo un contador "tareas repetidas hoy" sube de 0 a 47. A las 19:00 regla y contador se apagan y el
-// montón pasa a la ventana del Pitch (misma posición, mismo frame: HANDOFF).
+// acomoda en un montón desordenado. Desde media tarde el día se desborda: llueven notificaciones extra cada vez más
+// seguidas por los tres bordes, giradas y encimadas, y la cámara tiembla. La voz resalta lo que nombra (WhatsApp,
+// planillas, pagos) y abajo un contador "tareas repetidas hoy" sube de 0 a 73. A las 19:00 regla y contador se
+// apagan y el montón ENTERO pasa a la ventana del Pitch (mismas tarjetas, misma posición, mismo frame: HANDOFF),
+// donde esas mismas tarjetas se ordenan. La regla y el contador van ENCIMA del montón (HUD): siempre se leen.
 const sc = scenes.day;
 const L = sc.from - 10;
 const loc = (a: number) => a - L;
-export const END = loc(sc.to) + 12; // 238: la ventana de la escena (postroll incluido)
-const T0 = 10; // el cabezal arranca en 08:00 cuando el bloque termina de entrar
-const T1 = 220; // 19:00 (abs 288)
-const EXP = 1.7; // aceleración del cabezal (lento al inicio, rápido al final)
+export const END = loc(sc.to) + 12; // la ventana de la escena (postroll incluido)
 const ENTER = 8; // frames que tarda una tarjeta en llegar al montón
-
-const hourAt = (f: number) => 8 + 11 * Math.pow(Math.max(0, Math.min(1, (f - T0) / (T1 - T0))), EXP);
-const frameOfHour = (h: number) => Math.round(T0 + (T1 - T0) * Math.pow((h - 8) / 11, 1 / EXP));
-export const tEvents = EVENTS.map((e) => frameOfHour(hourOf(e.time)));
-
-// Capa de caos extra: en la última media hora del día llueven notificaciones cada vez más seguidas (no son las 16
-// tarjetas que después se ordenan: estas se barren fuera de cuadro cuando aparece la ventana). Posición, giro y
-// tamaño por hash; entran desde un borde con latigazo y, al traspaso, salen disparadas con desenfoque.
-const N_EXTRA = 22;
-const EXTRA_FROM = T1 - 95;
-const EXTRA = Array.from({length: N_EXTRA}, (_, k) => {
-  const u = (k + 1) / N_EXTRA;
-  const at = Math.round(EXTRA_FROM + (T1 - 2 - EXTRA_FROM) * Math.pow(u, 0.55)); // cada vez más seguidas
-  const {node, w, h} = CardAt({index: 3 + k * 2, variant: Math.floor(hash(k, 61) * 3)});
-  const scale = 0.85 + hash(k, 62) * 0.45;
-  const cx = 110 + hash(k, 63) * 860;
-  const cy = 560 + hash(k, 64) * 800;
-  const rot = (hash(k, 65) - 0.5) * 56;
-  const side = hash(k, 66); // 0..1 → desde dónde entra
-  const fromX = side < 0.4 ? 1500 : side < 0.8 ? -1500 : 0;
-  const fromY = side < 0.8 ? 0 : -1400;
-  const outX = (hash(k, 67) - 0.5) * 3000;
-  const outY = (hash(k, 68) - 0.5) * 2600;
-  return {at, node, w, h, scale, cx, cy, rot, fromX, fromY, outX, outY};
-});
-const tSweep = loc(HANDOFF) - 2; // al traspaso, la capa extra sale disparada
-const extraCountAt = (f: number) => EXTRA.filter((e) => f >= e.at).length;
+const tHand = loc(HANDOFF); // 222: desde aquí dibuja Pitch
 
 // Resaltes por beat: [tipos, color, desde, hasta] en frames locales.
 const HL: Array<{kinds: string[]; color: string; from: number; to: number}> = [
   {kinds: ['whatsapp'], color: accent.strong, from: loc(beat('day', 'cotizar')) - 2, to: loc(beatEnd('day', 'WhatsApp')) + 10},
   {kinds: ['excel'], color: accent.strong, from: loc(beat('day', 'planillas')) - 2, to: loc(beatEnd('day', 'planillas')) + 10},
   // (se apaga antes de HANDOFF: la escena Pitch no resalta)
-  {kinds: ['invoice', 'bank'], color: accent.strong, from: loc(beat('day', 'pagos')) - 3, to: Math.min(loc(beatEnd('day', 'pagos')) + 10, loc(HANDOFF) - 10)},
+  {kinds: ['invoice', 'bank'], color: accent.strong, from: loc(beat('day', 'pagos')) - 3, to: Math.min(loc(beatEnd('day', 'pagos')) + 10, tHand - 10)},
 ];
 const highlightOf = (kind: string, f: number): [number, string] | null => {
   for (const h of HL) {
@@ -67,157 +38,139 @@ const highlightOf = (kind: string, f: number): [number, string] | null => {
   return null;
 };
 
-// Contador: cada evento suma `add`, de a uno por frame (rueda).
-const countAt = (f: number) => EVENTS.reduce((acc, e, i) => acc + Math.max(0, Math.min(e.add, f - tEvents[i] + 1)), 0);
+// Contador: cada tarjeta suma `add`, de a uno por frame (rueda).
+const countAt = (f: number) => CARDS.reduce((acc, c) => acc + Math.max(0, Math.min(c.ev.add, f - c.at + 1)), 0);
 
+// Temblor de cámara: ruido suave (dos senos), no un salto distinto en cada frame.
+const noise = (f: number, s: number) => 0.6 * Math.sin(f * 1.7 + s) + 0.4 * Math.sin(f * 2.9 + s * 2);
+
+const BASE = CARDS.filter((c) => !c.extra);
 const whooshes: SfxCue[] = [];
 let lastWhoosh = -99;
-tEvents.forEach((t, i) => {
-  if (t - lastWhoosh >= 3) {
-    whooshes.push({name: 'whoosh-soft', at: L + t, gain: 0.35 + 0.15 * (i / (tEvents.length - 1))});
-    lastWhoosh = t;
+BASE.forEach((c, i) => {
+  if (c.at - lastWhoosh >= 3) {
+    // Los últimos whooshes (bajo "perseguir pagos") se topan a 0,40 para que la voz siga mandando.
+    whooshes.push({name: 'whoosh-soft', at: L + c.at, gain: Math.min(0.35 + 0.15 * (i / (BASE.length - 1)), i >= 10 ? 0.4 : 1)});
+    lastWhoosh = c.at;
   }
 });
 
 export const sfxCues: SfxCue[] = [
   {name: 'whoosh-soft', at: L + 0, gain: 0.35}, // el día entra desde abajo (el gancho ya suena su whoosh-hard)
   ...whooshes,
-  ...tEvents.map((t) => ({name: 'tick' as const, at: L + t + 1, gain: 0.3})),
-  ...EXTRA.filter((_, k) => k % 2 === 0).map((e) => ({name: 'pop' as const, at: L + e.at, gain: 0.45})),
-  {name: 'whoosh-hard', at: L + tSweep, gain: 0.8}, // barrida de la capa extra
-  {name: 'rise', at: L + T1 - 36, gain: 0.5}, // remata justo en 19:00
+  // Ticks solo mientras el día va tranquilo; en el desborde ya suenan los pops.
+  ...BASE.filter((c) => c.at < T1 - 40).map((c) => ({name: 'tick' as const, at: L + c.at + 1, gain: 0.3})),
+  // Pops (una de cada dos extra): discretos bajo la voz, plenos en el remate final.
+  ...CARDS.filter((c) => c.extra)
+    .filter((_, k) => k % 2 === 0)
+    .map((c) => ({name: 'pop' as const, at: L + c.at, gain: c.at < T1 - 8 ? 0.3 : 0.45})),
+  {name: 'rise', at: L + T1 - 36, gain: 0.4}, // remata justo en 19:00
   {name: 'click', at: L + T1, gain: 0.8}, // 19:00
 ];
 
 export const Day: React.FC = () => {
   const frame = useCurrentFrame();
   const hour = hourAt(frame);
-  const entered = tEvents.filter((t) => frame >= t).length;
-  const count = countAt(frame) + extraCountAt(frame); // las notificaciones extra también suman
-  const off = prog(frame, T1 + 2, 10, inOutQuart); // regla y contador se apagan (abs 290–300)
+  const entered = CARDS.filter((c) => frame >= c.at).length;
+  const count = countAt(frame);
+  const off = prog(frame, T1 + 2, 8, inOutQuart); // regla y contador se apagan mientras nace la ventana
   const endGlow = prog(frame, T1 - 6, 6) * (1 - off);
   const pulse = 1 + 0.06 * prog(frame, T1, 3) * (1 - prog(frame, T1 + 3, 8));
-  const showHeap = L + frame < HANDOFF;
-  // Sacudida de cámara creciente en la última media hora (hasta ±7 px), se apaga al traspaso.
-  const shakeAmp = 7 * prog(frame, T1 - 60, 60) * (1 - prog(frame, tSweep, 6));
-  const shakeX = (hash(frame, 71) - 0.5) * 2 * shakeAmp;
-  const shakeY = (hash(frame, 72) - 0.5) * 2 * shakeAmp;
+  const showHeap = frame < tHand;
+  // Sacudida de cámara creciente en la última media hora (hasta ±7 px); vuelve a cero justo antes del traspaso
+  // para que Pitch tome las tarjetas exactamente donde están. El HUD se mueve con la cámara, un poco menos.
+  const shakeAmp = 7 * prog(frame, T1 - 60, 60) * (1 - prog(frame, tHand - 8, 7));
+  const shakeX = noise(frame, 1.3) * shakeAmp;
+  const shakeY = noise(frame, 4.1) * shakeAmp;
+  const last = CARDS.reduce((best, c, i) => (frame >= c.at && (best < 0 || c.at >= CARDS[best].at) ? i : best), -1);
+  const lunes = 1 - prog(frame, 170, 10); // el pie de la regla se va cuando el montón empieza a taparlo
   return (
     <AbsoluteFill>
-      {/* Bloque regla + contador: entra desde abajo con desenfoque mientras el gancho sale hacia arriba */}
-      <Moving y={(f) => tween(f, 4, 16, 1700, 0, outExpo)} opacity={(f) => prog(f, 4, 6) * (1 - off)} extraBlur={() => off * 14} blur={0.14}>
-        <div style={{position: 'relative', width: 1080, height: 1920}}>
-          <TimeRuler hour={hour} glow={endGlow} />
-          {/* Contador abajo (fuera de la zona insegura) */}
-          <div style={{position: 'absolute', left: 0, right: 0, top: 1296, textAlign: 'center'}}>
-            <div
-              style={{
-                fontFamily: fonts.mono,
-                fontWeight: 600,
-                fontSize: 112,
-                lineHeight: 1,
-                letterSpacing: '-0.03em',
-                fontVariantNumeric: 'tabular-nums',
-                color: ink.text,
-                transform: `scale(${pulse})`,
-                textShadow: endGlow > 0 ? `0 0 ${40 * endGlow}px rgba(77,124,255,${0.6 * endGlow})` : undefined,
-              }}
-            >
-              {String(count).padStart(2, '0')}
-            </div>
-            <div style={{fontFamily: fonts.sans, fontSize: 34, color: ink.text2, marginTop: 8, letterSpacing: '-0.01em'}}>tareas repetidas hoy</div>
-          </div>
-          {/* "+n" que flota al lado del número en cada evento */}
-          {EVENTS.map((e, i) => {
-            const d = frame - tEvents[i];
-            if (d < 0 || d > 18) return null;
-            if (i + 1 < tEvents.length && frame >= tEvents[i + 1]) return null; // solo el último "+n"
-            const p = d / 18;
-            return (
-              <div
-                key={i}
-                style={{
-                  position: 'absolute',
-                  left: 640,
-                  top: 1312 - p * 46,
-                  fontFamily: fonts.mono,
-                  fontWeight: 600,
-                  fontSize: 44,
-                  color: accent.text,
-                  opacity: 1 - p * p,
-                  letterSpacing: '-0.02em',
-                }}
-              >
-                +{e.add}
-              </div>
-            );
-          })}
-          {/* Pie de la regla: cierre de jornada */}
-          <div style={{position: 'absolute', left: 80, top: 526, fontFamily: fonts.mono, fontSize: 26, letterSpacing: '0.06em', color: ink.text3, whiteSpace: 'nowrap'}}>
-            lunes · un día cualquiera
-          </div>
-        </div>
-      </Moving>
-
       <div style={{position: 'absolute', inset: 0, transform: `translate(${shakeX.toFixed(2)}px, ${shakeY.toFixed(2)}px)`}}>
-      {/* Montón de tarjetas: cada una entra desde la derecha con latigazo en su hora */}
-      {showHeap
-        ? CARDS.map((c, i) => {
-            const t = tEvents[i];
-            if (frame < t) return null;
-            const {cx, cy, rot} = heapPlace(i);
-            const hl = highlightOf(c.ev.kind, frame);
-            const k = hl ? hl[0] : 0;
-            const dim = dimFor(i, entered);
-            return (
-              <React.Fragment key={i}>
+        {/* Montón: cada tarjeta entra con latigazo en su frame (las de la regla por la derecha; las extra por
+            cualquier borde) y se queda donde cayó hasta el traspaso. El resalte ilumina la propia tarjeta
+            (sin copia encima): sube un poco, crece y gana contorno sin cambiar de capa. */}
+        {showHeap
+          ? CARDS.map((c, i) => {
+              const t = c.at;
+              if (frame < t) return null;
+              const {cx, cy, rot, scale} = c.heap;
+              const hl = highlightOf(c.ev.kind, frame);
+              const k = hl ? hl[0] : 0;
+              const dim = dimFor(i, entered) * (c.extra ? 0.94 : 1);
+              return (
                 <Moving
-                  x={(f) => cx - c.w / 2 + tween(f, t, t + ENTER, 1400, 0, outExpo)}
-                  y={() => cy - c.h / 2}
-                  rotate={(f) => rot + tween(f, t, t + ENTER, 10, 0, outExpo)}
-                  scale={() => HEAP_SCALE}
-                  blur={0.26}
+                  key={i}
+                  x={(f) => cx - c.w / 2 + tween(f, t, t + ENTER, c.from.dx, 0, outExpo)}
+                  y={(f) => cy - c.h / 2 + tween(f, t, t + ENTER, c.from.dy, 0, outExpo) - 20 * k}
+                  rotate={(f) => rot + tween(f, t, t + ENTER, c.from.drot, 0, outExpo)}
+                  scale={() => scale * (1 + 0.06 * k)}
+                  blur={0.14}
                   style={{zIndex: 10 + i}}
                 >
-                  <CardFace i={i} dim={dim} />
+                  <CardFace i={i} dim={dim} hl={hl} />
                 </Moving>
-                {/* Resalte: una copia iluminada se funde encima y sube un poco; la original no cambia de capa */}
-                {hl ? (
-                  <Moving
-                    x={() => cx - c.w / 2}
-                    y={() => cy - c.h / 2 - 20 * k}
-                    rotate={() => rot}
-                    scale={() => HEAP_SCALE * (1 + 0.06 * k)}
-                    blur={0.26}
-                    style={{zIndex: 300 + i, opacity: k}}
-                  >
-                    <CardFace i={i} dim={1} hl={hl} />
-                  </Moving>
-                ) : null}
-              </React.Fragment>
-            );
-          })
-        : null}
+              );
+            })
+          : null}
+      </div>
 
-      {/* Capa de caos extra: notificaciones que llueven cada vez más rápido y se barren al traspaso */}
-      {EXTRA.map((e, k) => {
-        if (frame < e.at || frame > tSweep + 12) return null;
-        const sweep = prog(frame, tSweep, 10, inQuart);
-        return (
-          <Moving
-            key={`x${k}`}
-            x={(f) => e.cx - e.w / 2 + tween(f, e.at, e.at + ENTER, e.fromX, 0, outExpo) + e.outX * prog(f, tSweep, 10, inQuart)}
-            y={(f) => e.cy - e.h / 2 + tween(f, e.at, e.at + ENTER, e.fromY, 0, outExpo) + e.outY * prog(f, tSweep, 10, inQuart)}
-            rotate={(f) => e.rot + tween(f, e.at, e.at + ENTER, 24, 0, outExpo)}
-            scale={() => e.scale}
-            opacity={() => 1 - sweep}
-            blur={0.3}
-            style={{zIndex: 400 + k}}
-          >
-            <div style={{width: e.w, height: e.h, filter: 'brightness(0.92)'}}>{e.node}</div>
-          </Moving>
-        );
-      })}
+      {/* HUD (regla + contador), encima del montón: entra desde abajo con desenfoque mientras el gancho sale */}
+      <div style={{position: 'absolute', inset: 0, transform: `translate(${(shakeX * 0.6).toFixed(2)}px, ${(shakeY * 0.6).toFixed(2)}px)`}}>
+        <Moving y={(f) => tween(f, 4, 16, 1700, 0, outExpo)} opacity={(f) => prog(f, 4, 6) * (1 - off)} extraBlur={() => off * 14} blur={0.14}>
+          <div style={{position: 'relative', width: 1080, height: 1920}}>
+            <TimeRuler hour={hour} glow={endGlow} />
+            {/* Contador abajo (fuera de la zona insegura) */}
+            <div style={{position: 'absolute', left: 0, right: 0, top: 1296, textAlign: 'center'}}>
+              <div
+                style={{
+                  fontFamily: fonts.mono,
+                  fontWeight: 600,
+                  fontSize: 112,
+                  lineHeight: 1,
+                  letterSpacing: '-0.03em',
+                  fontVariantNumeric: 'tabular-nums',
+                  color: ink.text,
+                  transform: `scale(${pulse})`,
+                  textShadow: `0 2px 28px rgba(0,0,0,0.9), 0 0 6px rgba(0,0,0,0.7)${endGlow > 0 ? `, 0 0 ${40 * endGlow}px rgba(77,124,255,${0.6 * endGlow})` : ''}`,
+                }}
+              >
+                {String(count).padStart(2, '0')}
+              </div>
+              <div style={{fontFamily: fonts.sans, fontSize: 34, color: ink.text2, marginTop: 8, letterSpacing: '-0.01em', textShadow: '0 2px 18px rgba(0,0,0,0.9)'}}>tareas repetidas hoy</div>
+            </div>
+            {/* "+n" que flota al lado del número con la última tarjeta que entró */}
+            {last >= 0 && frame - CARDS[last].at <= 18
+              ? (() => {
+                  const p = (frame - CARDS[last].at) / 18;
+                  return (
+                    <div
+                      style={{
+                        position: 'absolute',
+                        left: 640,
+                        top: 1312 - p * 46,
+                        fontFamily: fonts.mono,
+                        fontWeight: 600,
+                        fontSize: 44,
+                        color: accent.text,
+                        opacity: 1 - p * p,
+                        letterSpacing: '-0.02em',
+                        textShadow: '0 2px 18px rgba(0,0,0,0.9)',
+                      }}
+                    >
+                      +{CARDS[last].ev.add}
+                    </div>
+                  );
+                })()
+              : null}
+            {/* Pie de la regla: cierre de jornada (se funde antes de que el montón lo tape) */}
+            {lunes > 0 ? (
+              <div style={{position: 'absolute', left: 80, top: 526, fontFamily: fonts.mono, fontSize: 26, letterSpacing: '0.06em', color: ink.text3, whiteSpace: 'nowrap', opacity: lunes}}>
+                lunes · un día cualquiera
+              </div>
+            ) : null}
+          </div>
+        </Moving>
       </div>
     </AbsoluteFill>
   );

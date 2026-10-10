@@ -2,7 +2,7 @@ import React from 'react';
 import {accent, fonts, ink, status} from '../tokens';
 import {LogoDraw} from './LogoDraw';
 
-// Ventana de app "Tu Empresa · sistema" (880 x 720): marco oscuro tipo navegador con tres puntos, monograma ZH en la
+// Ventana de app "Tu Empresa · sistema" (850 x 840): marco oscuro tipo navegador con tres puntos, monograma ZH en la
 // barra de título, píldora "en línea" y tres columnas con cabecera (cotizaciones · stock · cobros), contador por
 // columna y un check verde al pie (`check` 0..1 lo escala). No anima por sí sola; las tarjetas de cada columna las
 // coloca la escena encima usando la geometría exportada en WINDOW (columnLeft / slotTop).
@@ -11,14 +11,14 @@ export const WINDOW = {
   x: 110,
   y: 486,
   w: 850,
-  h: 700,
+  h: 840,
   titleH: 64,
   pad: 28,
   colGap: 24,
   headerTop: 88, // y relativo de la cabecera de columna
   slotTop: 152, // y relativo del primer slot de tarjeta
-  slotStep: 68, // separación vertical entre tarjetas apiladas (se solapan)
-  checkCY: 636, // centro del check al pie de cada columna
+  slotStep: 68, // separación vertical máxima entre tarjetas apiladas (se comprime si hay muchas)
+  checkCY: 776, // centro del check al pie de cada columna
   cardScale: 0.66, // escala de las tarjetas dentro de la ventana
 } as const;
 
@@ -27,6 +27,38 @@ export const columnLeft = (c: number) => WINDOW.x + WINDOW.pad + c * (COL_W + WI
 export const slotTop = (k: number) => WINDOW.y + WINDOW.slotTop + k * WINDOW.slotStep;
 
 export type WindowColumn = {label: string; color: string; count: number; check: number};
+
+// Check verde al pie de una columna (`check` 0..1 lo escala), en coordenadas relativas a la ventana.
+const CheckDot: React.FC<{c: number; check: number}> = ({c, check}) => (
+  <div
+    style={{
+      position: 'absolute',
+      left: WINDOW.pad + c * (COL_W + WINDOW.colGap) + COL_W / 2 - 24,
+      top: WINDOW.checkCY - 24,
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      background: status.ok,
+      boxShadow: `0 0 ${30 * check}px rgba(61,214,140,0.6), 0 8px 20px rgba(0,0,0,0.4)`,
+      transform: `scale(${check})`,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}
+  >
+    <svg width={26} height={26} viewBox="0 0 24 24" fill="none" stroke="#06110B" strokeWidth={3.4} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 12.5 L9.5 18 L20 6.5" />
+    </svg>
+  </div>
+);
+
+// Los checks de las columnas como capa aparte (para ponerlos ENCIMA de las tarjetas que la escena apila en la
+// ventana): se posiciona en el lienzo igual que la ventana.
+export const ColumnChecks: React.FC<{checks: number[]}> = ({checks}) => (
+  <div style={{position: 'absolute', left: WINDOW.x, top: WINDOW.y, width: WINDOW.w, height: WINDOW.h, pointerEvents: 'none'}}>
+    {checks.map((check, c) => (check > 0.001 ? <CheckDot key={c} c={c} check={check} /> : null))}
+  </div>
+);
 
 export const AppWindow: React.FC<{columns: WindowColumn[]; company?: string; style?: React.CSSProperties}> = ({columns, company = 'Tu Empresa', style}) => (
   <div
@@ -77,28 +109,7 @@ export const AppWindow: React.FC<{columns: WindowColumn[]; company?: string; sty
           {/* fondo tenue de la columna */}
           <div style={{position: 'absolute', left, top: WINDOW.headerTop + 54, width: COL_W, bottom: 20, borderRadius: 14, background: 'rgba(255,255,255,0.025)', border: `1px solid ${ink.line}`}} />
           {/* check al pie */}
-          {col.check > 0.001 ? (
-            <div
-              style={{
-                position: 'absolute',
-                left: left + COL_W / 2 - 24,
-                top: WINDOW.checkCY - 24,
-                width: 48,
-                height: 48,
-                borderRadius: 24,
-                background: status.ok,
-                boxShadow: `0 0 ${30 * col.check}px rgba(61,214,140,0.6), 0 8px 20px rgba(0,0,0,0.4)`,
-                transform: `scale(${col.check})`,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <svg width={26} height={26} viewBox="0 0 24 24" fill="none" stroke="#06110B" strokeWidth={3.4} strokeLinecap="round" strokeLinejoin="round">
-                <path d="M4 12.5 L9.5 18 L20 6.5" />
-              </svg>
-            </div>
-          ) : null}
+          {col.check > 0.001 ? <CheckDot c={c} check={col.check} /> : null}
         </React.Fragment>
       );
     })}
