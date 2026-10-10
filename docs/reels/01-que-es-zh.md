@@ -68,6 +68,12 @@ fotogramas por segundo, duración y loudness) y por una verificación independie
 transiciones, estética y legibilidad en celular, audio: niveles, cues y sincronía de la voz por STT). Los hallazgos se
 aplican y se vuelve a renderizar.
 
+Suavidad ("todo smooth", pedido de Lorenzo): un detector de saltos por bloques (diferencia entre frames consecutivos,
+`scratchpad/snaps2.py` en la sesión) marca cualquier cambio en seco, y un barrido por escena frame a frame confirma o
+refuta cada uno. Regla de la pieza: ningún elemento aparece, desaparece, cambia de texto/estado o salta de posición de
+un frame al siguiente sin una transición con easing (fundido, resorte o latigazo con estela de varios frames); los
+contadores y relojes cambian de cifra con fundido cruzado, los colores de estado con rampa y los cursores con pulso.
+
 ## Comandos
 
 ```
