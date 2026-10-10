@@ -17,7 +17,7 @@ const sc = scenes.step1;
 // Grabación real de la llamada (Meet, vista de orador: Lorenzo habla los primeros 4 s y después Nico), silenciada.
 // El clip arranca con la tarjeta; a los 4 s (frame 120 del clip) cambia el chip al nombre de Nico.
 const VIDEO = {src: 'people/meet-call.mp4', label: 'Lorenzo · ZH', label2: 'Nico · ZH', objectPosition: '50% 30%'};
-const NICO_AT = 120; // frame del clip en que entra Nico
+const NICO_AT = 128; // frame del clip en que entra Nico (el clip cruza en fundido de 0,33 s desde ~123)
 const PRE = 10;
 const POST = 12;
 const L = sc.from - PRE;
@@ -76,7 +76,7 @@ export const Step1: React.FC = () => {
   // Contador 00:00 → 30:00 con easing inOut cuadrático (monótono: nunca retrocede).
   const seconds = 1800 * prog(frame, tCount0, tCount1 - tCount0, inOutQuad);
   const done = frame >= tCount1 ? spring({frame: frame - tCount1, fps, config: {damping: 11, stiffness: 180}}) : 0;
-  const speaking = frame >= tSpeak0 && frame <= tSpeak1;
+  const speaking = prog(frame, tSpeak0, 6) * (1 - prog(frame, tSpeak1, 6)); // barras de nivel en fundido
 
   // Renglones: letras escritas, marcador y prueba.
   const lines = LINES.map((l, i) => {
@@ -124,7 +124,7 @@ export const Step1: React.FC = () => {
 
       {/* Hoja de notas: sube desde abajo del cuadro, sale a la izquierda con la llamada */}
       {showSheet ? (
-        <Moving x={exitX} y={(f) => tween(f, tSheet, tSheet + 14, 1000, 0, outExpo)} opacity={(f) => prog(f, tSheet, 5)} blur={0.12} style={{left: (1080 - CALLNOTES_W) / 2, top: 1004}}>
+        <Moving x={exitX} y={(f) => tween(f, tSheet, tSheet + 16, 1000, 0, Easing.out(Easing.cubic))} opacity={(f) => prog(f, tSheet, 6)} blur={0.12} style={{left: (1080 - CALLNOTES_W) / 2, top: 1004}}>
           <div style={{width: CALLNOTES_W + CALLNOTES_STACK, height: CALLNOTES_H + CALLNOTES_STACK}}>
             <CallNotes lines={lines} cursorLine={cursorLine} cursorOn={cursorOn} />
           </div>

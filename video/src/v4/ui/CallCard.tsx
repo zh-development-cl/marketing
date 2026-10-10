@@ -21,7 +21,7 @@ export type CallVideo = {src: string; from?: number; startFrom?: number; label: 
 export type CallCardProps = {
   seconds: number; // segundos transcurridos (mm:ss)
   done?: number; // 0..1 progreso del estado "30:00": contador verde con pulso y píldora "Diagnóstico listo"
-  speaking?: boolean; // barras de nivel sobre el recuadro de Lorenzo
+  speaking?: boolean | number; // barras de nivel sobre el recuadro de quien habla (0..1 las funde)
   tick?: number; // frame (determinista) para mover las barras de nivel
   name?: string; // 'Lorenzo · ZH Development'
   company?: string; // 'Tu Empresa'
@@ -118,7 +118,10 @@ const NameChip: React.FC<{text: string; compact?: boolean}> = ({text, compact}) 
 );
 
 // Barras de nivel (quién habla): cuatro barras que oscilan de forma determinista con `tick`.
-const LevelBars: React.FC<{tick: number; on: boolean}> = ({tick, on}) => (
+const LevelBars: React.FC<{tick: number; on: boolean | number}> = ({tick, on: onRaw}) => {
+  const k = typeof onRaw === 'number' ? Math.max(0, Math.min(1, onRaw)) : onRaw ? 1 : 0;
+  const on = k > 0.01;
+  return (
   <div
     style={{
       position: 'absolute',
@@ -132,17 +135,18 @@ const LevelBars: React.FC<{tick: number; on: boolean}> = ({tick, on}) => (
       display: 'flex',
       alignItems: 'center',
       gap: 4,
-      opacity: on ? 1 : 0,
+      opacity: k,
     }}
   >
     {[0, 1, 2, 3].map((i) => {
       const a = 0.5 + 0.5 * Math.sin(tick * 0.78 + i * 1.9);
       const b = 0.6 + 0.4 * Math.sin(tick * 0.33 + i * 0.7);
-      const h = on ? 6 + 16 * a * b : 6;
+      const h = on ? 6 + 16 * a * b * k : 6;
       return <div key={i} style={{width: 5, height: h, borderRadius: 3, background: status.ok, boxShadow: `0 0 6px ${status.ok}`}} />;
     })}
   </div>
-);
+  );
+};
 
 const RoundButton: React.FC<{children: React.ReactNode; danger?: boolean; width?: number; size?: number}> = ({children, danger = false, width, size = 64}) => (
   <div
