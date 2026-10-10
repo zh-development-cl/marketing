@@ -49,7 +49,11 @@ export const ReelV4: React.FC = () => {
             // La música se apaga después de la última palabra y antes del sting del cierre (outro.to − 58), como en la referencia.
             const fadeOut = Math.min(1, Math.max(0, (scenes.outro.to - 70 - f) / 30));
             const fadeIn = Math.min(1, f / 20);
-            return MUSIC_GAIN * fadeIn * fadeOut;
+            // La cama sube ~7 LU a lo largo del tema: desde el paso 02 se baja 3 dB (rampa de 2 s) para que la voz
+            // siga mandando ≥ 3 LU en las frases con pocos efectos.
+            const s2 = scenes.step2.from;
+            const bed = f < s2 - 60 ? 1 : f < s2 ? 1 - 0.3 * ((f - (s2 - 60)) / 60) : 0.7;
+            return MUSIC_GAIN * bed * fadeIn * fadeOut;
           }}
         />
       ) : null}

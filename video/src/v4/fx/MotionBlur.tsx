@@ -46,7 +46,7 @@ export const Moving: React.FC<MovingProps> = ({
   const vy = py - y(frame - 1);
   const dr = rotate(frame) - rotate(frame - 1);
   const ds = scale(frame) - scale(frame - 1);
-  const uniform = Math.abs(dr) * 0.45 + Math.abs(ds) * 90 + extraBlur(frame);
+  const uniform = Math.abs(dr) * 0.45 + Math.abs(ds) * 12 + extraBlur(frame);
   // Tope: por encima de ~48 px el desenfoque deja de leerse como estela y se vuelve una nube que aparece de golpe.
   const sx = Math.min(MAX_BLUR, Math.abs(vx) * blur + uniform);
   const sy = Math.min(MAX_BLUR, Math.abs(vy) * blur + uniform);

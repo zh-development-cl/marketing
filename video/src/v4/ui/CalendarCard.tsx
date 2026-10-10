@@ -60,7 +60,7 @@ const Cell: React.FC<{day: number; strike: number; last: boolean; deliver?: numb
       {day}
     </div>
     {last ? (
-      <div style={{position: 'absolute', left: 16, bottom: 12, fontFamily: fonts.ui, fontWeight: 600, fontSize: 17, color: accent.text, letterSpacing: '-0.005em'}}>entrega</div>
+      <div style={{position: 'absolute', left: 16, bottom: 12, fontFamily: fonts.ui, fontWeight: 600, fontSize: 23, color: accent.text, letterSpacing: '-0.005em'}}>entrega</div>
     ) : null}
     {strike > 0 ? (
       <svg width={CELL_W} height={CELL_H} viewBox={`0 0 ${CELL_W} ${CELL_H}`} style={{position: 'absolute', inset: 0, display: 'block'}} aria-hidden>

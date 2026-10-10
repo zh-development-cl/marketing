@@ -50,7 +50,7 @@ let lastWhoosh = -99;
 BASE.forEach((c, i) => {
   if (c.at - lastWhoosh >= 3) {
     // Los últimos whooshes (bajo "perseguir pagos") se topan a 0,40 para que la voz siga mandando.
-    whooshes.push({name: 'whoosh-soft', at: L + c.at, gain: Math.min(0.35 + 0.15 * (i / (BASE.length - 1)), i >= 10 ? 0.4 : 1)});
+    whooshes.push({name: 'whoosh-soft', at: L + c.at, gain: Math.min(0.35 + 0.15 * (i / (BASE.length - 1)), i >= 10 ? 0.28 : 1)});
     lastWhoosh = c.at;
   }
 });
@@ -63,8 +63,8 @@ export const sfxCues: SfxCue[] = [
   // Pops (una de cada dos extra): discretos bajo la voz, plenos en el remate final.
   ...CARDS.filter((c) => c.extra)
     .filter((_, k) => k % 2 === 0)
-    .map((c) => ({name: 'pop' as const, at: L + c.at, gain: c.at < T1 - 8 ? 0.3 : 0.45})),
-  {name: 'rise', at: L + T1 - 36, gain: 0.4}, // remata justo en 19:00
+    .map((c) => ({name: 'pop' as const, at: L + c.at, gain: c.at < T1 - 8 ? 0.2 : 0.45})),
+  {name: 'rise', at: L + T1 - 31, gain: 0.3}, // su pico (1,02 s) remata justo en 19:00
   {name: 'click', at: L + T1, gain: 0.8}, // 19:00
 ];
 
@@ -73,7 +73,7 @@ export const Day: React.FC = () => {
   const hour = hourAt(frame);
   const entered = CARDS.filter((c) => frame >= c.at).length;
   const count = countAt(frame);
-  const off = prog(frame, T1 + 2, 8, inOutQuart); // regla y contador se apagan mientras nace la ventana
+  const off = prog(frame, T1 + 5, 8, inOutQuart); // regla y contador se apagan mientras nace la ventana (el 73 se lee ≥ 0,5 s)
   const endGlow = prog(frame, T1 - 6, 6) * (1 - off);
   const pulse = 1 + 0.06 * prog(frame, T1, 3) * (1 - prog(frame, T1 + 3, 8));
   const showHeap = frame < tHand;
@@ -83,7 +83,7 @@ export const Day: React.FC = () => {
   const shakeX = noise(frame, 1.3) * shakeAmp;
   const shakeY = noise(frame, 4.1) * shakeAmp;
   const last = CARDS.reduce((best, c, i) => (frame >= c.at && (best < 0 || c.at >= CARDS[best].at) ? i : best), -1);
-  const lunes = 1 - prog(frame, 170, 10); // el pie de la regla se va cuando el montón empieza a taparlo
+  const lunes = 1 - prog(frame, 78, 8); // el pie de la regla se va justo antes de que aterrice la primera tarjeta que lo tapa
   return (
     <AbsoluteFill>
       <div style={{position: 'absolute', inset: 0, transform: `translate(${shakeX.toFixed(2)}px, ${shakeY.toFixed(2)}px)`}}>

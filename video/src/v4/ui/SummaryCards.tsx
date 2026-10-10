@@ -50,7 +50,7 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({progress = 1, style})
         return (
           <div key={m.label} style={{display: 'flex', alignItems: 'baseline', gap: 12, paddingRight: i < METRICS.length - 1 ? 44 : 0, marginRight: i < METRICS.length - 1 ? 44 : 0, borderRight: i < METRICS.length - 1 ? '1px solid rgba(255,255,255,0.09)' : 'none', ...enter(t)}}>
             <div style={{fontFamily: fonts.display, fontWeight: 700, fontSize: 44, letterSpacing: '-0.03em', color: ink.text, lineHeight: 1, fontVariantNumeric: 'tabular-nums'}}>{m.value}</div>
-            <div style={{fontFamily: fonts.mono, fontSize: 15, letterSpacing: '0.08em', textTransform: 'uppercase', color: ink.text3, whiteSpace: 'nowrap'}}>{m.label}</div>
+            <div style={{fontFamily: fonts.mono, fontSize: 21, letterSpacing: '0.06em', textTransform: 'uppercase', color: ink.text2, whiteSpace: 'nowrap'}}>{m.label}</div>
           </div>
         );
       })}

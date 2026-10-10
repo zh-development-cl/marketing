@@ -71,6 +71,7 @@ const WA: WaData[] = [
   {name: 'Camila Rojas', time: 'ahora', msgs: ['Hola! tienen stock del modelo azul?'], notif: true},
   {name: 'Proveedor Sur', time: '16:48', msgs: ['llegó la OC 588?', 'necesito confirmar hoy']},
   {name: 'Tu Empresa', time: '17:20', from: 'Ferretería Lagos', fromColor: '#6BC4F2', msgs: ['me mandas la factura de nuevo?']},
+  {name: 'Don Jorge', time: '17:05', msgs: ['sigo esperando…', '??']},
 ];
 
 // Chat de WhatsApp (modo oscuro): cabecera con burbuja verde, nombre y hora; mensajes entrantes en burbujas.
@@ -126,12 +127,13 @@ export const WhatsAppCard: React.FC<CardProps> = ({variant, style}) => {
 
 const XL_W = 320;
 const XL_H = 160;
-const XL_FILES = ['inventario_FINAL_v3.xlsx', 'cobros_pendientes.xlsx', 'ventas_octubre (2).xlsx', 'cotizaciones_pendientes.xlsx'];
+const XL_FILES = ['inventario_FINAL_v3.xlsx', 'cobros_pendientes.xlsx', 'ventas_octubre (2).xlsx', 'cotizaciones_pendientes.xlsx', 'inventario_FINAL_v3 (1).xlsx'];
 const XL_TABLES: Array<Array<[string, string, string]>> = [
   [['producto', 'stock', 'precio'], ['modelo azul', '12', '24.990'], ['modelo rojo', '#REF!', '19.990']],
   [['cliente', 'monto', 'vence'], ['Com. Andes', '384.900', 'vencida'], ['Ferr. Lagos', '129.500', '15-09']],
   [['fecha', 'venta', 'total'], ['01-10', '14', '349.860'], ['02-10', '#¡VALOR!', '0']],
   [['cliente', 'ítems', 'estado'], ['Pía', '20', 'sin enviar'], ['tienda.lu', '6', '#N/D']],
+  [['producto', 'stock', 'precio'], ['modelo azul', '9', '24.990'], ['modelo rojo', '#REF!', '19.990']],
 ];
 
 // Planilla de Excel: cabecera verde con nombre de archivo, columnas A/B/C y un #REF! en rojo seleccionado.
@@ -209,6 +211,7 @@ const SN: Array<{text: string; rotate: number}> = [
   {text: 'cobrar a Pérez (otra vez)', rotate: -2.6},
   {text: 'responder Instagram', rotate: 1.8},
   {text: 'llamar proveedor 15:30', rotate: -1.1},
+  {text: 'cobrar a Pérez ¡¡otra vez!!', rotate: 2.2},
 ];
 
 // Post-it amarillo con texto manuscrito (Caveat), esquina doblada y sombra de papel. `rotate` en grados
@@ -236,7 +239,7 @@ export const StickyNote: React.FC<CardProps & {rotate?: number}> = ({variant, ro
             position: 'absolute',
             left: 22,
             right: 20,
-            top: 36,
+            top: 14,
             fontSize: 37,
             lineHeight: 1.08,
             fontWeight: 600,
@@ -329,6 +332,7 @@ const GM: Array<{from: string; time: string; subject: string; preview: string}> 
   {from: 'Contabilidad', time: '17:15', subject: 'Factura 1043 vencida', preview: 'Recordatorio: el pago venció hace 12 días…'},
   {from: 'Comercial Andes', time: '17:52', subject: 'RE: factura 1043', preview: 'Hola, ¿me reenvían la factura? No la encuentro…'},
   {from: 'Distribuidora Norte', time: '16:05', subject: 'Cotización urgente', preview: 'Necesitamos precio por 40 unidades para mañana…'},
+  {from: 'Cliente Pérez', time: '16:40', subject: 'RE: RE: RE: RE: cotización', preview: '¿Hola? Sigo sin respuesta de la cotización que pedí…'},
 ];
 
 // Correo de Gmail: M de colores, remitente, hora azul, asunto en negrita y vista previa gris.
@@ -403,7 +407,7 @@ const BK_H = 140;
 const BK: Array<{title: string; body: string; time: string}> = [
   {title: 'Transferencia recibida', body: 'Tienes un abono que no está c…', time: '14:50'},
   {title: 'Pago rechazado', body: 'La transferencia a Proveedor Sur no s…', time: '09:14'},
-  {title: 'Cartola disponible', body: 'Tienes 14 movimientos sin categori…', time: '18:20'},
+  {title: 'Cartola disponible', body: 'Tienes 14 movimientos sin categori…', time: '18:00'},
   {title: 'Abono sin identificar', body: 'Recibiste $ 129.500 de una cuenta no reg…', time: '17:58'},
 ];
 

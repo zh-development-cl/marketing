@@ -49,8 +49,8 @@ export const EVENTS: DayEvent[] = [
   {time: '16:30', kind: 'invoice', variant: 1, col: 2, add: 4}, // 1037 VENCIDA
   {time: '17:15', kind: 'gmail', variant: 2, col: 2, add: 3}, // Factura 1043 vencida
   {time: '17:45', kind: 'excel', variant: 2, col: 1, add: 3}, // ventas_octubre (2)
-  {time: '18:05', kind: 'whatsapp', variant: 3, col: 0, add: 2}, // notificación Camila "ahora"
-  {time: '18:20', kind: 'bank', variant: 2, col: 2, add: 3}, // cartola sin categorizar
+  {time: '17:50', kind: 'whatsapp', variant: 3, col: 0, add: 2}, // notificación Camila "ahora"
+  {time: '18:00', kind: 'bank', variant: 2, col: 2, add: 3}, // cartola sin categorizar (el 73 queda quieto ≥ 0,5 s antes del traspaso)
 ];
 
 // Notificaciones extra: desde media tarde llueven cada vez más seguidas (el frame lo fija una curva que acelera),
@@ -66,20 +66,20 @@ const EXTRA_KINDS: Array<{kind: string; variant: number; col: Col; add: number}>
   {kind: 'bank', variant: 1, col: 2, add: 1}, // pago rechazado
   {kind: 'calendar', variant: 0, col: 1, add: 1}, // reunión de ventas / llamar proveedor
   {kind: 'instagram', variant: 2, col: 0, add: 1}, // cata.ulloa: sigue disponible??
-  {kind: 'sticky', variant: 0, col: 2, add: 2}, // cobrar a Pérez (otra vez)
+  {kind: 'sticky', variant: 3, col: 2, add: 2}, // cobrar a Pérez ¡¡otra vez!!
   {kind: 'excel', variant: 3, col: 0, add: 1}, // cotizaciones_pendientes
   {kind: 'purchaseOrder', variant: 2, col: 1, add: 1}, // OC 602 falta firma
   {kind: 'whatsapp', variant: 5, col: 2, add: 1}, // Ferretería Lagos: me mandas la factura de nuevo?
   {kind: 'sticky', variant: 1, col: 0, add: 1}, // responder Instagram
   {kind: 'calendar', variant: 1, col: 1, add: 1}, // entrega pedido 588
   {kind: 'gmail', variant: 3, col: 2, add: 1}, // Comercial Andes: RE: factura 1043
-  {kind: 'whatsapp', variant: 2, col: 0, add: 2}, // hola? alguien? (otra vez)
+  {kind: 'whatsapp', variant: 6, col: 0, add: 2}, // Don Jorge: sigo esperando… ??
   {kind: 'sticky', variant: 2, col: 1, add: 1}, // llamar proveedor 15:30
   {kind: 'invoice', variant: 3, col: 2, add: 1}, // 1052 VENCIDA
   {kind: 'instagram', variant: 3, col: 0, add: 1}, // notificación maria.jose
-  {kind: 'excel', variant: 0, col: 1, add: 2}, // inventario_FINAL_v3 (otra vez)
+  {kind: 'excel', variant: 4, col: 1, add: 2}, // inventario_FINAL_v3 (1).xlsx
   {kind: 'bank', variant: 3, col: 2, add: 1}, // abono sin identificar
-  {kind: 'gmail', variant: 0, col: 0, add: 1}, // RE: RE: RE: cotización (otra vez)
+  {kind: 'gmail', variant: 5, col: 0, add: 1}, // RE: RE: RE: RE: cotización
 ];
 export const N_EXTRA = EXTRA_KINDS.length; // 22
 const EXTRA_FROM = T1 - 95; // ~13:00
@@ -112,7 +112,7 @@ const makeNode = (ev: DayEvent, key: string) => {
 // Montón base: 16 celdas de una grilla 4 x 4 (cell = fila*4 + columna) asignadas a mano para que las tarjetas de un
 // mismo grupo (WhatsApp, Excel, facturas/banco) nunca queden en celdas vecinas y el montón crezca sin orden
 // aparente; encima, jitter y rotación por hash.
-const PERM = [9, 11, 8, 2, 3, 10, 12, 4, 15, 0, 14, 7, 5, 1, 6, 13];
+const PERM = [9, 11, 8, 2, 5, 10, 12, 4, 15, 0, 14, 7, 3, 1, 6, 13]; // 10:30 abajo a la derecha: su píldora no tapa la de 10:02
 const baseHeap = (b: number, w: number, h: number) => {
   const cell = PERM[b % PERM.length];
   const col = cell % 4;
@@ -124,7 +124,7 @@ const baseHeap = (b: number, w: number, h: number) => {
   cx = Math.max(30 + W / 2, Math.min(950 - W / 2, cx));
   cy = Math.max(580 + H / 2, Math.min(1280 - H / 2, cy));
   const rot = (hash(b, 23) - 0.5) * 26;
-  return {cx, cy, rot, scale: HEAP_SCALE};
+  return {cx: Math.round(cx), cy: Math.round(cy), rot, scale: HEAP_SCALE};
 };
 
 // Montón extra: posición, giro y tamaño por hash, encimadas en cualquier parte del montón; nunca más del 30 % de
@@ -138,7 +138,7 @@ const extraHeap = (k: number, w: number, h: number) => {
   cx = Math.max(W * 0.3, Math.min(1080 - W * 0.3, cx));
   cy = Math.max(580 + H / 2, Math.min(1250 - H / 2, cy));
   const rot = (hash(k, 65) - 0.5) * 56;
-  return {cx, cy, rot, scale};
+  return {cx: Math.round(cx), cy: Math.round(cy), rot, scale};
 };
 
 const build = (): DayCard[] => {
@@ -154,7 +154,7 @@ const build = (): DayCard[] => {
     const ev: DayEvent = {time: `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`, kind: x.kind, variant: x.variant, col: x.col, add: x.add};
     const {w, h, node} = makeNode(ev, `x${k}`);
     const side = hash(k, 66); // desde dónde entra
-    const from = side < 0.4 ? {dx: 1200, dy: 0, drot: 24} : side < 0.8 ? {dx: -1200, dy: 0, drot: -24} : {dx: 0, dy: -1100, drot: 18};
+    const from = side < 0.4 ? {dx: 1200, dy: 0, drot: 24} : side < 0.8 ? {dx: -1200, dy: 0, drot: -24} : {dx: -700, dy: -600, drot: 18};
     list.push({w, h, node, ev, at, extra: true, heap: extraHeap(k, w, h), from});
   });
   // Orden de llegada (estable): define el apilado en el montón.
@@ -199,7 +199,7 @@ export const CardFace: React.FC<{i: number; dim: number; hl?: [number, string] |
   const bright = k > 0 ? Math.max(dim, 1 + 0.12 * k) : dim;
   return (
     <div style={{position: 'relative', width: w, height: h}}>
-      <div style={{position: 'absolute', inset: 0, borderRadius: 14, boxShadow: k > 0.01 ? `0 0 0 ${3 * k}px ${c}, 0 0 ${48 * k}px ${c}` : undefined, filter: bright < 0.995 || bright > 1.005 ? `brightness(${bright.toFixed(3)})` : undefined}}>
+      <div style={{position: 'absolute', inset: 0, borderRadius: 14, background: tag <= 0.01 ? '#0F1420' : undefined, boxShadow: k > 0.01 ? `0 0 0 ${3 * k}px ${c}, 0 0 ${48 * k}px ${c}` : undefined, filter: bright < 0.995 || bright > 1.005 ? `brightness(${bright.toFixed(3)})` : undefined}}>
         {node}
       </div>
       {extra ? null : (

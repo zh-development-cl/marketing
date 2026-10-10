@@ -84,7 +84,7 @@ export const Pitch: React.FC = () => {
   const checks = COLUMNS.map((_, c) => prog(frame, tChecks + c * 3, 9, inOutQuart));
   return (
     <AbsoluteFill>
-      <Moving x={(f) => tween(f, tOut, tOut + 10, 0, -1400, inQuart)} blur={0.3}>
+      <Moving x={(f) => tween(f, tOut, tOut + 10, 0, -1400, inQuart)} blur={0.18}>
         <div style={{position: 'relative', width: 1080, height: 1920}}>
           {/* Ventana de la app: nace detrás del montón */}
           <div style={{position: 'absolute', left: WINDOW.x, top: WINDOW.y, zIndex: 1}}>
@@ -98,7 +98,7 @@ export const Pitch: React.FC = () => {
             const hp = c.heap;
             const sp = slotPlace(i);
             const p = flyP(i, frame);
-            const dim = dimFor(i, CARDS.length);
+            const dim = dimFor(i, CARDS.length) * (c.extra ? 0.94 : 1);
             const done = landed[i] ? Math.min(1, spring({frame: frame - landAt(i), fps, config: {damping: 12, stiffness: 240}})) : 0;
             const x = (f: number) => {
               const q = flyP(i, f);
@@ -116,7 +116,7 @@ export const Pitch: React.FC = () => {
                 y={y}
                 rotate={(f) => hp.rot * (1 - flyP(i, f))}
                 scale={(f) => hp.scale + (WIN_SCALE - hp.scale) * flyP(i, f)}
-                blur={0.3}
+                blur={0.16}
                 style={{zIndex: p <= 0 ? 10 + i : 300 + c.fly}}
               >
                 <div style={{position: 'relative', width: c.w, height: c.h}}>

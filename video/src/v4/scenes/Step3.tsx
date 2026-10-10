@@ -1,6 +1,6 @@
 import React from 'react';
 import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
-import {Pop, StepTitle} from '../fx/text';
+import {BlurIn, Pop, StepTitle} from '../fx/text';
 import {Moving} from '../fx/MotionBlur';
 import {clamp, inOutQuart, keyframes, outExpo, prog} from '../fx/ease';
 import {Paper} from '../ui/Paper';
@@ -51,7 +51,7 @@ const Slide: React.FC<{tin: number; tout: number; top: number; width: number; sc
       y={() => 0}
       opacity={(f) => (1 - fade) * prog(f, tin, 4) * (exit === 'whip' ? 1 - prog(f, tout + 5, 5) : 1)}
       extraBlur={() => fade * 14}
-      blur={0.26}
+      blur={0.14}
       style={{position: 'absolute', left: (1080 - width) / 2, top}}
     >
       <div style={{width: width / scale, transform: `scale(${scale})`, transformOrigin: 'top left'}}>{children}</div>
@@ -78,11 +78,11 @@ export const Step3: React.FC = () => {
       </Slide>
       <Slide tin={tDash} tout={END - 8} top={490} width={840} scale={0.9333} exit="fade">
         <Dashboard progress={dash} />
-        <div style={{marginTop: 8, opacity: prog(frame, tChat - 2, 6)}}>
+        <BlurIn at={tChat - 2} dur={8} dy={22} style={{marginTop: 8}}>
           <WhatsAppConvo show={show} typing={typing} tick={frame} sealAt={tSeal} />
-        </div>
+        </BlurIn>
         <div style={{marginTop: 8}}>
-          <Pop at={tSeal + 20} from={0.85} config={{damping: 14, stiffness: 160}}>
+          <Pop at={tAnswer + 4} from={0.85} config={{damping: 14, stiffness: 160}}>
             <SummaryCards />
           </Pop>
         </div>

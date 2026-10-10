@@ -18,7 +18,7 @@ rm -f "$dir"/sheet_*.jpg "$dir"/frames/*.jpg
 # Hojas: un fotograma cada $step frames, 10 por fila, 3 filas por hoja.
 ffmpeg -v error -y -i "$in" -vf "select=not(mod(n\,$step)),scale=216:384,tile=10x3:padding=4:color=0x333333" -vsync vfr "$dir/sheet_%02d.jpg"
 # Fotogramas a resolución completa cada segundo.
-ffmpeg -v error -y -i "$in" -vf "fps=1" -q:v 3 "$dir/frames/s%03d.jpg"
+ffmpeg -v error -y -i "$in" -vf "select=not(mod(n\,30))" -vsync vfr -q:v 3 "$dir/frames/s%03d.jpg"
 # Datos del render: frames, duración y loudness.
 {
   echo "nb_frames=$(ffprobe -v error -select_streams v:0 -count_frames -show_entries stream=nb_read_frames -of csv=p=0 "$in")"

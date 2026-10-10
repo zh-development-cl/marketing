@@ -17,8 +17,8 @@ const L = sc.from - 8;
 const loc = (a: number) => a - L;
 const tTitle = 12; // el título anterior ya salió
 const tCard = 8; // la tarjeta entra desde abajo mientras el panel del paso 03 se desenfoca y apaga
-const tCheck = [loc(beat('step4', 'todo')), loc(beat('step4', 'nombre')), loc(beat('step4', 'empresa')), loc(beatEnd('step4', 'empresa')) + 6];
-const tFooter = tCheck[3] + 8; // el pie aparece cuando ya están los cuatro checks
+const tCheck = [loc(beat('step4', 'todo')), loc(beat('step4', 'nombre')), loc(beat('step4', 'empresa')), loc(beat('step4', 'empresa')) + 8];
+const tFooter = tCheck[3] + 4; // el pie aparece con el cuarto check y se lee ~0,8 s antes de encoger
 export const END = loc(sc.to) + 8;
 const tShrink = END - 16; // la tarjeta se encoge hasta un punto
 const DOT = {x: 591, y: 611}; // centro medido del bloque azul del logo en el cierre (frame 1068)

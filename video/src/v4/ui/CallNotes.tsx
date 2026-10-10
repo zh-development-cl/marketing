@@ -8,7 +8,7 @@ import {accent, apps, fonts} from '../tokens';
 // (0..1) y, a la derecha, una "prueba" (`proof`: una mini tarjeta ya envuelta en Pop). No anima por sí sola.
 
 export const CALLNOTES_W = 840;
-export const CALLNOTES_H = 460;
+export const CALLNOTES_H = 472;
 export const CALLNOTES_STACK = 12;
 
 export type NoteLine = {
@@ -36,7 +36,7 @@ const MUTED = apps.paperMuted;
 const LINE = apps.paperLine;
 const INK_SOFT = '#3A3F4A';
 const ROW_TOP = 182;
-const ROW_H = 84;
+const ROW_H = 88;
 
 const serif: React.CSSProperties = {fontFamily: fonts.serif, fontWeight: 400, color: INK, lineHeight: 1, letterSpacing: '-0.01em'};
 const heavy = (px: number, color: string = INK): React.CSSProperties => ({WebkitTextStroke: `${px}px ${color}`, color});
@@ -129,8 +129,8 @@ export const CallNotes: React.FC<CallNotesProps> = ({lines, cursorLine = -1, cur
                       lineHeight: 1.2,
                     }}
                   >
-                    <span style={{...serif, fontSize: 32, color: ACCENT, ...heavy(0.4, ACCENT), marginRight: 12, verticalAlign: '-1px'}}>{prefix}</span>
-                    <span style={{fontFamily: fonts.ui, fontWeight: 500, fontSize: 28, letterSpacing: '-0.012em', color: INK}}>{body}</span>
+                    <span style={{...serif, fontSize: 36, color: ACCENT, ...heavy(0.4, ACCENT), marginRight: 12, verticalAlign: '-1px'}}>{prefix}</span>
+                    <span style={{fontFamily: fonts.ui, fontWeight: 500, fontSize: 32, letterSpacing: '-0.012em', color: INK}}>{body}</span>
                   </span>
                   {cursor ? (
                     <span

@@ -53,7 +53,7 @@ const DomainIcon: React.FC<{color: string}> = ({color}) => (
 
 const ROWS: Array<{label: string; Icon: React.FC<{color: string}>}> = [
   {label: 'El sistema completo (código)', Icon: CodeIcon},
-  {label: 'Claves y accesos', Icon: RepoIcon},
+  {label: 'Repositorio y accesos', Icon: RepoIcon},
   {label: 'Cuentas y dominio', Icon: DomainIcon},
   {label: 'Mejoras continuas · mensual', Icon: LoopIcon},
 ];

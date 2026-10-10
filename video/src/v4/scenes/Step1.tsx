@@ -60,9 +60,9 @@ export const sfxCues: SfxCue[] = [
   {name: 'whoosh-hard', at: L + tIn},
   {name: 'whoosh-soft', at: L + tSheet - 2, gain: 0.6},
   {name: 'paper', at: L + tSheet + 6, gain: 0.5},
-  ...LINES.flatMap((l) => tickFrames(l).map((t) => ({name: 'tick' as const, at: L + t, gain: 0.25}))),
+  ...LINES.flatMap((l, li) => tickFrames(l).map((t) => ({name: 'tick' as const, at: L + t, gain: li === LINES.length - 1 ? 0.15 : 0.25}))),
   ...LINES.map((l) => ({name: 'pop' as const, at: L + lineEnd(l), gain: 0.6})),
-  {name: 'chime', at: L + tCount1, gain: 0.8},
+  {name: 'chime', at: L + tCount1, gain: 0.45}, // bajo "quita": la palabra manda
   {name: 'whip', at: L + tOut},
 ];
 
@@ -112,7 +112,7 @@ export const Step1: React.FC = () => {
 
       {/* Videollamada: entra desde la derecha con latigazo, sale a la izquierda con la hoja */}
       {showCall ? (
-        <Moving x={(f) => tween(f, tIn, tIn + 12, 1400, 0, outExpo) + exitX(f)} y={() => 0} opacity={(f) => prog(f, tIn, 4)} blur={0.3} style={{left: (1080 - CALLCARD_W) / 2, top: 460}}>
+        <Moving x={(f) => tween(f, tIn, tIn + 12, 1400, 0, outExpo) + exitX(f)} y={() => 0} opacity={(f) => prog(f, tIn, 4)} blur={0.18} style={{left: (1080 - CALLCARD_W) / 2, top: 490}}>
           <div style={{width: CALLCARD_W, height: CALLCARD_H3}}>
             <CallCard seconds={seconds} done={done} speaking={speaking} tick={frame} avatarSrc={staticFile('people/lorenzo.jpg')} media={MEET ? {...MEET, src: staticFile(MEET.src)} : undefined} tiles={TILES.map((t) => ({...t, src: t.src ? staticFile(t.src) : undefined}))} />
           </div>
@@ -121,7 +121,7 @@ export const Step1: React.FC = () => {
 
       {/* Hoja de notas: sube desde abajo del cuadro, sale a la izquierda con la llamada */}
       {showSheet ? (
-        <Moving x={exitX} y={(f) => tween(f, tSheet, tSheet + 14, 1000, 0, outExpo)} opacity={(f) => prog(f, tSheet, 5)} blur={0.12} style={{left: (1080 - CALLNOTES_W) / 2, top: 950}}>
+        <Moving x={exitX} y={(f) => tween(f, tSheet, tSheet + 14, 1000, 0, outExpo)} opacity={(f) => prog(f, tSheet, 5)} blur={0.12} style={{left: (1080 - CALLNOTES_W) / 2, top: 980}}>
           <div style={{width: CALLNOTES_W + CALLNOTES_STACK, height: CALLNOTES_H + CALLNOTES_STACK}}>
             <CallNotes lines={lines} cursorLine={cursorLine} cursorOn={cursorOn} />
           </div>

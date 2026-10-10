@@ -28,7 +28,7 @@ const tClick = loc(beat('outro', 'minutos')) + 4;
 const tLink = loc(beat('outro', 'minutos')) + 8; // el link aparece como respuesta al toque
 const tWhy = loc(beat('outro', 'Qué')) - 3; // "¿qué esperas?"
 const tTeam = tClick + 6; // el equipo entra tras el clic, durante "minutos"
-const tEnd = loc(sc.to) - 64; // atenuar y mostrar ícono de Instagram (0,4 s de silencio tras la música, 1,9 s de ícono)
+const tEnd = loc(sc.to) - 58; // atenuar y mostrar ícono de Instagram (silencio corto tras la música, ~1,7 s de ícono)
 
 export const sfxCues: SfxCue[] = [
   {name: 'logo', at: L + tDraw, gain: 0.9},
@@ -42,7 +42,7 @@ export const sfxCues: SfxCue[] = [
 
 const LOGO_W = 420;
 const LOGO_X = (1080 - LOGO_W) / 2;
-const LOGO_Y = 560;
+const LOGO_Y = 500;
 
 export const Outro: React.FC = () => {
   const frame = useCurrentFrame();
@@ -56,10 +56,11 @@ export const Outro: React.FC = () => {
   const ctaPress = 1 - 0.1 * press;
   return (
     <AbsoluteFill>
-      <div style={{position: 'absolute', inset: 0, opacity: 1 - dim, filter: dim > 0 ? `blur(${dim * 12}px)` : undefined}}>
+      {/* Push-in continuo muy leve: la pantalla nunca se congela del todo */}
+      <div style={{position: 'absolute', inset: 0, opacity: 1 - dim, filter: dim > 0 ? `blur(${dim * 12}px)` : undefined, transform: `scale(${(1 + 0.035 * Math.min(1, Math.max(0, frame / tEnd))).toFixed(4)})`, transformOrigin: '50% 42%'}}>
         {/* Punto → bloque azul del logo (el bloque está en (630,110) del viewBox 1000 → en px del lienzo) */}
         <div style={{position: 'absolute', left: LOGO_X, top: LOGO_Y}}>
-          <LogoDraw width={LOGO_W} draw={draw} fill={fill} accentIn={accentIn} glow={glow * 0.8 * (0.92 + 0.08 * Math.sin(frame / 9))} />
+          <LogoDraw width={LOGO_W} draw={draw} fill={fill} accentIn={accentIn} glow={glow * 0.8 * (0.8 + 0.2 * Math.sin(frame / 9))} />
         </div>
         <div style={{position: 'absolute', left: 0, right: 0, top: LOGO_Y + 300, textAlign: 'center'}}>
           <BlurIn at={tName} dy={16}>
@@ -99,16 +100,16 @@ export const Outro: React.FC = () => {
           </div>
         ) : null}
         {/* Remate bajo el botón: más chico que el botón para no competir con él, con aire arriba y abajo */}
-        <div style={{position: 'absolute', left: 0, right: 0, top: LOGO_Y + 662, textAlign: 'center'}}>
+        <div style={{position: 'absolute', left: 0, right: 0, top: LOGO_Y + 690, textAlign: 'center'}}>
           <Pop at={tWhy} from={0.6} config={{damping: 14, stiffness: 180}}>
-            <div style={{fontFamily: fonts.display, fontWeight: 700, fontSize: 52, letterSpacing: '-0.03em', color: accent.text, lineHeight: 1}}>¿qué esperas?</div>
+            <div style={{fontFamily: fonts.display, fontWeight: 700, fontSize: 44, letterSpacing: '-0.03em', color: ink.text, lineHeight: 1}}>¿qué esperas?</div>
           </Pop>
         </div>
-        <BlurIn at={tLink} style={{position: 'absolute', left: 0, right: 0, top: LOGO_Y + 740, textAlign: 'center', fontFamily: fonts.sans, fontSize: 32, color: ink.text2}}>
+        <BlurIn at={tLink} style={{position: 'absolute', left: 0, right: 0, top: LOGO_Y + 770, textAlign: 'center', fontFamily: fonts.sans, fontSize: 32, color: ink.text2}}>
           zhdevelopment.cl · link en la bio
         </BlurIn>
         {/* Equipo */}
-        <div style={{position: 'absolute', left: 0, right: 0, top: LOGO_Y + 800, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10}}>
+        <div style={{position: 'absolute', left: 0, right: 0, top: LOGO_Y + 830, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10}}>
           <div style={{display: 'flex'}}>
             {['people/lorenzo.jpg', 'people/nico.jpg'].map((p, i) => (
               <Pop key={p} at={tTeam + i * 5} from={0.5}>

@@ -14,12 +14,12 @@ import type {SfxCue} from '../sound';
 const sc = scenes.step2;
 const L = sc.from - 8;
 const loc = (a: number) => a - L;
-const tTitle = 6; // entra cuando el título del paso 01 ya terminó de salir
-const tRing = loc(beat('step2', 'Después')) - 12; // el anillo nace con la primera palabra (nunca pantalla vacía)
+const tTitle = 0; // el título entra mientras la llamada aún sale: sin hueco negro // entra cuando el título del paso 01 ya terminó de salir
+const tRing = loc(beat('step2', 'Después')) - 18; // el anillo nace mientras la llamada aún sale (nunca pantalla vacía)
 const tRingDone = tRing + 44; // el ✓ empieza a entrar cuando el trazo va por ~97 % (termina en tRing + 52)
 const tChips = ['alcance', 'plazo', 'precio'].map((w) => loc(beat('step2', w)) - 3); // lo visual 1–2 frames delante del audio
 const tPaper = loc(beat('step2', 'precio')) + 12; // las tres fichas quedan ~0,5 s a la vista; el papel gana ese tiempo
-const tRows = tPaper + 10;
+const tRows = tPaper + 4; // las tres filas ya se leen cuando cae el timbre
 const tStamp = loc(beat('step2', 'sorpresas')) - 2; // timbre "sin sorpresas" sobre la propuesta
 const END = loc(sc.to) + 8;
 
@@ -43,7 +43,7 @@ export const Step2: React.FC = () => {
   const ringOut = 1 - prog(frame, tPaper, 8);
   // Papel: se despliega desde una línea horizontal de luz (escala Y 0 → 1) y luego las hojas de atrás se asoman.
   const unfold = prog(frame, tPaper, 16, outExpo);
-  const rows = interpolate(frame, [tRows, tRows + 22], [0, 3.2], clamp);
+  const rows = interpolate(frame, [tRows, tRows + 12], [0, 3.2], clamp);
   return (
     <AbsoluteFill>
       <StepTitle n="02" title="diseñar" at={tTitle} out={END - 20} />
@@ -88,7 +88,7 @@ export const Step2: React.FC = () => {
 
       {/* Papel */}
       {frame >= tPaper ? (
-        <Moving x={(f) => tween(f, END - 14, END - 4, 160, -1500, inQuart)} y={() => 480} opacity={(f) => 1 - prog(f, END - 9, 5)} blur={0.3}>
+        <Moving x={(f) => tween(f, END - 14, END - 4, 160, -1500, inQuart)} y={() => 480} opacity={(f) => 1 - prog(f, END - 9, 5)} blur={0.18}>
           <div style={{transform: `scaleY(${Math.max(0.02, unfold)})`, transformOrigin: '50% 50%', position: 'relative'}}>
             <div style={{position: 'absolute', left: 0, right: 0, top: '50%', height: 4, background: '#fff', opacity: (1 - unfold) * 0.9, boxShadow: '0 0 30px #fff', transform: 'translateY(-2px)'}} />
             <Paper page="cover" revealRows={rows} company="Tu Empresa" />
