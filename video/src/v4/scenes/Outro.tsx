@@ -1,8 +1,8 @@
 import React from 'react';
-import {AbsoluteFill, Img, interpolate, staticFile, useCurrentFrame} from 'remotion';
+import {AbsoluteFill, Easing, Img, interpolate, staticFile, useCurrentFrame} from 'remotion';
 import {BlurIn, Pop, Typewriter} from '../fx/text';
 import {Moving} from '../fx/MotionBlur';
-import {clamp, inOutQuart, inQuart, keyframes, outExpo, outQuart, prog} from '../fx/ease';
+import {clamp, inOutQuart, inQuart, keyframes, outQuart, prog} from '../fx/ease';
 import {LogoDraw} from '../ui/LogoDraw';
 import {InstagramGlyph} from '../ui/Watermark';
 import {accent, fonts, ink, shadow, watermark} from '../tokens';
@@ -48,10 +48,12 @@ export const Outro: React.FC = () => {
   const frame = useCurrentFrame();
   const draw = prog(frame, tDraw, 22, inOutQuart);
   const fill = prog(frame, tFill, 12);
-  const accentIn = prog(frame, tDot + 10, 8, outExpo); // el bloque nace cuando la tarjeta ya es un punto
+  const accentIn = prog(frame, tDot + 10, 8, inOutQuart); // el bloque nace desde cero con arranque suave, cuando la tarjeta ya es un punto
   const glow = prog(frame, tFill, 30);
   const dim = prog(frame, tEnd - 8, 12); // el cierre se funde del todo antes de que entre el ícono (tEnd + 4)
-  const press = prog(frame, tClick, 3, outQuart) * (1 - prog(frame, tClick + 5, 7, outQuart)); // clic con easing
+  // Clic: la presión reparte el recorrido en 5 frames y vuelve en 8, con easing simétrico (nada de 80 % en un frame).
+  const press = prog(frame, tClick, 5, Easing.inOut(Easing.quad)) * (1 - prog(frame, tClick + 6, 8, Easing.inOut(Easing.quad)));
+  const land = prog(frame, tClick - 4, 4, Easing.inOut(Easing.quad)); // el dedo aterriza sobre el botón en los 4 frames previos al clic
   const pressed = press > 0.2;
   const ctaPress = 1 - 0.1 * press;
   return (
@@ -93,10 +95,10 @@ export const Outro: React.FC = () => {
           </Pop>
         </div>
         {/* Toque (dedo) sobre el botón: onda que se expande + punto; no hay mouse en un celular */}
-        {frame >= tClick - 1 && frame < tClick + 18 ? (
+        {frame >= tClick - 4 && frame < tClick + 18 ? (
           <div style={{position: 'absolute', left: 540 + 150, top: LOGO_Y + 540 + 44, width: 0, height: 0, pointerEvents: 'none'}}>
-            <div style={{position: 'absolute', left: -70, top: -70, width: 140, height: 140, borderRadius: 70, border: `3px solid ${accent.text}`, opacity: 0.7 * prog(frame, tClick - 1, 3) * (1 - prog(frame, tClick, 16)), transform: `scale(${0.35 + 1.1 * prog(frame, tClick, 16, outQuart)})`}} />
-            <div style={{position: 'absolute', left: -16, top: -16, width: 32, height: 32, borderRadius: 16, background: '#FFFFFF', opacity: 0.9 * (1 - prog(frame, tClick + 2, 8)), transform: `scale(${1 - 0.4 * prog(frame, tClick, 6)})`, boxShadow: '0 0 24px rgba(255,255,255,0.6)'}} />
+            <div style={{position: 'absolute', left: -70, top: -70, width: 140, height: 140, borderRadius: 70, border: `3px solid ${accent.text}`, opacity: 0.7 * prog(frame, tClick - 1, 4, Easing.inOut(Easing.quad)) * (1 - prog(frame, tClick, 16)), transform: `scale(${0.35 + 1.1 * prog(frame, tClick, 16, outQuart)})`}} />
+            <div style={{position: 'absolute', left: -16, top: -16, width: 32, height: 32, borderRadius: 16, background: '#FFFFFF', opacity: 0.9 * land * (1 - prog(frame, tClick + 2, 8)), transform: `scale(${(1.5 - 0.5 * land) * (1 - 0.4 * prog(frame, tClick, 6, Easing.inOut(Easing.quad)))})`, boxShadow: '0 0 24px rgba(255,255,255,0.6)'}} />
           </div>
         ) : null}
         {/* Remate bajo el botón: más chico que el botón para no competir con él, con aire arriba y abajo */}

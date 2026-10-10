@@ -21,7 +21,7 @@ const tCheck = [loc(beat('step4', 'todo')), loc(beat('step4', 'nombre')), loc(be
 const tFooter = tCheck[3] + 4; // el pie aparece con el cuarto check y se lee ~0,8 s antes de encoger
 export const END = loc(sc.to) + 8;
 const tShrink = END - 16; // la tarjeta se encoge hasta un punto
-const DOT = {x: 591, y: 611}; // centro medido del bloque azul del logo en el cierre (frame 1068)
+const DOT = {x: 591, y: 551}; // centro del bloque azul del logo en el cierre (LOGO_Y 500; antes 611 con LOGO_Y 560)
 
 const CARD = {x: (1080 - OWNERSHIP_W) / 2, y: 540, w: OWNERSHIP_W, h: OWNERSHIP_H} as const;
 
@@ -61,8 +61,10 @@ export const Step4: React.FC = () => {
       <Moving
         x={(f) => keyframes(f, [[tShrink, CARD.x], [END - 2, DOT.x - CARD.w / 2]], inOutQuart)}
         y={(f) => keyframes(f, [[tCard, CARD.y + 760], [tCard + 14, CARD.y], [tShrink, CARD.y], [END - 2, DOT.y - CARD.h / 2]], f < tShrink ? outExpo : inOutQuart)}
-        scale={(f) => keyframes(f, [[tShrink, 1], [END - 2, 0.02]], Easing.in(Easing.poly(3)))}
-        opacity={(f) => prog(f, tCard, 6)}
+        // Cola del encogimiento suave (1 → 0.3 con empuje, 0.3 → 0.02 frenando; misma pendiente en el empalme) y el
+        // remanente se funde en los últimos frames bajo el bloque azul del logo, que nace en el cierre: cruce, no vaciado.
+        scale={(f) => keyframes(f, [[tShrink, 1], [END - 6, 0.3], [END - 2, 0.02]], f < END - 6 ? Easing.in(Easing.poly(2)) : Easing.out(Easing.poly(2)))}
+        opacity={(f) => prog(f, tCard, 6) * (1 - prog(f, END - 6, 5, inOutQuart))}
         blur={0.26}
         origin="center"
       >

@@ -1,5 +1,5 @@
 import React from 'react';
-import {interpolate} from 'remotion';
+import {interpolate, interpolateColors} from 'remotion';
 import {accent, fonts, ink, shadow, status} from '../tokens';
 
 // Tarjeta de "propiedad" (860 x 660): certificado oscuro con sello ZH chico, "Propiedad de" en mono acento y
@@ -166,7 +166,9 @@ export const OwnershipCard: React.FC<OwnershipCardProps> = ({company = 'Tu Empre
           const p = checks[i] ?? 0;
           const lit = c01(p * 1.4);
           const tileBg = `rgba(77,124,255,${0.08 + 0.1 * lit})`;
-          const iconColor = lit > 0.5 ? accent.text : '#9FB4E6';
+          // Rampas continuas (sin umbrales): trazo del ícono y texto de la fila se "encienden" siguiendo al resorte del check.
+          const iconColor = interpolateColors(lit, [0, 1], ['#9FB4E6', accent.text]);
+          const labelColor = interpolateColors(lit, [0, 1], ['#C5CCDA', ink.text]);
           return (
             <div
               key={label}
@@ -193,7 +195,7 @@ export const OwnershipCard: React.FC<OwnershipCardProps> = ({company = 'Tu Empre
               >
                 <Icon color={iconColor} />
               </div>
-              <div style={{flex: 1, fontSize: 38, fontWeight: 500, letterSpacing: '-0.015em', color: lit > 0.5 ? ink.text : '#C5CCDA', whiteSpace: 'nowrap'}}>{label}</div>
+              <div style={{flex: 1, fontSize: 38, fontWeight: 500, letterSpacing: '-0.015em', color: labelColor, whiteSpace: 'nowrap'}}>{label}</div>
               <Check p={p} />
             </div>
           );

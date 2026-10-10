@@ -113,14 +113,21 @@ export const spreadWords = (text: string, at: number, every = 4): TWord[] =>
 
 // Etiqueta "paso 0N" + título en minúsculas, como en la referencia: etiqueta pequeña en acento arriba, título bold grande.
 // El título se revela de izquierda a derecha con estela (barrido) y sale igual, hacia la izquierda.
+// El bloque del título ajusta su ancho al texto (`fit-content` centrado), así los % del inset del clipPath recorren
+// la caja de los glifos y no los 1080 px del lienzo: el barrido dura los frames previstos en vez de resolverse en 2–3.
 export const StepTitle: React.FC<{n: string; title: string; at: number; out?: number; top?: number; accentColor?: string}> = ({n, title, at, out, top = 288, accentColor = '#8FB0FF'}) => {
   const frame = useCurrentFrame();
-  const p = interpolate(frame, [at + 3, at + 14], [0, 1], {...clamp, easing: Easing.out(Easing.poly(4))});
-  const q = out === undefined ? 1 : interpolate(frame, [out, out + 9], [1, 0], {...clamp, easing: Easing.in(Easing.poly(3))});
+  const p = interpolate(frame, [at + 3, at + 17], [0, 1], {...clamp, easing: Easing.out(Easing.poly(3))});
+  const q = out === undefined ? 1 : interpolate(frame, [out, out + 12], [1, 0], {...clamp, easing: Easing.inOut(Easing.poly(3))});
   const b = (1 - p) * 7 + (1 - q) * 9;
+  // Margen del recorte (% del ancho del texto) para que el desenfoque no se corte en los bordes de la caja: el borde
+  // del barrido viaja de -M a 100+M, y en los extremos los insets suman 100 % (no queda nada visible).
+  const M = 10;
+  const clipL = -M + (1 - q) * (100 + 2 * M); // salida: el borde izquierdo avanza hacia la derecha
+  const clipR = -M + (1 - p) * (100 + 2 * M); // entrada: el borde derecho se retira hacia la derecha
   return (
     <div style={{position: 'absolute', top, left: 0, right: 0, textAlign: 'center'}}>
-      <BlurIn at={at} out={out} outDur={8} outDx={-60} dy={10}>
+      <BlurIn at={at} out={out} outDur={12} outDx={-60} dy={10}>
         <div style={{fontFamily: fonts.sans, fontWeight: 500, fontSize: 34, color: accentColor, letterSpacing: '0.01em'}}>paso {n}</div>
       </BlurIn>
       <div
@@ -131,9 +138,11 @@ export const StepTitle: React.FC<{n: string; title: string; at: number; out?: nu
           letterSpacing: '-0.035em',
           color: ink.text,
           lineHeight: 1.05,
-          marginTop: 4,
-          opacity: p > 0 ? Math.min(1, p * 3) * (q > 0 ? Math.min(1, q * 3) : 0) : 0,
-          clipPath: q < 1 ? `inset(-20% 0 -20% ${(1 - q) * 100}%)` : `inset(-20% ${(1 - p) * 100}% -20% 0)`,
+          width: 'fit-content',
+          margin: '4px auto 0',
+          whiteSpace: 'nowrap',
+          opacity: Math.min(1, p * 3) * Math.min(1, q * 3),
+          clipPath: `inset(-20% ${clipR}% -20% ${clipL}%)`,
           filter: b > 0.3 ? `blur(${b}px)` : undefined,
           transform: `translateX(${(1 - p) * -40 + (1 - q) * -90}px)`,
         }}
