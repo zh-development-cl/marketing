@@ -1,4 +1,5 @@
 import React from 'react';
+import {interpolateColors} from 'remotion';
 import {hash} from '../fx/ease';
 import {ALL_CARDS, StickyNote} from '../ui/cards';
 import {COL_W, WINDOW, columnLeft} from '../ui/AppWindow';
@@ -196,7 +197,8 @@ export const CardFace: React.FC<{i: number; dim: number; hl?: [number, string] |
   const {w, h, node, ev, extra} = CARDS[i];
   const k = hl ? hl[0] : 0;
   const c = hl ? hl[1] : 'transparent';
-  const bright = k > 0 ? Math.max(dim, 1 + 0.12 * k) : dim;
+  // Brillo continuo con el resalte (sin escalón al encender ni al apagar): de `dim` a 1,12 según k.
+  const bright = dim + (1.12 - dim) * k;
   return (
     <div style={{position: 'relative', width: w, height: h}}>
       <div style={{position: 'absolute', inset: 0, borderRadius: 14, background: tag <= 0.01 ? '#0F1420' : undefined, boxShadow: k > 0.01 ? `0 0 0 ${3 * k}px ${c}, 0 0 ${48 * k}px ${c}` : undefined, filter: bright < 0.995 || bright > 1.005 ? `brightness(${bright.toFixed(3)})` : undefined}}>
@@ -218,7 +220,7 @@ export const CardFace: React.FC<{i: number; dim: number; hl?: [number, string] |
             fontSize: 20,
             fontWeight: 600,
             letterSpacing: '0.04em',
-            color: k > 0.3 ? ink.text : accent.text,
+            color: interpolateColors(Math.max(0, Math.min(1, k)), [0, 1], [accent.text, ink.text]), // rampa, no umbral
             fontVariantNumeric: 'tabular-nums',
             whiteSpace: 'nowrap',
             lineHeight: 1.2,

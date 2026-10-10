@@ -3,7 +3,10 @@ import {Easing, interpolate} from 'remotion';
 // Atajos de interpolación con clamp y curvas que se ven "de cine" (salidas suaves, entradas con empuje).
 export const clamp = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
 
-export const outExpo = Easing.out(Easing.exp);
+// Penner exacta en los extremos: Easing.exp de Remotion vale 2^-10 en t=0, así que Easing.out(Easing.exp)(1) = 0,99902 y
+// todo tween con outExpo se quedaba a 0,1 % del destino (≈1 px en un recorrido de 1200: un tic al pasar a otra escena
+// que coloca el elemento exacto). Misma forma; cierra en 1.
+export const outExpo = (t: number) => (t >= 1 ? 1 : t <= 0 ? 0 : 1 - Math.pow(2, -10 * t));
 export const outQuart = Easing.out(Easing.poly(4));
 export const inOutQuart = Easing.inOut(Easing.poly(4));
 export const inQuart = Easing.in(Easing.poly(4));
