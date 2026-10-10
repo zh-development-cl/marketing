@@ -13,10 +13,11 @@ const env = fs.existsSync(path.join(root, '.env')) ? fs.readFileSync(path.join(r
 const key = process.env.ELEVENLABS_API_KEY || env.match(/ELEVENLABS_API_KEY=(.+)/)?.[1]?.trim();
 if (!key && !process.env.VO_DRY_RUN) throw new Error('Falta ELEVENLABS_API_KEY');
 
-const voiceId = process.argv[2] || '0cheeVA5B3Cv6DGq65cT'; // Alejandro - Conversations (chileno)
+const voiceId = process.argv[2] || 'HkBAWtIjRg1c5ST2J7To'; // JC - Motivational & Uplifting (latino), elegido por Lorenzo
 const model = 'eleven_multilingual_v2';
 const TARGET_LUFS = -16;
 const TRUE_PEAK = -1.5;
+const SPEED = Number(process.env.VO_SPEED || '1.0'); // 0.7 a 1.2; JC lee pausado, 1.2 lo deja en ritmo de reel
 
 // Texto tal como se muestra en los subtítulos. Lo que se pronuncia distinto va en `pronounce`.
 // Cada escena es una lista de segmentos (frases) de subtítulo.
@@ -33,7 +34,7 @@ const script = {
 
 // Palabra mostrada → cómo se pronuncia (varias palabras permitidas). Se compara sin puntuación.
 const pronounce = {
-  ZH: 'Zeta Hache',
+  ZH: 'Zeta Ache',
   '30': 'treinta',
   IA: 'inteligencia artificial',
 };
@@ -66,16 +67,17 @@ const normalizeTwoPass = (input, output) => {
     '-af', `${filter}:measured_I=${s.input_i}:measured_TP=${s.input_tp}:measured_LRA=${s.input_lra}:measured_thresh=${s.input_thresh}:offset=${s.target_offset}:linear=true`,
     '-ar', '44100', '-ac', '1', '-c:a', 'libmp3lame', '-b:a', '160k', output,
   ], {stdio: ['ignore', 'pipe', 'pipe']});
-  // Pasada 3: en clips cortos el modo lineal topa con el pico y se queda corto; se corrige con ganancia y limitador.
-  const check = execFileSync('sh', ['-c', `ffmpeg -hide_banner -nostats -i "${output}" -af "${filter}:print_format=json" -f null - 2>&1`]).toString();
-  const got = Number(JSON.parse(check.match(/\{[\s\S]*\}/)[0]).input_i);
-  if (Math.abs(got - TARGET_LUFS) > 0.3) {
+  // Pasada 3: ajuste fino con la misma medida que usamos para verificar (ebur128), sin limitador.
+  const measure = (file) => {
+    const out = execFileSync('sh', ['-c', `ffmpeg -hide_banner -nostats -i "${file}" -af ebur128 -f null - 2>&1`]).toString();
+    const m = out.match(/I:\s+(-?[\d.]+) LUFS/g);
+    return Number(m[m.length - 1].match(/-?[\d.]+/)[0]);
+  };
+  for (let i = 0; i < 3; i++) {
+    const got = measure(output);
+    if (Math.abs(got - TARGET_LUFS) <= 0.3) break;
     const fixed = `${output}.fix.mp3`;
-    execFileSync('ffmpeg', [
-      '-hide_banner', '-nostats', '-y', '-i', output,
-      '-af', `volume=${(TARGET_LUFS - got).toFixed(2)}dB,alimiter=limit=${Math.pow(10, TRUE_PEAK / 20).toFixed(3)}:attack=5:release=50`,
-      '-ar', '44100', '-ac', '1', '-c:a', 'libmp3lame', '-b:a', '160k', fixed,
-    ], {stdio: ['ignore', 'pipe', 'pipe']});
+    execFileSync('ffmpeg', ['-hide_banner', '-nostats', '-y', '-i', output, '-af', `volume=${(TARGET_LUFS - got).toFixed(2)}dB`, '-ar', '44100', '-ac', '1', '-c:a', 'libmp3lame', '-b:a', '160k', fixed], {stdio: ['ignore', 'pipe', 'pipe']});
     fs.renameSync(fixed, output);
   }
 };
@@ -83,7 +85,7 @@ const normalizeTwoPass = (input, output) => {
 const only = process.env.VO_ONLY?.split(',').map((x) => x.trim()).filter(Boolean);
 const voPath = path.join(root, 'src', 'vo.json');
 const previous = fs.existsSync(voPath) ? JSON.parse(fs.readFileSync(voPath, 'utf8')) : {scenes: {}};
-const result = {voiceId, model, targetLufs: TARGET_LUFS, scenes: only ? {...previous.scenes} : {}};
+const result = {voiceId, model, speed: SPEED, targetLufs: TARGET_LUFS, scenes: only ? {...previous.scenes} : {}};
 let totalChars = 0;
 
 for (const [scene, segments] of Object.entries(script)) {
@@ -109,7 +111,7 @@ for (const [scene, segments] of Object.entries(script)) {
       body: JSON.stringify({
         text: spokenText,
         model_id: model,
-        voice_settings: {stability: 0.55, similarity_boost: 0.8, style: 0.15, use_speaker_boost: true},
+        voice_settings: {stability: 0.5, similarity_boost: 0.8, style: 0.25, use_speaker_boost: true, speed: SPEED},
       }),
     });
     if (!res.ok) throw new Error(`${scene}: ${res.status} ${await res.text()}`);
