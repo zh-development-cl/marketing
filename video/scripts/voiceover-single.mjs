@@ -29,7 +29,7 @@ const voPath = path.join(root, 'src', 'v4', 'vo.json');
 // Guion por escena (texto tal como se muestra). Lo que se pronuncia distinto va en `pronounce`.
 const scripts = {
   v5: {
-    hook: ['¿Qué es ZH Development?'],
+    hook: ['¿Qué hace ZH Development?'],
     day: ['En tu empresa, el día se va en lo mismo:', 'cotizar por WhatsApp, cuadrar planillas, perseguir pagos.'],
     pitch: ['Hacemos el software que lo resuelve.'],
     step1: ['Partimos con una llamada de 30 minutos', 'para encontrar lo que más tiempo te quita.'],

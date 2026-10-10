@@ -7,7 +7,7 @@ import {beat, beatEnd, scenes} from '../timeline';
 import type {SfxCue} from '../sound';
 
 // Escena 1 · gancho. La pregunta se ESCRIBE en pantalla, letra a letra, como en una consola: una línea chica en mono
-// ("~/tu-empresa $") y debajo, en display grande, "¿qué es" / "ZH" / "Development?" con un cursor de bloque azul (el
+// ("~/tu-empresa $") y debajo, en display grande, "¿qué hace" / "ZH" / "Development?" con un cursor de bloque azul (el
 // mismo azul del logo) que parpadea. Al terminar, todo el bloque sale hacia arriba con latigazo y entra el día.
 const sc = scenes.hook;
 const L = sc.from;
@@ -15,7 +15,7 @@ type W = {text: string; from: number; to: number};
 const lines: W[][] = [
   [
     {text: '¿qué', from: beat('hook', 'Qué') - L - 6, to: beatEnd('hook', 'Qué') - L},
-    {text: 'es', from: beat('hook', 'es') - L - 2, to: beatEnd('hook', 'es') - L},
+    {text: 'hace', from: beat('hook', 'hace') - L - 2, to: beatEnd('hook', 'hace') - L},
   ],
   [{text: 'ZH', from: beat('hook', 'ZH') - L - 4, to: beatEnd('hook', 'ZH') - L - 6}],
   [{text: 'Development?', from: beat('hook', 'Development') - L - 4, to: beatEnd('hook', 'Development') - L - 2}],

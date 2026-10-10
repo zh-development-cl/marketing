@@ -16,7 +16,7 @@ export const WIN_SCALE = WINDOW.cardScale; // escala dentro de la ventana
 
 // Reloj del día en frames locales de Day: el cabezal va de 08:00 (T0) a 19:00 (T1) acelerando (EXP).
 export const T0 = 10;
-export const T1 = 220;
+export const T1 = HANDOFF - (scenes.day.from - 10) - 10; // 19:00 diez frames antes del traspaso (220 con la toma actual)
 export const EXP = 1.7;
 export const hourAt = (f: number) => 8 + 11 * Math.pow(Math.max(0, Math.min(1, (f - T0) / (T1 - T0))), EXP);
 export const frameOfHour = (h: number) => Math.round(T0 + (T1 - T0) * Math.pow((h - 8) / 11, 1 / EXP));
