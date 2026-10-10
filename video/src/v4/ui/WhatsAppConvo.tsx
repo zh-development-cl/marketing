@@ -10,7 +10,7 @@ import {WhatsAppIcon} from './icons';
 // No anima por sí solo.
 
 export const CONVO_W = 880;
-export const CONVO_H = 410;
+export const CONVO_H = 420;
 
 export type WhatsAppConvoProps = {
   show: number; // 0 | 1 | 2 | 3 (fraccionario = el elemento siguiente a medio aparecer)
@@ -40,7 +40,7 @@ const DoubleCheck: React.FC = () => (
 );
 
 const Sparkle: React.FC<{color: string}> = ({color}) => (
-  <svg width={12} height={12} viewBox="0 0 24 24" aria-hidden style={{display: 'block'}}>
+  <svg width={17} height={17} viewBox="0 0 24 24" aria-hidden style={{display: 'block'}}>
     <path d="M12 2 C12.6 7.4 16.6 11.4 22 12 C16.6 12.6 12.6 16.6 12 22 C11.4 16.6 7.4 12.6 2 12 C7.4 11.4 11.4 7.4 12 2 Z" fill={color} />
   </svg>
 );
@@ -144,7 +144,7 @@ export const WhatsAppConvo: React.FC<WhatsAppConvoProps> = ({
         {/* Escribiendo… (tres puntos que pulsan) */}
         {ty > 0 ? (
           <div style={{position: 'absolute', right: 24, top: 118, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', ...enter(ty)}}>
-            <div style={{fontFamily: fonts.mono, fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase', color: MUTED, marginBottom: 8, paddingRight: 2}}>Agente de {company} · escribiendo</div>
+            <div style={{height: 19, marginBottom: 8}} />
             <div style={{display: 'flex', gap: 7, alignItems: 'center', height: 46, padding: '0 18px', borderRadius: 14, borderTopRightRadius: 4, background: apps.whatsappBubbleOut, boxShadow: '0 1px 2px rgba(0,0,0,0.12)'}}>
               {[0, 1, 2].map((i) => (
                 <div key={i} style={{width: 9, height: 9, borderRadius: 5, background: '#5B7A62', opacity: 0.35 + 0.65 * (0.5 + 0.5 * Math.sin(tick / 2.2 - i * 1.3))}} />
@@ -181,18 +181,18 @@ export const WhatsAppConvo: React.FC<WhatsAppConvoProps> = ({
         </div>
 
         {/* Sello IA */}
-        <div style={{position: 'absolute', right: 24, top: 230, ...(sealAt === undefined ? enter(t3, 8) : {})}}>
+        <div style={{position: 'absolute', right: 24, top: 224, ...(sealAt === undefined ? enter(t3, 8) : {})}}>
           <Pop at={sealAt ?? -1000} from={0.6} config={{damping: 12, stiffness: 220}}>
           <div
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: 7,
-              padding: '6px 12px 6px 10px',
+              gap: 9,
+              padding: '9px 16px 9px 13px',
               borderRadius: 999,
               background: 'rgba(37,211,102,0.13)',
               boxShadow: 'inset 0 0 0 1px rgba(18,140,126,0.25)',
-              fontSize: 12.5,
+              fontSize: 19,
               fontWeight: 600,
               letterSpacing: '0.01em',
               color: '#128C7E',

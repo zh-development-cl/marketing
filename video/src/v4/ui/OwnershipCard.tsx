@@ -9,7 +9,7 @@ import {accent, fonts, ink, shadow, status} from '../tokens';
 // el brillo azul de la cabecera.
 
 export const OWNERSHIP_W = 840;
-export const OWNERSHIP_H = 660;
+export const OWNERSHIP_H = 772;
 
 export type OwnershipCardProps = {
   company?: string; // "Tu Empresa"
@@ -36,6 +36,14 @@ const RepoIcon: React.FC<{color: string}> = ({color}) => (
     <path d="M6.5 7.4v9.2M17.5 10.4c0 3.6-3.2 4.2-6 4.6-2.1.3-4.2.8-5 1.9" />
   </svg>
 );
+const LoopIcon: React.FC<{color: string}> = ({color}) => (
+  <svg width={28} height={28} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden style={{display: 'block'}}>
+    <path d="M20 12a8 8 0 0 1-14.2 5" />
+    <path d="M4 12a8 8 0 0 1 14.2-5" />
+    <path d="M18 3v4h-4M6 21v-4h4" />
+  </svg>
+);
+
 const DomainIcon: React.FC<{color: string}> = ({color}) => (
   <svg width={32} height={32} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2.1} strokeLinecap="round" strokeLinejoin="round" style={{display: 'block'}}>
     <circle cx="12" cy="12" r="9" />
@@ -44,9 +52,10 @@ const DomainIcon: React.FC<{color: string}> = ({color}) => (
 );
 
 const ROWS: Array<{label: string; Icon: React.FC<{color: string}>}> = [
-  {label: 'Código fuente', Icon: CodeIcon},
-  {label: 'Repositorio y accesos', Icon: RepoIcon},
+  {label: 'El sistema completo (código)', Icon: CodeIcon},
+  {label: 'Claves y accesos', Icon: RepoIcon},
   {label: 'Cuentas y dominio', Icon: DomainIcon},
+  {label: 'Mejoras continuas · mensual', Icon: LoopIcon},
 ];
 
 // Check circular: anillo gris con tilde apagada; encima, el verde entra con el resorte (escala, desenfoque, brillo).
@@ -145,7 +154,7 @@ export const OwnershipCard: React.FC<OwnershipCardProps> = ({company = 'Tu Empre
         {/* Esquina de certificado: número y fecha de entrega */}
         <div style={{marginLeft: 'auto', alignSelf: 'flex-end', textAlign: 'right', lineHeight: 1, fontFamily: fonts.mono, whiteSpace: 'nowrap'}}>
           <div style={{fontSize: 26, letterSpacing: '0.14em', textTransform: 'uppercase', color: ink.text3}}>Entrega</div>
-          <div style={{fontSize: 28, letterSpacing: '0.02em', color: ink.text2, marginTop: 10}}>N° 2025-041</div>
+          <div style={{fontSize: 28, letterSpacing: '0.02em', color: ink.text2, marginTop: 10}}>N° 2026-041</div>
         </div>
       </div>
 
@@ -209,7 +218,7 @@ export const OwnershipCard: React.FC<OwnershipCardProps> = ({company = 'Tu Empre
           transform: `translateY(${(1 - fo) * 8}px)`,
         }}
       >
-        sin dependencia de ZH <span style={{color: accent.text, margin: '0 10px'}}>·</span> documentado <span style={{color: accent.text, margin: '0 10px'}}>·</span> entregado
+        tuyo <span style={{color: accent.text, margin: '0 10px'}}>·</span> documentado <span style={{color: accent.text, margin: '0 10px'}}>·</span> y seguimos mejorando
       </div>
     </div>
   );

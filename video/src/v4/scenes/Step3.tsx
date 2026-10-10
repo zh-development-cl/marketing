@@ -82,7 +82,7 @@ export const Step3: React.FC = () => {
           <WhatsAppConvo show={show} typing={typing} tick={frame} sealAt={tSeal} />
         </div>
         <div style={{marginTop: 8}}>
-          <Pop at={tSeal + 6} from={0.85} config={{damping: 14, stiffness: 160}}>
+          <Pop at={tSeal + 20} from={0.85} config={{damping: 14, stiffness: 160}}>
             <SummaryCards />
           </Pop>
         </div>

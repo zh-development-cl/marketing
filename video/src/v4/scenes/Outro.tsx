@@ -4,7 +4,6 @@ import {BlurIn, Pop, Typewriter} from '../fx/text';
 import {Moving} from '../fx/MotionBlur';
 import {clamp, inOutQuart, inQuart, keyframes, outExpo, outQuart, prog} from '../fx/ease';
 import {LogoDraw} from '../ui/LogoDraw';
-import {Cursor} from '../ui/Cursor';
 import {InstagramGlyph} from '../ui/Watermark';
 import {accent, fonts, ink, shadow, watermark} from '../tokens';
 import {beat, scenes, wordsOf} from '../timeline';
@@ -26,7 +25,7 @@ const tagWords = wordsOf('outro')
   .map((w) => ({text: w.text.replace(/[.:]$/, ''), at: loc(w.from) - 2, bold: /conecta|operación/i.test(w.text)}));
 const tCta = loc(beat('outro', 'Agenda')) - 6;
 const tClick = loc(beat('outro', 'minutos')) + 4;
-const tLink = loc(beat('outro', 'Link')) - 2;
+const tLink = loc(beat('outro', 'minutos')) + 8; // el link aparece como respuesta al toque
 const tTeam = tClick + 6; // el equipo entra tras el clic, durante "minutos"
 const tEnd = loc(sc.to) - 64; // atenuar y mostrar ícono de Instagram (0,4 s de silencio tras la música, 1,9 s de ícono)
 
@@ -91,15 +90,12 @@ export const Outro: React.FC = () => {
             </div>
           </Pop>
         </div>
-        {frame >= tClick - 22 ? (
-          <Moving
-            x={(f) => keyframes(f, [[tClick - 22, 980], [tClick - 2, 720], [tClick + 20, 735], [tClick + 90, 742]], outQuart)}
-            y={(f) => keyframes(f, [[tClick - 22, 1500], [tClick - 2, LOGO_Y + 600], [tClick + 20, LOGO_Y + 610], [tClick + 90, LOGO_Y + 606]], outQuart)}
-            opacity={(f) => prog(f, tClick - 22, 6)}
-            blur={0.2}
-          >
-            <Cursor pressed={pressed} />
-          </Moving>
+        {/* Toque (dedo) sobre el botón: onda que se expande + punto; no hay mouse en un celular */}
+        {frame >= tClick - 1 && frame < tClick + 18 ? (
+          <div style={{position: 'absolute', left: 540 + 150, top: LOGO_Y + 560 + 44, width: 0, height: 0, pointerEvents: 'none'}}>
+            <div style={{position: 'absolute', left: -70, top: -70, width: 140, height: 140, borderRadius: 70, border: `3px solid ${accent.text}`, opacity: 0.7 * (1 - prog(frame, tClick, 16)), transform: `scale(${0.35 + 1.1 * prog(frame, tClick, 16, outQuart)})`}} />
+            <div style={{position: 'absolute', left: -16, top: -16, width: 32, height: 32, borderRadius: 16, background: '#FFFFFF', opacity: 0.9 * (1 - prog(frame, tClick + 2, 8)), transform: `scale(${1 - 0.4 * prog(frame, tClick, 6)})`, boxShadow: '0 0 24px rgba(255,255,255,0.6)'}} />
+          </div>
         ) : null}
         <BlurIn at={tLink} style={{position: 'absolute', left: 0, right: 0, top: LOGO_Y + 690, textAlign: 'center', fontFamily: fonts.sans, fontSize: 32, color: ink.text2}}>
           zhdevelopment.cl · link en la bio

@@ -97,8 +97,8 @@ export const Pitch: React.FC = () => {
               color={accent.text}
               letterSpacing="0.1em"
               words={[
-                {text: 'a medida ·', at: loc(beat('pitch', 'software')) - 2},
-                {text: 'integrado ·', at: loc(beat('pitch', 'que')) - 2},
+                {text: 'a medida ·', at: loc(beat('pitch', 'que')) - 2},
+                {text: 'integrado ·', at: loc(beat('pitch', 'lo')) + 1},
                 {text: 'tuyo', at: loc(beat('pitch', 'resuelve')) - 2},
               ]}
               style={{textAlign: 'center', justifyContent: 'center'}}

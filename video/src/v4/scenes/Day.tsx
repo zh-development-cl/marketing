@@ -74,7 +74,7 @@ export const Day: React.FC = () => {
   return (
     <AbsoluteFill>
       {/* Bloque regla + contador: entra desde abajo con desenfoque mientras el gancho sale hacia arriba */}
-      <Moving y={(f) => tween(f, 4, 16, 1700, 0, outExpo)} opacity={(f) => prog(f, 4, 6) * (1 - off)} extraBlur={() => off * 14} blur={0.3}>
+      <Moving y={(f) => tween(f, 4, 16, 1700, 0, outExpo)} opacity={(f) => prog(f, 4, 6) * (1 - off)} extraBlur={() => off * 14} blur={0.14}>
         <div style={{position: 'relative', width: 1080, height: 1920}}>
           <TimeRuler hour={hour} glow={endGlow} />
           {/* Contador abajo (fuera de la zona insegura) */}

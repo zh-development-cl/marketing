@@ -30,7 +30,7 @@ export const EVENTS: DayEvent[] = [
   {time: '10:30', kind: 'whatsapp', variant: 2, col: 0, add: 4}, // "hola? alguien?"
   {time: '11:10', kind: 'sticky', variant: 0, col: 2, add: 3}, // cobrar a Pérez (otra vez)
   {time: '12:05', kind: 'purchaseOrder', variant: 0, col: 1, add: 3}, // OC 588
-  {time: '13:25', kind: 'excel', variant: 1, col: 1, add: 2}, // cobros_pendientes
+  {time: '13:25', kind: 'excel', variant: 1, col: 2, add: 2}, // cobros_pendientes (va a cobros)
   {time: '13:40', kind: 'instagram', variant: 0, col: 0, add: 4}, // precio???
   {time: '14:50', kind: 'bank', variant: 0, col: 2, add: 3}, // transferencia sin identificar
   {time: '15:35', kind: 'whatsapp', variant: 0, col: 0, add: 3}, // Camila: stock del modelo azul?

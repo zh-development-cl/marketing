@@ -24,7 +24,7 @@ export const ReelV4: React.FC = () => {
         );
       })}
       {/* Marca de agua: todo el reel salvo el cierre, que la muestra grande */}
-      <Watermark opacity={frame < 6 ? frame / 6 : frame > scenes.outro.to - 60 ? Math.max(0, (scenes.outro.to - 46 - frame) / 14) : 1} />
+      <Watermark opacity={frame < 6 ? frame / 6 : frame > scenes.outro.to - 84 ? Math.max(0, (scenes.outro.to - 70 - frame) / 14) : 1} />
       {/* Voz por escena */}
       {Object.entries(scenes).map(([key, sc]) =>
         sc.audio ? (

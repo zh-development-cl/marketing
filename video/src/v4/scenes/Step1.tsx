@@ -115,7 +115,7 @@ export const Step1: React.FC = () => {
 
       {/* Hoja de notas: sube desde abajo del cuadro, sale a la izquierda con la llamada */}
       {showSheet ? (
-        <Moving x={exitX} y={(f) => tween(f, tSheet, tSheet + 12, 760, 0, outExpo)} blur={0.3} style={{left: (1080 - CALLNOTES_W) / 2, top: 1004}}>
+        <Moving x={exitX} y={(f) => tween(f, tSheet, tSheet + 12, 420, 0, outExpo)} blur={0.12} style={{left: (1080 - CALLNOTES_W) / 2, top: 1004}}>
           <div style={{width: CALLNOTES_W + CALLNOTES_STACK, height: CALLNOTES_H + CALLNOTES_STACK}}>
             <CallNotes lines={lines} cursorLine={cursorLine} cursorOn={cursorOn} />
           </div>

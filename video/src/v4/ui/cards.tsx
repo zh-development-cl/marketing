@@ -65,9 +65,9 @@ const WA_W = 300;
 const WA_H = 150;
 type WaData = {name: string; time: string; from?: string; fromColor?: string; msgs: string[]; notif?: boolean};
 const WA: WaData[] = [
-  {name: 'Tu Empresa', time: '21:40', from: 'Camila Rojas', fromColor: '#F2A05E', msgs: ['Hola! tienen stock del modelo azul?']},
-  {name: 'Tu Empresa', time: '21:46', from: 'Pía', fromColor: '#E85FB4', msgs: ['me pueden cotizar 20?']},
-  {name: 'Don Jorge', time: '21:48', msgs: ['hola?', 'alguien?']},
+  {name: 'Tu Empresa', time: '15:35', from: 'Camila Rojas', fromColor: '#F2A05E', msgs: ['Hola! tienen stock del modelo azul?']},
+  {name: 'Tu Empresa', time: '08:12', from: 'Pía', fromColor: '#E85FB4', msgs: ['me pueden cotizar 20?']},
+  {name: 'Don Jorge', time: '10:30', msgs: ['hola?', 'alguien?']},
   {name: 'Camila Rojas', time: 'ahora', msgs: ['Hola! tienen stock del modelo azul?'], notif: true},
 ];
 
@@ -125,15 +125,16 @@ export const WhatsAppCard: React.FC<CardProps> = ({variant, style}) => {
 const XL_W = 320;
 const XL_H = 160;
 const XL_FILES = ['inventario_FINAL_v3.xlsx', 'cobros_pendientes.xlsx', 'ventas_octubre (2).xlsx'];
-const XL_ROWS: Array<[string, string, string]> = [
-  ['producto', 'stock', 'precio'],
-  ['modelo azul', '12', '24.990'],
-  ['modelo rojo', '#REF!', '19.990'],
+const XL_TABLES: Array<Array<[string, string, string]>> = [
+  [['producto', 'stock', 'precio'], ['modelo azul', '12', '24.990'], ['modelo rojo', '#REF!', '19.990']],
+  [['cliente', 'monto', 'vence'], ['Com. Andes', '384.900', 'vencida'], ['Ferr. Lagos', '129.500', '15-09']],
+  [['fecha', 'venta', 'total'], ['01-10', '14', '349.860'], ['02-10', '#¡VALOR!', '0']],
 ];
 
 // Planilla de Excel: cabecera verde con nombre de archivo, columnas A/B/C y un #REF! en rojo seleccionado.
 export const ExcelCard: React.FC<CardProps> = ({variant, style}) => {
   const file = pick(XL_FILES, variant);
+  const XL_ROWS = pick(XL_TABLES, variant);
   const cols = '26px 140px 68px 86px';
   const cell: React.CSSProperties = {
     boxSizing: 'border-box',
@@ -166,7 +167,7 @@ export const ExcelCard: React.FC<CardProps> = ({variant, style}) => {
           <React.Fragment key={ri}>
             <div style={{...head, height: 34}}>{ri + 1}</div>
             {r.map((v, ci) => {
-              const isRef = v === '#REF!';
+              const isRef = v.startsWith('#') || v === 'vencida';
               const num = ci > 0 && ri > 0;
               return (
                 <div
@@ -319,9 +320,9 @@ export const InvoiceCard: React.FC<CardProps> = ({variant, style}) => {
 const GM_W = 320;
 const GM_H = 150;
 const GM: Array<{from: string; time: string; subject: string; preview: string}> = [
-  {from: 'Cliente Pérez', time: '21:21', subject: 'RE: RE: RE: cotización', preview: 'Hola, sigo esperando la cotización que me…'},
-  {from: 'Proveedor Sur', time: '21:18', subject: 'Orden de compra 588', preview: 'Adjunto la orden, confirmar recepción por…'},
-  {from: 'Contabilidad', time: '21:16', subject: 'Factura 1043 vencida', preview: 'Recordatorio: el pago venció hace 12 días…'},
+  {from: 'Cliente Pérez', time: '09:15', subject: 'RE: RE: RE: cotización', preview: 'Hola, sigo esperando la cotización que me…'},
+  {from: 'Proveedor Sur', time: '12:05', subject: 'Orden de compra 588', preview: 'Adjunto la orden, confirmar recepción por…'},
+  {from: 'Contabilidad', time: '17:15', subject: 'Factura 1043 vencida', preview: 'Recordatorio: el pago venció hace 12 días…'},
 ];
 
 // Correo de Gmail: M de colores, remitente, hora azul, asunto en negrita y vista previa gris.
@@ -394,9 +395,9 @@ export const InstagramDMCard: React.FC<CardProps> = ({variant, style}) => {
 const BK_W = 320;
 const BK_H = 140;
 const BK: Array<{title: string; body: string; time: string}> = [
-  {title: 'Transferencia recibida', body: 'Tienes un abono que no está c…', time: '21:32'},
+  {title: 'Transferencia recibida', body: 'Tienes un abono que no está c…', time: '14:50'},
   {title: 'Pago rechazado', body: 'La transferencia a Proveedor Sur no s…', time: '09:14'},
-  {title: 'Cartola disponible', body: 'Tienes 14 movimientos sin categori…', time: '08:02'},
+  {title: 'Cartola disponible', body: 'Tienes 14 movimientos sin categori…', time: '18:20'},
 ];
 
 // Notificación de banco: fondo azul muy oscuro, ícono de banco, "Banco", título, texto cortado y hora.

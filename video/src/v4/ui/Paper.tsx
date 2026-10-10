@@ -90,9 +90,9 @@ const Footer: React.FC<{n: string}> = ({n}) => (
 /* ───────────────────────────── cover ───────────────────────────── */
 
 const DIAG: Array<[string, string]> = [
-  ['Preguntas repetidas', 'stock y precios, todo el día'],
-  ['Stock en 3 planillas', 'ninguna cuadra con la otra'],
-  ['Cobros a mano', 'facturas vencidas sin aviso'],
+  ['Alcance', 'asistente de WhatsApp + inventario único + cobros'],
+  ['Plazo', '4 etapas · 6 semanas · entregas que puedes probar'],
+  ['Precio', 'fijo y cerrado antes de empezar'],
 ];
 
 const Cover: React.FC<{company: string; reveal?: number; date: string}> = ({company, reveal, date}) => {
@@ -105,7 +105,7 @@ const Cover: React.FC<{company: string; reveal?: number; date: string}> = ({comp
       <div style={abs(PAD - 2, 178, {...serif, fontSize: 96, letterSpacing: '-0.015em', whiteSpace: 'nowrap', ...heavy(1.6)})}>{company}</div>
       <div style={abs(PAD, 302, {width: 44, height: 3, background: ACCENT, borderRadius: 2})} />
       <div style={abs(PAD, 340, {...serif, fontSize: 21, letterSpacing: '0.12em', ...heavy(0.3, ACCENT)})}>01</div>
-      <div style={abs(PAD, 366, {...serif, fontSize: 60, ...heavy(1)})}>Diagnóstico</div>
+      <div style={abs(PAD, 366, {...serif, fontSize: 60, ...heavy(1)})}>Resumen</div>
 
       {/* Línea que une los círculos numerados */}
       <div style={abs(PAD + 18, top0 + 36, {width: 1, height: rowH * (DIAG.length - 1) - 36, background: LINE})} />
@@ -163,8 +163,8 @@ const STAGE = BAR_W / 4;
 
 const Plan: React.FC<{company: string; reveal?: number; bars: number}> = ({company, reveal, bars}) => {
   const tableTop = 250;
-  const rowH = 58;
-  const listTop = tableTop + 22 + ACTIVITIES.length * rowH + 42; // 604
+  const rowH = 86;
+  const listTop = tableTop + 22 + ACTIVITIES.length * rowH + 42;
   const listRowH = 48;
   return (
     <>
@@ -188,30 +188,15 @@ const Plan: React.FC<{company: string; reveal?: number; bars: number}> = ({compa
         return (
           <React.Fragment key={a.label}>
             <div style={abs(PAD, top, {right: PAD, height: rowH, display: 'flex', alignItems: 'center'})}>
-              <div style={{fontFamily: fonts.ui, fontWeight: 400, fontSize: 22, letterSpacing: '-0.01em', color: INK}}>{a.label}</div>
+              <div style={{fontFamily: fonts.ui, fontWeight: 500, fontSize: 26, letterSpacing: '-0.01em', color: INK}}>{a.label}</div>
             </div>
-            <div style={abs(BAR_X + a.from * STAGE, top + rowH / 2 - 6, {width: Math.max(0, full * local), height: 12, borderRadius: 6, background: a.color, opacity: local > 0 ? 1 : 0})} />
+            <div style={abs(BAR_X + a.from * STAGE, top + rowH / 2 - 8, {width: Math.max(0, full * local), height: 16, borderRadius: 8, background: a.color, opacity: local > 0 ? 1 : 0})} />
             <div style={abs(PAD, top + rowH - 1, {right: PAD, height: 1, background: LINE})} />
           </React.Fragment>
         );
       })}
 
-      {/* Entregables */}
-      <div style={abs(PAD, listTop, {...caps, fontSize: 11, fontWeight: 600, color: ACCENT})}>Qué se entrega en cada corte</div>
-      <div style={abs(PAD, listTop + 22, {right: PAD, height: 1.5, background: INK, opacity: 0.55})} />
-      {DELIVER.map((d, i) => {
-        const t = rowState(i, reveal);
-        const top = listTop + 23 + i * listRowH;
-        return (
-          <React.Fragment key={d}>
-            <div style={abs(PAD, top, {right: PAD, height: listRowH, display: 'flex', alignItems: 'center', ...rowStyle(t)})}>
-              <div style={{...serif, fontSize: 21, color: ACCENT, width: 72, paddingTop: 2}}>{i + 1}</div>
-              <div style={{fontFamily: fonts.ui, fontWeight: 400, fontSize: 20, letterSpacing: '-0.005em', color: INK}}>{d}</div>
-            </div>
-            <div style={abs(PAD, top + listRowH - 1, {right: PAD, height: 1, background: LINE})} />
-          </React.Fragment>
-        );
-      })}
+      {void listTop}
       <Footer n="02" />
     </>
   );

@@ -17,7 +17,7 @@ const loc = (a: number) => a - L;
 const tTitle = 6; // entra cuando el título del paso 01 ya terminó de salir
 const tRing = loc(beat('step2', 'Después')) - 12; // el anillo nace con la primera palabra (nunca pantalla vacía)
 const tChips = ['alcance', 'plazo', 'precio'].map((w) => loc(beat('step2', w)) - 3); // lo visual 1–2 frames delante del audio
-const tPaper = loc(beat('step2', 'precio')) + 12;
+const tPaper = loc(beat('step2', 'precio')) + 26; // las tres fichas quedan ~0,9 s a la vista
 const tRows = tPaper + 10;
 const tStamp = loc(beat('step2', 'sorpresas')) - 2; // timbre "sin sorpresas" sobre la propuesta
 const END = loc(sc.to) + 8;
@@ -47,7 +47,7 @@ export const Step2: React.FC = () => {
       {/* Anillo + fichas conectadas */}
       <div style={{position: 'absolute', left: 0, right: 0, top: 640, opacity: ringOut, display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
         <Pop at={tRing} from={0.4}>
-          <Ring progress={ringP} label={ringP >= 1 ? '✓' : `${Math.round(ringP * 100)}%`} sub="propuesta escrita" size={380} labelSize={88} />
+          <Ring progress={ringP} label={ringP >= 1 ? '✓' : ''} sub={ringP >= 1 ? 'propuesta lista' : 'escribiendo la propuesta…'} size={380} labelSize={88} />
         </Pop>
         {/* Líneas del árbol */}
         <svg width={820} height={120} style={{marginTop: 8}}>
@@ -90,7 +90,7 @@ export const Step2: React.FC = () => {
             <Paper page="cover" revealRows={rows} company="Tu Empresa" />
             {/* Timbre "sin sorpresas": cae con fuerza sobre la hoja */}
             {frame >= tStamp ? (
-              <div style={{position: 'absolute', right: 64, top: 775, transform: 'rotate(-9deg)'}}>
+              <div style={{position: 'absolute', right: 64, top: 690, transform: 'rotate(-9deg)'}}>
                 <Pop at={tStamp} from={1.7} config={{damping: 14, stiffness: 260}}>
                   <div
                     style={{

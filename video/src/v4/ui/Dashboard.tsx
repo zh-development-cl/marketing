@@ -3,7 +3,7 @@ import {accent, apps, fonts, ink, shadow, status} from '../tokens';
 import {InstagramIcon, WhatsAppIcon} from './icons';
 
 // Panel de operación (900 x 520): ventana de navegador oscura con tres puntos y título "Tu Empresa"; dentro, barra de
-// app con 3 KPIs, titular "Leads que avanzan solos" y 4 columnas kanban (LEADS NUEVOS / EN SEGUIMIENTO / AGENDADOS /
+// app con 3 KPIs, titular "Clientes que avanzan solos" y 4 columnas kanban (LEADS NUEVOS / EN SEGUIMIENTO / AGENDADOS /
 // EN TUS MANOS) con tarjetitas de leads. `progress` 0..1 hace aparecer las columnas de izquierda a derecha
 // (sin valor = todo visible). No anima por sí solo.
 
@@ -22,7 +22,7 @@ type Column = {title: string; sub: string; color: string; leads: Lead[]};
 
 const COLUMNS: Column[] = [
   {
-    title: 'Leads nuevos',
+    title: 'Consultas nuevas',
     sub: 'El asistente contesta y califica',
     color: accent.strong,
     leads: [
@@ -62,7 +62,7 @@ const COLUMNS: Column[] = [
 ];
 
 const KPIS: Array<[string, string]> = [
-  ['23', 'leads nuevos'],
+  ['23', 'consultas nuevas'],
   ['92 %', 'respondidos por el asistente'],
   ['40 s', 'primera respuesta'],
 ];
@@ -206,7 +206,7 @@ export const Dashboard: React.FC<DashboardProps> = ({progress = 1, company = 'Tu
       {/* Titular + explicación */}
       <div style={{flexShrink: 0, display: 'flex', alignItems: 'flex-end', padding: '14px 20px 10px', gap: 24}}>
         <div style={{fontSize: 24, fontWeight: 700, letterSpacing: '-0.025em', lineHeight: 1, whiteSpace: 'nowrap'}}>
-          Leads que avanzan <span style={{fontFamily: fonts.serif, fontStyle: 'italic', fontWeight: 400, fontSize: 29, color: accent.text, letterSpacing: '0'}}>solos</span>
+          Clientes que avanzan <span style={{fontFamily: fonts.serif, fontStyle: 'italic', fontWeight: 400, fontSize: 29, color: accent.text, letterSpacing: '0'}}>solos</span>
         </div>
         <div style={{marginLeft: 'auto', fontSize: 14, lineHeight: 1.2, color: ink.text3, textAlign: 'right', letterSpacing: '-0.005em', whiteSpace: 'nowrap'}}>
           {company} · el asistente responde, califica y agenda

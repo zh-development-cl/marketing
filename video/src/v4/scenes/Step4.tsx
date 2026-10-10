@@ -4,7 +4,7 @@ import {StepTitle} from '../fx/text';
 import {Moving} from '../fx/MotionBlur';
 import {inOutQuart, keyframes, outExpo, prog} from '../fx/ease';
 import {OWNERSHIP_H, OWNERSHIP_W, OwnershipCard} from '../ui/OwnershipCard';
-import {beat, scenes} from '../timeline';
+import {beat, beatEnd, scenes} from '../timeline';
 import type {SfxCue} from '../sound';
 
 // Escena 8 · paso 04 · mejorar → "propiedad". Mientras el panel del paso 03 se desenfoca y apaga, desde abajo
@@ -17,13 +17,13 @@ const L = sc.from - 8;
 const loc = (a: number) => a - L;
 const tTitle = 12; // el título anterior ya salió
 const tCard = 8; // la tarjeta entra desde abajo mientras el panel del paso 03 se desenfoca y apaga
-const tCheck = [loc(beat('step4', 'todo')), loc(beat('step4', 'nombre')), loc(beat('step4', 'empresa'))];
-const tFooter = tCheck[2] + 8; // el pie aparece cuando ya están los tres checks
+const tCheck = [loc(beat('step4', 'todo')), loc(beat('step4', 'nombre')), loc(beat('step4', 'empresa')), loc(beatEnd('step4', 'empresa')) + 6];
+const tFooter = tCheck[3] + 8; // el pie aparece cuando ya están los cuatro checks
 export const END = loc(sc.to) + 8;
 const tShrink = END - 16; // la tarjeta se encoge hasta un punto
 const DOT = {x: 591, y: 611}; // centro medido del bloque azul del logo en el cierre (frame 1068)
 
-const CARD = {x: (1080 - OWNERSHIP_W) / 2, y: 600, w: OWNERSHIP_W, h: OWNERSHIP_H} as const;
+const CARD = {x: (1080 - OWNERSHIP_W) / 2, y: 540, w: OWNERSHIP_W, h: OWNERSHIP_H} as const;
 
 export const sfxCues: SfxCue[] = [
   {name: 'whoosh-soft', at: L + tCard},
@@ -35,7 +35,7 @@ export const Step4: React.FC = () => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
   const checks = tCheck.map((a) => spring({frame: frame - a, fps, config: {damping: 11, stiffness: 190}}));
-  const lit = checks.reduce((s, p) => s + Math.min(1, p), 0) / 3;
+  const lit = checks.reduce((s, p) => s + Math.min(1, p), 0) / 4;
   const footer = prog(frame, tFooter, 8);
   // Contraluz azul detrás de la tarjeta: entra con ella, sube con cada check y se apaga con el encogimiento.
   const halo = prog(frame, tCard + 4, 16) * (0.55 + 0.45 * lit) * (1 - prog(frame, tShrink, 12));
@@ -56,7 +56,7 @@ export const Step4: React.FC = () => {
         />
       ) : null}
 
-      <StepTitle n="04" title="mejorar" at={tTitle} out={END - 14} />
+      <StepTitle n="04" title="mejorar" at={tTitle} out={END - 24} />
 
       <Moving
         x={(f) => keyframes(f, [[tShrink, CARD.x], [END - 2, DOT.x - CARD.w / 2]], inOutQuart)}
