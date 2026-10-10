@@ -21,6 +21,11 @@ export type RingProps = {
 
 export const RING_SIZE = 320;
 
+const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
+// Ancho de la rampa de encendido de cada marca, en marcas: la marca cruza del estado apagado al encendido mientras la
+// cabeza del trazo recorre esa distancia (centrada en la marca: al 50 % justo cuando la cabeza pasa por ella).
+const TICK_RAMP = 6;
+
 export const Ring: React.FC<RingProps> = ({progress, label, sub, size = RING_SIZE, labelColor = ink.text, labelSize = 96, style, label2, sub2, mix = 0}) => {
   const id = useId().replace(/[^a-zA-Z0-9]/g, '');
   const p = Math.max(0, Math.min(1, progress));
@@ -33,7 +38,10 @@ export const Ring: React.FC<RingProps> = ({progress, label, sub, size = RING_SIZ
   const m = label.match(/^([\d.,]+)(.*)$/);
   const big = m ? m[1] : label;
   const suffix = m ? m[2] : '';
-  const mixOp = Math.max(0, Math.min(1, mix));
+  const mixOp = clamp01(mix);
+  // El punto del trazo (y el primer encendido de las marcas) entran en fundido con el propio progreso (≈6 frames con
+  // inOutQuart) en vez de aparecer de golpe: con linecap round un dash de 2 px ya dibuja el cap completo.
+  const headIn = clamp01(p / 0.03);
   // Secuencia del cierre (todo con easing, nada en seco): primero se va el texto inicial, después crece el label2 y
   // por último sube el sub2.
   const outK = Math.min(1, mixOp * 1.6);
@@ -56,28 +64,33 @@ export const Ring: React.FC<RingProps> = ({progress, label, sub, size = RING_SIZ
         {/* relleno interior apenas iluminado */}
         <circle cx={c} cy={c} r={r - sw / 2} fill={`url(#${id}f)`} />
 
-        {/* marcas de reloj */}
+        {/* marcas de reloj: cada una se enciende en rampa continua (color y opacidad cruzan en fundido, nunca en seco) */}
         <g>
           {Array.from({length: ticks}, (_, i) => {
             const major = i % 15 === 0;
             const mid = !major && i % 5 === 0;
-            const lit = p > 0 && i / ticks <= p + 1e-6;
+            // 0 apagada → 1 encendida; con p = 1 todas quedan a 1 y con p = 0 todas a 0 (los usos estáticos no cambian).
+            const litT = clamp01((p - i / ticks) / (TICK_RAMP / ticks) + 0.5) * headIn;
             const a = (i / ticks) * Math.PI * 2 - Math.PI / 2;
             const r1 = (major ? 134 : mid ? 136 : 138) * k;
             const r2 = (major ? 154 : mid ? 148 : 145) * k;
-            const op = lit ? (major ? 0.95 : mid ? 0.7 : 0.5) : major ? 0.35 : mid ? 0.22 : 0.14;
+            const opOff = major ? 0.35 : mid ? 0.22 : 0.14;
+            const opOn = major ? 0.95 : mid ? 0.7 : 0.5;
+            const geo = {
+              x1: c + Math.cos(a) * r1,
+              y1: c + Math.sin(a) * r1,
+              x2: c + Math.cos(a) * r2,
+              y2: c + Math.sin(a) * r2,
+              strokeWidth: (major ? 2.6 : 1.6) * k,
+              strokeLinecap: 'round' as const,
+            };
             return (
-              <line
-                key={i}
-                x1={c + Math.cos(a) * r1}
-                y1={c + Math.sin(a) * r1}
-                x2={c + Math.cos(a) * r2}
-                y2={c + Math.sin(a) * r2}
-                stroke={lit ? accent.strong : accent.text}
-                strokeOpacity={op}
-                strokeWidth={(major ? 2.6 : 1.6) * k}
-                strokeLinecap="round"
-              />
+              <g key={i}>
+                {/* base apagada (se retira a medida que entra la encendida, así el estado final es el de siempre) */}
+                <line {...geo} stroke={accent.text} strokeOpacity={opOff * (1 - litT)} />
+                {/* encendida */}
+                <line {...geo} stroke={accent.strong} strokeOpacity={opOn * litT} />
+              </g>
             );
           })}
         </g>
@@ -85,28 +98,27 @@ export const Ring: React.FC<RingProps> = ({progress, label, sub, size = RING_SIZ
         {/* pista */}
         <circle cx={c} cy={c} r={r} fill="none" stroke={accent.strong} strokeOpacity={0.14} strokeWidth={sw} />
 
-        {p > 0.002 ? (
-          <g transform={`rotate(-90 ${c} ${c})`}>
-            {/* glow */}
-            <circle
-              cx={c}
-              cy={c}
-              r={r}
-              fill="none"
-              stroke={accent.strong}
-              strokeOpacity={0.62}
-              strokeWidth={sw * 2.2}
-              strokeLinecap="round"
-              strokeDasharray={circ}
-              strokeDashoffset={circ * (1 - p)}
-              filter={`url(#${id}g)`}
-            />
-            {/* trazo */}
-            <circle cx={c} cy={c} r={r} fill="none" stroke={accent.strong} strokeWidth={sw} strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={circ * (1 - p)} />
-            {/* brillo fino encima del trazo */}
-            <circle cx={c} cy={c} r={r} fill="none" stroke="#FFFFFF" strokeOpacity={0.22} strokeWidth={sw * 0.3} strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={circ * (1 - p)} />
-          </g>
-        ) : null}
+        {/* trazo: siempre montado; entra en fundido con headIn para que el punto de las 12 no aparezca en un frame */}
+        <g transform={`rotate(-90 ${c} ${c})`} opacity={headIn}>
+          {/* glow */}
+          <circle
+            cx={c}
+            cy={c}
+            r={r}
+            fill="none"
+            stroke={accent.strong}
+            strokeOpacity={0.62}
+            strokeWidth={sw * 2.2}
+            strokeLinecap="round"
+            strokeDasharray={circ}
+            strokeDashoffset={circ * (1 - p)}
+            filter={`url(#${id}g)`}
+          />
+          {/* trazo */}
+          <circle cx={c} cy={c} r={r} fill="none" stroke={accent.strong} strokeWidth={sw} strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={circ * (1 - p)} />
+          {/* brillo fino encima del trazo */}
+          <circle cx={c} cy={c} r={r} fill="none" stroke="#FFFFFF" strokeOpacity={0.22} strokeWidth={sw * 0.3} strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={circ * (1 - p)} />
+        </g>
       </svg>
 
       {/* Estado inicial (se funde hacia arriba cuando entra el final) */}

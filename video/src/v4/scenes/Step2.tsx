@@ -2,9 +2,9 @@ import React from 'react';
 import {AbsoluteFill, Easing, interpolate, useCurrentFrame} from 'remotion';
 import {BlurIn, Pop, StepTitle} from '../fx/text';
 import {Moving} from '../fx/MotionBlur';
-import {clamp, inOutQuart, inQuart, outExpo, prog, tween} from '../fx/ease';
+import {clamp, inOutQuart, inQuart, outQuart, prog, tween} from '../fx/ease';
 import {Ring} from '../ui/Ring';
-import {Paper} from '../ui/Paper';
+import {Paper, PAPER_H} from '../ui/Paper';
 import {accent, fonts, ink} from '../tokens';
 import {beat, beatEnd, scenes} from '../timeline';
 import type {SfxCue} from '../sound';
@@ -41,8 +41,10 @@ export const Step2: React.FC = () => {
   // Cierre del anillo: el "escribiendo…" se funde y el ✓ entra con rebote mientras el trazo termina (nada salta).
   const ringDone = prog(frame, tRingDone, 32, Easing.inOut(Easing.sin)); // seno: pendiente suave en el centro (nada de salto)
   const ringOut = 1 - prog(frame, tPaper, 8);
-  // Papel: se despliega desde una línea horizontal de luz (escala Y 0 → 1) y luego las hojas de atrás se asoman.
-  const unfold = prog(frame, tPaper, 16, outExpo);
+  // Papel: la línea de luz se enciende 6 frames antes (crece desde el centro) y la hoja se despliega desde ella
+  // (escala Y 0 → 1) con arranque y frenada suaves; la línea se funde cuando la hoja ya tiene altura.
+  const lineIn = prog(frame, tPaper - 6, 6, outQuart);
+  const unfold = prog(frame, tPaper, 16, Easing.inOut(Easing.cubic)); // termina en tPaper + 16, antes del timbre
   const rows = interpolate(frame, [tRows, tRows + 12], [0, 3.2], clamp);
   return (
     <AbsoluteFill>
@@ -87,36 +89,53 @@ export const Step2: React.FC = () => {
       </div>
 
       {/* Papel */}
-      {frame >= tPaper ? (
+      {frame >= tPaper - 6 ? (
         <Moving x={(f) => tween(f, END - 14, END - 4, 160, -1500, inQuart)} y={() => 480} opacity={(f) => 1 - prog(f, END - 9, 5)} blur={0.18}>
-          <div style={{transform: `scaleY(${Math.max(0.02, unfold)})`, transformOrigin: '50% 50%', position: 'relative'}}>
-            <div style={{position: 'absolute', left: 0, right: 0, top: '50%', height: 4, background: '#fff', opacity: (1 - unfold) * 0.9, boxShadow: '0 0 30px #fff', transform: 'translateY(-2px)'}} />
-            <Paper page="cover" revealRows={rows} company="Tu Empresa" />
-            {/* Timbre "sin sorpresas": cae con fuerza sobre la hoja */}
-            {frame >= tStamp ? (
-              <div style={{position: 'absolute', right: 40, top: 744, transform: 'rotate(-9deg)'}}>
-                <Pop at={tStamp} from={1.7} config={{damping: 14, stiffness: 260}}>
-                  <div
-                    style={{
-                      color: '#1F4FD8',
-                      border: '3px solid #1F4FD8',
-                      borderRadius: 8,
-                      padding: '8px 18px',
-                      fontFamily: fonts.sans,
-                      fontSize: 34,
-                      fontWeight: 800,
-                      letterSpacing: '0.14em',
-                      whiteSpace: 'nowrap',
-                      boxShadow: '0 0 0 3px #FBFAF6, 0 0 0 6px #1F4FD8',
-                      opacity: 0.88,
-                      mixBlendMode: 'multiply',
-                    }}
-                  >
-                    SIN SORPRESAS
-                  </div>
-                </Pop>
-              </div>
-            ) : null}
+          <div style={{position: 'relative'}}>
+            {/* Línea de luz: fuera del div escalado para que entre en fundido (y crezca desde el centro) antes del despliegue */}
+            <div
+              style={{
+                position: 'absolute',
+                left: 0,
+                right: 0,
+                top: PAPER_H / 2 - 2,
+                height: 4,
+                background: '#fff',
+                opacity: lineIn * (1 - unfold) * 0.9,
+                transform: `scaleX(${lineIn})`,
+                transformOrigin: '50% 50%',
+                boxShadow: '0 0 30px #fff',
+              }}
+            />
+            {/* La lámina (20 px mientras unfold ≈ 0) entra con el mismo fundido que la línea; nada aparece en seco */}
+            <div style={{transform: `scaleY(${Math.max(0.02, unfold)})`, transformOrigin: '50% 50%', position: 'relative', opacity: lineIn}}>
+              <Paper page="cover" revealRows={rows} company="Tu Empresa" />
+              {/* Timbre "sin sorpresas": cae con fuerza sobre la hoja */}
+              {frame >= tStamp ? (
+                <div style={{position: 'absolute', right: 40, top: 744, transform: 'rotate(-9deg)'}}>
+                  <Pop at={tStamp} from={1.7} config={{damping: 14, stiffness: 260}}>
+                    <div
+                      style={{
+                        color: '#1F4FD8',
+                        border: '3px solid #1F4FD8',
+                        borderRadius: 8,
+                        padding: '8px 18px',
+                        fontFamily: fonts.sans,
+                        fontSize: 34,
+                        fontWeight: 800,
+                        letterSpacing: '0.14em',
+                        whiteSpace: 'nowrap',
+                        boxShadow: '0 0 0 3px #FBFAF6, 0 0 0 6px #1F4FD8',
+                        opacity: 0.88,
+                        mixBlendMode: 'multiply',
+                      }}
+                    >
+                      SIN SORPRESAS
+                    </div>
+                  </Pop>
+                </div>
+              ) : null}
+            </div>
           </div>
         </Moving>
       ) : null}
