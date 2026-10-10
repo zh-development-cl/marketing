@@ -1,7 +1,7 @@
 import React from 'react';
 import {interpolate, useCurrentFrame} from 'remotion';
 import {Moving} from './MotionBlur';
-import {clamp, hash, inOutQuart, keyframes, outQuart} from './ease';
+import {clamp, hash, inOutQuart, inQuart, keyframes, outQuart} from './ease';
 
 // "Lluvia" de tarjetas en 3D: decenas de tarjetas caen y giran con profundidad de campo y motion blur, y con
 // `order` (0 → 1) se ordenan en un muro de celdas. Determinista: todo sale de hash(i).
@@ -25,6 +25,10 @@ export type RainProps = {
   camera?: (frame: number) => number; // escala global (empuje de cámara)
   // Resalte por tarjeta (0 → 1): contorno de color y leve zoom. Devuelve [intensidad, color].
   highlight?: (index: number, frame: number) => [number, string] | null;
+  // Salida del muro por oleadas: cada fila sale a la izquierda `exitRowDelay` frames después de la anterior.
+  exitAt?: number;
+  exitFrames?: number; // 12
+  exitRowDelay?: number; // 1.5
 };
 
 export const Rain: React.FC<RainProps> = ({
@@ -39,6 +43,9 @@ export const Rain: React.FC<RainProps> = ({
   fade = () => 1,
   camera = () => 1,
   highlight = () => null,
+  exitAt,
+  exitFrames = 12,
+  exitRowDelay = 1.5,
 }) => {
   const frame = useCurrentFrame();
   const o = order(frame);
@@ -66,6 +73,7 @@ export const Rain: React.FC<RainProps> = ({
         // Muro: celda por índice.
         const col = i % grid.cols;
         const row = Math.floor(i / grid.cols);
+        const exitX = (f: number) => (exitAt === undefined ? 0 : -1500 * interpolate(f, [exitAt + row * exitRowDelay, exitAt + row * exitRowDelay + exitFrames], [0, 1], {...clamp, easing: inQuart}));
         const gx = gridLeft + col * (grid.cellW + grid.gap) + (grid.cellW - it.w * grid.scale) / 2;
         const gy = grid.top + row * (grid.cellH + grid.gap) + (grid.cellH - it.h * grid.scale) / 2;
         // Mezcla caos → muro con un pequeño retraso por fila para que "se acomoden".
@@ -93,7 +101,7 @@ export const Rain: React.FC<RainProps> = ({
               const oof = interpolate(of, [Math.min(0.9, row * 0.06), Math.min(1, row * 0.06 + 0.5)], [0, 1], {...clamp, easing: inOutQuart});
               const cx = restX + Math.sin(f / 37 + i) * 10;
               void pf;
-              return interpolate(oof, [0, 1], [cx, gx]);
+              return interpolate(oof, [0, 1], [cx, gx]) + exitX(f);
             }}
             y={(f) => {
               const pf = interpolate(f, [at, at + fallFrames], [0, 1], {...clamp, easing: outQuart});

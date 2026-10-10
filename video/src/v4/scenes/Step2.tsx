@@ -2,7 +2,7 @@ import React from 'react';
 import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
 import {BlurIn, Pop, StepTitle} from '../fx/text';
 import {Moving} from '../fx/MotionBlur';
-import {clamp, inOutQuart, keyframes, outExpo, outQuart, prog, tween} from '../fx/ease';
+import {clamp, inOutQuart, inQuart, outExpo, prog, tween} from '../fx/ease';
 import {Ring} from '../ui/Ring';
 import {Paper} from '../ui/Paper';
 import {accent, fonts, ink} from '../tokens';
@@ -15,8 +15,8 @@ const sc = scenes.step2;
 const L = sc.from - 8;
 const loc = (a: number) => a - L;
 const tTitle = 4;
-const tRing = loc(beat('step2', 'propuesta')) - 8;
-const tChips = ['alcance', 'plazo', 'precio'].map((w) => loc(beat('step2', w)));
+const tRing = loc(beat('step2', 'Después')) - 6; // el anillo nace con la primera palabra (nunca pantalla vacía)
+const tChips = ['alcance', 'plazo', 'precio'].map((w) => loc(beat('step2', w)) - 3); // lo visual 1–2 frames delante del audio
 const tPaper = loc(beat('step2', 'precio')) + 12;
 const tRows = tPaper + 10;
 const tStamp = loc(beat('step2', 'sorpresas')) - 2; // timbre "sin sorpresas" sobre la propuesta
@@ -28,27 +28,26 @@ export const sfxCues: SfxCue[] = [
   ...tChips.map((t) => ({name: 'tick' as const, at: L + t, gain: 0.6})),
   {name: 'paper', at: L + tPaper},
   {name: 'stamp', at: L + tStamp + 2, gain: 0.7},
-  {name: 'whoosh-soft', at: L + END - 12, gain: 0.5},
+  // (la salida la sonoriza el whoosh del título del paso 03)
 ];
 
 const chips = ['alcance', 'plazo', 'precio'];
 
 export const Step2: React.FC = () => {
   const frame = useCurrentFrame();
-  const ringP = prog(frame, tRing, 40, inOutQuart);
+  const ringP = prog(frame, tRing, 52, inOutQuart); // sigue completándose durante "escrita"
   const ringOut = 1 - prog(frame, tPaper, 8);
   // Papel: se despliega desde una línea horizontal de luz (escala Y 0 → 1) y luego las hojas de atrás se asoman.
   const unfold = prog(frame, tPaper, 16, outExpo);
-  const paperOut = prog(frame, END - 10, 8, inOutQuart);
   const rows = interpolate(frame, [tRows, tRows + 22], [0, 3.2], clamp);
   return (
     <AbsoluteFill>
-      <StepTitle n="02" title="diseñar" at={tTitle} out={END - 10} />
+      <StepTitle n="02" title="diseñar" at={tTitle} out={END - 20} />
 
       {/* Anillo + fichas conectadas */}
       <div style={{position: 'absolute', left: 0, right: 0, top: 640, opacity: ringOut, display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
         <Pop at={tRing} from={0.7}>
-          <Ring progress={ringP} label={ringP >= 1 ? '✓' : ''} sub="propuesta escrita" size={380} />
+          <Ring progress={ringP} label={ringP >= 1 ? '✓' : `${Math.round(ringP * 100)}%`} sub="propuesta escrita" size={380} labelSize={88} />
         </Pop>
         {/* Líneas del árbol */}
         <svg width={820} height={120} style={{marginTop: 8}}>
@@ -85,7 +84,7 @@ export const Step2: React.FC = () => {
 
       {/* Papel */}
       {frame >= tPaper ? (
-        <Moving x={() => 160} y={(f) => tween(f, END - 10, END, 480, 440, inOutQuart)} opacity={() => 1 - paperOut} blur={0.3} extraBlur={() => paperOut * 6}>
+        <Moving x={(f) => tween(f, END - 14, END - 4, 160, -1500, inQuart)} y={() => 480} blur={0.3}>
           <div style={{transform: `scaleY(${Math.max(0.02, unfold)})`, transformOrigin: '50% 50%', position: 'relative'}}>
             <div style={{position: 'absolute', left: 0, right: 0, top: '50%', height: 4, background: '#fff', opacity: (1 - unfold) * 0.9, boxShadow: '0 0 30px #fff', transform: 'translateY(-2px)'}} />
             <Paper page="cover" revealRows={rows} company="Tu Empresa" />

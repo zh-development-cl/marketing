@@ -1,15 +1,16 @@
 import React, {useId} from 'react';
 import {fonts, watermark} from '../tokens';
 
-// Marca de agua que acompaña todo el reel: ícono de Instagram en trazo blanco y debajo "@ZHDEVELOPMENT.CL" en mono.
-// `x` es el centro horizontal del bloque y `y` el borde superior (px del lienzo). Por defecto usa tokens.watermark.
+// Marca de agua que acompaña todo el reel: ícono de Instagram en trazo blanco y a su derecha "@ZHDEVELOPMENT.CL"
+// en mono, en una fila anclada arriba a la derecha (bajo la zona superior insegura de Reels). Por defecto usa
+// tokens.watermark; `right` es la distancia al borde derecho y `y` el borde superior (px del lienzo).
 
 export type WatermarkProps = {
-  x?: number;
+  right?: number;
   y?: number;
   opacity?: number;
   handle?: string;
-  iconSize?: number; // 44
+  iconSize?: number; // 36
   color?: number; // 0..1 cuánto del degradado de Instagram muestra el ícono (0 = blanco, 1 = color)
   style?: React.CSSProperties;
 };
@@ -51,35 +52,34 @@ export const InstagramGlyph: React.FC<{size?: number; color?: number; strokeWidt
   );
 };
 
-export const Watermark: React.FC<WatermarkProps> = ({x = watermark.x, y = watermark.y, opacity = 1, handle = watermark.handle, iconSize = 44, color = 0, style}) => (
+export const Watermark: React.FC<WatermarkProps> = ({right = watermark.right, y = watermark.y, opacity = 1, handle = watermark.handle, iconSize = 36, color = 0, style}) => (
   <div
     style={{
       position: 'absolute',
-      left: x,
+      right,
       top: y,
-      transform: 'translateX(-50%)',
       opacity,
       display: 'flex',
-      flexDirection: 'column',
+      flexDirection: 'row',
       alignItems: 'center',
-      gap: 16,
+      gap: 12,
       pointerEvents: 'none',
       filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.55))',
       ...style,
     }}
   >
-    <InstagramGlyph size={iconSize} color={color} />
+    <InstagramGlyph size={iconSize} color={color} strokeWidth={3.4} />
     <div
       style={{
         fontFamily: fonts.mono,
-        fontWeight: 500,
-        fontSize: 20,
-        letterSpacing: '0.08em',
+        fontWeight: 600,
+        fontSize: 26,
+        letterSpacing: '0.04em',
         color: '#FFFFFF',
         whiteSpace: 'nowrap',
         lineHeight: 1,
         // compensa el tracking que se añade después del último carácter
-        marginRight: '-0.08em',
+        marginRight: '-0.04em',
       }}
     >
       {handle}

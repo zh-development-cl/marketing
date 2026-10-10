@@ -97,7 +97,9 @@ const normalizeTwoPass = (input, output) => {
     const got = measure(output);
     if (Math.abs(got - TARGET_LUFS) <= 0.3) break;
     const fixed = `${output}.fix.mp3`;
-    execFileSync('ffmpeg', ['-hide_banner', '-nostats', '-y', '-i', output, '-af', `volume=${(TARGET_LUFS - got).toFixed(2)}dB`, '-ar', '44100', '-ac', '1', '-c:a', 'libmp3lame', '-b:a', '160k', fixed], {stdio: ['ignore', 'pipe', 'pipe']});
+    // Si hay que subir, un limitador suave mantiene el pico bajo TRUE_PEAK (sin él, chaos quedaba a 0 dBFS).
+    const limiter = TARGET_LUFS - got > 0 ? `,alimiter=limit=${Math.pow(10, TRUE_PEAK / 20).toFixed(3)}:attack=3:release=60:level=false` : '';
+    execFileSync('ffmpeg', ['-hide_banner', '-nostats', '-y', '-i', output, '-af', `volume=${(TARGET_LUFS - got).toFixed(2)}dB${limiter}`, '-ar', '44100', '-ac', '1', '-c:a', 'libmp3lame', '-b:a', '160k', fixed], {stdio: ['ignore', 'pipe', 'pipe']});
     fs.renameSync(fixed, output);
   }
 };

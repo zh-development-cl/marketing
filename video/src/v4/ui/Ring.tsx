@@ -103,7 +103,7 @@ export const Ring: React.FC<RingProps> = ({progress, label, sub, size = RING_SIZ
           <span style={{fontSize: labelSize * k}}>{big}</span>
           {suffix ? <span style={{fontSize: labelSize * k * 0.5, marginLeft: 2 * k, letterSpacing: '-0.01em'}}>{suffix}</span> : null}
         </div>
-        {sub ? <div style={{fontFamily: fonts.sans, fontWeight: 500, fontSize: 22 * k, color: ink.text2, marginTop: 6 * k, letterSpacing: '0.005em'}}>{sub}</div> : null}
+        {sub ? <div style={{fontFamily: fonts.sans, fontWeight: 500, fontSize: 28 * k, color: ink.text, opacity: 0.85, marginTop: 8 * k, letterSpacing: '0.005em'}}>{sub}</div> : null}
       </div>
     </div>
   );

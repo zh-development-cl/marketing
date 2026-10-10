@@ -7,7 +7,7 @@ import {fonts} from '../tokens';
 // `progress` 0..1 hace aparecer las tarjetas de izquierda a derecha y luego la franja (sin valor = todo visible).
 
 export const SUMMARY_W = 900;
-export const SUMMARY_H = 130;
+export const SUMMARY_H = 140;
 
 export type SummaryCardsProps = {
   progress?: number; // 0..1 entrada escalonada (tarjetas 1→4, después la franja); sin valor = 1
@@ -99,8 +99,8 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({progress = 1, style})
                 <Glyph kind={tile.glyph} />
               </div>
               <div style={{lineHeight: 1, whiteSpace: 'nowrap'}}>
-                <div style={{fontSize: 10, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: tile.icon, marginBottom: 5}}>{tile.label}</div>
-                <div style={{fontSize: 24, fontWeight: 700, letterSpacing: '-0.03em', color: INK, fontVariantNumeric: 'tabular-nums'}}>{tile.value}</div>
+                <div style={{fontSize: 13, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: tile.icon, marginBottom: 5}}>{tile.label}</div>
+                <div style={{fontSize: 30, fontWeight: 700, letterSpacing: '-0.03em', color: INK, fontVariantNumeric: 'tabular-nums'}}>{tile.value}</div>
               </div>
             </div>
           );
@@ -110,7 +110,7 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({progress = 1, style})
       {/* Franja de cobros */}
       <div
         style={{
-          height: 44,
+          height: 50,
           flexShrink: 0,
           boxSizing: 'border-box',
           borderRadius: 10,
@@ -130,8 +130,8 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({progress = 1, style})
           </svg>
         </div>
         <div style={{lineHeight: 1, whiteSpace: 'nowrap'}}>
-          <div style={{fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: INK}}>Quién debe septiembre</div>
-          <div style={{fontSize: 11, color: MUTED, marginTop: 4}}>
+          <div style={{fontSize: 13, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: INK}}>Quién debe septiembre</div>
+          <div style={{fontSize: 14, color: MUTED, marginTop: 4}}>
             <b style={{fontWeight: 600, color: INK}}>3 facturas</b> · $ 1.284.000 sin pagar todavía
           </div>
         </div>
@@ -140,9 +140,9 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({progress = 1, style})
             {['#F2A33A', '#E5484D', '#8FB0FF'].map((c, i) => (
               <div key={c} style={{width: 18, height: 18, borderRadius: 9, background: c, opacity: 0.85, marginLeft: i ? -10 : 0, boxShadow: '0 0 0 2px #FAFAF7'}} />
             ))}
-            <span style={{fontSize: 11, color: MUTED, marginLeft: 2}}>Ferretería Lagos y 2 más</span>
+            <span style={{fontSize: 13, color: MUTED, marginLeft: 2}}>Ferretería Lagos y 2 más</span>
           </div>
-          <div style={{display: 'flex', alignItems: 'center', gap: 6, height: 28, padding: '0 12px 0 10px', borderRadius: 14, background: '#1FA463', color: '#FFFFFF', fontSize: 11.5, fontWeight: 600, letterSpacing: '0.005em', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.25), 0 2px 6px rgba(31,164,99,0.35)', whiteSpace: 'nowrap'}}>
+          <div style={{display: 'flex', alignItems: 'center', gap: 6, height: 32, padding: '0 14px 0 12px', borderRadius: 16, background: '#1FA463', color: '#FFFFFF', fontSize: 13.5, fontWeight: 600, letterSpacing: '0.005em', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.25), 0 2px 6px rgba(31,164,99,0.35)', whiteSpace: 'nowrap'}}>
             <svg width={12} height={12} viewBox="0 0 24 24" aria-hidden style={{display: 'block'}}>
               <path d="M3 11.5 21 3l-8.5 18-2.5-7.5z" fill="none" stroke="#FFFFFF" strokeWidth="2.2" strokeLinejoin="round" />
             </svg>

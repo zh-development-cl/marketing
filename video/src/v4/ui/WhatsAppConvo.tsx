@@ -9,7 +9,7 @@ import {WhatsAppIcon} from './icons';
 // No anima por sí solo.
 
 export const CONVO_W = 880;
-export const CONVO_H = 420;
+export const CONVO_H = 410;
 
 export type WhatsAppConvoProps = {
   show: number; // 0 | 1 | 2 | 3 (fraccionario = el elemento siguiente a medio aparecer)
@@ -20,6 +20,8 @@ export type WhatsAppConvoProps = {
   outgoing?: string; // texto de respuesta
   timeIn?: string; // "21:47"
   timeOut?: string; // "21:47"
+  typing?: number; // 0..1 burbuja "escribiendo…" (tres puntos) en el lugar de la respuesta
+  tick?: number; // frame, para el pulso de los puntos
   style?: React.CSSProperties; // contenedor exterior
 };
 
@@ -50,11 +52,14 @@ export const WhatsAppConvo: React.FC<WhatsAppConvoProps> = ({
   outgoing = 'Hola Camila, sí, quedan 12 a $24.990, te lo reservo?',
   timeIn = '21:47',
   timeOut = '21:47',
+  typing = 0,
+  tick = 0,
   style,
 }) => {
   const t1 = clamp01(show);
   const t2 = clamp01(show - 1);
   const t3 = clamp01(show - 2);
+  const ty = clamp01(typing);
   return (
     <div
       style={{
@@ -132,6 +137,18 @@ export const WhatsAppConvo: React.FC<WhatsAppConvoProps> = ({
             <div style={{position: 'absolute', right: 14, bottom: 9, fontSize: 12.5, color: '#9AA5B4', fontVariantNumeric: 'tabular-nums'}}>{timeIn}</div>
           </div>
         </div>
+
+        {/* Escribiendo… (tres puntos que pulsan) */}
+        {ty > 0 ? (
+          <div style={{position: 'absolute', right: 24, top: 118, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', ...enter(ty)}}>
+            <div style={{fontFamily: fonts.mono, fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase', color: MUTED, marginBottom: 8, paddingRight: 2}}>Agente de {company} · escribiendo</div>
+            <div style={{display: 'flex', gap: 7, alignItems: 'center', height: 46, padding: '0 18px', borderRadius: 14, borderTopRightRadius: 4, background: apps.whatsappBubbleOut, boxShadow: '0 1px 2px rgba(0,0,0,0.12)'}}>
+              {[0, 1, 2].map((i) => (
+                <div key={i} style={{width: 9, height: 9, borderRadius: 5, background: '#5B7A62', opacity: 0.35 + 0.65 * (0.5 + 0.5 * Math.sin(tick / 2.2 - i * 1.3))}} />
+              ))}
+            </div>
+          </div>
+        ) : null}
 
         {/* Etiqueta + saliente */}
         <div style={{position: 'absolute', right: 24, top: 118, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', ...enter(t2)}}>

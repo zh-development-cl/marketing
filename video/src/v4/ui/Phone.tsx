@@ -13,6 +13,7 @@ export type PhoneNotification = {
   body: string;
   time: string; // "ahora", "21:40"
   progress?: number; // 0..1 entrada (opacidad, subida, escala, desenfoque). Sin valor = 1.
+  leave?: number; // 0..1 salida: se apaga y colapsa su alto (las antiguas dejan sitio a las nuevas)
 };
 
 export type PhoneProps = {
@@ -21,6 +22,7 @@ export type PhoneProps = {
   notifications: PhoneNotification[];
   pending?: {count: number; label?: string}; // píldora inferior; label por defecto "sin responder"
   tone?: 'busy' | 'calm'; // busy: gris azulado apagado · calm: azul profundo más luminoso
+  calm?: number; // 0..1 mezcla continua busy → calm (si viene, ignora `tone`)
   screenOnly?: boolean; // sin bisel ni botones ni sombra; la pantalla queda en la misma posición (inset 18 px)
   frameOpacity?: number; // 0..1 opacidad del bisel (para hacerlo aparecer); screenOnly equivale a 0
   bezelOpacity?: number; // alias de `frameOpacity`
@@ -167,14 +169,18 @@ const Camera: React.FC = () => (
 
 const Notification: React.FC<{n: PhoneNotification; tone: 'busy' | 'calm'}> = ({n, tone}) => {
   const p = Math.max(0, Math.min(1, n.progress ?? 1));
-  const blur = (1 - p) * 8;
+  const lv = Math.max(0, Math.min(1, n.leave ?? 0));
+  const blur = (1 - p) * 8 + lv * 6;
   return (
     <div
       style={{
-        opacity: p,
-        transform: `translateY(${(1 - p) * 34}px) scale(${0.9 + 0.1 * p})`,
+        opacity: p * (1 - lv),
+        transform: `translateY(${(1 - p) * 34}px) scale(${(0.9 + 0.1 * p) * (1 - 0.12 * lv)})`,
         transformOrigin: '50% 0%',
         filter: blur > 0.3 ? `blur(${blur}px)` : undefined,
+        maxHeight: lv > 0 ? `${(1 - lv) * 160}px` : undefined,
+        marginBottom: lv > 0 ? `${-10 * lv}px` : undefined,
+        overflow: lv > 0 ? 'hidden' : undefined,
         borderRadius: 28,
         background: tone === 'busy' ? 'rgba(70,76,88,0.72)' : 'rgba(58,72,102,0.68)',
         boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.11), 0 10px 26px rgba(0,0,0,0.22)',
@@ -188,14 +194,14 @@ const Notification: React.FC<{n: PhoneNotification; tone: 'busy' | 'calm'}> = ({
       <AppIcon app={n.app} size={54} style={{marginTop: 2}} />
       <div style={{flex: 1, minWidth: 0}}>
         <div style={{display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 10}}>
-          <div style={{fontWeight: 600, fontSize: 24, color: white(0.96), letterSpacing: '-0.01em', lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>
+          <div style={{fontWeight: 600, fontSize: 28, color: white(0.96), letterSpacing: '-0.01em', lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>
             {n.title}
           </div>
           <div style={{fontSize: 19, color: white(0.5), flexShrink: 0}}>{n.time}</div>
         </div>
         <div
           style={{
-            fontSize: 23,
+            fontSize: 27,
             color: white(0.9),
             lineHeight: 1.25,
             marginTop: 3,
@@ -227,24 +233,26 @@ const SideButton: React.FC<{side: 'left' | 'right'; top: number; height: number}
   />
 );
 
-export const Phone: React.FC<PhoneProps> = ({date, time, notifications, pending, tone = 'busy', screenOnly = false, frameOpacity, bezelOpacity, style}) => {
+export const Phone: React.FC<PhoneProps> = ({date, time, notifications, pending, tone = 'busy', calm, screenOnly = false, frameOpacity, bezelOpacity, style}) => {
   const fo = screenOnly ? 0 : Math.max(0, Math.min(1, frameOpacity ?? bezelOpacity ?? 1));
-  const screenBg =
-    tone === 'busy'
-      ? [
-          'radial-gradient(78% 44% at 16% 6%, rgba(96,118,130,0.72) 0%, rgba(96,118,130,0) 70%)',
-          'radial-gradient(64% 42% at 90% 97%, rgba(80,108,120,0.7) 0%, rgba(80,108,120,0) 70%)',
-          'radial-gradient(50% 30% at 60% 55%, rgba(44,58,68,0.5) 0%, rgba(44,58,68,0) 70%)',
-          'linear-gradient(165deg, #2B343D 0%, #1E252D 45%, #11161B 100%)',
-        ].join(', ')
-      : [
-          'radial-gradient(75% 42% at 18% 8%, rgba(78,128,220,0.62) 0%, rgba(78,128,220,0) 70%)',
-          'radial-gradient(60% 38% at 88% 96%, rgba(48,107,255,0.42) 0%, rgba(48,107,255,0) 70%)',
-          'radial-gradient(50% 30% at 60% 55%, rgba(30,56,110,0.5) 0%, rgba(30,56,110,0) 70%)',
-          'linear-gradient(165deg, #1B3158 0%, #10213E 45%, #0A1427 100%)',
-        ].join(', ');
-  const pillBg = tone === 'busy' ? 'rgba(62,68,78,0.78)' : 'rgba(52,66,96,0.72)';
-  const btnBg = tone === 'busy' ? 'rgba(66,72,84,0.6)' : 'rgba(56,72,104,0.55)';
+  const busyBg = [
+    'radial-gradient(78% 44% at 16% 6%, rgba(96,118,130,0.72) 0%, rgba(96,118,130,0) 70%)',
+    'radial-gradient(64% 42% at 90% 97%, rgba(80,108,120,0.7) 0%, rgba(80,108,120,0) 70%)',
+    'radial-gradient(50% 30% at 60% 55%, rgba(44,58,68,0.5) 0%, rgba(44,58,68,0) 70%)',
+    'linear-gradient(165deg, #2B343D 0%, #1E252D 45%, #11161B 100%)',
+  ].join(', ');
+  const calmBg = [
+    'radial-gradient(75% 42% at 18% 8%, rgba(78,128,220,0.62) 0%, rgba(78,128,220,0) 70%)',
+    'radial-gradient(60% 38% at 88% 96%, rgba(48,107,255,0.42) 0%, rgba(48,107,255,0) 70%)',
+    'radial-gradient(50% 30% at 60% 55%, rgba(30,56,110,0.5) 0%, rgba(30,56,110,0) 70%)',
+    'linear-gradient(165deg, #1B3158 0%, #10213E 45%, #0A1427 100%)',
+  ].join(', ');
+  // `calm` (0..1) funde gris → azul; si no viene, manda `tone`.
+  const calmMix = Math.max(0, Math.min(1, calm ?? (tone === 'calm' ? 1 : 0)));
+  const effTone: 'busy' | 'calm' = calmMix >= 0.5 ? 'calm' : 'busy';
+  const screenBg = busyBg;
+  const pillBg = effTone === 'busy' ? 'rgba(62,68,78,0.78)' : 'rgba(52,66,96,0.72)';
+  const btnBg = effTone === 'busy' ? 'rgba(66,72,84,0.6)' : 'rgba(56,72,104,0.55)';
 
   return (
     <div style={{position: 'relative', width: PHONE_W, height: PHONE_H, ...style}}>
@@ -290,6 +298,7 @@ export const Phone: React.FC<PhoneProps> = ({date, time, notifications, pending,
           color: ink.text,
         }}
       >
+        {calmMix > 0 ? <div style={{position: 'absolute', inset: 0, background: calmBg, opacity: calmMix}} /> : null}
         {/* reflejo diagonal sutil */}
         <div
           style={{
@@ -347,7 +356,7 @@ export const Phone: React.FC<PhoneProps> = ({date, time, notifications, pending,
         {/* notificaciones */}
         <div style={{position: 'absolute', top: 386, left: 16, right: 16, display: 'flex', flexDirection: 'column', gap: 10}}>
           {notifications.map((n, i) => (
-            <Notification key={i} n={n} tone={tone} />
+            <Notification key={i} n={n} tone={effTone} />
           ))}
         </div>
 

@@ -35,7 +35,9 @@ export const sfxCues: SfxCue[] = [
   {name: 'whoosh-soft', at: L + tName, gain: 0.5},
   {name: 'pop', at: L + tCta, gain: 0.7},
   {name: 'click', at: L + tClick, gain: 0.9},
-  {name: 'chime', at: L + tEnd + 6, gain: 0.6},
+  // Cierre: golpe grave (sting) sobre el ícono de Instagram, con un brillo encima; la música ya terminó.
+  {name: 'logo', at: L + tEnd + 6, gain: 1.0},
+  {name: 'chime', at: L + tEnd + 6, gain: 0.5},
 ];
 
 const LOGO_W = 420;
@@ -110,7 +112,7 @@ export const Outro: React.FC = () => {
             ))}
           </div>
           <BlurIn at={tTeam + 10}>
-            <div style={{fontFamily: fonts.sans, fontSize: 26, color: ink.text3}}>con el equipo de ZH</div>
+            <div style={{fontFamily: fonts.sans, fontSize: 30, color: ink.text2}}>con el equipo de ZH</div>
           </BlurIn>
         </div>
       </div>

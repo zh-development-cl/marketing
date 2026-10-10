@@ -5,24 +5,26 @@ import {fonts, ink} from '../tokens';
 const clamp = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
 
 // Un bloque que entra con desenfoque → nítido, leve subida y opacidad. Base de casi todas las apariciones.
-export const BlurIn: React.FC<{at: number; dur?: number; dy?: number; children: React.ReactNode; style?: React.CSSProperties; out?: number}> = ({
+export const BlurIn: React.FC<{at: number; dur?: number; dy?: number; children: React.ReactNode; style?: React.CSSProperties; out?: number; outDur?: number; outDx?: number}> = ({
   at,
   dur = 7,
   dy = 14,
   children,
   style,
   out,
+  outDur = 5,
+  outDx = 0,
 }) => {
   const frame = useCurrentFrame();
   const p = interpolate(frame, [at, at + dur], [0, 1], clamp);
-  const q = out === undefined ? 1 : interpolate(frame, [out, out + 5], [1, 0], clamp);
+  const q = out === undefined ? 1 : interpolate(frame, [out, out + outDur], [1, 0], clamp);
   const b = (1 - p) * 10 + (1 - q) * 10;
   return (
     <div
       style={{
         opacity: p * q,
         filter: b > 0.3 ? `blur(${b}px)` : undefined,
-        transform: `translateY(${(1 - p) * dy}px)`,
+        transform: `translate(${(1 - q) * outDx}px, ${(1 - p) * dy}px)`,
         ...style,
       }}
     >
@@ -113,10 +115,10 @@ export const spreadWords = (text: string, at: number, every = 4): TWord[] =>
 export const StepTitle: React.FC<{n: string; title: string; at: number; out?: number; top?: number; accentColor?: string}> = ({n, title, at, out, top = 250, accentColor = '#8FB0FF'}) => {
   return (
     <div style={{position: 'absolute', top, left: 0, right: 0, textAlign: 'center'}}>
-      <BlurIn at={at} out={out} dy={10}>
+      <BlurIn at={at} out={out} outDur={8} outDx={-60} dy={10}>
         <div style={{fontFamily: fonts.sans, fontWeight: 500, fontSize: 34, color: accentColor, letterSpacing: '0.01em'}}>paso {n}</div>
       </BlurIn>
-      <BlurIn at={at + 3} out={out} dy={18}>
+      <BlurIn at={at + 3} out={out === undefined ? undefined : out + 2} outDur={8} outDx={-90} dy={18}>
         <div style={{fontFamily: fonts.display, fontWeight: 700, fontSize: 132, letterSpacing: '-0.035em', color: ink.text, lineHeight: 1.05, marginTop: 4}}>
           {title}
         </div>

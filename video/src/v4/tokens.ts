@@ -86,8 +86,8 @@ export const shadow = {
 // Posición de la marca de agua (ícono de Instagram + usuario) que acompaña todo el reel.
 export const watermark = {
   handle: '@ZHDEVELOPMENT.CL',
-  x: 930,
-  y: 300,
+  right: 40, // distancia al borde derecho
+  y: 236, // borde superior, justo bajo la zona superior insegura (220)
 } as const;
 
 export const canvas = {width: 1080, height: 1920, fps: 30} as const;

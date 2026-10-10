@@ -50,7 +50,7 @@ const Shell: React.FC<{
       boxShadow:
         shadowCss ??
         (dark
-          ? `${shadow.card}, inset 0 1px 0 rgba(255,255,255,0.08), 0 0 0 1px rgba(255,255,255,0.055)`
+          ? `${shadow.card}, 0 14px 30px rgba(0,0,0,0.6), 0 2px 4px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08), 0 0 0 1px rgba(255,255,255,0.10)`
           : `${shadow.card}, inset 0 1px 0 rgba(255,255,255,0.9)`),
       ...style,
     }}
@@ -77,7 +77,7 @@ export const WhatsAppCard: React.FC<CardProps> = ({variant, style}) => {
   const d = pick(WA, variant);
   if (d.notif) {
     return (
-      <Shell w={WA_W} h={WA_H} bg="rgba(44,52,64,0.72)" dark pad="14px 16px" style={style}>
+      <Shell w={WA_W} h={WA_H} bg="rgba(50,58,72,0.92)" dark pad="14px 16px" style={style}>
         <div style={{...row, gap: 10, alignItems: 'flex-start'}}>
           <WhatsAppIcon size={34} style={{marginTop: 2}} />
           <div style={{flex: 1, minWidth: 0}}>
@@ -357,7 +357,7 @@ export const InstagramDMCard: React.FC<CardProps> = ({variant, style}) => {
   const d = pick(IG, variant);
   if (d.notif) {
     return (
-      <Shell w={IG_W} h={IG_H} bg="rgba(44,52,64,0.72)" dark pad="14px 16px" style={style}>
+      <Shell w={IG_W} h={IG_H} bg="rgba(50,58,72,0.92)" dark pad="14px 16px" style={style}>
         <div style={{...row, gap: 10, alignItems: 'flex-start'}}>
           <InstagramIcon size={34} style={{marginTop: 2}} />
           <div style={{flex: 1, minWidth: 0}}>
@@ -372,7 +372,7 @@ export const InstagramDMCard: React.FC<CardProps> = ({variant, style}) => {
     );
   }
   return (
-    <Shell w={IG_W} h={IG_H} bg="#0B0B0F" dark pad="13px 14px" style={style}>
+    <Shell w={IG_W} h={IG_H} bg="#15161C" dark pad="13px 14px" style={style}>
       <div style={{...row, gap: 10}}>
         <InstagramRing size={32} ring={2}>
           <span style={{fontSize: 14, fontWeight: 700, color: '#FFFFFF', fontFamily: fonts.ui}}>{d.user[0].toUpperCase()}</span>

@@ -271,7 +271,8 @@ const makeMusic = async (tmp) => {
   }
   // Cierre limpio: corte en `end` con fade de 1.5 s, pase lo que pase con la generación.
   const faded = path.join(tmp, 'music-faded.wav');
-  ffmpeg(['-i', raw, '-af', `atrim=0:${end.toFixed(3)},afade=t=out:st=${Math.max(0, end - 1.5).toFixed(3)}:d=1.5`, '-ar', '44100', '-ac', '2', '-c:a', 'pcm_f32le', faded]);
+  // Refuerzo de graves (la referencia tiene energía continua en 60–300 Hz); normalize() vuelve a nivelar después.
+  ffmpeg(['-i', raw, '-af', `bass=g=5:f=120:w=0.7,atrim=0:${end.toFixed(3)},afade=t=out:st=${Math.max(0, end - 1.5).toFixed(3)}:d=1.5`, '-ar', '44100', '-ac', '2', '-c:a', 'pcm_f32le', faded]);
   const {peakLimited, gain} = normalize(faded, musicFile, {lufs: MUSIC_LUFS, tp: MUSIC_TP, channels: 2, bitrate: '192k'});
   const got = measureEbur(musicFile, false);
   console.log(

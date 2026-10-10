@@ -64,7 +64,7 @@ const Bars: React.FC = () => {
   return (
     <AbsoluteFill>
       <Backdrop />
-      <Watermark x={540} y={1700} />
+      <Watermark right={40} y={1700} />
       <CallBar seconds={28 * 60 + 8} style={{position: 'absolute', left: 120, top: 180}} />
       <CallBar seconds={30 * 60} done style={{position: 'absolute', left: 120, top: 330}} />
       <Ring progress={1} label="24h" sub="de respuesta" style={{position: 'absolute', left: 120, top: 560}} />
@@ -95,7 +95,7 @@ const Bars: React.FC = () => {
         Agenda tus 30 minutos →
       </div>
       <Cursor style={{position: 'absolute', left: 430, top: 1498}} />
-      <Watermark x={930} y={1660} color={1} />
+      <Watermark right={40} y={1660} color={1} />
       <InstagramGlyph size={150} color={0.5} style={{position: 'absolute', left: 740, top: 1380}} />
       <CallBar seconds={27} subtitle="alias subtitle" style={{position: 'absolute', left: 120, top: 1800, transform: 'scale(0.5)', transformOrigin: '0 0'}} />
     </AbsoluteFill>

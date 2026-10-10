@@ -13,7 +13,7 @@ export type SfxName = 'whoosh-soft' | 'whoosh-hard' | 'whip' | 'pop' | 'tick' | 
 export type SfxCue = {name: SfxName; at: number; gain?: number};
 
 export const SFX_GAIN = 0.7;
-export const MUSIC_GAIN = 0.55;
+export const MUSIC_GAIN = 0.8; // la cama queda ~5 dB bajo la voz (como la referencia); el master final nivela a −14 LUFS
 export const MUSIC_FILE: string | null = 'music/bed.mp3';
 
 export const SFX_CUES: Array<SfxCue & {file: string}> = [

@@ -2,7 +2,7 @@ import React from 'react';
 import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
 import {Typewriter, spreadWords} from '../fx/text';
 import {Streak} from '../fx/MotionBlur';
-import {clamp, inQuart, keyframes, outQuart, prog} from '../fx/ease';
+import {clamp, inQuart, keyframes, prog} from '../fx/ease';
 import {Phone} from '../ui/Phone';
 import {beat, scenes, wordsOf} from '../timeline';
 import {PHONE} from './layout';
@@ -21,8 +21,13 @@ const notes = [
   {app: 'excel' as const, title: 'inventario_FINAL_v3', body: 'Rodrigo modificó 34 celdas', time: 'ahora'},
   {app: 'gmail' as const, title: 'Contabilidad', body: 'Factura 1043 vencida hace 12 días', time: 'ahora'},
   {app: 'whatsapp' as const, title: 'Camila Rojas', body: 'Hola! tienen stock del modelo azul?', time: 'ahora'},
+  {app: 'instagram' as const, title: 'maria.jose', body: 'precio???', time: 'ahora'},
+  {app: 'gmail' as const, title: 'Banco', body: 'Transferencia recibida · sin identificar', time: 'ahora'},
+  {app: 'whatsapp' as const, title: 'Proveedor Sur', body: 'Orden de compra 588, confirman?', time: 'ahora'},
 ];
-const noteAt = [10, 18, 26];
+// Siguen cayendo hasta el empuje final: la energía sube de forma continua (como la referencia).
+const noteAt = [10, 18, 26, 38, 48, 58];
+const VISIBLE = 4; // caben 4 sobre la píldora; al llegar la quinta, la primera se va
 
 export const sfxCues: SfxCue[] = [
   ...noteAt.map((a) => ({name: 'pop' as const, at: L + a, gain: 0.6})),
@@ -31,27 +36,29 @@ export const sfxCues: SfxCue[] = [
 
 export const Imagine: React.FC = () => {
   const frame = useCurrentFrame();
-  const bezel = prog(frame, 0, 8);
-  const count = Math.round(keyframes(frame, [[8, 3], [tEmpresa + 20, 47]], outQuart));
-  // Empuje de cámara final: escala y desenfoque crecientes.
+  const bezel = prog(frame, 4, 10);
+  // El contador acelera hasta el empuje (3 → 47).
+  const count = Math.round(keyframes(frame, [[8, 3], [pushStart, 47]], inQuart));
+  // Empuje de cámara final: escala y desenfoque crecientes; el oscurecido no llega a negro (la lluvia ya cruza).
   const push = prog(frame, pushStart, 12, inQuart);
   const scale = 1 + push * 0.9;
   const blur = push * 22;
-  const dark = interpolate(push, [0.6, 1], [0, 1], clamp);
+  const dark = interpolate(push, [0.6, 1], [0, 0.55], clamp);
+  void tEmpresa;
   return (
     <AbsoluteFill>
       <Streak sx={blur * 0.6} sy={blur}>
         <div style={{position: 'absolute', inset: 0, transform: `scale(${scale})`, transformOrigin: '50% 48%'}}>
-          <div style={{position: 'absolute', left: 90, top: 184, width: 780}}>
-            <Typewriter words={words} size={48} weight={400} boldWeight={700} />
+          <div style={{position: 'absolute', left: 70, top: 240, width: 700, whiteSpace: 'nowrap'}}>
+            <Typewriter words={words} size={40} weight={400} boldWeight={700} />
           </div>
-          <div style={{position: 'absolute', left: PHONE.x, top: PHONE.y, opacity: prog(frame, 0, 6)}}>
+          <div style={{position: 'absolute', left: PHONE.x, top: PHONE.y, opacity: prog(frame, 2, 12)}}>
             <Phone
               date="lunes 13 de octubre"
               time="21:47"
               tone="busy"
               bezelOpacity={bezel}
-              notifications={notes.map((n, i) => ({...n, progress: prog(frame, noteAt[i], 9)}))}
+              notifications={notes.map((n, i) => ({...n, progress: prog(frame, noteAt[i], 9), leave: i + VISIBLE < notes.length ? prog(frame, noteAt[i + VISIBLE] - 2, 8) : 0}))}
               pending={{count, label: 'sin responder'}}
             />
           </div>

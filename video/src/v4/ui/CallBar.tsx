@@ -72,8 +72,8 @@ export const CallBar: React.FC<CallBarProps> = ({seconds, done = false, name = '
       </div>
 
       <div style={{flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 3}}>
-        <div style={{fontWeight: 700, fontSize: 28, letterSpacing: '-0.015em', lineHeight: 1.15, color: '#FFFFFF', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>{name}</div>
-        <div style={{fontWeight: 400, fontSize: 23, color: ink.text2, lineHeight: 1.15, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>{subText}</div>
+        <div style={{fontWeight: 700, fontSize: 30, letterSpacing: '-0.015em', lineHeight: 1.15, color: '#FFFFFF', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>{name}</div>
+        <div style={{fontWeight: 400, fontSize: 26, color: ink.text2, lineHeight: 1.15, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>{subText}</div>
       </div>
 
       <div

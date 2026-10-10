@@ -16,4 +16,4 @@ export const SFX = {
 
 export type SfxName = keyof typeof SFX;
 
-export const MUSIC = {file: 'music/bed.mp3', durationSec: 48} as const;
+export const MUSIC = {file: 'music/bed.mp3', durationSec: 50} as const;

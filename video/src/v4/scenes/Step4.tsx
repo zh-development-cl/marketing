@@ -13,8 +13,8 @@ import type {SfxCue} from '../sound';
 const sc = scenes.step4;
 const L = sc.from - 8;
 const loc = (a: number) => a - L;
-const tTitle = 4;
-const tPhone = 2;
+const tTitle = 12; // el título anterior ya salió
+const tPhone = 8; // el panel del paso 03 se desenfoca y apaga mientras el teléfono entra
 const tCount0 = loc(beat('step4', 'todo')) - 6;
 const tCount1 = loc(beat('step4', 'empresa'));
 const notes = [
@@ -36,7 +36,7 @@ export const sfxCues: SfxCue[] = [
 export const Step4: React.FC = () => {
   const frame = useCurrentFrame();
   const count = Math.round(keyframes(frame, [[tCount0, 47], [tCount1, 0]], outQuart));
-  const tone = frame < tCount0 ? 'busy' : 'calm';
+  const calm = prog(frame, tCount0, 14); // la pantalla pasa de gris a azul en un fundido
   return (
     <AbsoluteFill>
       <StepTitle n="04" title="mejorar" at={tTitle} out={END - 14} top={230} />
@@ -51,7 +51,7 @@ export const Step4: React.FC = () => {
         <Phone
           date="lunes 1 de diciembre"
           time="21:48"
-          tone={tone}
+          calm={calm}
           notifications={notes.map((n, i) => ({...n, progress: prog(frame, noteAt[i], 9)}))}
           pending={{count, label: 'sin responder'}}
         />

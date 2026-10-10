@@ -8,7 +8,7 @@ import {InstagramIcon, WhatsAppIcon} from './icons';
 // (sin valor = todo visible). No anima por sí solo.
 
 export const DASHBOARD_W = 900;
-export const DASHBOARD_H = 520;
+export const DASHBOARD_H = 480;
 
 export type DashboardProps = {
   progress?: number; // 0..1 columnas de izquierda a derecha (escalonadas); sin valor = 1
@@ -208,8 +208,8 @@ export const Dashboard: React.FC<DashboardProps> = ({progress = 1, company = 'Tu
         <div style={{fontSize: 24, fontWeight: 700, letterSpacing: '-0.025em', lineHeight: 1, whiteSpace: 'nowrap'}}>
           Leads que avanzan <span style={{fontFamily: fonts.serif, fontStyle: 'italic', fontWeight: 400, fontSize: 29, color: accent.text, letterSpacing: '0'}}>solos</span>
         </div>
-        <div style={{marginLeft: 'auto', width: 400, fontSize: 10.5, lineHeight: 1.35, color: ink.text3, textAlign: 'right', letterSpacing: '-0.005em'}}>
-          {company} es un negocio de ejemplo. Los leads entran por WhatsApp, Instagram y la web: el asistente responde en segundos, califica y agenda; tu equipo toma solo la última columna.
+        <div style={{marginLeft: 'auto', fontSize: 14, lineHeight: 1.2, color: ink.text3, textAlign: 'right', letterSpacing: '-0.005em', whiteSpace: 'nowrap'}}>
+          {company} · el asistente responde, califica y agenda
         </div>
       </div>
 

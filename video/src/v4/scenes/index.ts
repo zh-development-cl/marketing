@@ -14,12 +14,12 @@ import {Outro} from './Outro';
 export type SceneEntry = {key: SceneKey; Component: React.FC; preroll?: number; postroll?: number};
 
 export const SCENES: SceneEntry[] = [
-  {key: 'hook', Component: Hook, postroll: 8},
+  {key: 'hook', Component: Hook, postroll: 16},
   {key: 'imagine', Component: Imagine, postroll: 4},
-  {key: 'chaos', Component: ChaosWall, preroll: 10, postroll: scenes.step1.dur + 6},
-  {key: 'patterns', Component: Patterns, preroll: 6, postroll: 8},
+  {key: 'chaos', Component: ChaosWall, preroll: 18, postroll: scenes.step1.dur + 24},
+  {key: 'patterns', Component: Patterns, preroll: 0, postroll: 8},
   {key: 'step2', Component: Step2, preroll: 8, postroll: 8},
-  {key: 'step3', Component: Step3, preroll: 8, postroll: 8},
+  {key: 'step3', Component: Step3, preroll: 8, postroll: 22},
   {key: 'step4', Component: Step4, preroll: 8, postroll: 8},
   {key: 'outro', Component: Outro, preroll: 8},
 ];
