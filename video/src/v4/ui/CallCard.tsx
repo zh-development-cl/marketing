@@ -149,7 +149,7 @@ export const CallCard: React.FC<CallCardProps> = ({
   done = 0,
   speaking = false,
   tick = 0,
-  name = 'Lorenzo · ZH Development',
+  name = 'Lorenzo · ZH',
   company = 'Tu Empresa',
   initials = 'TE',
   avatarSrc,
