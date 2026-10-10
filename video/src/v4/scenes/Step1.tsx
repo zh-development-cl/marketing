@@ -18,7 +18,7 @@ const sc = scenes.step1;
 //   {kind: 'image', src: 'people/meet.jpg', label: 'Lorenzo y Nico · ZH Development'}  o
 //   {kind: 'video', src: 'people/meet.mp4', startFrom: 0, label: 'Lorenzo y Nico · ZH Development'}
 type Meet = {kind: 'image' | 'video'; src: string; startFrom?: number; label?: string; objectPosition?: string};
-const MEET = null as Meet | null;
+const MEET = {kind: 'image', src: 'people/meet.jpg', label: 'Lorenzo y Nico · ZH', objectPosition: '50% 42%'} as Meet | null;
 const PRE = 10;
 const POST = 12;
 const L = sc.from - PRE;
