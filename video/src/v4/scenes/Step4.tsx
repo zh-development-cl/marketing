@@ -39,8 +39,8 @@ export const Step4: React.FC = () => {
       <StepTitle n="04" title="mejorar" at={tTitle} out={END - 14} top={230} />
       <Moving
         x={() => PHONE.x}
-        y={(f) => keyframes(f, [[tPhone, PHONE.y + 700], [tPhone + 14, PHONE.y + 60]], outExpo)}
-        scale={() => 0.9}
+        y={(f) => keyframes(f, [[tPhone, PHONE.y + 760], [tPhone + 14, PHONE.y + 150]], outExpo)}
+        scale={() => 0.82}
         opacity={(f) => prog(f, tPhone, 6)}
         blur={0.3}
         origin="top center"

@@ -116,7 +116,7 @@ export const Outro: React.FC = () => {
       </div>
 
       {/* Cierre: ícono de Instagram y usuario */}
-      <div style={{position: 'absolute', left: 0, right: 0, top: 820, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 22, opacity: prog(frame, tEnd + 4, 10)}}>
+      <div style={{position: 'absolute', left: 0, right: 0, top: 640, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 22, opacity: prog(frame, tEnd + 4, 10)}}>
         <Pop at={tEnd + 4} from={0.5}>
           <InstagramGlyph size={150} color={interpolate(frame, [tEnd + 16, tEnd + 30], [0, 1], clamp)} />
         </Pop>

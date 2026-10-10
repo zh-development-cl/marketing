@@ -42,10 +42,10 @@ export const Imagine: React.FC = () => {
     <AbsoluteFill>
       <Streak sx={blur * 0.6} sy={blur}>
         <div style={{position: 'absolute', inset: 0, transform: `scale(${scale})`, transformOrigin: '50% 48%'}}>
-          <div style={{position: 'absolute', left: 90, top: 250, width: 900}}>
-            <Typewriter words={words} size={52} weight={400} boldWeight={700} />
+          <div style={{position: 'absolute', left: 90, top: 184, width: 780}}>
+            <Typewriter words={words} size={48} weight={400} boldWeight={700} />
           </div>
-          <div style={{position: 'absolute', left: PHONE.x, top: PHONE.y, opacity: 1}}>
+          <div style={{position: 'absolute', left: PHONE.x, top: PHONE.y, opacity: prog(frame, 0, 6)}}>
             <Phone
               date="lunes 13 de octubre"
               time="21:47"

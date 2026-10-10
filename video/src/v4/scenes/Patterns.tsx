@@ -32,11 +32,13 @@ const Group: React.FC<{slot: {in: number; out: number}; children: React.ReactNod
   const x = (f: number) => keyframes(f, [[slot.in, 1400], [slot.in + 9, 0], [slot.out, 0], [slot.out + 9, -1400]], f < slot.out ? outExpo : inOutQuart);
   return (
     <>
-      <Moving x={x} y={() => 0} blur={0.28} style={{position: 'absolute', left: (1080 - width) / 2, top: 700}}>
-        <div style={{width, height: 420, position: 'relative'}}>{children}</div>
+      <Moving x={x} y={() => 0} blur={0.28} style={{position: 'absolute', left: (1080 - width * 1.6) / 2, top: 640}}>
+        <div style={{width, height: 420, position: 'relative', transform: 'scale(1.6)', transformOrigin: 'top left'}}>{children}</div>
       </Moving>
-      <Moving x={x} y={() => 0} blur={0.2}>
-        <BottomLabel small={small} big={big} at={slot.in + 4} out={slot.out + 2} bottom={520} />
+      <Moving x={x} y={() => 0} blur={0.2} style={{width: 1080, height: 1920}}>
+        <div style={{position: 'absolute', inset: 0}}>
+          <BottomLabel small={small} big={big} at={slot.in + 4} out={slot.out + 2} bottom={520} />
+        </div>
       </Moving>
     </>
   );

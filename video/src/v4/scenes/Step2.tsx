@@ -17,8 +17,8 @@ const loc = (a: number) => a - L;
 const tTitle = 4;
 const tRing = loc(beat('step2', 'propuesta')) - 8;
 const tChips = ['alcance', 'plazo', 'precio'].map((w) => loc(beat('step2', w)));
-const tPaper = loc(beat('step2', 'Sin')) - 6;
-const tRows = loc(beatEnd('step2', 'sorpresas')) - 4;
+const tPaper = loc(beat('step2', 'precio')) + 12;
+const tRows = tPaper + 10;
 const END = loc(sc.to) + 8;
 
 export const sfxCues: SfxCue[] = [
@@ -38,7 +38,7 @@ export const Step2: React.FC = () => {
   // Papel: se despliega desde una línea horizontal de luz (escala Y 0 → 1) y luego las hojas de atrás se asoman.
   const unfold = prog(frame, tPaper, 16, outExpo);
   const paperOut = prog(frame, END - 10, 8, inOutQuart);
-  const rows = Math.floor(interpolate(frame, [tRows, tRows + 24], [0, 3.99], clamp));
+  const rows = interpolate(frame, [tRows, tRows + 22], [0, 3.2], clamp);
   return (
     <AbsoluteFill>
       <StepTitle n="02" title="diseñar" at={tTitle} out={END - 10} />

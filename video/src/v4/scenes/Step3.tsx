@@ -20,8 +20,8 @@ const tTitle = 4;
 const tPlan = 2;
 const tCal = loc(beat('step3', 'etapas')) - 4;
 const tCalEnd = loc(beat('step3', 'probar'));
-const tDash = loc(beat('step3', 'IA')) - 10;
-const tChat = loc(beat('step3', 'aporta')) + 2;
+const tDash = loc(beat('step3', 'IA')) - 16;
+const tChat = loc(beat('step3', 'IA')) + 2;
 const tSeal = loc(beat('step3', 'revisión'));
 const END = loc(sc.to) + 8;
 

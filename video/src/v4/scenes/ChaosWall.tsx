@@ -93,7 +93,7 @@ export const ChaosWall: React.FC = () => {
           {/* Paso 01 */}
           <div style={{position: 'absolute', inset: 0, zIndex: 3500}}>
             <StepTitle n="01" title="entender" at={tTitle} />
-            <div style={{position: 'absolute', left: 120, top: 1480, width: 840}}>
+            <div style={{position: 'absolute', left: 120, top: 1440, width: 840}}>
               <BlurIn at={tCall} dy={30}>
                 <CallBar seconds={seconds} done={done} avatarSrc={staticFile('people/lorenzo.jpg')} name="Lorenzo, de ZH" subtitle="llamada con Tu Empresa" />
               </BlurIn>
