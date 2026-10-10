@@ -33,6 +33,19 @@ const tTimer0 = loc(beat('step1', 'llamada'));
 const tTimer1 = loc(beatEnd('step1', 'quita')) + 4; // llega a 30:00 con la última palabra
 const tOut = loc(step1.to) - 6; // latigazo de salida
 const END = loc(step1.to) + 6;
+// Durante la llamada "encontramos" los patrones: las tarjetas de cada tipo se iluminan por grupos
+// (chats → planillas → facturas), en el mismo orden en que aparecen después.
+const found: Array<{mod: number; at: number; color: string}> = [
+  {mod: 0, at: loc(beat('step1', 'encontrar')) + 4, color: accent.strong}, // whatsapp
+  {mod: 2, at: loc(beat('step1', 'tiempo')) - 2, color: '#2FD277'}, // excel
+  {mod: 4, at: loc(beat('step1', 'quita')) - 2, color: '#FFA63D'}, // facturas
+];
+const highlight = (i: number, f: number): [number, string] | null => {
+  const g = found.find((x) => i % 9 === x.mod);
+  if (!g || f < g.at) return null;
+  const k = prog(f, g.at, 10, outExpo) * Math.min(1, 0.7 + 0.3 * Math.sin(f / 9 + i)); // leve pulso
+  return [k, g.color];
+};
 
 export const sfxCues: SfxCue[] = [
   {name: 'whip', at: abs(8)},
@@ -43,6 +56,7 @@ export const sfxCues: SfxCue[] = [
   {name: 'stamp', at: abs(tTodo), gain: 0.8},
   {name: 'whoosh-hard', at: abs(tOrderStart)},
   {name: 'pop', at: abs(tCall)},
+  ...found.map((g) => ({name: 'tick' as const, at: abs(g.at), gain: 0.55})),
   {name: 'chime', at: abs(tTimer1), gain: 0.8},
   {name: 'whip', at: abs(tOut)},
 ];
@@ -75,7 +89,8 @@ export const ChaosWall: React.FC = () => {
             grid={WALL}
             spread={560}
             depth={900}
-            camera={(f) => keyframes(f, [[0, 1.0], [tOrderStart, 1.06], [tOrderEnd, 1.0], [tOut, 1.035]], inOutQuart)}
+            camera={(f) => keyframes(f, [[0, 1.0], [tOrderStart, 1.06], [tOrderEnd, 1.0], [tOut, 1.045]], inOutQuart)}
+            highlight={highlight}
           />
           {/* Etiquetas del caos en distintos lugares */}
           {labels.map((l) => (

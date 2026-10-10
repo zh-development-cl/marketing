@@ -23,6 +23,8 @@ export type RainProps = {
   depth?: number; // rango de z (px) del caos
   fade?: (frame: number) => number; // opacidad global
   camera?: (frame: number) => number; // escala global (empuje de cámara)
+  // Resalte por tarjeta (0 → 1): contorno de color y leve zoom. Devuelve [intensidad, color].
+  highlight?: (index: number, frame: number) => [number, string] | null;
 };
 
 export const Rain: React.FC<RainProps> = ({
@@ -36,6 +38,7 @@ export const Rain: React.FC<RainProps> = ({
   depth = 900,
   fade = () => 1,
   camera = () => 1,
+  highlight = () => null,
 }) => {
   const frame = useCurrentFrame();
   const o = order(frame);
@@ -77,6 +80,9 @@ export const Rain: React.FC<RainProps> = ({
         const dim = interpolate(zz, [-depth / 2, 0, depth / 2], [0.55, 1, 1], clamp);
         const visible = frame >= at - 1;
         if (!visible) return null;
+        const hl = highlight(i, frame);
+        const hlk = hl ? hl[0] : 0;
+        const hlc = hl ? hl[1] : 'transparent';
         return (
           <Moving
             key={i}
@@ -98,13 +104,24 @@ export const Rain: React.FC<RainProps> = ({
               return interpolate(oof, [0, 1], [cy, gy]);
             }}
             rotate={() => rot}
-            scale={() => sc}
+            scale={() => sc * (1 + hlk * 0.06)}
             extraBlur={() => dof}
             blur={0.32}
-            style={{zIndex: Math.round(1000 + zz), opacity: dim, transformStyle: 'preserve-3d'}}
+            style={{zIndex: Math.round(1000 + zz + (hlk > 0 ? 500 : 0)), opacity: dim, transformStyle: 'preserve-3d'}}
             origin="top left"
           >
-            <div style={{width: it.w, height: it.h, transform: `translateZ(${zz}px)`}}>{it.node}</div>
+            <div
+              style={{
+                width: it.w,
+                height: it.h,
+                transform: `translateZ(${zz}px)`,
+                borderRadius: 16,
+                boxShadow: hlk > 0 ? `0 0 0 ${3 * hlk}px ${hlc}, 0 0 ${40 * hlk}px ${hlc}` : undefined,
+                filter: hlk > 0 ? `brightness(${1 + hlk * 0.12})` : undefined,
+              }}
+            >
+              {it.node}
+            </div>
           </Moving>
         );
       })}

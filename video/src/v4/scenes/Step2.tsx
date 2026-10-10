@@ -19,6 +19,7 @@ const tRing = loc(beat('step2', 'propuesta')) - 8;
 const tChips = ['alcance', 'plazo', 'precio'].map((w) => loc(beat('step2', w)));
 const tPaper = loc(beat('step2', 'precio')) + 12;
 const tRows = tPaper + 10;
+const tStamp = loc(beat('step2', 'sorpresas')) - 2; // timbre "sin sorpresas" sobre la propuesta
 const END = loc(sc.to) + 8;
 
 export const sfxCues: SfxCue[] = [
@@ -26,6 +27,7 @@ export const sfxCues: SfxCue[] = [
   {name: 'rise', at: L + tRing, gain: 0.5},
   ...tChips.map((t) => ({name: 'tick' as const, at: L + t, gain: 0.6})),
   {name: 'paper', at: L + tPaper},
+  {name: 'stamp', at: L + tStamp + 2, gain: 0.7},
   {name: 'whoosh-soft', at: L + END - 12, gain: 0.5},
 ];
 
@@ -44,33 +46,33 @@ export const Step2: React.FC = () => {
       <StepTitle n="02" title="diseñar" at={tTitle} out={END - 10} />
 
       {/* Anillo + fichas conectadas */}
-      <div style={{position: 'absolute', left: 0, right: 0, top: 560, opacity: ringOut, display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+      <div style={{position: 'absolute', left: 0, right: 0, top: 640, opacity: ringOut, display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
         <Pop at={tRing} from={0.7}>
-          <Ring progress={ringP} label={ringP >= 1 ? '✓' : ''} sub="propuesta escrita" size={320} />
+          <Ring progress={ringP} label={ringP >= 1 ? '✓' : ''} sub="propuesta escrita" size={380} />
         </Pop>
         {/* Líneas del árbol */}
-        <svg width={700} height={110} style={{marginTop: 6}}>
-          <path d="M350 0 V40" stroke={accent.strong} strokeWidth={2} pathLength={1} strokeDasharray={1} strokeDashoffset={1 - prog(frame, tChips[0] - 10, 8)} fill="none" />
-          <path d="M80 40 H620" stroke={accent.strong} strokeWidth={2} pathLength={1} strokeDasharray={1} strokeDashoffset={1 - prog(frame, tChips[0] - 6, 10)} fill="none" />
-          {[80, 350, 620].map((x, i) => (
-            <path key={i} d={`M${x} 40 V100`} stroke={accent.strong} strokeWidth={2} pathLength={1} strokeDasharray={1} strokeDashoffset={1 - prog(frame, tChips[i] - 4, 6)} fill="none" />
+        <svg width={820} height={120} style={{marginTop: 8}}>
+          <path d="M410 0 V46" stroke={accent.strong} strokeWidth={2.5} pathLength={1} strokeDasharray={1} strokeDashoffset={1 - prog(frame, tChips[0] - 10, 8)} fill="none" />
+          <path d="M120 46 H700" stroke={accent.strong} strokeWidth={2.5} pathLength={1} strokeDasharray={1} strokeDashoffset={1 - prog(frame, tChips[0] - 6, 10)} fill="none" />
+          {[120, 410, 700].map((x, i) => (
+            <path key={i} d={`M${x} 46 V110`} stroke={accent.strong} strokeWidth={2.5} pathLength={1} strokeDasharray={1} strokeDashoffset={1 - prog(frame, tChips[i] - 4, 6)} fill="none" />
           ))}
         </svg>
-        <div style={{display: 'flex', gap: 60, width: 700, justifyContent: 'space-between'}}>
+        <div style={{display: 'flex', gap: 50, width: 820, justifyContent: 'space-between'}}>
           {chips.map((c, i) => (
             <Pop key={c} at={tChips[i]} from={0.6}>
               <div
                 style={{
-                  width: 200,
+                  width: 240,
                   textAlign: 'center',
-                  padding: '18px 0',
-                  borderRadius: 14,
+                  padding: '22px 0',
+                  borderRadius: 16,
                   background: ink.panel2,
                   border: `1.5px solid ${accent.strong}`,
                   boxShadow: `0 20px 50px rgba(0,0,0,0.5), 0 0 30px rgba(48,107,255,0.25)`,
                   fontFamily: fonts.sans,
                   fontWeight: 600,
-                  fontSize: 34,
+                  fontSize: 40,
                   color: ink.text,
                 }}
               >
@@ -87,6 +89,31 @@ export const Step2: React.FC = () => {
           <div style={{transform: `scaleY(${Math.max(0.02, unfold)})`, transformOrigin: '50% 50%', position: 'relative'}}>
             <div style={{position: 'absolute', left: 0, right: 0, top: '50%', height: 4, background: '#fff', opacity: (1 - unfold) * 0.9, boxShadow: '0 0 30px #fff', transform: 'translateY(-2px)'}} />
             <Paper page="cover" revealRows={rows} company="Tu Empresa" />
+            {/* Timbre "sin sorpresas": cae con fuerza sobre la hoja */}
+            {frame >= tStamp ? (
+              <div style={{position: 'absolute', right: 64, top: 775, transform: 'rotate(-9deg)'}}>
+                <Pop at={tStamp} from={1.7} config={{damping: 14, stiffness: 260}}>
+                  <div
+                    style={{
+                      color: '#1F4FD8',
+                      border: '3px solid #1F4FD8',
+                      borderRadius: 8,
+                      padding: '8px 18px',
+                      fontFamily: fonts.sans,
+                      fontSize: 34,
+                      fontWeight: 800,
+                      letterSpacing: '0.14em',
+                      whiteSpace: 'nowrap',
+                      boxShadow: '0 0 0 3px #FBFAF6, 0 0 0 6px #1F4FD8',
+                      opacity: 0.88,
+                      mixBlendMode: 'multiply',
+                    }}
+                  >
+                    SIN SORPRESAS
+                  </div>
+                </Pop>
+              </div>
+            ) : null}
           </div>
         </Moving>
       ) : null}
