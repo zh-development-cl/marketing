@@ -26,6 +26,7 @@ const tagWords = wordsOf('outro')
 const tCta = loc(beat('outro', 'Agenda')) - 6;
 const tClick = loc(beat('outro', 'minutos')) + 4;
 const tLink = loc(beat('outro', 'minutos')) + 8; // el link aparece como respuesta al toque
+const tWhy = loc(beat('outro', 'Qué')) - 3; // "¿qué esperas?"
 const tTeam = tClick + 6; // el equipo entra tras el clic, durante "minutos"
 const tEnd = loc(sc.to) - 64; // atenuar y mostrar ícono de Instagram (0,4 s de silencio tras la música, 1,9 s de ícono)
 
@@ -97,15 +98,20 @@ export const Outro: React.FC = () => {
             <div style={{position: 'absolute', left: -16, top: -16, width: 32, height: 32, borderRadius: 16, background: '#FFFFFF', opacity: 0.9 * (1 - prog(frame, tClick + 2, 8)), transform: `scale(${1 - 0.4 * prog(frame, tClick, 6)})`, boxShadow: '0 0 24px rgba(255,255,255,0.6)'}} />
           </div>
         ) : null}
-        <BlurIn at={tLink} style={{position: 'absolute', left: 0, right: 0, top: LOGO_Y + 690, textAlign: 'center', fontFamily: fonts.sans, fontSize: 32, color: ink.text2}}>
+        <div style={{position: 'absolute', left: 0, right: 0, top: LOGO_Y + 648, textAlign: 'center'}}>
+          <Pop at={tWhy} from={0.6} config={{damping: 11, stiffness: 200}}>
+            <div style={{fontFamily: fonts.display, fontWeight: 700, fontSize: 68, letterSpacing: '-0.03em', color: accent.text, lineHeight: 1}}>¿qué esperas?</div>
+          </Pop>
+        </div>
+        <BlurIn at={tLink} style={{position: 'absolute', left: 0, right: 0, top: LOGO_Y + 740, textAlign: 'center', fontFamily: fonts.sans, fontSize: 32, color: ink.text2}}>
           zhdevelopment.cl · link en la bio
         </BlurIn>
         {/* Equipo */}
-        <div style={{position: 'absolute', left: 0, right: 0, top: LOGO_Y + 770, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12}}>
+        <div style={{position: 'absolute', left: 0, right: 0, top: LOGO_Y + 800, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10}}>
           <div style={{display: 'flex'}}>
             {['people/lorenzo.jpg', 'people/nico.jpg'].map((p, i) => (
               <Pop key={p} at={tTeam + i * 5} from={0.5}>
-                <Img src={staticFile(p)} style={{width: 92, height: 92, borderRadius: 999, objectFit: 'cover', border: '3px solid #0B0E13', marginLeft: i ? -18 : 0, boxShadow: '0 10px 30px rgba(0,0,0,0.6)'}} />
+                <Img src={staticFile(p)} style={{width: 80, height: 80, borderRadius: 999, objectFit: 'cover', border: '3px solid #0B0E13', marginLeft: i ? -18 : 0, boxShadow: '0 10px 30px rgba(0,0,0,0.6)'}} />
               </Pop>
             ))}
           </div>

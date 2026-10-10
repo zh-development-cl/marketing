@@ -70,8 +70,8 @@ export const heapPlace = (i: number) => {
   let cx = 226 + col * 164 + (hash(i, 21) - 0.5) * 120;
   let cy = 710 + row * 150 + (hash(i, 22) - 0.5) * 90;
   cx = Math.max(30 + W / 2, Math.min(950 - W / 2, cx));
-  cy = Math.max(600 + H / 2, Math.min(1290 - H / 2, cy));
-  const rot = (hash(i, 23) - 0.5) * 16;
+  cy = Math.max(580 + H / 2, Math.min(1330 - H / 2, cy));
+  const rot = (hash(i, 23) - 0.5) * 26;
   return {cx, cy, rot};
 };
 

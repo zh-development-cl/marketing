@@ -36,7 +36,7 @@ const scripts = {
     step2: ['Después, una propuesta escrita:', 'alcance, plazo y precio. Sin sorpresas.'],
     step3: ['Construimos por etapas, con entregas que puedes probar,', 'y usamos IA con revisión humana.'],
     step4: ['Y todo queda a nombre de tu empresa.'],
-    outro: ['ZH Development: software a medida que conecta tu operación.', 'Agenda tu llamada de 30 minutos. Link en la bio.'],
+    outro: ['ZH Development: software a medida que conecta tu operación.', 'Agenda tu llamada de 30 minutos. ¿Qué esperas?'],
   },
 };
 const script = scripts[SET];

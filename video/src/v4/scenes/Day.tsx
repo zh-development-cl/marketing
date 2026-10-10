@@ -7,6 +7,8 @@ import {accent, fonts, ink, status} from '../tokens';
 import {beat, beatEnd, scenes} from '../timeline';
 import type {SfxCue} from '../sound';
 import {CARDS, CardFace, EVENTS, HANDOFF, HEAP_SCALE, dimFor, heapPlace, hourOf} from './dayData';
+import {CardAt} from '../ui/cards';
+import {hash, inQuart} from '../fx/ease';
 
 // Escena 2 · el día en time-lapse. Arriba una regla 08:00 → 19:00 con un cabezal que acelera y la hora grande;
 // cada vez que cruza una hora de evento entra desde la derecha, con latigazo, una tarjeta real con su hora y se
@@ -25,6 +27,29 @@ const ENTER = 8; // frames que tarda una tarjeta en llegar al montón
 const hourAt = (f: number) => 8 + 11 * Math.pow(Math.max(0, Math.min(1, (f - T0) / (T1 - T0))), EXP);
 const frameOfHour = (h: number) => Math.round(T0 + (T1 - T0) * Math.pow((h - 8) / 11, 1 / EXP));
 export const tEvents = EVENTS.map((e) => frameOfHour(hourOf(e.time)));
+
+// Capa de caos extra: en la última media hora del día llueven notificaciones cada vez más seguidas (no son las 16
+// tarjetas que después se ordenan: estas se barren fuera de cuadro cuando aparece la ventana). Posición, giro y
+// tamaño por hash; entran desde un borde con latigazo y, al traspaso, salen disparadas con desenfoque.
+const N_EXTRA = 22;
+const EXTRA_FROM = T1 - 95;
+const EXTRA = Array.from({length: N_EXTRA}, (_, k) => {
+  const u = (k + 1) / N_EXTRA;
+  const at = Math.round(EXTRA_FROM + (T1 - 2 - EXTRA_FROM) * Math.pow(u, 0.55)); // cada vez más seguidas
+  const {node, w, h} = CardAt({index: 3 + k * 2, variant: Math.floor(hash(k, 61) * 3)});
+  const scale = 0.85 + hash(k, 62) * 0.45;
+  const cx = 110 + hash(k, 63) * 860;
+  const cy = 560 + hash(k, 64) * 800;
+  const rot = (hash(k, 65) - 0.5) * 56;
+  const side = hash(k, 66); // 0..1 → desde dónde entra
+  const fromX = side < 0.4 ? 1500 : side < 0.8 ? -1500 : 0;
+  const fromY = side < 0.8 ? 0 : -1400;
+  const outX = (hash(k, 67) - 0.5) * 3000;
+  const outY = (hash(k, 68) - 0.5) * 2600;
+  return {at, node, w, h, scale, cx, cy, rot, fromX, fromY, outX, outY};
+});
+const tSweep = loc(HANDOFF) - 2; // al traspaso, la capa extra sale disparada
+const extraCountAt = (f: number) => EXTRA.filter((e) => f >= e.at).length;
 
 // Resaltes por beat: [tipos, color, desde, hasta] en frames locales.
 const HL: Array<{kinds: string[]; color: string; from: number; to: number}> = [
@@ -58,6 +83,8 @@ export const sfxCues: SfxCue[] = [
   {name: 'whoosh-soft', at: L + 0, gain: 0.35}, // el día entra desde abajo (el gancho ya suena su whoosh-hard)
   ...whooshes,
   ...tEvents.map((t) => ({name: 'tick' as const, at: L + t + 1, gain: 0.3})),
+  ...EXTRA.filter((_, k) => k % 2 === 0).map((e) => ({name: 'pop' as const, at: L + e.at, gain: 0.45})),
+  {name: 'whoosh-hard', at: L + tSweep, gain: 0.8}, // barrida de la capa extra
   {name: 'rise', at: L + T1 - 36, gain: 0.5}, // remata justo en 19:00
   {name: 'click', at: L + T1, gain: 0.8}, // 19:00
 ];
@@ -66,11 +93,15 @@ export const Day: React.FC = () => {
   const frame = useCurrentFrame();
   const hour = hourAt(frame);
   const entered = tEvents.filter((t) => frame >= t).length;
-  const count = countAt(frame);
+  const count = countAt(frame) + extraCountAt(frame); // las notificaciones extra también suman
   const off = prog(frame, T1 + 2, 10, inOutQuart); // regla y contador se apagan (abs 290–300)
   const endGlow = prog(frame, T1 - 6, 6) * (1 - off);
   const pulse = 1 + 0.06 * prog(frame, T1, 3) * (1 - prog(frame, T1 + 3, 8));
   const showHeap = L + frame < HANDOFF;
+  // Sacudida de cámara creciente en la última media hora (hasta ±7 px), se apaga al traspaso.
+  const shakeAmp = 7 * prog(frame, T1 - 60, 60) * (1 - prog(frame, tSweep, 6));
+  const shakeX = (hash(frame, 71) - 0.5) * 2 * shakeAmp;
+  const shakeY = (hash(frame, 72) - 0.5) * 2 * shakeAmp;
   return (
     <AbsoluteFill>
       {/* Bloque regla + contador: entra desde abajo con desenfoque mientras el gancho sale hacia arriba */}
@@ -128,6 +159,7 @@ export const Day: React.FC = () => {
         </div>
       </Moving>
 
+      <div style={{position: 'absolute', inset: 0, transform: `translate(${shakeX.toFixed(2)}px, ${shakeY.toFixed(2)}px)`}}>
       {/* Montón de tarjetas: cada una entra desde la derecha con latigazo en su hora */}
       {showHeap
         ? CARDS.map((c, i) => {
@@ -166,6 +198,27 @@ export const Day: React.FC = () => {
             );
           })
         : null}
+
+      {/* Capa de caos extra: notificaciones que llueven cada vez más rápido y se barren al traspaso */}
+      {EXTRA.map((e, k) => {
+        if (frame < e.at || frame > tSweep + 12) return null;
+        const sweep = prog(frame, tSweep, 10, inQuart);
+        return (
+          <Moving
+            key={`x${k}`}
+            x={(f) => e.cx - e.w / 2 + tween(f, e.at, e.at + ENTER, e.fromX, 0, outExpo) + e.outX * prog(f, tSweep, 10, inQuart)}
+            y={(f) => e.cy - e.h / 2 + tween(f, e.at, e.at + ENTER, e.fromY, 0, outExpo) + e.outY * prog(f, tSweep, 10, inQuart)}
+            rotate={(f) => e.rot + tween(f, e.at, e.at + ENTER, 24, 0, outExpo)}
+            scale={() => e.scale}
+            opacity={() => 1 - sweep}
+            blur={0.3}
+            style={{zIndex: 400 + k}}
+          >
+            <div style={{width: e.w, height: e.h, filter: 'brightness(0.92)'}}>{e.node}</div>
+          </Moving>
+        );
+      })}
+      </div>
     </AbsoluteFill>
   );
 };
