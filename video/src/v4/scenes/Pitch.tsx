@@ -1,6 +1,6 @@
 import React from 'react';
-import {AbsoluteFill, useCurrentFrame} from 'remotion';
-import {BlurIn, Pop} from '../fx/text';
+import {AbsoluteFill, Easing, useCurrentFrame} from 'remotion';
+import {BlurIn, Pop, Typewriter} from '../fx/text';
 import {Moving} from '../fx/MotionBlur';
 import {inOutQuart, inQuart, prog, tween} from '../fx/ease';
 import {AppWindow, WINDOW} from '../ui/AppWindow';
@@ -18,7 +18,7 @@ const L = sc.from - 12;
 const loc = (a: number) => a - L;
 export const END = loc(sc.to) + 10;
 const tWin = loc(HANDOFF); // 8: la ventana aparece y el montón pasa a esta escena
-const tFly = tWin + 2;
+const tFly = tWin; // despegue inmediato: la ventana nace y el montón ya vuela
 const STAGGER = 1.5;
 const FLY = 14;
 const tLine = loc(beat('pitch', 'Hacemos')) + 2;
@@ -26,7 +26,7 @@ const tChecks = loc(beat('pitch', 'resuelve')) - 2;
 const tOut = loc(sc.to) - 6;
 
 const flyAt = (i: number) => tFly + i * STAGGER;
-const flyP = (i: number, f: number) => prog(f, flyAt(i), FLY, inOutQuart);
+const flyP = (i: number, f: number) => prog(f, flyAt(i), FLY, Easing.bezier(0.4, 0, 0.1, 1));
 
 export const sfxCues: SfxCue[] = [
   {name: 'pop', at: L + tWin, gain: 0.7},
@@ -91,9 +91,18 @@ export const Pitch: React.FC = () => {
 
           {/* Línea en mono bajo la ventana */}
           <div style={{position: 'absolute', left: 0, right: 0, top: WINDOW.y + WINDOW.h + 54, textAlign: 'center', zIndex: 2}}>
-            <BlurIn at={tLine} dy={12}>
-              <div style={{fontFamily: fonts.mono, fontSize: 32, fontWeight: 500, letterSpacing: '0.1em', color: accent.text}}>a medida · integrado · tuyo</div>
-            </BlurIn>
+            <Typewriter
+              size={32}
+              family={fonts.mono}
+              color={accent.text}
+              letterSpacing="0.1em"
+              words={[
+                {text: 'a medida ·', at: loc(beat('pitch', 'software')) - 2},
+                {text: 'integrado ·', at: loc(beat('pitch', 'que')) - 2},
+                {text: 'tuyo', at: loc(beat('pitch', 'resuelve')) - 2},
+              ]}
+              style={{textAlign: 'center', justifyContent: 'center'}}
+            />
           </div>
         </div>
       </Moving>

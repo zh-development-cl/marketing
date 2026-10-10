@@ -42,6 +42,8 @@ const SFX_LIST = [
   ['rise', 1.2, 'short rising synth riser swell, clean, no drums'],
   ['chime', 1.0, 'soft success chime, two notes, warm, short'],
   ['logo', 1.5, 'deep cinematic logo reveal boom with shimmer tail, short'],
+  // sting: el mismo boom del logo 7 dB más caliente (limitado a -1 dBTP) para el golpe del cierre; se deriva sin llamar a la API.
+  ['sting', 1.5, null, 'derived:logo'],
 ];
 const MUSIC_PROMPT =
   'Upbeat minimal corporate tech background music for a 45 second product reel: soft synth plucks, light electronic percussion, warm pads, optimistic and modern, instrumental only, no vocals, steady tempo around 100 bpm, clean intro, builds gently, ends cleanly';
@@ -355,6 +357,14 @@ try {
     for (const [name, target, prompt, kind] of SFX_LIST) {
       if (!wanted(name)) continue;
       try {
+        if (typeof kind === 'string' && kind.startsWith('derived:')) {
+          const base = path.join(sfxDir, `${kind.slice(8)}.mp3`);
+          if (!fs.existsSync(base)) throw new Error(`falta ${path.basename(base)} para derivar ${name}`);
+          ffmpeg(['-i', base, '-af', 'volume=7dB,alimiter=limit=0.89:attack=2:release=80:level=false', '-ar', '44100', '-ac', '1', '-c:a', 'libmp3lame', '-b:a', '160k', path.join(sfxDir, `${name}.mp3`)]);
+          const got = measureEbur(path.join(sfxDir, `${name}.mp3`), true);
+          console.log(`${name.padEnd(12)} ${got.d.toFixed(3)} s · ${got.i.toFixed(1)} LUFS · TP ${got.tp.toFixed(1)} dBTP · derivado de ${kind.slice(8)}`);
+          continue;
+        }
         await makeSfx(name, target, prompt, tmp, kind);
       } catch (e) {
         failed.push(`sfx/${name}.mp3 (${e.message})`);

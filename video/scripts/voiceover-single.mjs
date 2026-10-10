@@ -186,7 +186,10 @@ order.forEach((scene, i) => {
   const cutStart = Math.max(prevEnd + 0.02, first - 0.12);
   const cutEnd = Math.min(nextStart - 0.02, last + 0.2);
   const file = `${scene}.wav`; // WAV: una codificación con pérdida menos en la cadena (la voz llega con más aire arriba de 5 kHz)
-  ffmpeg(['-i', master, '-af', `atrim=${cutStart.toFixed(3)}:${cutEnd.toFixed(3)},asetpts=PTS-STARTPTS,afade=t=in:d=0.02,afade=t=out:st=${(cutEnd - cutStart - 0.03).toFixed(3)}:d=0.03`, '-ar', '44100', '-ac', '1', '-c:a', 'pcm_s16le', path.join(outDir, file)]);
+  // La última escena termina donde termina la toma: se rellena 0,25 s y se funde en 120 ms para que la última palabra no muera cortada.
+  const isLast = i === order.length - 1;
+  const fadeOut = isLast ? `apad=pad_dur=0.25,afade=t=out:st=${(cutEnd - cutStart + 0.25 - 0.12).toFixed(3)}:d=0.12` : `afade=t=out:st=${(cutEnd - cutStart - 0.03).toFixed(3)}:d=0.03`;
+  ffmpeg(['-i', master, '-af', `atrim=${cutStart.toFixed(3)}:${cutEnd.toFixed(3)},asetpts=PTS-STARTPTS,afade=t=in:d=0.02,${fadeOut}`, '-ar', '44100', '-ac', '1', '-c:a', 'pcm_s16le', path.join(outDir, file)]);
   const captions = caps.map((c) => ({
     text: c.text,
     start: Number((c.start - cutStart).toFixed(3)),

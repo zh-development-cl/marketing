@@ -15,9 +15,9 @@ const voScenes = vo.scenes as Record<SceneKey, VoScene>;
 
 // Aire antes de la voz (la escena ya está en pantalla) y después de la última palabra.
 const lead: Record<SceneKey, number> = {hook: 8, day: 6, pitch: 6, step1: 10, step2: 8, step3: 8, step4: 10, outro: 12};
-const tail: Record<SceneKey, number> = {hook: 8, day: 10, pitch: 8, step1: 24, step2: 10, step3: 10, step4: 12, outro: 90};
+const tail: Record<SceneKey, number> = {hook: 8, day: 10, pitch: 8, step1: 24, step2: 10, step3: 10, step4: 12, outro: 80};
 // Duración mínima de diseño (coreografía), en frames.
-const designed: Record<SceneKey, number> = {hook: s(2.6), day: s(7.2), pitch: s(3.0), step1: s(6.0), step2: s(6.0), step3: s(7.2), step4: s(3.4), outro: s(9.4)};
+const designed: Record<SceneKey, number> = {hook: s(3.0), day: s(7.2), pitch: s(3.0), step1: s(6.0), step2: s(6.0), step3: s(7.2), step4: s(3.4), outro: s(9.4)};
 
 let cursor = 0;
 export const scenes = Object.fromEntries(

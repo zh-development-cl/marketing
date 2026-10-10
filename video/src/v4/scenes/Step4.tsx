@@ -1,5 +1,5 @@
 import React from 'react';
-import {AbsoluteFill, spring, useCurrentFrame, useVideoConfig} from 'remotion';
+import {AbsoluteFill, Easing, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import {StepTitle} from '../fx/text';
 import {Moving} from '../fx/MotionBlur';
 import {inOutQuart, keyframes, outExpo, prog} from '../fx/ease';
@@ -61,7 +61,7 @@ export const Step4: React.FC = () => {
       <Moving
         x={(f) => keyframes(f, [[tShrink, CARD.x], [END - 2, DOT.x - CARD.w / 2]], inOutQuart)}
         y={(f) => keyframes(f, [[tCard, CARD.y + 760], [tCard + 14, CARD.y], [tShrink, CARD.y], [END - 2, DOT.y - CARD.h / 2]], f < tShrink ? outExpo : inOutQuart)}
-        scale={(f) => keyframes(f, [[tShrink, 1], [END - 2, 0.02]], inOutQuart)}
+        scale={(f) => keyframes(f, [[tShrink, 1], [END - 2, 0.02]], Easing.in(Easing.poly(3)))}
         opacity={(f) => prog(f, tCard, 6)}
         blur={0.26}
         origin="center"

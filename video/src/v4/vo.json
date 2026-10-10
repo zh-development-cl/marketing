@@ -12,12 +12,12 @@
       "captions": [
         {
           "text": "¿Qué es ZH Development?",
-          "start": 0.08,
+          "start": 0.06,
           "end": 2,
           "words": [
             {
               "text": "¿Qué",
-              "start": 0.08,
+              "start": 0.06,
               "end": 0.24
             },
             {
@@ -261,7 +261,7 @@
             {
               "text": "más",
               "start": 3.46,
-              "end": 3.64
+              "end": 3.62
             },
             {
               "text": "tiempo",
@@ -384,7 +384,7 @@
             {
               "text": "entregas",
               "start": 1.76,
-              "end": 2.16
+              "end": 2.14
             },
             {
               "text": "que",
@@ -459,7 +459,7 @@
             {
               "text": "todo",
               "start": 0.26,
-              "end": 0.46
+              "end": 0.54
             },
             {
               "text": "queda",
@@ -521,7 +521,7 @@
             },
             {
               "text": "a",
-              "start": 2.14,
+              "start": 2.16,
               "end": 2.18
             },
             {
@@ -579,7 +579,7 @@
             {
               "text": "30",
               "start": 5.46,
-              "end": 5.72
+              "end": 5.74
             },
             {
               "text": "minutos.",
@@ -589,7 +589,7 @@
             {
               "text": "Link",
               "start": 6.7,
-              "end": 7.06
+              "end": 6.96
             },
             {
               "text": "en",

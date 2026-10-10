@@ -37,7 +37,7 @@ export const sfxCues: SfxCue[] = [
   {name: 'click', at: L + tClick, gain: 0.9},
   // Cierre: golpe grave (sting) sobre el ícono de Instagram, con un brillo encima; la música ya terminó.
   {name: 'sting', at: L + tEnd + 6, gain: 1.0},
-  {name: 'chime', at: L + tEnd + 6, gain: 0.5},
+  {name: 'chime', at: L + tEnd + 9, gain: 0.8}, // brillo 3 frames después del golpe
 ];
 
 const LOGO_W = 420;
@@ -48,17 +48,18 @@ export const Outro: React.FC = () => {
   const frame = useCurrentFrame();
   const draw = prog(frame, tDraw, 22, inOutQuart);
   const fill = prog(frame, tFill, 12);
-  const accentIn = prog(frame, tDot + 6, 10, outExpo);
+  const accentIn = prog(frame, tDot + 10, 8, outExpo); // el bloque nace cuando la tarjeta ya es un punto
   const glow = prog(frame, tFill, 30);
   const dim = prog(frame, tEnd, 14);
-  const pressed = frame >= tClick && frame < tClick + 8;
-  const ctaPress = pressed ? 0.9 : 1;
+  const press = prog(frame, tClick, 3, outQuart) * (1 - prog(frame, tClick + 5, 7, outQuart)); // clic con easing
+  const pressed = press > 0.2;
+  const ctaPress = 1 - 0.1 * press;
   return (
     <AbsoluteFill>
       <div style={{position: 'absolute', inset: 0, opacity: 1 - dim * 0.95, filter: dim > 0 ? `blur(${dim * 12}px)` : undefined}}>
         {/* Punto → bloque azul del logo (el bloque está en (630,110) del viewBox 1000 → en px del lienzo) */}
         <div style={{position: 'absolute', left: LOGO_X, top: LOGO_Y}}>
-          <LogoDraw width={LOGO_W} draw={draw} fill={fill} accentIn={accentIn} glow={glow * 0.8} />
+          <LogoDraw width={LOGO_W} draw={draw} fill={fill} accentIn={accentIn} glow={glow * 0.8 * (0.92 + 0.08 * Math.sin(frame / 9))} />
         </div>
         <div style={{position: 'absolute', left: 0, right: 0, top: LOGO_Y + 300, textAlign: 'center'}}>
           <BlurIn at={tName} dy={16}>
@@ -82,7 +83,7 @@ export const Outro: React.FC = () => {
                 fontFamily: fonts.sans,
                 fontWeight: 600,
                 fontSize: 40,
-                boxShadow: shadow.glow(accent.glow, pressed ? 20 : 46),
+                boxShadow: shadow.glow(accent.glow, 46 - 26 * press),
                 transform: `scale(${ctaPress})`,
               }}
             >
@@ -92,8 +93,8 @@ export const Outro: React.FC = () => {
         </div>
         {frame >= tClick - 22 ? (
           <Moving
-            x={(f) => keyframes(f, [[tClick - 22, 980], [tClick - 2, 720], [tClick + 20, 735]], outQuart)}
-            y={(f) => keyframes(f, [[tClick - 22, 1500], [tClick - 2, LOGO_Y + 600], [tClick + 20, LOGO_Y + 610]], outQuart)}
+            x={(f) => keyframes(f, [[tClick - 22, 980], [tClick - 2, 720], [tClick + 20, 735], [tClick + 90, 742]], outQuart)}
+            y={(f) => keyframes(f, [[tClick - 22, 1500], [tClick - 2, LOGO_Y + 600], [tClick + 20, LOGO_Y + 610], [tClick + 90, LOGO_Y + 606]], outQuart)}
             opacity={(f) => prog(f, tClick - 22, 6)}
             blur={0.2}
           >

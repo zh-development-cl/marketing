@@ -43,12 +43,11 @@ const LINES: Line[] = [
 const lineEnd = (l: Line) => l.at + l.dur; // último carácter escrito → marcador + prueba
 const MARK_DUR = 12;
 
-// Un 'tick' cada 2 letras escritas (frames deduplicados: a más de 2 letras por frame se juntan).
+// Un 'tick' cada 3 frames mientras se escribe (≈9 por segundo: tecleo, no zumbido) y nunca en el frame del marcador.
 const tickFrames = (l: Line) => {
-  const n = l.text.length;
-  const set = new Set<number>();
-  for (let k = 2; k <= n; k += 2) set.add(l.at + Math.ceil((k / n) * l.dur));
-  return [...set].sort((a, b) => a - b);
+  const out: number[] = [];
+  for (let f = l.at + 2; f < lineEnd(l) - 1; f += 3) out.push(f);
+  return out;
 };
 
 export const sfxCues: SfxCue[] = [

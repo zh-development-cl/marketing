@@ -14,7 +14,7 @@ import type {SfxCue} from '../sound';
 const sc = scenes.step2;
 const L = sc.from - 8;
 const loc = (a: number) => a - L;
-const tTitle = 4; // entra cuando el título del paso 01 ya terminó de salir
+const tTitle = 6; // entra cuando el título del paso 01 ya terminó de salir
 const tRing = loc(beat('step2', 'Después')) - 12; // el anillo nace con la primera palabra (nunca pantalla vacía)
 const tChips = ['alcance', 'plazo', 'precio'].map((w) => loc(beat('step2', w)) - 3); // lo visual 1–2 frames delante del audio
 const tPaper = loc(beat('step2', 'precio')) + 12;
@@ -23,7 +23,7 @@ const tStamp = loc(beat('step2', 'sorpresas')) - 2; // timbre "sin sorpresas" so
 const END = loc(sc.to) + 8;
 
 export const sfxCues: SfxCue[] = [
-  {name: 'whoosh-soft', at: L + tTitle},
+  {name: 'whoosh-soft', at: L + tTitle, gain: 0.3}, // el whip de la salida del paso 01 ya sonoriza el cambio
   {name: 'rise', at: L + tRing, gain: 0.5},
   ...tChips.map((t) => ({name: 'tick' as const, at: L + t, gain: 0.6})),
   {name: 'paper', at: L + tPaper},

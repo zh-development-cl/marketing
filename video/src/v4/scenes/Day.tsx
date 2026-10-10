@@ -36,7 +36,7 @@ const HL: Array<{kinds: string[]; color: string; from: number; to: number}> = [
 const highlightOf = (kind: string, f: number): [number, string] | null => {
   for (const h of HL) {
     if (!h.kinds.includes(kind)) continue;
-    const k = prog(f, h.from, 4) * (1 - prog(f, h.to, 8, inOutQuart));
+    const k = prog(f, h.from, 6) * (1 - prog(f, h.to, 8, inOutQuart));
     if (k > 0.01) return [k, h.color];
   }
   return null;
@@ -58,8 +58,8 @@ export const sfxCues: SfxCue[] = [
   {name: 'whoosh-soft', at: L + 0, gain: 0.35}, // el día entra desde abajo (el gancho ya suena su whoosh-hard)
   ...whooshes,
   ...tEvents.map((t) => ({name: 'tick' as const, at: L + t + 1, gain: 0.3})),
-  {name: 'rise', at: L + T1 - 24, gain: 0.5},
-  {name: 'click', at: L + T1, gain: 0.45}, // 19:00
+  {name: 'rise', at: L + T1 - 36, gain: 0.5}, // remata justo en 19:00
+  {name: 'click', at: L + T1, gain: 0.8}, // 19:00
 ];
 
 export const Day: React.FC = () => {
@@ -138,17 +138,31 @@ export const Day: React.FC = () => {
             const k = hl ? hl[0] : 0;
             const dim = dimFor(i, entered);
             return (
-              <Moving
-                key={i}
-                x={(f) => cx - c.w / 2 + tween(f, t, t + ENTER, 1400, 0, outExpo)}
-                y={() => cy - c.h / 2}
-                rotate={(f) => rot + tween(f, t, t + ENTER, 10, 0, outExpo)}
-                scale={() => HEAP_SCALE * (1 + 0.05 * k)}
-                blur={0.26}
-                style={{zIndex: 10 + i + (k > 0.05 ? 100 : 0)}}
-              >
-                <CardFace i={i} dim={dim} hl={hl} />
-              </Moving>
+              <React.Fragment key={i}>
+                <Moving
+                  x={(f) => cx - c.w / 2 + tween(f, t, t + ENTER, 1400, 0, outExpo)}
+                  y={() => cy - c.h / 2}
+                  rotate={(f) => rot + tween(f, t, t + ENTER, 10, 0, outExpo)}
+                  scale={() => HEAP_SCALE}
+                  blur={0.26}
+                  style={{zIndex: 10 + i}}
+                >
+                  <CardFace i={i} dim={dim} />
+                </Moving>
+                {/* Resalte: una copia iluminada se funde encima y sube un poco; la original no cambia de capa */}
+                {hl ? (
+                  <Moving
+                    x={() => cx - c.w / 2}
+                    y={() => cy - c.h / 2 - 20 * k}
+                    rotate={() => rot}
+                    scale={() => HEAP_SCALE * (1 + 0.06 * k)}
+                    blur={0.26}
+                    style={{zIndex: 300 + i, opacity: k}}
+                  >
+                    <CardFace i={i} dim={1} hl={hl} />
+                  </Moving>
+                ) : null}
+              </React.Fragment>
             );
           })
         : null}
