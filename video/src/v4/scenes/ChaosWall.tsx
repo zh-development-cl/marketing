@@ -1,5 +1,5 @@
 import React from 'react';
-import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+import {AbsoluteFill, interpolate, staticFile, useCurrentFrame} from 'remotion';
 import {Rain} from '../fx/Rain';
 import {BlurIn, StepTitle} from '../fx/text';
 import {Moving} from '../fx/MotionBlur';
@@ -95,7 +95,7 @@ export const ChaosWall: React.FC = () => {
             <StepTitle n="01" title="entender" at={tTitle} />
             <div style={{position: 'absolute', left: 120, top: 1480, width: 840}}>
               <BlurIn at={tCall} dy={30}>
-                <CallBar seconds={seconds} done={done} avatarSrc="people/lorenzo.jpg" name="Lorenzo, de ZH" subtitle="llamada con Tu Empresa" />
+                <CallBar seconds={seconds} done={done} avatarSrc={staticFile('people/lorenzo.jpg')} name="Lorenzo, de ZH" subtitle="llamada con Tu Empresa" />
               </BlurIn>
             </div>
           </div>

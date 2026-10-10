@@ -6,7 +6,7 @@ import {prog} from '../fx/ease';
 import {canvas, ink, fonts} from '../tokens';
 import {Phone, PhoneNotification} from '../ui/Phone';
 import {CallBar} from '../ui/CallBar';
-import {Watermark} from '../ui/Watermark';
+import {InstagramGlyph, Watermark} from '../ui/Watermark';
 import {Ring} from '../ui/Ring';
 import {Cursor} from '../ui/Cursor';
 
@@ -95,6 +95,9 @@ const Bars: React.FC = () => {
         Agenda tus 30 minutos →
       </div>
       <Cursor style={{position: 'absolute', left: 430, top: 1498}} />
+      <Watermark x={930} y={1660} color={1} />
+      <InstagramGlyph size={150} color={0.5} style={{position: 'absolute', left: 740, top: 1380}} />
+      <CallBar seconds={27} subtitle="alias subtitle" style={{position: 'absolute', left: 120, top: 1800, transform: 'scale(0.5)', transformOrigin: '0 0'}} />
     </AbsoluteFill>
   );
 };

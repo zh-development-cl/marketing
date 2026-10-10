@@ -7,6 +7,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {createHash} from 'node:crypto';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const env = fs.existsSync(path.join(root, '.env')) ? fs.readFileSync(path.join(root, '.env'), 'utf8') : '';
@@ -124,11 +125,20 @@ for (const [scene, segments] of Object.entries(script)) {
     data = {alignment: {characters: chars, character_start_times_seconds: starts, character_end_times_seconds: starts.map((t) => t + 0.07)}};
     execFileSync('ffmpeg', ['-hide_banner', '-nostats', '-y', '-f', 'lavfi', '-i', 'anullsrc=r=44100:cl=mono', '-t', String(chars.length * 0.07), '-c:a', 'libmp3lame', '-b:a', '64k', path.join(outDir, file)], {stdio: 'ignore'});
   } else {
+    const bodyText = MODEL.startsWith('eleven_v3') && tags[scene] ? `${tags[scene]} ${spokenText}` : spokenText;
+    const cacheDir = path.join(os.tmpdir(), 'zh-vo-raw');
+    fs.mkdirSync(cacheDir, {recursive: true});
+    const cacheKey = createHash('sha1').update([voiceId, MODEL, bodyText, SPEED].join('|')).digest('hex');
+    const cachePath = path.join(cacheDir, `${scene}-${cacheKey}.json`);
+    if (fs.existsSync(cachePath)) {
+      data = JSON.parse(fs.readFileSync(cachePath, 'utf8'));
+      console.log(`${scene}: toma en caché`);
+    } else {
     const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}/with-timestamps?output_format=mp3_44100_128`, {
       method: 'POST',
       headers: {'xi-api-key': key, 'content-type': 'application/json'},
       body: JSON.stringify({
-        text: MODEL.startsWith('eleven_v3') && tags[scene] ? `${tags[scene]} ${spokenText}` : spokenText,
+        text: bodyText,
         model_id: MODEL,
         voice_settings: MODEL.startsWith('eleven_v3')
           ? {stability: 0.5, similarity_boost: 0.8, use_speaker_boost: true}
@@ -138,6 +148,8 @@ for (const [scene, segments] of Object.entries(script)) {
     if (!res.ok) throw new Error(`${scene}: ${res.status} ${await res.text()}`);
     data = await res.json();
     if (!data.alignment) throw new Error(`${scene}: la respuesta no trae alignment`);
+    fs.writeFileSync(cachePath, JSON.stringify(data));
+    }
     fs.writeFileSync(raw, Buffer.from(data.audio_base64, 'base64'));
     if (TEMPO !== 1) {
       const stretched = path.join(tmp, `${scene}-tempo.mp3`);

@@ -23,6 +23,7 @@ export type PhoneProps = {
   tone?: 'busy' | 'calm'; // busy: gris azulado apagado · calm: azul profundo más luminoso
   screenOnly?: boolean; // sin bisel ni botones ni sombra; la pantalla queda en la misma posición (inset 18 px)
   frameOpacity?: number; // 0..1 opacidad del bisel (para hacerlo aparecer); screenOnly equivale a 0
+  bezelOpacity?: number; // alias de `frameOpacity`
   style?: React.CSSProperties;
 };
 
@@ -226,15 +227,15 @@ const SideButton: React.FC<{side: 'left' | 'right'; top: number; height: number}
   />
 );
 
-export const Phone: React.FC<PhoneProps> = ({date, time, notifications, pending, tone = 'busy', screenOnly = false, frameOpacity = 1, style}) => {
-  const fo = screenOnly ? 0 : Math.max(0, Math.min(1, frameOpacity));
+export const Phone: React.FC<PhoneProps> = ({date, time, notifications, pending, tone = 'busy', screenOnly = false, frameOpacity, bezelOpacity, style}) => {
+  const fo = screenOnly ? 0 : Math.max(0, Math.min(1, frameOpacity ?? bezelOpacity ?? 1));
   const screenBg =
     tone === 'busy'
       ? [
           'radial-gradient(78% 44% at 16% 6%, rgba(96,118,130,0.72) 0%, rgba(96,118,130,0) 70%)',
           'radial-gradient(64% 42% at 90% 97%, rgba(80,108,120,0.7) 0%, rgba(80,108,120,0) 70%)',
           'radial-gradient(50% 30% at 60% 55%, rgba(44,58,68,0.5) 0%, rgba(44,58,68,0) 70%)',
-          'linear-gradient(165deg, #273038 0%, #1A2027 45%, #0F1317 100%)',
+          'linear-gradient(165deg, #2B343D 0%, #1E252D 45%, #11161B 100%)',
         ].join(', ')
       : [
           'radial-gradient(75% 42% at 18% 8%, rgba(78,128,220,0.62) 0%, rgba(78,128,220,0) 70%)',

@@ -3,7 +3,7 @@ import {AbsoluteFill, Composition, registerRoot} from 'remotion';
 import '../../brand/fonts';
 import {Backdrop} from '../fx/Grain';
 import {canvas, fonts, ink} from '../tokens';
-import {ALL_CARDS, CardAt, pickCard} from '../ui/cards';
+import {ALL_CARDS, CardAt} from '../ui/cards';
 
 // Entry de desarrollo para verificar las tarjetas de src/v4/ui/cards.tsx:
 //   CardsGrid      → las 9 tarjetas (variante 0) en una grilla
@@ -48,18 +48,19 @@ const Grid: React.FC = () => {
 };
 
 const Variants: React.FC = () => {
-  const x0 = 40;
-  let y = 80;
+  const s = 0.8;
+  const x0 = 24;
+  let y = 60;
   const items: React.ReactNode[] = [];
   ALL_CARDS.forEach((c) => {
     for (let v = 0; v < c.variants; v++) {
       items.push(
-        <div key={`${c.name}-${v}`} style={{position: 'absolute', left: x0 + v * 336, top: y}}>
+        <div key={`${c.name}-${v}`} style={{position: 'absolute', left: x0 + v * 262, top: y, transform: `scale(${s})`, transformOrigin: 'top left'}}>
           <c.Component variant={v} />
         </div>,
       );
     }
-    y += c.h + 18;
+    y += c.h * s + 44;
   });
   return (
     <AbsoluteFill>
@@ -83,7 +84,7 @@ const Wall: React.FC = () => {
       <Backdrop />
       <Label style={{left: 60, top: 180, fontSize: 28, color: ink.text2}}>CardAt · 40 índices</Label>
       {Array.from({length: n}, (_, i) => {
-        const spec = pickCard(i);
+        const {node, w, h} = CardAt({index: i});
         const col = i % cols;
         const r = Math.floor(i / cols);
         return (
@@ -91,13 +92,13 @@ const Wall: React.FC = () => {
             key={i}
             style={{
               position: 'absolute',
-              left: x0 + col * cw + ((cw - spec.w * s) / 2),
-              top: y0 + r * rh + ((rh - spec.h * s) / 2),
+              left: x0 + col * cw + ((cw - w * s) / 2),
+              top: y0 + r * rh + ((rh - h * s) / 2),
               transform: `scale(${s})`,
               transformOrigin: 'top left',
             }}
           >
-            <CardAt index={i} />
+            {node}
           </div>
         );
       })}

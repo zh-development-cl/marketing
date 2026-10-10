@@ -7,6 +7,7 @@ import {BankIcon, CalendarIcon, ExcelIcon, GmailM, InstagramIcon, InstagramRing,
 // `variant` (0..variants-1, se toma módulo). La escena decide posición, escala y entrada.
 //
 // Uso típico:  <WhatsAppCard variant={1} />   o   <CardAt index={i} />  para repartir N tarjetas.
+// Tipografía Inter de 14 a 21 px: las tarjetas se ven a ~0.75x en el muro y deben seguir leyéndose.
 
 export type CardProps = {
   variant?: number; // contenido 0..n-1 (se toma módulo, cualquier entero sirve)
@@ -33,7 +34,7 @@ const Shell: React.FC<{
   shadowCss?: string;
   style?: React.CSSProperties;
   children: React.ReactNode;
-}> = ({w, h, bg, dark = false, r = radius.cardSm + 2, pad = 0, shadowCss, style, children}) => (
+}> = ({w, h, bg, dark = false, r = radius.card, pad = 0, shadowCss, style, children}) => (
   <div
     style={{
       position: 'relative',
@@ -62,38 +63,56 @@ const Shell: React.FC<{
 
 const WA_W = 300;
 const WA_H = 150;
-type WaData = {name: string; time: string; from?: string; fromColor?: string; msgs: string[]};
+type WaData = {name: string; time: string; from?: string; fromColor?: string; msgs: string[]; notif?: boolean};
 const WA: WaData[] = [
   {name: 'Tu Empresa', time: '21:40', from: 'Camila Rojas', fromColor: '#F2A05E', msgs: ['Hola! tienen stock del modelo azul?']},
   {name: 'Tu Empresa', time: '21:46', from: 'Pía', fromColor: '#E85FB4', msgs: ['me pueden cotizar 20?']},
   {name: 'Don Jorge', time: '21:48', msgs: ['hola?', 'alguien?']},
+  {name: 'Camila Rojas', time: 'ahora', msgs: ['Hola! tienen stock del modelo azul?'], notif: true},
 ];
 
 // Chat de WhatsApp (modo oscuro): cabecera con burbuja verde, nombre y hora; mensajes entrantes en burbujas.
+// La variante 3 es una notificación de iOS (panel translúcido, "ahora").
 export const WhatsAppCard: React.FC<CardProps> = ({variant, style}) => {
   const d = pick(WA, variant);
+  if (d.notif) {
+    return (
+      <Shell w={WA_W} h={WA_H} bg="rgba(44,52,64,0.72)" dark pad="14px 16px" style={style}>
+        <div style={{...row, gap: 10, alignItems: 'flex-start'}}>
+          <WhatsAppIcon size={34} style={{marginTop: 2}} />
+          <div style={{flex: 1, minWidth: 0}}>
+            <div style={{...row, gap: 8}}>
+              <div style={{...ellipsis, flex: 1, fontSize: 16, fontWeight: 600, letterSpacing: '-0.01em'}}>{d.name}</div>
+              <div style={{fontSize: 14, color: ink.text2}}>{d.time}</div>
+            </div>
+            <div style={{fontSize: 16, lineHeight: 1.3, color: ink.text, marginTop: 2}}>{d.msgs[0]}</div>
+          </div>
+        </div>
+      </Shell>
+    );
+  }
   return (
     <Shell w={WA_W} h={WA_H} bg="#0E161C" dark pad="12px 14px" style={style}>
       <div style={{...row, gap: 9}}>
-        <WhatsAppIcon size={24} />
-        <div style={{...ellipsis, flex: 1, fontSize: 15, fontWeight: 600, letterSpacing: '-0.01em'}}>{d.name}</div>
-        <div style={{fontSize: 13, color: '#8696A0'}}>{d.time}</div>
+        <WhatsAppIcon size={26} />
+        <div style={{...ellipsis, flex: 1, fontSize: 17, fontWeight: 600, letterSpacing: '-0.01em'}}>{d.name}</div>
+        <div style={{fontSize: 14, color: '#8696A0'}}>{d.time}</div>
       </div>
       <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 4, marginTop: 9}}>
         {d.msgs.map((m, i) => (
           <div
             key={i}
             style={{
-              maxWidth: 246,
+              maxWidth: 250,
               background: '#1F2C34',
-              borderRadius: 10,
-              borderTopLeftRadius: i === 0 ? 3 : 10,
-              padding: '6px 11px 7px',
+              borderRadius: 11,
+              borderTopLeftRadius: i === 0 ? 3 : 11,
+              padding: '6px 12px 7px',
               boxShadow: '0 1px 1px rgba(0,0,0,0.35)',
             }}
           >
-            {i === 0 && d.from ? <div style={{fontSize: 13, fontWeight: 600, color: d.fromColor, marginBottom: 1}}>{d.from}</div> : null}
-            <div style={{fontSize: 16, lineHeight: 1.28, color: '#E9EDEF'}}>{m}</div>
+            {i === 0 && d.from ? <div style={{fontSize: 14, fontWeight: 600, color: d.fromColor, marginBottom: 1}}>{d.from}</div> : null}
+            <div style={{fontSize: 19, lineHeight: 1.25, color: '#E9EDEF', letterSpacing: '-0.01em'}}>{m}</div>
           </div>
         ))}
       </div>
@@ -115,25 +134,26 @@ const XL_ROWS: Array<[string, string, string]> = [
 // Planilla de Excel: cabecera verde con nombre de archivo, columnas A/B/C y un #REF! en rojo seleccionado.
 export const ExcelCard: React.FC<CardProps> = ({variant, style}) => {
   const file = pick(XL_FILES, variant);
-  const cols = '24px 142px 68px 86px';
+  const cols = '26px 140px 68px 86px';
   const cell: React.CSSProperties = {
     boxSizing: 'border-box',
-    height: 33,
+    height: 34,
     display: 'flex',
     alignItems: 'center',
     padding: '0 8px',
     borderRight: `1px solid ${apps.excelGrid}`,
     borderBottom: `1px solid ${apps.excelGrid}`,
-    fontSize: 13,
+    fontSize: 15,
     color: '#1F2933',
+    letterSpacing: '-0.01em',
     ...ellipsis,
   };
   const head: React.CSSProperties = {...cell, height: 22, background: '#F2F4F6', color: '#6B7684', fontSize: 13, justifyContent: 'center', padding: 0};
   return (
-    <Shell w={XL_W} h={XL_H} bg="#FFFFFF" style={style}>
-      <div style={{...row, gap: 7, height: 30, background: apps.excel, padding: '0 10px', color: '#FFFFFF'}}>
-        <ExcelIcon size={17} />
-        <div style={{...ellipsis, fontSize: 13, fontWeight: 600, letterSpacing: '-0.005em'}}>{file}</div>
+    <Shell w={XL_W} h={XL_H} bg="#FFFFFF" r={radius.cardSm + 2} style={style}>
+      <div style={{...row, gap: 8, height: 32, background: apps.excel, padding: '0 10px', color: '#FFFFFF'}}>
+        <ExcelIcon size={18} />
+        <div style={{...ellipsis, fontSize: 14, fontWeight: 600, letterSpacing: '-0.005em'}}>{file}</div>
       </div>
       <div style={{display: 'grid', gridTemplateColumns: cols}}>
         <div style={head} />
@@ -144,7 +164,7 @@ export const ExcelCard: React.FC<CardProps> = ({variant, style}) => {
         ))}
         {XL_ROWS.map((r, ri) => (
           <React.Fragment key={ri}>
-            <div style={{...head, height: 33}}>{ri + 1}</div>
+            <div style={{...head, height: 34}}>{ri + 1}</div>
             {r.map((v, ci) => {
               const isRef = v === '#REF!';
               const num = ci > 0 && ri > 0;
@@ -187,7 +207,8 @@ const SN: Array<{text: string; rotate: number}> = [
   {text: 'llamar proveedor 15:30', rotate: -1.1},
 ];
 
-// Post-it amarillo con texto manuscrito (Caveat), esquina doblada y sombra de papel. `rotate` en grados.
+// Post-it amarillo con texto manuscrito (Caveat), esquina doblada y sombra de papel. `rotate` en grados
+// (por defecto cada variante trae su propia inclinación; pasar 0 para dejarlo recto).
 export const StickyNote: React.FC<CardProps & {rotate?: number}> = ({variant, rotate, style}) => {
   const d = pick(SN, variant);
   const rot = rotate ?? d.rotate;
@@ -210,10 +231,10 @@ export const StickyNote: React.FC<CardProps & {rotate?: number}> = ({variant, ro
           style={{
             position: 'absolute',
             left: 22,
-            right: 22,
-            top: 40,
-            fontSize: 33,
-            lineHeight: 1.1,
+            right: 20,
+            top: 36,
+            fontSize: 37,
+            lineHeight: 1.08,
             fontWeight: 600,
             color: apps.stickyInk,
             transform: 'rotate(-1deg)',
@@ -250,29 +271,29 @@ const INV: Array<{n: string; client: string; total: string; due: string; stamp: 
 // Factura electrónica en papel: número, cliente, total y timbre rojo rotado "VENCIDA" con borde doble.
 export const InvoiceCard: React.FC<CardProps> = ({variant, style}) => {
   const d = pick(INV, variant);
-  const line: React.CSSProperties = {...row, justifyContent: 'space-between', fontSize: 14, color: apps.paperInk};
+  const line: React.CSSProperties = {...row, justifyContent: 'space-between', fontSize: 15, color: apps.paperInk, letterSpacing: '-0.01em'};
   return (
     <Shell w={INV_W} h={INV_H} bg={apps.paper} r={radius.cardSm} pad="15px 18px 14px" shadowCss={shadow.paper} style={style}>
-      <div style={{fontSize: 13, fontWeight: 700, letterSpacing: '0.12em', color: apps.paperInk, whiteSpace: 'nowrap'}}>FACTURA ELECTRÓNICA</div>
-      <div style={{fontSize: 13, color: apps.paperMuted, marginTop: 3}}>N° {d.n}</div>
-      <div style={{height: 1, background: apps.paperLine, margin: '10px 0 9px'}} />
-      <div style={{...line, marginBottom: 5}}>
+      <div style={{fontSize: 14, fontWeight: 700, letterSpacing: '0.11em', color: apps.paperInk, whiteSpace: 'nowrap'}}>FACTURA ELECTRÓNICA</div>
+      <div style={{fontSize: 14, color: apps.paperMuted, marginTop: 3}}>N° {d.n}</div>
+      <div style={{height: 1, background: apps.paperLine, margin: '10px 0 8px'}} />
+      <div style={{...line, marginBottom: 4}}>
         <span style={{color: apps.paperMuted}}>Cliente</span>
         <span style={{fontWeight: 500}}>{d.client}</span>
       </div>
-      <div style={{...line, marginBottom: 5}}>
+      <div style={{...line, marginBottom: 4}}>
         <span style={{color: apps.paperMuted}}>Vence</span>
         <span style={{color: apps.paperMuted}}>{d.due}</span>
       </div>
-      <div style={{...line, fontSize: 16, fontWeight: 700}}>
+      <div style={{...line, fontSize: 18, fontWeight: 700}}>
         <span>Total</span>
         <span>{d.total}</span>
       </div>
       <div
         style={{
           position: 'absolute',
-          right: 12,
-          top: 11,
+          right: 10,
+          top: 10,
           transform: `rotate(${d.rot}deg)`,
           color: apps.stamp,
           border: `2px solid ${apps.stamp}`,
@@ -307,14 +328,14 @@ const GM: Array<{from: string; time: string; subject: string; preview: string}> 
 export const GmailCard: React.FC<CardProps> = ({variant, style}) => {
   const d = pick(GM, variant);
   return (
-    <Shell w={GM_W} h={GM_H} bg="#FFFFFF" pad="16px 18px" style={style}>
+    <Shell w={GM_W} h={GM_H} bg="#FFFFFF" pad="18px 18px 16px" style={style}>
       <div style={{...row, gap: 10}}>
-        <GmailM size={24} />
-        <div style={{...ellipsis, flex: 1, fontSize: 15, fontWeight: 700, color: '#202124'}}>{d.from}</div>
-        <div style={{fontSize: 13, fontWeight: 500, color: '#1A73E8'}}>{d.time}</div>
+        <GmailM size={26} />
+        <div style={{...ellipsis, flex: 1, fontSize: 17, fontWeight: 700, color: '#202124', letterSpacing: '-0.01em'}}>{d.from}</div>
+        <div style={{fontSize: 14, fontWeight: 500, color: '#1A73E8'}}>{d.time}</div>
       </div>
-      <div style={{...ellipsis, fontSize: 17, fontWeight: 700, color: '#202124', marginTop: 13, letterSpacing: '-0.01em'}}>{d.subject}</div>
-      <div style={{...ellipsis, fontSize: 14, color: '#5F6368', marginTop: 6}}>{d.preview}</div>
+      <div style={{...ellipsis, fontSize: 19, fontWeight: 700, color: '#202124', marginTop: 13, letterSpacing: '-0.015em'}}>{d.subject}</div>
+      <div style={{...ellipsis, fontSize: 15, color: '#5F6368', marginTop: 6}}>{d.preview}</div>
     </Shell>
   );
 };
@@ -323,26 +344,46 @@ export const GmailCard: React.FC<CardProps> = ({variant, style}) => {
 
 const IG_W = 300;
 const IG_H = 140;
-const IG: Array<{user: string; msg: string}> = [
+const IG: Array<{user: string; msg: string; notif?: boolean}> = [
   {user: 'maria.jose', msg: 'precio???'},
   {user: 'tienda.lu', msg: 'hacen envíos a regiones?'},
   {user: 'cata.ulloa', msg: 'sigue disponible??'},
+  {user: 'maria.jose', msg: 'precio???', notif: true},
 ];
 
 // DM de Instagram: fondo negro, avatar con anillo degradado e inicial, usuario y burbuja gris oscura.
+// La variante 3 es una notificación de iOS (ícono de Instagram, usuario, "ahora").
 export const InstagramDMCard: React.FC<CardProps> = ({variant, style}) => {
   const d = pick(IG, variant);
+  if (d.notif) {
+    return (
+      <Shell w={IG_W} h={IG_H} bg="rgba(44,52,64,0.72)" dark pad="14px 16px" style={style}>
+        <div style={{...row, gap: 10, alignItems: 'flex-start'}}>
+          <InstagramIcon size={34} style={{marginTop: 2}} />
+          <div style={{flex: 1, minWidth: 0}}>
+            <div style={{...row, gap: 8}}>
+              <div style={{...ellipsis, flex: 1, fontSize: 16, fontWeight: 600}}>{d.user}</div>
+              <div style={{fontSize: 14, color: ink.text2}}>ahora</div>
+            </div>
+            <div style={{fontSize: 16, lineHeight: 1.3, color: ink.text, marginTop: 2}}>{d.msg}</div>
+          </div>
+        </div>
+      </Shell>
+    );
+  }
   return (
     <Shell w={IG_W} h={IG_H} bg="#0B0B0F" dark pad="13px 14px" style={style}>
       <div style={{...row, gap: 10}}>
-        <InstagramRing size={30} ring={2}>
-          <span style={{fontSize: 13, fontWeight: 700, color: '#FFFFFF', fontFamily: fonts.ui}}>{d.user[0].toUpperCase()}</span>
+        <InstagramRing size={32} ring={2}>
+          <span style={{fontSize: 14, fontWeight: 700, color: '#FFFFFF', fontFamily: fonts.ui}}>{d.user[0].toUpperCase()}</span>
         </InstagramRing>
-        <div style={{...ellipsis, flex: 1, fontSize: 15, fontWeight: 600, color: '#FAFAFA'}}>{d.user}</div>
-        <InstagramIcon size={18} />
+        <div style={{...ellipsis, flex: 1, fontSize: 17, fontWeight: 600, color: '#FAFAFA', letterSpacing: '-0.01em'}}>{d.user}</div>
+        <InstagramIcon size={20} />
       </div>
-      <div style={{display: 'flex', marginTop: 12}}>
-        <div style={{maxWidth: 236, background: '#262626', borderRadius: 18, padding: '9px 14px', fontSize: 16, lineHeight: 1.3, color: '#FAFAFA'}}>{d.msg}</div>
+      <div style={{display: 'flex', marginTop: 13}}>
+        <div style={{maxWidth: 250, background: '#262626', borderRadius: 20, padding: '9px 15px', fontSize: 19, lineHeight: 1.25, color: '#FAFAFA', letterSpacing: '-0.01em'}}>
+          {d.msg}
+        </div>
       </div>
     </Shell>
   );
@@ -365,12 +406,12 @@ export const BankCard: React.FC<CardProps> = ({variant, style}) => {
     <Shell w={BK_W} h={BK_H} bg={`linear-gradient(180deg, #121C33 0%, ${apps.bank} 100%)`} dark pad="14px 16px 14px 18px" style={style}>
       <div style={{position: 'absolute', left: 0, top: 0, bottom: 0, width: 4, background: apps.bankAccent}} />
       <div style={{...row, gap: 10}}>
-        <BankIcon size={24} />
-        <div style={{...ellipsis, flex: 1, fontSize: 14, fontWeight: 600, color: ink.text2, letterSpacing: '0.01em'}}>Banco</div>
-        <div style={{fontSize: 13, color: ink.text3}}>{d.time}</div>
+        <BankIcon size={26} />
+        <div style={{...ellipsis, flex: 1, fontSize: 15, fontWeight: 600, color: ink.text2, letterSpacing: '0.01em'}}>Banco</div>
+        <div style={{fontSize: 14, color: ink.text3}}>{d.time}</div>
       </div>
-      <div style={{...ellipsis, fontSize: 17, fontWeight: 700, color: ink.text, marginTop: 12, letterSpacing: '-0.01em'}}>{d.title}</div>
-      <div style={{...ellipsis, fontSize: 14, color: ink.text2, marginTop: 5}}>{d.body}</div>
+      <div style={{...ellipsis, fontSize: 19, fontWeight: 700, color: ink.text, marginTop: 11, letterSpacing: '-0.015em'}}>{d.title}</div>
+      <div style={{...ellipsis, fontSize: 15, color: ink.text2, marginTop: 5}}>{d.body}</div>
     </Shell>
   );
 };
@@ -384,22 +425,22 @@ const CAL: Array<{start: number; blocks: CalBlock[]}> = [
   {
     start: 14,
     blocks: [
-      {title: 'Reunión de ventas', sub: '15:00 a 16:00', color: '#1E9BE9', from: 14.55, to: 15.75, left: 0, w: 150},
-      {title: 'Llamar proveedor', sub: '15:30', color: '#F4511E', from: 15.4, to: 16.5, left: 100, w: 128},
+      {title: 'Reunión de ventas', sub: '15:00 a 16:00', color: '#1E9BE9', from: 14.55, to: 15.75, left: 0, w: 156},
+      {title: 'Llamar proveedor', sub: '15:30', color: '#F4511E', from: 15.3, to: 16.62, left: 96, w: 128},
     ],
   },
   {
     start: 9,
     blocks: [
-      {title: 'Entrega pedido 588', sub: '09:30 a 10:30', color: '#1E9BE9', from: 9.4, to: 10.5, left: 0, w: 160},
-      {title: 'Cobrar a Pérez', sub: '10:00', color: '#F4511E', from: 9.95, to: 11.1, left: 96, w: 132},
+      {title: 'Entrega pedido 588', sub: '09:30 a 10:30', color: '#1E9BE9', from: 9.4, to: 10.5, left: 0, w: 166},
+      {title: 'Cobrar a Pérez', sub: '10:00', color: '#F4511E', from: 9.95, to: 11.1, left: 92, w: 132},
     ],
   },
   {
     start: 16,
     blocks: [
-      {title: 'Inventario', sub: '16:00 a 18:00', color: '#1E9BE9', from: 16.1, to: 17.8, left: 0, w: 120},
-      {title: 'Reunión contador', sub: '17:00', color: '#F4511E', from: 16.85, to: 18.0, left: 72, w: 156},
+      {title: 'Inventario', sub: '16:00 a 18:00', color: '#1E9BE9', from: 16.1, to: 17.8, left: 0, w: 126},
+      {title: 'Reunión contador', sub: '17:00', color: '#F4511E', from: 16.85, to: 18.0, left: 68, w: 156},
     ],
   },
 ];
@@ -409,15 +450,15 @@ export const CalendarEventCard: React.FC<CardProps> = ({variant, style}) => {
   const d = pick(CAL, variant);
   const top = 18; // y de la primera hora
   const hourPx = 52;
-  const x0 = 62;
+  const x0 = 66;
   const hours = [0, 1, 2].map((i) => d.start + i);
   const y = (h: number) => top + (h - d.start) * hourPx;
   return (
     <Shell w={CAL_W} h={CAL_H} bg="#FFFFFF" style={style}>
-      <CalendarIcon size={20} style={{position: 'absolute', right: 10, top: 9}} />
+      <CalendarIcon size={22} style={{position: 'absolute', right: 10, top: 9}} />
       {hours.map((h) => (
         <React.Fragment key={h}>
-          <div style={{position: 'absolute', left: 12, top: y(h) - 8, fontSize: 13, color: '#70757A', fontVariantNumeric: 'tabular-nums'}}>
+          <div style={{position: 'absolute', left: 12, top: y(h) - 9, fontSize: 14, color: '#70757A', fontVariantNumeric: 'tabular-nums'}}>
             {String(h).padStart(2, '0')}:00
           </div>
           <div style={{position: 'absolute', left: x0 - 6, right: 0, top: y(h), height: 1, background: '#E6E8EB'}} />
@@ -433,16 +474,16 @@ export const CalendarEventCard: React.FC<CardProps> = ({variant, style}) => {
             width: b.w,
             height: (b.to - b.from) * hourPx,
             background: b.color,
-            borderRadius: 6,
-            padding: '5px 8px',
+            borderRadius: 7,
+            padding: '5px 9px',
             boxSizing: 'border-box',
             color: '#FFFFFF',
             overflow: 'hidden',
             boxShadow: i > 0 ? '0 0 0 1.5px #FFFFFF, 0 6px 14px rgba(0,0,0,0.22)' : 'none',
           }}
         >
-          <div style={{...ellipsis, fontSize: 13, fontWeight: 700, lineHeight: 1.2}}>{b.title}</div>
-          <div style={{fontSize: 13, opacity: 0.85, lineHeight: 1.2, marginTop: 1}}>{b.sub}</div>
+          <div style={{fontSize: 15, fontWeight: 700, lineHeight: 1.15, letterSpacing: '-0.01em', overflow: 'hidden'}}>{b.title}</div>
+          <div style={{fontSize: 14, opacity: 0.88, lineHeight: 1.2, marginTop: 2}}>{b.sub}</div>
         </div>
       ))}
     </Shell>
@@ -463,23 +504,23 @@ const PO: Array<{n: string; vendor: string; msg: string; file: string; state: st
 export const PurchaseOrderCard: React.FC<CardProps> = ({variant, style}) => {
   const d = pick(PO, variant);
   return (
-    <Shell w={PO_W} h={PO_H} bg="#FFFFFF" pad="13px 16px 12px" style={style}>
+    <Shell w={PO_W} h={PO_H} bg="#FFFFFF" pad="14px 16px 12px" style={style}>
       <div style={{...row, gap: 8}}>
-        <div style={{fontSize: 13, fontWeight: 700, letterSpacing: '0.12em', color: '#5F6368', whiteSpace: 'nowrap'}}>ORDEN DE COMPRA</div>
+        <div style={{fontSize: 14, fontWeight: 700, letterSpacing: '0.1em', color: '#5F6368', whiteSpace: 'nowrap'}}>ORDEN DE COMPRA</div>
         <div style={{flex: 1}} />
-        <div style={{fontFamily: fonts.mono, fontSize: 13, fontWeight: 500, color: '#202124', background: '#F1F3F4', borderRadius: 4, padding: '1px 7px', whiteSpace: 'nowrap'}}>
+        <div style={{fontFamily: fonts.mono, fontSize: 14, fontWeight: 500, color: '#202124', background: '#F1F3F4', borderRadius: 5, padding: '1px 7px', whiteSpace: 'nowrap'}}>
           N° {d.n}
         </div>
       </div>
-      <div style={{...ellipsis, fontSize: 17, fontWeight: 700, color: '#202124', marginTop: 10, letterSpacing: '-0.01em'}}>{d.vendor}</div>
-      <div style={{...ellipsis, fontSize: 14, color: '#5F6368', marginTop: 3}}>{d.msg}</div>
-      <div style={{...row, gap: 8, marginTop: 10}}>
+      <div style={{...ellipsis, fontSize: 19, fontWeight: 700, color: '#202124', marginTop: 9, letterSpacing: '-0.015em'}}>{d.vendor}</div>
+      <div style={{...ellipsis, fontSize: 15, color: '#5F6368', marginTop: 3}}>{d.msg}</div>
+      <div style={{...row, gap: 8, marginTop: 9}}>
         <div style={{...row, gap: 7, minWidth: 0, border: '1px solid #DADCE0', borderRadius: 8, padding: '4px 10px 4px 7px', background: '#F8F9FA'}}>
-          <PdfIcon size={16} />
-          <span style={{...ellipsis, fontSize: 13, fontWeight: 500, color: '#3C4043'}}>{d.file}</span>
+          <PdfIcon size={17} />
+          <span style={{...ellipsis, fontSize: 14, fontWeight: 500, color: '#3C4043'}}>{d.file}</span>
         </div>
         <div style={{flex: 1}} />
-        <div style={{...row, gap: 6, fontSize: 13, fontWeight: 600, color: '#B45309', background: '#FEF3C7', borderRadius: 999, padding: '3px 10px 3px 8px', whiteSpace: 'nowrap'}}>
+        <div style={{...row, gap: 6, fontSize: 14, fontWeight: 600, color: '#B45309', background: '#FEF3C7', borderRadius: 999, padding: '3px 10px 3px 8px', whiteSpace: 'nowrap'}}>
           <span style={{width: 7, height: 7, borderRadius: 4, background: status.warn, display: 'inline-block'}} />
           {d.state}
         </div>
@@ -522,8 +563,12 @@ export const pickCard = (index: number, variant?: number): CardSpec & {variant: 
   return {...spec, variant: v};
 };
 
-// Dibuja la tarjeta número `index` (ver pickCard). `variant` fuerza el contenido.
-export const CardAt: React.FC<{index: number; variant?: number; style?: React.CSSProperties}> = ({index, variant, style}) => {
-  const {Component, variant: v} = pickCard(index, variant);
-  return <Component variant={v} style={style} />;
+export type CardPick = CardSpec & {variant: number; node: React.ReactElement};
+
+// Tarjeta número `index` lista para usar (ver pickCard): devuelve el elemento ya instanciado en `node` junto con
+// su tamaño `w`/`h` para que la escena la ubique. `variant` fuerza el contenido; `style` va al contenedor.
+// Es una función, no un componente:  const {node, w, h} = CardAt({index: i});
+export const CardAt = ({index, variant, style}: {index: number; variant?: number; style?: React.CSSProperties}): CardPick => {
+  const spec = pickCard(index, variant);
+  return {...spec, node: <spec.Component variant={spec.variant} style={style} />};
 };

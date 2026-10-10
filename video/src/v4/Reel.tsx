@@ -4,6 +4,7 @@ import {Backdrop} from './fx/Grain';
 import {scenes, TOTAL} from './timeline';
 import {SFX_CUES, MUSIC_FILE, MUSIC_GAIN, SFX_GAIN} from './sound';
 import {SCENES} from './scenes';
+import {Watermark} from './ui/Watermark';
 
 // Composición v4: fondo, escenas (cada una decide cuándo aparece y cómo entra/sale), marca de agua, audio.
 export const ReelV4: React.FC = () => {
@@ -22,6 +23,8 @@ export const ReelV4: React.FC = () => {
           </Sequence>
         );
       })}
+      {/* Marca de agua: todo el reel salvo el cierre, que la muestra grande */}
+      <Watermark opacity={frame < 6 ? frame / 6 : frame > scenes.outro.to - 60 ? Math.max(0, (scenes.outro.to - 46 - frame) / 14) : 1} />
       {/* Voz por escena */}
       {Object.entries(scenes).map(([key, sc]) =>
         sc.audio ? (

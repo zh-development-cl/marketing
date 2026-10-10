@@ -10,6 +10,7 @@ export type CallBarProps = {
   done?: boolean; // contador en verde (status.ok) con leve glow
   name?: string; // "Lorenzo, de ZH"
   sub?: string; // "llamada con Tu Empresa"
+  subtitle?: string; // alias de `sub`
   avatarSrc?: string; // URL (staticFile) de la foto; si falta, círculo azul con la inicial
   initial?: string; // inicial del avatar sin foto (por defecto la primera letra de `name`)
   width?: number; // 840
@@ -24,7 +25,8 @@ export const formatClock = (seconds: number) => {
   return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
 };
 
-export const CallBar: React.FC<CallBarProps> = ({seconds, done = false, name = 'Lorenzo, de ZH', sub = 'llamada con Tu Empresa', avatarSrc, initial, width = CALLBAR_W, style}) => {
+export const CallBar: React.FC<CallBarProps> = ({seconds, done = false, name = 'Lorenzo, de ZH', sub, subtitle, avatarSrc, initial, width = CALLBAR_W, style}) => {
+  const subText = sub ?? subtitle ?? 'llamada con Tu Empresa';
   const letter = (initial ?? name.trim().charAt(0) ?? 'L').toUpperCase();
   return (
     <div
@@ -71,7 +73,7 @@ export const CallBar: React.FC<CallBarProps> = ({seconds, done = false, name = '
 
       <div style={{flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 3}}>
         <div style={{fontWeight: 700, fontSize: 28, letterSpacing: '-0.015em', lineHeight: 1.15, color: '#FFFFFF', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>{name}</div>
-        <div style={{fontWeight: 400, fontSize: 23, color: ink.text2, lineHeight: 1.15, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>{sub}</div>
+        <div style={{fontWeight: 400, fontSize: 23, color: ink.text2, lineHeight: 1.15, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>{subText}</div>
       </div>
 
       <div
