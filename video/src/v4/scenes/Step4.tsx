@@ -1,60 +1,74 @@
 import React from 'react';
-import {AbsoluteFill, useCurrentFrame} from 'remotion';
+import {AbsoluteFill, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import {StepTitle} from '../fx/text';
 import {Moving} from '../fx/MotionBlur';
-import {inOutQuart, keyframes, outExpo, outQuart, prog} from '../fx/ease';
-import {Phone} from '../ui/Phone';
+import {inOutQuart, keyframes, outExpo, prog} from '../fx/ease';
+import {OWNERSHIP_H, OWNERSHIP_W, OwnershipCard} from '../ui/OwnershipCard';
 import {beat, scenes} from '../timeline';
-import {PHONE} from './layout';
 import type {SfxCue} from '../sound';
 
-// Escena 8 · paso 04 · mejorar. El mismo teléfono, en calma: el contador baja de 47 a 0 y llegan dos
-// notificaciones del sistema. Al final el teléfono se encoge hasta un punto (sigue en el cierre).
+// Escena 8 · paso 04 · mejorar → "propiedad". Mientras el panel del paso 03 se desenfoca y apaga, desde abajo
+// entra una tarjeta de propiedad (sello ZH chico, "Propiedad de / Tu Empresa") con tres filas —código fuente,
+// repositorio y accesos, cuentas y dominio— cuyos checks se encienden en verde con "todo", "nombre" y "empresa";
+// un contraluz azul sube con cada check. Al final la tarjeta se encoge hasta un punto (DOT): ahí nace el bloque
+// azul del logo en el cierre.
 const sc = scenes.step4;
 const L = sc.from - 8;
 const loc = (a: number) => a - L;
 const tTitle = 12; // el título anterior ya salió
-const tPhone = 8; // el panel del paso 03 se desenfoca y apaga mientras el teléfono entra
-const tCount0 = loc(beat('step4', 'todo')) - 6;
-const tCount1 = loc(beat('step4', 'empresa'));
-const notes = [
-  {app: 'gmail' as const, title: 'Contabilidad', body: 'Pago recibido, factura 1043', time: 'ahora'},
-  {app: 'whatsapp' as const, title: 'Asistente de Tu Empresa', body: 'Listo Camila, te reservé el azul', time: 'ahora'},
-];
-const noteAt = [tCount0 + 4, tCount0 + 14];
+const tCard = 8; // la tarjeta entra desde abajo mientras el panel del paso 03 se desenfoca y apaga
+const tCheck = [loc(beat('step4', 'todo')), loc(beat('step4', 'nombre')), loc(beat('step4', 'empresa'))];
+const tFooter = tCheck[2] + 8; // el pie aparece cuando ya están los tres checks
 export const END = loc(sc.to) + 8;
-const tShrink = END - 16; // el teléfono se encoge hasta un punto
+const tShrink = END - 16; // la tarjeta se encoge hasta un punto
 const DOT = {x: 595, y: 589}; // centro del bloque azul del logo en el cierre
 
+const CARD = {x: (1080 - OWNERSHIP_W) / 2, y: 600, w: OWNERSHIP_W, h: OWNERSHIP_H} as const;
+
 export const sfxCues: SfxCue[] = [
-  {name: 'whoosh-soft', at: L + tPhone},
-  ...noteAt.map((a) => ({name: 'pop' as const, at: L + a, gain: 0.6})),
-  {name: 'chime', at: L + tCount1, gain: 0.6},
+  {name: 'whoosh-soft', at: L + tCard},
+  ...tCheck.map((a) => ({name: 'tick' as const, at: L + a, gain: 0.6})),
   {name: 'whoosh-hard', at: L + tShrink, gain: 0.8},
 ];
 
 export const Step4: React.FC = () => {
   const frame = useCurrentFrame();
-  const count = Math.round(keyframes(frame, [[tCount0, 47], [tCount1, 0]], outQuart));
-  const calm = prog(frame, tCount0, 14); // la pantalla pasa de gris a azul en un fundido
+  const {fps} = useVideoConfig();
+  const checks = tCheck.map((a) => spring({frame: frame - a, fps, config: {damping: 11, stiffness: 190}}));
+  const lit = checks.reduce((s, p) => s + Math.min(1, p), 0) / 3;
+  const footer = prog(frame, tFooter, 8);
+  // Contraluz azul detrás de la tarjeta: entra con ella, sube con cada check y se apaga con el encogimiento.
+  const halo = prog(frame, tCard + 4, 16) * (0.55 + 0.45 * lit) * (1 - prog(frame, tShrink, 12));
   return (
     <AbsoluteFill>
-      <StepTitle n="04" title="mejorar" at={tTitle} out={END - 14} top={230} />
-      <Moving
-        x={(f) => keyframes(f, [[tShrink, PHONE.x], [END - 2, DOT.x - PHONE.w / 2]], inOutQuart)}
-        y={(f) => keyframes(f, [[tPhone, PHONE.y + 760], [tPhone + 14, PHONE.y + 150], [tShrink, PHONE.y + 150], [END - 2, DOT.y]], f < tShrink ? outExpo : inOutQuart)}
-        scale={(f) => keyframes(f, [[tShrink, 0.82], [END - 2, 0.02]], inOutQuart)}
-        opacity={(f) => prog(f, tPhone, 6)}
-        blur={0.3}
-        origin="top center"
-      >
-        <Phone
-          date="lunes 1 de diciembre"
-          time="21:48"
-          calm={calm}
-          notifications={notes.map((n, i) => ({...n, progress: prog(frame, noteAt[i], 9)}))}
-          pending={{count, label: 'sin responder'}}
+      {halo > 0.01 ? (
+        <div
+          style={{
+            position: 'absolute',
+            left: CARD.x + CARD.w / 2 - 640,
+            top: CARD.y + CARD.h / 2 - 520,
+            width: 1280,
+            height: 1040,
+            borderRadius: 999,
+            background: `radial-gradient(ellipse at center, rgba(77,124,255,${0.16 * halo}) 0%, rgba(77,124,255,${0.05 * halo}) 35%, rgba(77,124,255,0) 66%)`,
+            pointerEvents: 'none',
+          }}
         />
+      ) : null}
+
+      <StepTitle n="04" title="mejorar" at={tTitle} out={END - 14} />
+
+      <Moving
+        x={(f) => keyframes(f, [[tShrink, CARD.x], [END - 2, DOT.x - CARD.w / 2]], inOutQuart)}
+        y={(f) => keyframes(f, [[tCard, CARD.y + 760], [tCard + 14, CARD.y], [tShrink, CARD.y], [END - 2, DOT.y - CARD.h / 2]], f < tShrink ? outExpo : inOutQuart)}
+        scale={(f) => keyframes(f, [[tShrink, 1], [END - 2, 0.02]], inOutQuart)}
+        opacity={(f) => prog(f, tCard, 6)}
+        blur={0.26}
+        origin="center"
+      >
+        <div style={{width: CARD.w, height: CARD.h}}>
+          <OwnershipCard checks={checks} footer={footer} glow={0.35 + 0.65 * lit} />
+        </div>
       </Moving>
     </AbsoluteFill>
   );
