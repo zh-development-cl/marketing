@@ -1,6 +1,6 @@
 # Reel 01 · ¿Qué hace ZH Development?
 
-Formato: 1080x1920, 30 fps, 48,5 s (la duración la fija la voz). Versión actual: **v5** (`video/src/v4/`). Nivel de
+Formato: 1080x1920, 30 fps, 49,0 s (la duración la fija la voz). Versión actual: **v5** (`video/src/v4/`). Nivel de
 producción tomado del reel de referencia de @nexacgs (composición continua sin cortes secos, desenfoque de movimiento
 por velocidad, grano y viñeta, mockups realistas, efectos de sonido por cue, cama musical), pero con **concepto propio**
 pedido por Lorenzo: la apertura no copia la de la referencia (nada de texto→píldora→teléfono ni "imagina que esta es
@@ -37,7 +37,7 @@ escena; una sola etiqueta de interpretación (`[confident, warm]`) para toda la 
 | 5 | 19.6 – 25.8 | `paso 02` · **diseñar**: anillo "escribiendo la propuesta…" → ✓ y fichas alcance · plazo · precio; la propuesta en papel (Resumen: alcance, plazo, precio fijo) se despliega desde una línea de luz y cae el timbre "SIN SORPRESAS" sobre el precio. | Después, una propuesta escrita: alcance, plazo y precio. Sin sorpresas. |
 | 6 | 25.8 – 33.4 | `paso 03` · **construir**: "Plan por etapas" → calendario con semanas tachadas y la celda "entrega" encendida en "probar" → panel "Clientes que avanzan solos" + chat de WhatsApp (escribiendo… → respuesta → sello grande "IA · revisado por tu equipo") + tira sobria con tres métricas. Se desenfoca bajo lo que entra. | Construimos por etapas, con entregas que puedes probar, y usamos IA con revisión humana. |
 | 7 | 33.4 – 36.8 | `paso 04` · **mejorar**: tarjeta "Propiedad de Tu Empresa" (el sistema completo · claves y accesos · cuentas y dominio · mejoras continuas) con checks en los beats; se encoge hasta un punto. | Y todo queda a nombre de tu empresa. |
-| 8 | 36.8 – 48.5 | El punto es el bloque azul del logo: monograma dibujado, "ZH Development", frase palabra por palabra, botón "Agenda tu llamada de 30 min →" con un toque (onda); en "¿Qué esperas?" salta la línea "¿qué esperas?" en azul bajo el botón, y debajo "zhdevelopment.cl · link en la bio" y el equipo (Lorenzo y Nico). Cierre: ícono de Instagram a color con sting grave y @ZHDEVELOPMENT.CL. | ZH Development: software a medida que conecta tu operación. Agenda tu llamada de 30 minutos. ¿Qué esperas? |
+| 8 | 36.8 – 49.0 | El punto es el bloque azul del logo: monograma dibujado, "ZH Development", frase palabra por palabra, botón "Agenda tu llamada de 30 min →" con un toque (onda); en "¿Qué esperas?" salta la línea "¿qué esperas?" bajo el botón, y debajo "zhdevelopment.cl · link en la bio" y el equipo (Lorenzo y Nico). Cierre: ícono de Instagram a color con sting grave y @ZHDEVELOPMENT.CL. | ZH Development: software a medida que conecta tu operación. Agenda tu llamada de 30 minutos. ¿Qué esperas? |
 
 Zonas seguras de Instagram respetadas: nada esencial sobre los 220 px superiores ni bajo los 1500 px; la marca de agua
 va en fila arriba a la derecha.
