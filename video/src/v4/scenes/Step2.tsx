@@ -14,8 +14,8 @@ import type {SfxCue} from '../sound';
 const sc = scenes.step2;
 const L = sc.from - 8;
 const loc = (a: number) => a - L;
-const tTitle = 4;
-const tRing = loc(beat('step2', 'Después')) - 6; // el anillo nace con la primera palabra (nunca pantalla vacía)
+const tTitle = 1; // empieza mientras la escena anterior aún sale
+const tRing = loc(beat('step2', 'Después')) - 12; // el anillo nace con la primera palabra (nunca pantalla vacía)
 const tChips = ['alcance', 'plazo', 'precio'].map((w) => loc(beat('step2', w)) - 3); // lo visual 1–2 frames delante del audio
 const tPaper = loc(beat('step2', 'precio')) + 12;
 const tRows = tPaper + 10;
@@ -46,7 +46,7 @@ export const Step2: React.FC = () => {
 
       {/* Anillo + fichas conectadas */}
       <div style={{position: 'absolute', left: 0, right: 0, top: 640, opacity: ringOut, display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
-        <Pop at={tRing} from={0.7}>
+        <Pop at={tRing} from={0.4}>
           <Ring progress={ringP} label={ringP >= 1 ? '✓' : `${Math.round(ringP * 100)}%`} sub="propuesta escrita" size={380} labelSize={88} />
         </Pop>
         {/* Líneas del árbol */}

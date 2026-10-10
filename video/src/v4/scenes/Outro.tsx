@@ -27,7 +27,7 @@ const tagWords = wordsOf('outro')
 const tCta = loc(beat('outro', 'Agenda')) - 6;
 const tClick = loc(beat('outro', 'minutos')) + 4;
 const tLink = loc(beat('outro', 'Link')) - 2;
-const tTeam = tLink + 14;
+const tTeam = tClick + 6; // el equipo entra tras el clic, durante "minutos"
 const tEnd = loc(sc.to) - 50; // atenuar y mostrar ícono de Instagram
 
 export const sfxCues: SfxCue[] = [
@@ -51,10 +51,11 @@ export const Outro: React.FC = () => {
   const accentIn = prog(frame, tDot + 6, 10, outExpo);
   const glow = prog(frame, tFill, 30);
   const dim = prog(frame, tEnd, 14);
-  const ctaPress = frame >= tClick && frame < tClick + 5 ? 0.94 : 1;
+  const pressed = frame >= tClick && frame < tClick + 8;
+  const ctaPress = pressed ? 0.9 : 1;
   return (
     <AbsoluteFill>
-      <div style={{position: 'absolute', inset: 0, opacity: 1 - dim * 0.85, filter: dim > 0 ? `blur(${dim * 6}px)` : undefined}}>
+      <div style={{position: 'absolute', inset: 0, opacity: 1 - dim * 0.95, filter: dim > 0 ? `blur(${dim * 12}px)` : undefined}}>
         {/* Punto → bloque azul del logo (el bloque está en (630,110) del viewBox 1000 → en px del lienzo) */}
         <div style={{position: 'absolute', left: LOGO_X, top: LOGO_Y}}>
           <LogoDraw width={LOGO_W} draw={draw} fill={fill} accentIn={accentIn} glow={glow * 0.8} />
@@ -81,7 +82,7 @@ export const Outro: React.FC = () => {
                 fontFamily: fonts.sans,
                 fontWeight: 600,
                 fontSize: 40,
-                boxShadow: shadow.glow(accent.glow, 46),
+                boxShadow: shadow.glow(accent.glow, pressed ? 20 : 46),
                 transform: `scale(${ctaPress})`,
               }}
             >
@@ -89,14 +90,14 @@ export const Outro: React.FC = () => {
             </div>
           </Pop>
         </div>
-        {frame >= tCta + 6 ? (
+        {frame >= tClick - 22 ? (
           <Moving
-            x={(f) => keyframes(f, [[tCta + 6, 980], [tClick - 2, 720], [tClick + 20, 735]], outQuart)}
-            y={(f) => keyframes(f, [[tCta + 6, 1500], [tClick - 2, LOGO_Y + 600], [tClick + 20, LOGO_Y + 610]], outQuart)}
-            opacity={(f) => prog(f, tCta + 6, 6)}
+            x={(f) => keyframes(f, [[tClick - 22, 980], [tClick - 2, 720], [tClick + 20, 735]], outQuart)}
+            y={(f) => keyframes(f, [[tClick - 22, 1500], [tClick - 2, LOGO_Y + 600], [tClick + 20, LOGO_Y + 610]], outQuart)}
+            opacity={(f) => prog(f, tClick - 22, 6)}
             blur={0.2}
           >
-            <Cursor pressed={frame >= tClick && frame < tClick + 6} />
+            <Cursor pressed={pressed} />
           </Moving>
         ) : null}
         <BlurIn at={tLink} style={{position: 'absolute', left: 0, right: 0, top: LOGO_Y + 690, textAlign: 'center', fontFamily: fonts.sans, fontSize: 32, color: ink.text2}}>
@@ -118,12 +119,12 @@ export const Outro: React.FC = () => {
       </div>
 
       {/* Cierre: ícono de Instagram y usuario */}
-      <div style={{position: 'absolute', left: 0, right: 0, top: 640, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 22, opacity: prog(frame, tEnd + 4, 10)}}>
+      <div style={{position: 'absolute', left: 0, right: 0, top: 850, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 22, opacity: prog(frame, tEnd + 4, 10)}}>
         <Pop at={tEnd + 4} from={0.5}>
           <InstagramGlyph size={150} color={interpolate(frame, [tEnd + 16, tEnd + 30], [0, 1], clamp)} />
         </Pop>
         <BlurIn at={tEnd + 10}>
-          <div style={{fontFamily: fonts.mono, fontWeight: 500, fontSize: 30, letterSpacing: '0.08em', color: ink.text}}>{watermark.handle}</div>
+          <div style={{fontFamily: fonts.mono, fontWeight: 600, fontSize: 40, letterSpacing: '0.08em', color: ink.text}}>{watermark.handle}</div>
         </BlurIn>
       </div>
     </AbsoluteFill>

@@ -1,5 +1,5 @@
 import React from 'react';
-import {interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
+import {Easing, interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import {fonts, ink} from '../tokens';
 
 const clamp = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
@@ -112,17 +112,34 @@ export const spreadWords = (text: string, at: number, every = 4): TWord[] =>
     });
 
 // Etiqueta "paso 0N" + título en minúsculas, como en la referencia: etiqueta pequeña en acento arriba, título bold grande.
+// El título se revela de izquierda a derecha con estela (barrido) y sale igual, hacia la izquierda.
 export const StepTitle: React.FC<{n: string; title: string; at: number; out?: number; top?: number; accentColor?: string}> = ({n, title, at, out, top = 250, accentColor = '#8FB0FF'}) => {
+  const frame = useCurrentFrame();
+  const p = interpolate(frame, [at + 3, at + 14], [0, 1], {...clamp, easing: Easing.out(Easing.poly(4))});
+  const q = out === undefined ? 1 : interpolate(frame, [out, out + 9], [1, 0], {...clamp, easing: Easing.in(Easing.poly(3))});
+  const b = (1 - p) * 7 + (1 - q) * 9;
   return (
     <div style={{position: 'absolute', top, left: 0, right: 0, textAlign: 'center'}}>
       <BlurIn at={at} out={out} outDur={8} outDx={-60} dy={10}>
         <div style={{fontFamily: fonts.sans, fontWeight: 500, fontSize: 34, color: accentColor, letterSpacing: '0.01em'}}>paso {n}</div>
       </BlurIn>
-      <BlurIn at={at + 3} out={out === undefined ? undefined : out + 2} outDur={8} outDx={-90} dy={18}>
-        <div style={{fontFamily: fonts.display, fontWeight: 700, fontSize: 132, letterSpacing: '-0.035em', color: ink.text, lineHeight: 1.05, marginTop: 4}}>
-          {title}
-        </div>
-      </BlurIn>
+      <div
+        style={{
+          fontFamily: fonts.display,
+          fontWeight: 700,
+          fontSize: 132,
+          letterSpacing: '-0.035em',
+          color: ink.text,
+          lineHeight: 1.05,
+          marginTop: 4,
+          opacity: p > 0 ? Math.min(1, p * 3) * (q > 0 ? Math.min(1, q * 3) : 0) : 0,
+          clipPath: q < 1 ? `inset(-20% 0 -20% ${(1 - q) * 100}%)` : `inset(-20% ${(1 - p) * 100}% -20% 0)`,
+          filter: b > 0.3 ? `blur(${b}px)` : undefined,
+          transform: `translateX(${(1 - p) * -40 + (1 - q) * -90}px)`,
+        }}
+      >
+        {title}
+      </div>
     </div>
   );
 };

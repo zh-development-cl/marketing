@@ -11,6 +11,7 @@ export const CALENDAR_H = 620;
 
 export type CalendarCardProps = {
   struck: number; // 0..20 días tachados (acepta fracciones para animar la línea que se está dibujando)
+  deliver?: number; // 0..1 la celda "entrega" se enciende (escala + brillo)
   month?: string; // "noviembre"
   year?: string; // "2026"
   firstDay?: number; // número del lunes de la semana 1 (2 → lun 2 … vie 27, noviembre 2026)
@@ -28,7 +29,7 @@ const GRID_Y = 146;
 
 const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
 
-const Cell: React.FC<{day: number; strike: number; last: boolean}> = ({day, strike, last}) => (
+const Cell: React.FC<{day: number; strike: number; last: boolean; deliver?: number}> = ({day, strike, last, deliver = 0}) => (
   <div
     style={{
       position: 'relative',
@@ -36,8 +37,10 @@ const Cell: React.FC<{day: number; strike: number; last: boolean}> = ({day, stri
       height: CELL_H,
       boxSizing: 'border-box',
       borderRadius: 12,
-      background: '#181D28',
-      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05), 0 0 0 1px rgba(255,255,255,0.045)',
+      background: last && deliver > 0 ? `rgba(77,124,255,${0.12 + 0.18 * deliver})` : '#181D28',
+      boxShadow: last && deliver > 0 ? `inset 0 1px 0 rgba(255,255,255,0.08), 0 0 0 ${1 + deliver}px ${accent.strong}, 0 0 ${30 * deliver}px rgba(77,124,255,${0.5 * deliver})` : 'inset 0 1px 0 rgba(255,255,255,0.05), 0 0 0 1px rgba(255,255,255,0.045)',
+      transform: last && deliver > 0 ? `scale(${1 + 0.08 * deliver})` : undefined,
+      zIndex: last && deliver > 0 ? 2 : undefined,
       overflow: 'hidden',
     }}
   >
@@ -78,7 +81,7 @@ const Cell: React.FC<{day: number; strike: number; last: boolean}> = ({day, stri
   </div>
 );
 
-export const CalendarCard: React.FC<CalendarCardProps> = ({struck, month = 'noviembre', year = '2026', firstDay = 2, style}) => {
+export const CalendarCard: React.FC<CalendarCardProps> = ({struck, deliver = 0, month = 'noviembre', year = '2026', firstDay = 2, style}) => {
   const done = Math.max(0, struck);
   return (
     <div
@@ -150,7 +153,7 @@ export const CalendarCard: React.FC<CalendarCardProps> = ({struck, month = 'novi
               const strike = clamp01(done - k);
               return (
                 <div key={c} style={{position: 'absolute', left: GRID_X + c * (CELL_W + GAP), top}}>
-                  <Cell day={firstDay + r * 7 + c} strike={strike} last={k === 19} />
+                  <Cell day={firstDay + r * 7 + c} strike={strike} last={k === 19} deliver={deliver} />
                 </div>
               );
             })}

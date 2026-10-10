@@ -84,7 +84,7 @@ export const Rain: React.FC<RainProps> = ({
         const sc = interpolate(oo, [0, 1], [scaleZ, grid.scale]);
         const zz = interpolate(oo, [0, 1], [z, 0]);
         // Profundidad de campo: lejos y muy cerca se desenfocan; en el muro todo nítido.
-        const dof = (1 - oo) * interpolate(Math.abs(zz), [0, 250, depth / 2], [0, 0.6, 6], clamp);
+        const dof = (1 - oo) * (zz < 0 ? interpolate(-zz, [0, 250, depth / 2], [0, 1.5, 5], clamp) : interpolate(zz, [0, depth / 2], [0, 1.6], clamp)); // lejos borroso, cerca legible
         const dim = interpolate(zz, [-depth / 2, 0, depth / 2], [0.55, 1, 1], clamp);
         const visible = frame >= at - 1;
         if (!visible) return null;

@@ -20,6 +20,7 @@ const tTitle = 12; // el título anterior ya salió con su latigazo
 const tPlan = 2;
 const tCal = loc(beat('step3', 'etapas')) - 4;
 const tCalEnd = loc(beat('step3', 'probar'));
+const tDeliver = tCalEnd; // la celda "entrega" se enciende con "probar"
 const tDash = loc(beat('step3', 'IA')) - 16;
 const tChat = loc(beat('step3', 'IA')) + 2;
 const tTyping = tChat + 10; // "escribiendo…" mientras la voz sostiene "IA"
@@ -35,12 +36,12 @@ export const sfxCues: SfxCue[] = [
   {name: 'whoosh-hard', at: L + tDash},
   {name: 'pop', at: L + tChat, gain: 0.6},
   {name: 'pop', at: L + tAnswer, gain: 0.5},
-  {name: 'chime', at: L + tSeal, gain: 0.7},
+  {name: 'chime', at: L + tSeal + 1, gain: 0.7},
 ];
 
 // Pieza que entra desde la derecha con latigazo y sale hacia la izquierda ('whip') o se desenfoca y apaga en el
 // sitio ('fade', para quedar debajo de lo que entra encima).
-const Slide: React.FC<{tin: number; tout: number; top: number; width: number; exit?: 'whip' | 'fade'; children: React.ReactNode}> = ({tin, tout, top, width, exit = 'whip', children}) => {
+const Slide: React.FC<{tin: number; tout: number; top: number; width: number; scale?: number; exit?: 'whip' | 'fade'; children: React.ReactNode}> = ({tin, tout, top, width, scale = 1, exit = 'whip', children}) => {
   const frame = useCurrentFrame();
   if (frame < tin - 2 || frame > tout + 12) return null;
   const fade = exit === 'fade' ? prog(frame, tout - 6, 12, inOutQuart) : 0;
@@ -53,7 +54,7 @@ const Slide: React.FC<{tin: number; tout: number; top: number; width: number; ex
       blur={0.26}
       style={{position: 'absolute', left: (1080 - width) / 2, top}}
     >
-      <div style={{width}}>{children}</div>
+      <div style={{width: width / scale, transform: `scale(${scale})`, transformOrigin: 'top left'}}>{children}</div>
     </Moving>
   );
 };
@@ -61,7 +62,8 @@ const Slide: React.FC<{tin: number; tout: number; top: number; width: number; ex
 export const Step3: React.FC = () => {
   const frame = useCurrentFrame();
   const bars = prog(frame, tPlan + 6, 24);
-  const struck = Math.floor(interpolate(frame, [tCal + 8, tCalEnd + 6], [0, 20], clamp));
+  const struck = Math.floor(interpolate(frame, [tCal + 8, tCal + 44], [0, 20], clamp));
+  const deliver = prog(frame, tDeliver, 8);
   const dash = prog(frame, tDash + 6, 30);
   const show = frame < tChat ? 0 : frame < tAnswer ? 1 : frame < tSeal ? 2 : 3;
   const typing = frame < tAnswer ? prog(frame, tTyping, 6) : 1 - prog(frame, tAnswer, 4);
@@ -72,12 +74,12 @@ export const Step3: React.FC = () => {
         <Paper page="plan" barsProgress={bars} company="Tu Empresa" />
       </Slide>
       <Slide tin={tCal} tout={tDash - 4} top={560} width={900}>
-        <CalendarCard struck={struck} />
+        <CalendarCard struck={struck} deliver={deliver} />
       </Slide>
-      <Slide tin={tDash} tout={END - 8} top={448} width={900} exit="fade">
+      <Slide tin={tDash} tout={END - 8} top={490} width={840} scale={0.9333} exit="fade">
         <Dashboard progress={dash} />
         <div style={{marginTop: 8, opacity: prog(frame, tChat - 2, 6)}}>
-          <WhatsAppConvo show={show} typing={typing} tick={frame} />
+          <WhatsAppConvo show={show} typing={typing} tick={frame} sealAt={tSeal} />
         </div>
         <div style={{marginTop: 8}}>
           <Pop at={tSeal + 6} from={0.85} config={{damping: 14, stiffness: 160}}>

@@ -1,4 +1,5 @@
 import React from 'react';
+import {Pop} from '../fx/text';
 import {apps, fonts} from '../tokens';
 import {WhatsAppIcon} from './icons';
 
@@ -21,6 +22,7 @@ export type WhatsAppConvoProps = {
   timeIn?: string; // "21:47"
   timeOut?: string; // "21:47"
   typing?: number; // 0..1 burbuja "escribiendo…" (tres puntos) en el lugar de la respuesta
+  sealAt?: number; // frame local en que el sello entra con resorte (si no viene, entra por `show`)
   tick?: number; // frame, para el pulso de los puntos
   style?: React.CSSProperties; // contenedor exterior
 };
@@ -54,6 +56,7 @@ export const WhatsAppConvo: React.FC<WhatsAppConvoProps> = ({
   timeOut = '21:47',
   typing = 0,
   tick = 0,
+  sealAt,
   style,
 }) => {
   const t1 = clamp01(show);
@@ -178,7 +181,8 @@ export const WhatsAppConvo: React.FC<WhatsAppConvoProps> = ({
         </div>
 
         {/* Sello IA */}
-        <div style={{position: 'absolute', right: 24, top: 230, ...enter(t3, 8)}}>
+        <div style={{position: 'absolute', right: 24, top: 230, ...(sealAt === undefined ? enter(t3, 8) : {})}}>
+          <Pop at={sealAt ?? -1000} from={0.6} config={{damping: 12, stiffness: 220}}>
           <div
             style={{
               display: 'flex',
@@ -197,6 +201,7 @@ export const WhatsAppConvo: React.FC<WhatsAppConvoProps> = ({
             <Sparkle color="#128C7E" />
             IA · revisado por tu equipo
           </div>
+          </Pop>
         </div>
 
         {/* Caja de texto */}
