@@ -21,7 +21,7 @@ const tCheck = [loc(beat('step4', 'todo')), loc(beat('step4', 'nombre')), loc(be
 const tFooter = tCheck[2] + 8; // el pie aparece cuando ya están los tres checks
 export const END = loc(sc.to) + 8;
 const tShrink = END - 16; // la tarjeta se encoge hasta un punto
-const DOT = {x: 595, y: 589}; // centro del bloque azul del logo en el cierre
+const DOT = {x: 591, y: 611}; // centro medido del bloque azul del logo en el cierre (frame 1068)
 
 const CARD = {x: (1080 - OWNERSHIP_W) / 2, y: 600, w: OWNERSHIP_W, h: OWNERSHIP_H} as const;
 
@@ -50,7 +50,7 @@ export const Step4: React.FC = () => {
             width: 1280,
             height: 1040,
             borderRadius: 999,
-            background: `radial-gradient(ellipse at center, rgba(77,124,255,${0.16 * halo}) 0%, rgba(77,124,255,${0.05 * halo}) 35%, rgba(77,124,255,0) 66%)`,
+            background: `radial-gradient(ellipse at center, rgba(77,124,255,${0.22 * halo}) 0%, rgba(77,124,255,${0.07 * halo}) 35%, rgba(77,124,255,0) 66%)`,
             pointerEvents: 'none',
           }}
         />
