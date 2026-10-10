@@ -19,7 +19,7 @@ const sc = scenes.day;
 const L = sc.from - 10;
 const loc = (a: number) => a - L;
 export const END = loc(sc.to) + 12; // la ventana de la escena (postroll incluido)
-const ENTER = 8; // frames que tarda una tarjeta en llegar al montón
+const ENTER = 11; // frames que tarda una tarjeta en llegar al montón (latigazo con easing, no teletransporte)
 const tHand = loc(HANDOFF); // 222: desde aquí dibuja Pitch
 
 // Resaltes por beat: [tipos, color, desde, hasta] en frames locales.

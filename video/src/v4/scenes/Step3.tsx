@@ -47,9 +47,9 @@ const Slide: React.FC<{tin: number; tout: number; top: number; width: number; sc
   const fade = exit === 'fade' ? prog(frame, tout - 6, 12, inOutQuart) : 0;
   return (
     <Moving
-      x={(f) => (exit === 'fade' ? keyframes(f, [[tin, 1400], [tin + 10, 0]], outExpo) : keyframes(f, [[tin, 1400], [tin + 10, 0], [tout, 0], [tout + 10, -1400]], f < tout ? outExpo : inOutQuart))}
+      x={(f) => (exit === 'fade' ? keyframes(f, [[tin, 1400], [tin + 12, 0]], outExpo) : keyframes(f, [[tin, 1400], [tin + 12, 0], [tout, 0], [tout + 10, -1400]], f < tout ? outExpo : inOutQuart))}
       y={() => 0}
-      opacity={() => 1 - fade}
+      opacity={(f) => (1 - fade) * prog(f, tin, 4) * (exit === 'whip' ? 1 - prog(f, tout + 5, 5) : 1)}
       extraBlur={() => fade * 14}
       blur={0.26}
       style={{position: 'absolute', left: (1080 - width) / 2, top}}

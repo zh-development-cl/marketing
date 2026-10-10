@@ -12,11 +12,16 @@ export type RingProps = {
   labelColor?: string; // por defecto ink.text
   labelSize?: number; // 96
   style?: React.CSSProperties;
+  // Estado final opcional: con `mix` 0..1 la etiqueta/sub cruzan en fundido a (label2, sub2); `mix` puede pasar de 1
+  // (easing con rebote) y solo afecta a la escala del label2 (la opacidad se topa).
+  label2?: string;
+  sub2?: string;
+  mix?: number;
 };
 
 export const RING_SIZE = 320;
 
-export const Ring: React.FC<RingProps> = ({progress, label, sub, size = RING_SIZE, labelColor = ink.text, labelSize = 96, style}) => {
+export const Ring: React.FC<RingProps> = ({progress, label, sub, size = RING_SIZE, labelColor = ink.text, labelSize = 96, style, label2, sub2, mix = 0}) => {
   const id = useId().replace(/[^a-zA-Z0-9]/g, '');
   const p = Math.max(0, Math.min(1, progress));
   const k = size / RING_SIZE; // escala respecto al tamaño base
@@ -28,6 +33,7 @@ export const Ring: React.FC<RingProps> = ({progress, label, sub, size = RING_SIZ
   const m = label.match(/^([\d.,]+)(.*)$/);
   const big = m ? m[1] : label;
   const suffix = m ? m[2] : '';
+  const mixOp = Math.max(0, Math.min(1, mix));
 
   return (
     <div style={{position: 'relative', width: size, height: size, ...style}}>
@@ -98,13 +104,23 @@ export const Ring: React.FC<RingProps> = ({progress, label, sub, size = RING_SIZ
         ) : null}
       </svg>
 
-      <div style={{position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none'}}>
+      {/* Estado inicial (se funde hacia arriba cuando entra el final) */}
+      <div style={{position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', opacity: 1 - mixOp, transform: mixOp > 0 ? `translateY(${-10 * k * mixOp}px)` : undefined}}>
         <div style={{display: 'flex', alignItems: 'baseline', fontFamily: fonts.display, fontWeight: 600, color: labelColor, lineHeight: 1, letterSpacing: '-0.035em', textShadow: `0 0 28px ${accent.glow}`}}>
           <span style={{fontSize: labelSize * k}}>{big}</span>
           {suffix ? <span style={{fontSize: labelSize * k * 0.5, marginLeft: 2 * k, letterSpacing: '-0.01em'}}>{suffix}</span> : null}
         </div>
         {sub ? <div style={{fontFamily: fonts.sans, fontWeight: 500, fontSize: 28 * k, color: ink.text, opacity: 0.85, marginTop: 8 * k, letterSpacing: '0.005em'}}>{sub}</div> : null}
       </div>
+      {/* Estado final: el label2 crece con rebote y el sub2 sube en fundido */}
+      {label2 !== undefined && mixOp > 0.001 ? (
+        <div style={{position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none'}}>
+          <div style={{fontFamily: fonts.display, fontWeight: 600, color: labelColor, lineHeight: 1, letterSpacing: '-0.035em', textShadow: `0 0 28px ${accent.glow}`, fontSize: labelSize * k, opacity: mixOp, transform: `scale(${0.55 + 0.45 * mix})`}}>
+            {label2}
+          </div>
+          {sub2 ? <div style={{fontFamily: fonts.sans, fontWeight: 500, fontSize: 28 * k, color: ink.text, opacity: 0.85 * mixOp, marginTop: 8 * k, letterSpacing: '0.005em', transform: `translateY(${10 * k * (1 - mixOp)}px)`}}>{sub2}</div> : null}
+        </div>
+      ) : null}
     </div>
   );
 };

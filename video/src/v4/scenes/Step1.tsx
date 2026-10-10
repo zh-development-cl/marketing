@@ -112,7 +112,7 @@ export const Step1: React.FC = () => {
 
       {/* Videollamada: entra desde la derecha con latigazo, sale a la izquierda con la hoja */}
       {showCall ? (
-        <Moving x={(f) => tween(f, tIn, tIn + 10, 1400, 0, outExpo) + exitX(f)} y={() => 0} blur={0.3} style={{left: (1080 - CALLCARD_W) / 2, top: 460}}>
+        <Moving x={(f) => tween(f, tIn, tIn + 12, 1400, 0, outExpo) + exitX(f)} y={() => 0} opacity={(f) => prog(f, tIn, 4)} blur={0.3} style={{left: (1080 - CALLCARD_W) / 2, top: 460}}>
           <div style={{width: CALLCARD_W, height: CALLCARD_H3}}>
             <CallCard seconds={seconds} done={done} speaking={speaking} tick={frame} avatarSrc={staticFile('people/lorenzo.jpg')} media={MEET ? {...MEET, src: staticFile(MEET.src)} : undefined} tiles={TILES.map((t) => ({...t, src: t.src ? staticFile(t.src) : undefined}))} />
           </div>
@@ -121,7 +121,7 @@ export const Step1: React.FC = () => {
 
       {/* Hoja de notas: sube desde abajo del cuadro, sale a la izquierda con la llamada */}
       {showSheet ? (
-        <Moving x={exitX} y={(f) => tween(f, tSheet, tSheet + 12, 420, 0, outExpo)} blur={0.12} style={{left: (1080 - CALLNOTES_W) / 2, top: 950}}>
+        <Moving x={exitX} y={(f) => tween(f, tSheet, tSheet + 14, 1000, 0, outExpo)} opacity={(f) => prog(f, tSheet, 5)} blur={0.12} style={{left: (1080 - CALLNOTES_W) / 2, top: 950}}>
           <div style={{width: CALLNOTES_W + CALLNOTES_STACK, height: CALLNOTES_H + CALLNOTES_STACK}}>
             <CallNotes lines={lines} cursorLine={cursorLine} cursorOn={cursorOn} />
           </div>
