@@ -16,7 +16,7 @@ const L = sc.from - 8;
 const loc = (a: number) => a - L;
 const tTitle = 0; // el título entra mientras la llamada aún sale: sin hueco negro // entra cuando el título del paso 01 ya terminó de salir
 const tRing = loc(beat('step2', 'Después')) - 18; // el anillo nace mientras la llamada aún sale (nunca pantalla vacía)
-const tRingDone = tRing + 44; // el ✓ empieza a entrar cuando el trazo va por ~97 % (termina en tRing + 52)
+const tRingDone = tRing + 36; // cierre del anillo en 32 frames (≈0,9 s): el texto se va, el trazo termina, el ✓ crece, sube "propuesta lista"
 const tChips = ['alcance', 'plazo', 'precio'].map((w) => loc(beat('step2', w)) - 3); // lo visual 1–2 frames delante del audio
 const tPaper = loc(beat('step2', 'precio')) + 12; // las tres fichas quedan ~0,5 s a la vista; el papel gana ese tiempo
 const tRows = tPaper + 4; // las tres filas ya se leen cuando cae el timbre
@@ -26,7 +26,7 @@ const END = loc(sc.to) + 8;
 export const sfxCues: SfxCue[] = [
   {name: 'whoosh-soft', at: L + tTitle, gain: 0.3}, // el whip de la salida del paso 01 ya sonoriza el cambio
   {name: 'rise', at: L + tRing, gain: 0.5},
-  {name: 'chime', at: L + tRingDone + 4, gain: 0.35}, // propuesta lista
+  {name: 'chime', at: L + tRingDone + 12, gain: 0.35}, // propuesta lista (cuando el ✓ ya se ve)
   ...tChips.map((t) => ({name: 'tick' as const, at: L + t, gain: 0.6})),
   {name: 'paper', at: L + tPaper},
   {name: 'stamp', at: L + tStamp + 2, gain: 0.7},
@@ -39,7 +39,7 @@ export const Step2: React.FC = () => {
   const frame = useCurrentFrame();
   const ringP = prog(frame, tRing, 52, inOutQuart); // sigue completándose durante "escrita"
   // Cierre del anillo: el "escribiendo…" se funde y el ✓ entra con rebote mientras el trazo termina (nada salta).
-  const ringDone = prog(frame, tRingDone, 14, Easing.out(Easing.back(1.5)));
+  const ringDone = prog(frame, tRingDone, 32, Easing.inOut(Easing.sin)); // seno: pendiente suave en el centro (nada de salto)
   const ringOut = 1 - prog(frame, tPaper, 8);
   // Papel: se despliega desde una línea horizontal de luz (escala Y 0 → 1) y luego las hojas de atrás se asoman.
   const unfold = prog(frame, tPaper, 16, outExpo);

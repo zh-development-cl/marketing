@@ -14,10 +14,10 @@ import type {SfxCue} from '../sound';
 // Debajo, una hoja "Notas de la llamada" donde se escriben en vivo, letra a letra, tres hallazgos; cada uno recibe
 // un marcador azul y, a su derecha, una mini tarjeta real (WhatsApp / Excel / factura) como prueba.
 const sc = scenes.step1;
-// Grabación real de la llamada (Meet, vista de orador), silenciada: un clip con Lorenzo hablando y otro con Nico;
-// el segundo entra en fundido sobre el primero (la vista de orador corta en seco) y el chip cambia de nombre.
-const VIDEO = {src: 'people/meet-a.mp4', src2: 'people/meet-b.mp4', label: 'Lorenzo · ZH', label2: 'Nico · ZH', objectPosition: '50% 30%'};
-const NICO_AT = 116; // frame del clip A en que empieza a entrar Nico (fundido de 10 frames; A dura 126 frames)
+// Grabación real de la llamada (Meet, vista de orador), silenciada: primero habla Nico (clip A) y después Lorenzo
+// (clip B); el segundo entra en fundido sobre el primero (la vista de orador corta en seco) y el chip cambia de nombre.
+const VIDEO = {src: 'people/meet-a.mp4', src2: 'people/meet-b.mp4', label: 'Nico · ZH', label2: 'Lorenzo · ZH', objectPosition: '50% 30%'};
+const SWITCH_AT = 116; // frame del clip A en que empieza a entrar Lorenzo (fundido de 10 frames; A dura 126 frames)
 const PRE = 10;
 const POST = 12;
 const L = sc.from - PRE;
@@ -114,7 +114,7 @@ export const Step1: React.FC = () => {
               done={done}
               speaking={speaking}
               tick={frame}
-              video={{...VIDEO, src: staticFile(VIDEO.src), src2: staticFile(VIDEO.src2), switchAt: NICO_AT, fadeDur: 10, from: tIn - 1, labelMix: prog(frame, tIn - 1 + NICO_AT, 10)}}
+              video={{...VIDEO, src: staticFile(VIDEO.src), src2: staticFile(VIDEO.src2), switchAt: SWITCH_AT, fadeDur: 10, from: tIn - 1, labelMix: prog(frame, tIn - 1 + SWITCH_AT, 10)}}
               join={prog(frame, tJoin, 14, inOutQuart)}
               joinToast={prog(frame, tJoin + 4, 6) * (1 - prog(frame, tJoin + 46, 8))}
             />

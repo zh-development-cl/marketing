@@ -34,6 +34,11 @@ export const Ring: React.FC<RingProps> = ({progress, label, sub, size = RING_SIZ
   const big = m ? m[1] : label;
   const suffix = m ? m[2] : '';
   const mixOp = Math.max(0, Math.min(1, mix));
+  // Secuencia del cierre (todo con easing, nada en seco): primero se va el texto inicial, después crece el label2 y
+  // por último sube el sub2.
+  const outK = Math.min(1, mixOp * 1.6);
+  const inK = Math.max(0, Math.min(1, (mixOp - 0.3) / 0.7));
+  const subK = Math.max(0, Math.min(1, (mixOp - 0.5) / 0.5));
 
   return (
     <div style={{position: 'relative', width: size, height: size, ...style}}>
@@ -105,7 +110,7 @@ export const Ring: React.FC<RingProps> = ({progress, label, sub, size = RING_SIZ
       </svg>
 
       {/* Estado inicial (se funde hacia arriba cuando entra el final) */}
-      <div style={{position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', opacity: 1 - mixOp, transform: mixOp > 0 ? `translateY(${-10 * k * mixOp}px)` : undefined}}>
+      <div style={{position: 'absolute', inset: 0, padding: `0 ${44 * k}px`, boxSizing: 'border-box', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', pointerEvents: 'none', opacity: 1 - outK, transform: outK > 0 ? `translateY(${-12 * k * outK}px)` : undefined}}>
         <div style={{display: 'flex', alignItems: 'baseline', fontFamily: fonts.display, fontWeight: 600, color: labelColor, lineHeight: 1, letterSpacing: '-0.035em', textShadow: `0 0 28px ${accent.glow}`}}>
           <span style={{fontSize: labelSize * k}}>{big}</span>
           {suffix ? <span style={{fontSize: labelSize * k * 0.5, marginLeft: 2 * k, letterSpacing: '-0.01em'}}>{suffix}</span> : null}
@@ -113,12 +118,12 @@ export const Ring: React.FC<RingProps> = ({progress, label, sub, size = RING_SIZ
         {sub ? <div style={{fontFamily: fonts.sans, fontWeight: 500, fontSize: 28 * k, color: ink.text, opacity: 0.85, marginTop: 8 * k, letterSpacing: '0.005em'}}>{sub}</div> : null}
       </div>
       {/* Estado final: el label2 crece con rebote y el sub2 sube en fundido */}
-      {label2 !== undefined && mixOp > 0.001 ? (
-        <div style={{position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none'}}>
-          <div style={{fontFamily: fonts.display, fontWeight: 600, color: labelColor, lineHeight: 1, letterSpacing: '-0.035em', textShadow: `0 0 28px ${accent.glow}`, fontSize: labelSize * k, opacity: mixOp, transform: `scale(${0.55 + 0.45 * mix})`}}>
+      {label2 !== undefined && inK > 0.001 ? (
+        <div style={{position: 'absolute', inset: 0, padding: `0 ${44 * k}px`, boxSizing: 'border-box', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', pointerEvents: 'none'}}>
+          <div style={{fontFamily: fonts.display, fontWeight: 600, color: labelColor, lineHeight: 1, letterSpacing: '-0.035em', textShadow: `0 0 ${28 * inK}px ${accent.glow}`, fontSize: labelSize * k, opacity: inK, transform: `scale(${0.7 + 0.3 * inK})`}}>
             {label2}
           </div>
-          {sub2 ? <div style={{fontFamily: fonts.sans, fontWeight: 500, fontSize: 28 * k, color: ink.text, opacity: 0.85 * mixOp, marginTop: 8 * k, letterSpacing: '0.005em', transform: `translateY(${10 * k * (1 - mixOp)}px)`}}>{sub2}</div> : null}
+          {sub2 ? <div style={{fontFamily: fonts.sans, fontWeight: 500, fontSize: 28 * k, color: ink.text, opacity: 0.85 * subK, marginTop: 8 * k, letterSpacing: '0.005em', transform: `translateY(${12 * k * (1 - subK)}px)`}}>{sub2}</div> : null}
         </div>
       ) : null}
     </div>
