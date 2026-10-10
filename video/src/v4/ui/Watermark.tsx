@@ -52,7 +52,7 @@ export const InstagramGlyph: React.FC<{size?: number; color?: number; strokeWidt
   );
 };
 
-export const Watermark: React.FC<WatermarkProps> = ({right = watermark.right, y = watermark.y, opacity = 1, handle = watermark.handle, iconSize = 40, color = 0, style}) => (
+export const Watermark: React.FC<WatermarkProps> = ({right = watermark.right, y = watermark.y, opacity = 1, handle = watermark.handle, iconSize = 36, color = 0, style}) => (
   <div
     style={{
       position: 'absolute',
@@ -73,7 +73,7 @@ export const Watermark: React.FC<WatermarkProps> = ({right = watermark.right, y 
       style={{
         fontFamily: fonts.mono,
         fontWeight: 600,
-        fontSize: 30,
+        fontSize: 28,
         letterSpacing: '0.04em',
         color: '#FFFFFF',
         whiteSpace: 'nowrap',

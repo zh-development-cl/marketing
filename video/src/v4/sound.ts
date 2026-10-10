@@ -9,7 +9,7 @@ import {sfxCues as step3Cues} from './scenes/Step3';
 import {sfxCues as step4Cues} from './scenes/Step4';
 import {sfxCues as outroCues} from './scenes/Outro';
 
-export type SfxName = 'whoosh-soft' | 'whoosh-hard' | 'whip' | 'pop' | 'tick' | 'click' | 'paper' | 'stamp' | 'rise' | 'chime' | 'logo';
+export type SfxName = 'whoosh-soft' | 'whoosh-hard' | 'whip' | 'pop' | 'tick' | 'click' | 'paper' | 'stamp' | 'rise' | 'chime' | 'logo' | 'sting';
 export type SfxCue = {name: SfxName; at: number; gain?: number};
 
 export const SFX_GAIN = 0.7;

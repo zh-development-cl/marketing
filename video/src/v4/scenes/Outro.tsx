@@ -28,7 +28,7 @@ const tCta = loc(beat('outro', 'Agenda')) - 6;
 const tClick = loc(beat('outro', 'minutos')) + 4;
 const tLink = loc(beat('outro', 'Link')) - 2;
 const tTeam = tClick + 6; // el equipo entra tras el clic, durante "minutos"
-const tEnd = loc(sc.to) - 50; // atenuar y mostrar ícono de Instagram
+const tEnd = loc(sc.to) - 64; // atenuar y mostrar ícono de Instagram (0,4 s de silencio tras la música, 1,9 s de ícono)
 
 export const sfxCues: SfxCue[] = [
   {name: 'logo', at: L + tDraw, gain: 0.9},
@@ -36,7 +36,7 @@ export const sfxCues: SfxCue[] = [
   {name: 'pop', at: L + tCta, gain: 0.7},
   {name: 'click', at: L + tClick, gain: 0.9},
   // Cierre: golpe grave (sting) sobre el ícono de Instagram, con un brillo encima; la música ya terminó.
-  {name: 'logo', at: L + tEnd + 6, gain: 1.0},
+  {name: 'sting', at: L + tEnd + 6, gain: 1.0},
   {name: 'chime', at: L + tEnd + 6, gain: 0.5},
 ];
 

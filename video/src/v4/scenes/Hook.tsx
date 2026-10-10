@@ -21,7 +21,7 @@ const lines: W[][] = [
   [{text: 'Development?', from: beat('hook', 'Development') - L - 4, to: beatEnd('hook', 'Development') - L - 2}],
 ];
 const words = lines.flat();
-const tOut = sc.dur - 6; // latigazo de salida (el día entra desde abajo)
+const tOut = Math.max(sc.dur - 12, beatEnd('hook', 'Development') - L + 1); // latigazo de salida justo después de la última palabra (el día entra desde abajo)
 export const END = sc.dur + 10;
 
 // Carácter a carácter: cuántas letras de una palabra se ven en el frame f.
@@ -44,7 +44,7 @@ const Caret: React.FC<{h: number}> = ({h}) => (
 
 export const Hook: React.FC = () => {
   const frame = useCurrentFrame();
-  const out = prog(frame, tOut, 10, inQuart);
+  const out = prog(frame, tOut, 8, inQuart);
   const lastWord = [...words].reverse().find((w) => typed(frame, w) > 0);
   const caretLine = lastWord ? lines.findIndex((l) => l.includes(lastWord)) : 0;
   const typing = lastWord ? typed(frame, lastWord) < chars(lastWord).length : false;

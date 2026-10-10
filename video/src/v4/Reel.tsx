@@ -44,8 +44,8 @@ export const ReelV4: React.FC = () => {
         <Audio
           src={staticFile(MUSIC_FILE)}
           volume={(f) => {
-            // La música termina justo antes del sting del cierre (outro.to − 50 + 6), como en la referencia.
-            const fadeOut = Math.min(1, Math.max(0, (scenes.outro.to - 50 - f) / 30));
+            // La música se apaga después de la última palabra y antes del sting del cierre (outro.to − 58), como en la referencia.
+            const fadeOut = Math.min(1, Math.max(0, (scenes.outro.to - 70 - f) / 30));
             const fadeIn = Math.min(1, f / 20);
             return MUSIC_GAIN * fadeIn * fadeOut;
           }}

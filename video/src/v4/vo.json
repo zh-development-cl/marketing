@@ -7,17 +7,17 @@
   "single": true,
   "scenes": {
     "hook": {
-      "file": "vo-v5/hook.mp3",
+      "file": "vo-v5/hook.wav",
       "duration": 2,
       "captions": [
         {
           "text": "¿Qué es ZH Development?",
-          "start": 0.06,
+          "start": 0.08,
           "end": 2,
           "words": [
             {
               "text": "¿Qué",
-              "start": 0.06,
+              "start": 0.08,
               "end": 0.24
             },
             {
@@ -40,8 +40,8 @@
       ]
     },
     "day": {
-      "file": "vo-v5/day.mp3",
-      "duration": 6.4,
+      "file": "vo-v5/day.wav",
+      "duration": 6.38,
       "captions": [
         {
           "text": "En una pyme, el día se va en lo mismo:",
@@ -103,7 +103,7 @@
         {
           "text": "cotizar por WhatsApp, cuadrar planillas, perseguir pagos.",
           "start": 2.9,
-          "end": 6.4,
+          "end": 6.38,
           "words": [
             {
               "text": "cotizar",
@@ -138,14 +138,14 @@
             {
               "text": "pagos.",
               "start": 6.04,
-              "end": 6.4
+              "end": 6.38
             }
           ]
         }
       ]
     },
     "pitch": {
-      "file": "vo-v5/pitch.mp3",
+      "file": "vo-v5/pitch.wav",
       "duration": 1.96,
       "captions": [
         {
@@ -160,7 +160,7 @@
             },
             {
               "text": "el",
-              "start": 0.56,
+              "start": 0.58,
               "end": 0.64
             },
             {
@@ -188,7 +188,7 @@
       ]
     },
     "step1": {
-      "file": "vo-v5/step1.mp3",
+      "file": "vo-v5/step1.wav",
       "duration": 4.4,
       "captions": [
         {
@@ -261,7 +261,7 @@
             {
               "text": "más",
               "start": 3.46,
-              "end": 3.62
+              "end": 3.64
             },
             {
               "text": "tiempo",
@@ -283,7 +283,7 @@
       ]
     },
     "step2": {
-      "file": "vo-v5/step2.mp3",
+      "file": "vo-v5/step2.wav",
       "duration": 5.12,
       "captions": [
         {
@@ -353,7 +353,7 @@
       ]
     },
     "step3": {
-      "file": "vo-v5/step3.mp3",
+      "file": "vo-v5/step3.wav",
       "duration": 6.34,
       "captions": [
         {
@@ -368,7 +368,7 @@
             },
             {
               "text": "por",
-              "start": 0.74,
+              "start": 0.72,
               "end": 0.82
             },
             {
@@ -443,7 +443,7 @@
       ]
     },
     "step4": {
-      "file": "vo-v5/step4.mp3",
+      "file": "vo-v5/step4.wav",
       "duration": 2,
       "captions": [
         {
@@ -459,7 +459,7 @@
             {
               "text": "todo",
               "start": 0.26,
-              "end": 0.54
+              "end": 0.46
             },
             {
               "text": "queda",
@@ -496,7 +496,7 @@
       ]
     },
     "outro": {
-      "file": "vo-v5/outro.mp3",
+      "file": "vo-v5/outro.wav",
       "duration": 7.54,
       "captions": [
         {
@@ -531,17 +531,17 @@
             },
             {
               "text": "que",
-              "start": 2.68,
+              "start": 2.66,
               "end": 2.76
             },
             {
               "text": "conecta",
               "start": 2.8,
-              "end": 3.12
+              "end": 3.16
             },
             {
               "text": "tu",
-              "start": 3.18,
+              "start": 3.2,
               "end": 3.26
             },
             {
@@ -559,7 +559,7 @@
             {
               "text": "Agenda",
               "start": 4.48,
-              "end": 4.8
+              "end": 4.84
             },
             {
               "text": "tu",
@@ -583,13 +583,13 @@
             },
             {
               "text": "minutos.",
-              "start": 5.78,
+              "start": 5.8,
               "end": 6.3
             },
             {
               "text": "Link",
               "start": 6.7,
-              "end": 6.96
+              "end": 7.06
             },
             {
               "text": "en",

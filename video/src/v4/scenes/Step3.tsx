@@ -8,7 +8,7 @@ import {CalendarCard} from '../ui/CalendarCard';
 import {Dashboard} from '../ui/Dashboard';
 import {WhatsAppConvo} from '../ui/WhatsAppConvo';
 import {SummaryCards} from '../ui/SummaryCards';
-import {beat, scenes} from '../timeline';
+import {beat, beatEnd, scenes} from '../timeline';
 import type {SfxCue} from '../sound';
 
 // Escena 7 · paso 03 · construir. Página "Plan por etapas" del documento → calendario con semanas tachadas →
@@ -21,7 +21,7 @@ const tPlan = 2;
 const tCal = loc(beat('step3', 'etapas')) - 4;
 const tCalEnd = loc(beat('step3', 'probar'));
 const tDeliver = tCalEnd; // la celda "entrega" se enciende con "probar"
-const tDash = loc(beat('step3', 'IA')) - 16;
+const tDash = loc(beatEnd('step3', 'probar')) + 2; // el panel (y su whoosh) entran en la pausa antes de "y usamos"
 const tChat = loc(beat('step3', 'IA')) + 2;
 const tTyping = tChat + 10; // "escribiendo…" mientras la voz sostiene "IA"
 const tAnswer = loc(beat('step3', 'con', 1)) - 4; // la respuesta llega con "con revisión"

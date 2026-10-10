@@ -76,7 +76,7 @@ const normalize = (input, output) => {
   const filter = `loudnorm=I=${TARGET_LUFS}:TP=${TRUE_PEAK}:LRA=15`;
   const measured = sh(`ffmpeg -hide_banner -nostats -i "${input}" -af "${filter}:print_format=json" -f null - 2>&1`);
   const s = JSON.parse(measured.match(/\{[\s\S]*\}/)[0]);
-  ffmpeg(['-i', input, '-af', `${filter}:measured_I=${s.input_i}:measured_TP=${s.input_tp}:measured_LRA=${s.input_lra}:measured_thresh=${s.input_thresh}:offset=${s.target_offset}:linear=true`, '-ar', '44100', '-ac', '1', '-c:a', 'pcm_s16le', output]);
+  ffmpeg(['-i', input, '-af', `treble=g=2:f=6000:w=0.7,${filter}:measured_I=${s.input_i}:measured_TP=${s.input_tp}:measured_LRA=${s.input_lra}:measured_thresh=${s.input_thresh}:offset=${s.target_offset}:linear=true`, '-ar', '44100', '-ac', '1', '-c:a', 'pcm_s16le', output]);
   for (let i = 0; i < 3; i++) {
     const got = measureI(output);
     if (Math.abs(got - TARGET_LUFS) <= 0.3) break;
@@ -185,8 +185,8 @@ order.forEach((scene, i) => {
   const nextStart = i < order.length - 1 ? perScene[order[i + 1]][0].start : total;
   const cutStart = Math.max(prevEnd + 0.02, first - 0.12);
   const cutEnd = Math.min(nextStart - 0.02, last + 0.2);
-  const file = `${scene}.mp3`;
-  ffmpeg(['-i', master, '-af', `atrim=${cutStart.toFixed(3)}:${cutEnd.toFixed(3)},asetpts=PTS-STARTPTS,afade=t=in:d=0.02,afade=t=out:st=${(cutEnd - cutStart - 0.03).toFixed(3)}:d=0.03`, '-ar', '44100', '-ac', '1', '-c:a', 'libmp3lame', '-b:a', '160k', path.join(outDir, file)]);
+  const file = `${scene}.wav`; // WAV: una codificación con pérdida menos en la cadena (la voz llega con más aire arriba de 5 kHz)
+  ffmpeg(['-i', master, '-af', `atrim=${cutStart.toFixed(3)}:${cutEnd.toFixed(3)},asetpts=PTS-STARTPTS,afade=t=in:d=0.02,afade=t=out:st=${(cutEnd - cutStart - 0.03).toFixed(3)}:d=0.03`, '-ar', '44100', '-ac', '1', '-c:a', 'pcm_s16le', path.join(outDir, file)]);
   const captions = caps.map((c) => ({
     text: c.text,
     start: Number((c.start - cutStart).toFixed(3)),

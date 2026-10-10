@@ -34,11 +34,11 @@ const SFX_LIST = [
   ['whoosh-soft', 0.7, 'soft airy whoosh transition, clean, subtle, no music'],
   ['whoosh-hard', 0.6, 'fast cinematic whoosh swish, tight, punchy, no music'],
   ['whip', 0.5, 'quick whip pan swoosh with doppler, short, clean'],
-  ['pop', 0.3, 'soft UI pop notification bubble, short, clean'],
-  ['tick', 0.2, 'subtle UI tick click, very short, clean'],
-  ['click', 0.25, 'mouse click, crisp, single'],
+  ['pop', 0.3, 'soft UI pop notification bubble, short, clean', 'ui'],
+  ['tick', 0.2, 'subtle UI tick click, very short, clean', 'ui'],
+  ['click', 0.25, 'mouse click, crisp, single', 'ui'],
   ['paper', 0.8, 'paper sheet slide and settle, soft, foley'],
-  ['stamp', 0.5, 'rubber stamp thud on paper, short'],
+  ['stamp', 0.5, 'rubber stamp thud on paper, short', 'ui'],
   ['rise', 1.2, 'short rising synth riser swell, clean, no drums'],
   ['chime', 1.0, 'soft success chime, two notes, warm, short'],
   ['logo', 1.5, 'deep cinematic logo reveal boom with shimmer tail, short'],
@@ -192,12 +192,20 @@ const prepareSfx = (raw, target, base) => {
   return cut;
 };
 
-const makeSfx = async (name, target, prompt, tmp) => {
+const makeSfx = async (name, target, prompt, tmp, kind) => {
   const body = {text: prompt, duration_seconds: Math.max(target, MIN_API_SECONDS), prompt_influence: PROMPT_INFLUENCE};
   const raw = await cachedMp3(name, 'https://api.elevenlabs.io/v1/sound-generation', [body], 60_000);
-  const prepared = prepareSfx(raw, target, path.join(tmp, name));
+  let prepared = prepareSfx(raw, target, path.join(tmp, name));
+  // Sonidos de interfaz (tick, pop, click, stamp): muy cortos y con cresta alta, quedaban 13–23 dB bajo la mezcla.
+  // Se densifican con compresión y se nivelan 4 LU más arriba que el resto.
+  const ui = kind === 'ui';
+  if (ui) {
+    const dense = path.join(tmp, `${name}-dense.wav`);
+    ffmpeg(['-i', prepared, '-af', 'acompressor=threshold=-20dB:ratio=4:attack=1:release=40:makeup=6,alimiter=limit=0.84:attack=1:release=30:level=false', '-ar', '44100', '-ac', '1', '-c:a', 'pcm_f32le', dense]);
+    prepared = dense;
+  }
   const out = path.join(sfxDir, `${name}.mp3`);
-  const {peakLimited, gain} = normalize(prepared, out, {lufs: SFX_LUFS, tp: SFX_TP, channels: 1, bitrate: '160k'});
+  const {peakLimited, gain} = normalize(prepared, out, {lufs: ui ? SFX_LUFS + 4 : SFX_LUFS, tp: SFX_TP, channels: 1, bitrate: '160k'});
   const got = measureEbur(out, true);
   console.log(
     `${name.padEnd(12)} ${got.d.toFixed(3)} s · ${got.i.toFixed(1)} LUFS · TP ${got.tp.toFixed(1)} dBTP · ganancia ${gain >= 0 ? '+' : ''}${gain.toFixed(1)} dB` +
@@ -344,10 +352,10 @@ try {
   if (mode === 'generate') {
     // La música tarda bastante más: se pide primero y se procesa mientras salen los efectos.
     const music = wanted('music') ? makeMusic(tmp).catch((e) => failed.push(`music/bed.mp3 (${e.message})`)) : null;
-    for (const [name, target, prompt] of SFX_LIST) {
+    for (const [name, target, prompt, kind] of SFX_LIST) {
       if (!wanted(name)) continue;
       try {
-        await makeSfx(name, target, prompt, tmp);
+        await makeSfx(name, target, prompt, tmp, kind);
       } catch (e) {
         failed.push(`sfx/${name}.mp3 (${e.message})`);
         console.warn(`${name}: FALLÓ: ${e.message}`);
