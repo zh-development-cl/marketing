@@ -62,11 +62,17 @@ const Slide: React.FC<{tin: number; tout: number; top: number; width: number; sc
 export const Step3: React.FC = () => {
   const frame = useCurrentFrame();
   const bars = prog(frame, tPlan + 6, 24);
-  const struck = Math.floor(interpolate(frame, [tCal + 8, tCal + 44], [0, 20], clamp));
-  const deliver = prog(frame, tDeliver, 8);
+  // Sin floor: la diagonal del día k se dibuja mientras `struck` recorre k..k+2 (~3,4 frames, solapando con la
+  // siguiente); en 21 están las 20 completas. CalendarCard funde también el color del número y de "semana N".
+  const struck = interpolate(frame, [tCal + 8, tCal + 44], [0, 21], clamp);
+  // La celda "entrega" se enciende en 12 frames arrancando desde ~0 (inOut), sin escalón en el primer frame.
+  const deliver = prog(frame, tDeliver, 12, inOutQuart);
   const dash = prog(frame, tDash + 6, 30);
-  const show = frame < tChat ? 0 : frame < tAnswer ? 1 : frame < tSeal ? 2 : 3;
-  const typing = frame < tAnswer ? prog(frame, tTyping, 6) : 1 - prog(frame, tAnswer, 4);
+  // `show` fraccionario para que WhatsAppConvo funda cada burbuja con enter() (opacidad + subida + desenfoque):
+  // la entrante en tChat+2..+10 y la respuesta en tAnswer..+7. El sello no entra por `show` sino por `sealAt`.
+  const show = prog(frame, tChat + 2, 8) + prog(frame, tAnswer, 7, inOutQuart);
+  // "escribiendo…" entra con los puntos y se apaga en fundido cruzado con la respuesta que llega encima.
+  const typing = prog(frame, tTyping, 6) * (1 - prog(frame, tAnswer, 6, inOutQuart));
   return (
     <AbsoluteFill>
       <StepTitle n="03" title="construir" at={tTitle} out={END - 20} />
@@ -79,7 +85,7 @@ export const Step3: React.FC = () => {
       <Slide tin={tDash} tout={END - 8} top={490} width={840} scale={0.9333} exit="fade">
         <Dashboard progress={dash} />
         <BlurIn at={tChat - 2} dur={8} dy={22} style={{marginTop: 8}}>
-          <WhatsAppConvo show={show} typing={typing} tick={frame} sealAt={tSeal} />
+          <WhatsAppConvo show={show} typing={typing} tick={frame} answerAt={tAnswer} sealAt={tSeal} />
         </BlurIn>
         <div style={{marginTop: 8}}>
           <Pop at={tAnswer + 4} from={0.85} config={{damping: 14, stiffness: 160}}>

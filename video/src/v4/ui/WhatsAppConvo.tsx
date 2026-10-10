@@ -6,7 +6,9 @@ import {WhatsAppIcon} from './icons';
 // Conversación de WhatsApp (880 x 420, tarjeta blanca estilo WhatsApp web): cabecera con avatar "CR" y
 // "Camila Rojas · WhatsApp"; burbuja entrante gris oscura con hora, etiqueta "AGENTE DE TU EMPRESA", burbuja
 // saliente verde claro con doble check y sello "IA · revisado por tu equipo".
-// `show` = cuántos elementos se ven: 0 nada · 1 entrante · 2 + etiqueta y respuesta · 3 + sello (fraccionario = entrando).
+// `show` = cuántos elementos se ven: 0 nada · 1 entrante · 2 + etiqueta y respuesta · 3 + sello. La parte fraccionaria
+// es el elemento siguiente entrando con enter() (opacidad + subida + desenfoque): show = 1.5 → la respuesta a medio
+// aparecer. `typing` fraccionario funde los puntos de "escribiendo…" (sirve para cruzarlos con la respuesta).
 // No anima por sí solo.
 
 export const CONVO_W = 880;
@@ -22,6 +24,7 @@ export type WhatsAppConvoProps = {
   timeIn?: string; // "21:47"
   timeOut?: string; // "21:47"
   typing?: number; // 0..1 burbuja "escribiendo…" (tres puntos) en el lugar de la respuesta
+  answerAt?: number; // frame local en que la respuesta entra: resorte sutil (escala 0.94→1) sumado al fundido por `show`
   sealAt?: number; // frame local en que el sello entra con resorte (si no viene, entra por `show`)
   tick?: number; // frame, para el pulso de los puntos
   style?: React.CSSProperties; // contenedor exterior
@@ -56,6 +59,7 @@ export const WhatsAppConvo: React.FC<WhatsAppConvoProps> = ({
   timeOut = '21:47',
   typing = 0,
   tick = 0,
+  answerAt,
   sealAt,
   style,
 }) => {
@@ -153,31 +157,33 @@ export const WhatsAppConvo: React.FC<WhatsAppConvoProps> = ({
           </div>
         ) : null}
 
-        {/* Etiqueta + saliente */}
+        {/* Etiqueta + saliente (la burbuja lleva además un resorte sutil desde su esquina de la cola si viene `answerAt`) */}
         <div style={{position: 'absolute', right: 24, top: 118, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', ...enter(t2)}}>
           <div style={{fontFamily: fonts.mono, fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase', color: MUTED, marginBottom: 8, paddingRight: 2}}>Agente de {company}</div>
-          <div
-            style={{
-              position: 'relative',
-              maxWidth: 620,
-              boxSizing: 'border-box',
-              padding: '12px 92px 12px 16px',
-              borderRadius: 14,
-              borderTopRightRadius: 4,
-              background: apps.whatsappBubbleOut,
-              color: INK,
-              fontSize: 21,
-              lineHeight: 1.3,
-              letterSpacing: '-0.01em',
-              boxShadow: '0 1px 2px rgba(0,0,0,0.12)',
-            }}
-          >
-            {outgoing}
-            <div style={{position: 'absolute', right: 12, bottom: 9, display: 'flex', alignItems: 'center', gap: 5}}>
-              <span style={{fontSize: 12.5, color: '#6E8372', fontVariantNumeric: 'tabular-nums'}}>{timeOut}</span>
-              <DoubleCheck />
+          <Pop at={answerAt ?? -1000} from={0.94} config={{damping: 14, stiffness: 180}} style={{transformOrigin: 'top right'}}>
+            <div
+              style={{
+                position: 'relative',
+                maxWidth: 620,
+                boxSizing: 'border-box',
+                padding: '12px 92px 12px 16px',
+                borderRadius: 14,
+                borderTopRightRadius: 4,
+                background: apps.whatsappBubbleOut,
+                color: INK,
+                fontSize: 21,
+                lineHeight: 1.3,
+                letterSpacing: '-0.01em',
+                boxShadow: '0 1px 2px rgba(0,0,0,0.12)',
+              }}
+            >
+              {outgoing}
+              <div style={{position: 'absolute', right: 12, bottom: 9, display: 'flex', alignItems: 'center', gap: 5}}>
+                <span style={{fontSize: 12.5, color: '#6E8372', fontVariantNumeric: 'tabular-nums'}}>{timeOut}</span>
+                <DoubleCheck />
+              </div>
             </div>
-          </div>
+          </Pop>
         </div>
 
         {/* Sello IA */}
