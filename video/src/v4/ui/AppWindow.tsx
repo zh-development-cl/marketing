@@ -40,7 +40,10 @@ const RollNumber: React.FC<{value: number}> = ({value}) => {
   const lo = Math.max(0, Math.floor(value));
   const t = Math.max(0, Math.min(1, value - lo));
   const digits = (n: number) => String(n).length;
-  const w = digits(lo) + (digits(lo + 1) - digits(lo)) * t;
+  // El ancho crece a lo largo de DOS unidades antes del cambio de cifras (8→10): con un aterrizaje por frame, la
+  // rampa de una sola unidad cabía en un frame y la píldora se ensanchaba de golpe.
+  const nextWide = Math.pow(10, digits(lo));
+  const w = digits(nextWide - 1) + Math.max(0, Math.min(1, (value - (nextWide - 2)) / 2));
   const shift = `${(-t * 100).toFixed(2)}%`;
   return (
     <span style={{position: 'relative', display: 'inline-flex', justifyContent: 'center', width: `${w.toFixed(3)}ch`, clipPath: 'inset(0 -1ch)'}}>

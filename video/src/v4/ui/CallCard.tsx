@@ -429,7 +429,7 @@ export const CallCard: React.FC<CallCardProps> = ({
               borderRadius: 999,
               background: 'rgba(255,255,255,0.06)',
               boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.07)',
-              opacity: 1 - Math.min(1, d * 2.2),
+              opacity: 1 - Math.min(1, d * 3), // se apaga antes de que la otra llegue a la mitad (sin textos superpuestos)
               transform: `scale(${1 - 0.15 * k})`,
               transformOrigin: '100% 50%',
             }}
@@ -451,7 +451,7 @@ export const CallCard: React.FC<CallCardProps> = ({
               borderRadius: 999,
               background: 'rgba(61,214,140,0.14)',
               boxShadow: 'inset 0 0 0 1px rgba(61,214,140,0.35), 0 0 24px rgba(61,214,140,0.18)',
-              opacity: Math.min(1, d * 2.2),
+              opacity: Math.max(0, Math.min(1, (d - 0.33) * 1.5)),
               transform: `scale(${0.7 + 0.3 * Math.min(1.08, d)})`,
               transformOrigin: '100% 50%',
             }}

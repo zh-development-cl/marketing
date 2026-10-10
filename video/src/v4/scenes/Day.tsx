@@ -54,7 +54,16 @@ const ENTRIES = (() => {
   const sum = new Map<number, number>();
   CARDS.forEach((c) => sum.set(c.at, (sum.get(c.at) ?? 0) + c.ev.add));
   const ats = [...sum.keys()].sort((a, b) => a - b);
-  return ats.map((at, k) => ({at, add: sum.get(at) ?? 0, next: k + 1 < ats.length ? ats[k + 1] : null}));
+  // En el desborde las tarjetas entran cada 1–3 frames: los grupos a menos de MIN_GAP frames comparten etiqueta
+  // (si no, dos "+n" conviven a medio fundir y se leen como texto doble).
+  const MIN_GAP = 6;
+  const groups: Array<{at: number; add: number}> = [];
+  ats.forEach((at) => {
+    const last = groups[groups.length - 1];
+    if (last && at - last.at < MIN_GAP) last.add += sum.get(at) ?? 0;
+    else groups.push({at, add: sum.get(at) ?? 0});
+  });
+  return groups.map((g, k) => ({...g, next: k + 1 < groups.length ? groups[k + 1].at : null}));
 })();
 const TAG_LIFE = 18; // frames que flota cada "+n"
 
@@ -94,7 +103,7 @@ export const Day: React.FC = () => {
   const entered = CARDS.reduce((a, c) => a + prog(frame, c.at + 3, ENTER - 3), 0);
   const count = rollOf(frame, countText, ROLL);
   const clock = rollOf(frame, clockText, ROLL);
-  const off = prog(frame, T1 + 5, 8, inOutQuart); // regla y contador se apagan mientras nace la ventana (el 73 se lee ≥ 0,5 s)
+  const off = prog(frame, T1 + 8, 8, inOutQuart); // regla y contador se apagan mientras nace la ventana (el 73 se lee ≥ 0,6 s)
   const endGlow = prog(frame, T1 - 6, 6) * (1 - off);
   const pulse = 1 + 0.06 * prog(frame, T1, 3) * (1 - prog(frame, T1 + 3, 8));
   const showHeap = frame < tHand;
