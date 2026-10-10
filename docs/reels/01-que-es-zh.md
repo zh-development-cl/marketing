@@ -1,6 +1,6 @@
-# Reel 01 · ¿Qué hace ZH Development?
+# Reel 01 · ¿Qué hacemos en ZH Development?
 
-Formato: 1080x1920, 30 fps, 49,0 s (la duración la fija la voz). Versión actual: **v5** (`video/src/v4/`). Nivel de
+Formato: 1080x1920, 30 fps, 49,4 s (la duración la fija la voz). Versión actual: **v5** (`video/src/v4/`). Nivel de
 producción tomado del reel de referencia de @nexacgs (composición continua sin cortes secos, desenfoque de movimiento
 por velocidad, grano y viñeta, mockups realistas, efectos de sonido por cue, cama musical), pero con **concepto propio**
 pedido por Lorenzo: la apertura no copia la de la referencia (nada de texto→píldora→teléfono ni "imagina que esta es
@@ -12,7 +12,7 @@ calculado desde `video/src/v4/vo.json` (tiempos por palabra medidos con STT sobr
 
 ## Voz en off (una sola toma)
 
-> ¿Qué hace ZH Development?
+> ¿Qué hacemos en ZH Development?
 > En tu empresa, el día se va en lo mismo: cotizar por WhatsApp, cuadrar planillas, perseguir pagos.
 > Hacemos el software que lo resuelve.
 > Partimos con una llamada de 30 minutos para encontrar lo que más tiempo te quita.
@@ -30,14 +30,14 @@ escena; una sola etiqueta de interpretación (`[confident, warm]`) para toda la 
 
 | # | Tiempo | Pantalla | Voz |
 |---|--------|----------|-----|
-| 1 | 0.0 – 3.0 | Gancho en consola: "~/tu-empresa $" y la pregunta se escribe letra a letra en display ("¿qué hace / ZH / Development?") con un cursor de bloque azul que parpadea; sale hacia arriba con latigazo. | ¿Qué hace ZH Development? |
-| 2 | 3.0 – 10.5 | Un día en time-lapse: regla de 08:00 a 19:00 con cabezal que acelera y contador "tareas repetidas hoy" como HUD; tarjetas reales (WhatsApp, Excel, Gmail, facturas, post-its, Instagram, banco) entran por la derecha con su hora y se amontonan; en los beats se iluminan las de cada tipo. Hacia el final el día se desborda: 22 notificaciones más entran cada vez más rápido por los tres bordes, giradas y encimadas, la cámara tiembla y el contador llega a 73. | En tu empresa, el día se va en lo mismo: cotizar por WhatsApp, cuadrar planillas, perseguir pagos. |
-| 3 | 10.5 – 13.5 | A las 19:00 nace detrás del montón la ventana de app ZH ("Tu Empresa · sistema") y las mismas 38 tarjetas que se amontonaron vuelan a ella columna por columna (cotizaciones · stock · cobros), se apilan en listas y reciben un check al aterrizar; los contadores por columna suben y en "resuelve" remata un check grande por columna. | Hacemos el software que lo resuelve. |
-| 4 | 13.5 – 19.6 | `paso 01` · **entender**: videollamada con tres recuadros (captura real del Meet: Lorenzo y Nico de ZH, y "Tu Empresa" a la derecha) con contador que llega a 30:00 en "quita" y se sostiene; debajo, "Notas de la llamada" escritas en vivo con tres hallazgos marcados y mini tarjetas de prueba. | Partimos con una llamada de 30 minutos para encontrar lo que más tiempo te quita. |
-| 5 | 19.6 – 25.8 | `paso 02` · **diseñar**: anillo "escribiendo la propuesta…" → ✓ y fichas alcance · plazo · precio; la propuesta en papel (Resumen: alcance, plazo, precio fijo) se despliega desde una línea de luz y cae el timbre "SIN SORPRESAS" sobre el precio. | Después, una propuesta escrita: alcance, plazo y precio. Sin sorpresas. |
-| 6 | 25.8 – 33.4 | `paso 03` · **construir**: "Plan por etapas" → calendario con semanas tachadas y la celda "entrega" encendida en "probar" → panel "Clientes que avanzan solos" + chat de WhatsApp (escribiendo… → respuesta → sello grande "IA · revisado por tu equipo") + tira sobria con tres métricas. Se desenfoca bajo lo que entra. | Construimos por etapas, con entregas que puedes probar, y usamos IA con revisión humana. |
-| 7 | 33.4 – 36.8 | `paso 04` · **mejorar**: tarjeta "Propiedad de Tu Empresa" (el sistema completo · claves y accesos · cuentas y dominio · mejoras continuas) con checks en los beats; se encoge hasta un punto. | Y todo queda a nombre de tu empresa. |
-| 8 | 36.8 – 49.0 | El punto es el bloque azul del logo: monograma dibujado, "ZH Development", frase palabra por palabra, botón "Agenda tu llamada de 30 min →" con un toque (onda); en "¿Qué esperas?" salta la línea "¿qué esperas?" bajo el botón, y debajo "zhdevelopment.cl · link en la bio" y el equipo (Lorenzo y Nico). Cierre: ícono de Instagram a color con sting grave y @ZHDEVELOPMENT.CL. | ZH Development: software a medida que conecta tu operación. Agenda tu llamada de 30 minutos. ¿Qué esperas? |
+| 1 | 0.0 – 3.2 | Gancho en consola: "~/tu-empresa $" y la pregunta se escribe letra a letra en display ("¿qué hacemos en / ZH / Development?") con un cursor de bloque azul que parpadea; sale hacia arriba con latigazo. | ¿Qué hacemos en ZH Development? |
+| 2 | 3.2 – 10.9 | Un día en time-lapse: regla de 08:00 a 19:00 con cabezal que acelera y contador "tareas repetidas hoy" como HUD; tarjetas reales (WhatsApp, Excel, Gmail, facturas, post-its, Instagram, banco) entran por la derecha con su hora y se amontonan; en los beats se iluminan las de cada tipo. Hacia el final el día se desborda: 22 notificaciones más entran cada vez más rápido por los tres bordes, giradas y encimadas, la cámara tiembla y el contador llega a 73. | En tu empresa, el día se va en lo mismo: cotizar por WhatsApp, cuadrar planillas, perseguir pagos. |
+| 3 | 10.9 – 13.9 | A las 19:00 nace detrás del montón la ventana de app ZH ("Tu Empresa · sistema") y las mismas 38 tarjetas que se amontonaron vuelan a ella columna por columna (cotizaciones · stock · cobros), se apilan en listas y reciben un check al aterrizar; los contadores por columna suben y en "resuelve" remata un check grande por columna. | Hacemos el software que lo resuelve. |
+| 4 | 13.9 – 20.0 | `paso 01` · **entender**: videollamada con la grabación real de un Meet (Lorenzo habla y luego Nico; `video/public/people/meet-call.mp4`, silenciada) y, al empezar la llamada, "Tu Empresa" se une con animación (el video se angosta, entra su recuadro y aparece "Tu Empresa se unió a la llamada"); contador que llega a 30:00 en "quita" y se sostiene; debajo, "Notas de la llamada" escritas en vivo con tres hallazgos marcados y mini tarjetas de prueba. | Partimos con una llamada de 30 minutos para encontrar lo que más tiempo te quita. |
+| 5 | 20.0 – 26.5 | `paso 02` · **diseñar**: anillo "escribiendo la propuesta…" → ✓ y fichas alcance · plazo · precio; la propuesta en papel (Resumen: alcance, plazo, precio fijo) se despliega desde una línea de luz y cae el timbre "SIN SORPRESAS" sobre el precio. | Después, una propuesta escrita: alcance, plazo y precio. Sin sorpresas. |
+| 6 | 26.5 – 34.0 | `paso 03` · **construir**: "Plan por etapas" → calendario con semanas tachadas y la celda "entrega" encendida en "probar" → panel "Clientes que avanzan solos" + chat de WhatsApp (escribiendo… → respuesta → sello grande "IA · revisado por tu equipo") + tira sobria con tres métricas. Se desenfoca bajo lo que entra. | Construimos por etapas, con entregas que puedes probar, y usamos IA con revisión humana. |
+| 7 | 34.0 – 37.4 | `paso 04` · **mejorar**: tarjeta "Propiedad de Tu Empresa" (el sistema completo · claves y accesos · cuentas y dominio · mejoras continuas) con checks en los beats; se encoge hasta un punto. | Y todo queda a nombre de tu empresa. |
+| 8 | 37.4 – 49.4 | El punto es el bloque azul del logo: monograma dibujado, "ZH Development", frase palabra por palabra, botón "Agenda tu llamada de 30 min →" con un toque (onda); en "¿Qué esperas?" salta la línea "¿qué esperas?" bajo el botón, y debajo "zhdevelopment.cl · link en la bio" y el equipo (Lorenzo y Nico, fotos de la presentación de la propuesta). Cierre: ícono de Instagram a color con sting grave y @ZHDEVELOPMENT.CL. | ZH Development: software a medida que conecta tu operación. Agenda tu llamada de 30 minutos. ¿Qué esperas? |
 
 Zonas seguras de Instagram respetadas: nada esencial sobre los 220 px superiores ni bajo los 1500 px; la marca de agua
 va en fila arriba a la derecha.
@@ -54,7 +54,7 @@ va en fila arriba a la derecha.
 
 ## Texto para la publicación
 
-Caption: "¿Qué hace ZH Development? Software a medida, automatización e IA para empresas que todavía hacen todo a mano. Llamada de 30 min → propuesta escrita → construcción por etapas. Todo queda a tu nombre. Agenda en el link de la bio."
+Caption: "¿Qué hacemos en ZH Development? Software a medida, automatización e IA para empresas que todavía hacen todo a mano. Llamada de 30 min → propuesta escrita → construcción por etapas. Todo queda a tu nombre. Agenda en el link de la bio."
 
 Hashtags (máx. 5): #softwareamedida #automatizacion #pymeschile #inteligenciaartificial #chile
 

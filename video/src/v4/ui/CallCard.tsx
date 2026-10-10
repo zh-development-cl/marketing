@@ -1,5 +1,5 @@
 import React from 'react';
-import {Img, OffthreadVideo} from 'remotion';
+import {Img, OffthreadVideo, Sequence} from 'remotion';
 import {accent, fonts, ink, shadow, status} from '../tokens';
 import {formatClock} from './CallBar';
 
@@ -12,6 +12,11 @@ import {formatClock} from './CallBar';
 export const CALLCARD_W = 840;
 export const CALLCARD_H = 520;
 export const CALLCARD_H3 = 446; // alto con tres recuadros chicos (Lorenzo · Nico · Tu Empresa)
+export const CALLCARD_HV = 520; // alto en modo video: recuadro grande (792 x 320) + fila compacta
+
+// Grabación real de la llamada (video silenciado). `from`: frame local de la escena en que arranca el clip (frame 0
+// del archivo); `label`/`label2`: chip con el nombre de quien habla, cruzado con `labelMix` (0 → label, 1 → label2).
+export type CallVideo = {src: string; from?: number; startFrom?: number; label: string; label2?: string; labelMix?: number; objectPosition?: string};
 
 export type CallCardProps = {
   seconds: number; // segundos transcurridos (mm:ss)
@@ -27,6 +32,11 @@ export type CallCardProps = {
   media?: {kind: 'image' | 'video'; src: string; startFrom?: number; label?: string; objectPosition?: string};
   // Tres (o más) recuadros chicos en fila, como un Meet con varios participantes: foto (src) o iniciales.
   tiles?: Array<{src?: string; initials?: string; label: string; objectPosition?: string}>;
+  // Modo video: la grabación ocupa el ancho; con `join` 0..1 el recuadro de la grabación se angosta y el de "Tu
+  // Empresa" entra por la derecha (se une a la llamada); `joinToast` 0..1 muestra el aviso "Tu Empresa se unió".
+  video?: CallVideo;
+  join?: number;
+  joinToast?: number;
   style?: React.CSSProperties;
 };
 
@@ -34,6 +44,8 @@ const PAD = 24;
 const TILE_W = (CALLCARD_W - PAD * 2 - 16) / 2; // 418
 const TILE_H = 290;
 const TILE_H3 = 214; // alto de los recuadros cuando son tres en fila
+const TILE_HV = 320; // alto del recuadro de video en modo video
+const TE_W = 236; // ancho del recuadro "Tu Empresa" cuando se une
 const TILE_TOP = 80;
 
 const ICON = '#FFFFFF';
@@ -132,12 +144,12 @@ const LevelBars: React.FC<{tick: number; on: boolean}> = ({tick, on}) => (
   </div>
 );
 
-const RoundButton: React.FC<{children: React.ReactNode; danger?: boolean; width?: number}> = ({children, danger = false, width = 64}) => (
+const RoundButton: React.FC<{children: React.ReactNode; danger?: boolean; width?: number; size?: number}> = ({children, danger = false, width, size = 64}) => (
   <div
     style={{
-      width,
-      height: 64,
-      borderRadius: 32,
+      width: width ?? size,
+      height: size,
+      borderRadius: size / 2,
       background: danger ? 'linear-gradient(180deg, #F0575C 0%, #D9363B 100%)' : 'rgba(255,255,255,0.08)',
       boxShadow: danger ? '0 8px 22px rgba(229,72,77,0.45), inset 0 1px 0 rgba(255,255,255,0.28)' : 'inset 0 1px 0 rgba(255,255,255,0.10), 0 0 0 1px rgba(255,255,255,0.06)',
       display: 'flex',
@@ -161,10 +173,18 @@ export const CallCard: React.FC<CallCardProps> = ({
   avatarSrc,
   media,
   tiles,
+  video,
+  join = 0,
+  joinToast = 0,
   style,
 }) => {
   const d = Math.max(0, Math.min(1.3, done));
   const isDone = d > 0.01;
+  const compact = Boolean(video); // fila inferior más baja para dejar sitio al video
+  const j = Math.max(0, Math.min(1, join));
+  const toast = Math.max(0, Math.min(1, joinToast));
+  const mix = Math.max(0, Math.min(1, video?.labelMix ?? 0));
+  const AREA_W = CALLCARD_W - PAD * 2;
   // Pulso del contador al llegar a 30:00: sube a ~1.1 a mitad del resorte y vuelve a 1.
   const pulse = 1 + 0.42 * Math.max(0, d * (1 - Math.min(1, d)));
   return (
@@ -172,7 +192,7 @@ export const CallCard: React.FC<CallCardProps> = ({
       style={{
         position: 'relative',
         width: CALLCARD_W,
-        height: tiles ? CALLCARD_H3 : CALLCARD_H,
+        height: video ? CALLCARD_HV : tiles ? CALLCARD_H3 : CALLCARD_H,
         boxSizing: 'border-box',
         borderRadius: 28,
         background: 'linear-gradient(180deg, #161B26 0%, #0F131B 100%)',
@@ -192,6 +212,48 @@ export const CallCard: React.FC<CallCardProps> = ({
           <span style={{fontSize: 26, fontWeight: 500, color: ink.text2, letterSpacing: '-0.01em', fontVariantNumeric: 'tabular-nums'}}>30 min</span>
         </div>
       </div>
+
+      {video ? (
+        <>
+          {/* Grabación real de la llamada: se angosta cuando "Tu Empresa" se une */}
+          <div style={{position: 'absolute', left: PAD, top: TILE_TOP, width: AREA_W - j * (TE_W + 16), height: TILE_HV, borderRadius: 18, overflow: 'hidden', background: '#1A2030', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.06)'}}>
+            <Sequence from={video.from ?? 0} layout="none">
+              <OffthreadVideo src={video.src} muted startFrom={video.startFrom ?? 0} style={{width: '100%', height: '100%', objectFit: 'cover', objectPosition: video.objectPosition ?? '50% 30%', display: 'block'}} />
+            </Sequence>
+            <div style={{position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0) 45%, rgba(0,0,0,0.42) 100%)'}} />
+            <div style={{position: 'absolute', inset: 0, opacity: 1 - mix}}>
+              <NameChip text={video.label} />
+            </div>
+            {video.label2 ? (
+              <div style={{position: 'absolute', inset: 0, opacity: mix}}>
+                <NameChip text={video.label2} />
+              </div>
+            ) : null}
+            <LevelBars tick={tick} on={speaking} />
+          </div>
+          {/* "Tu Empresa" se une: entra por la derecha */}
+          {j > 0.001 ? (
+            <div style={{position: 'absolute', left: PAD + AREA_W - TE_W + (1 - j) * (TE_W + 48), top: TILE_TOP, width: TE_W, height: TILE_HV, borderRadius: 16, overflow: 'hidden', opacity: j, background: 'radial-gradient(ellipse 70% 60% at 50% 42%, #243049 0%, #171C28 60%, #11151E 100%)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.06)'}}>
+              <div style={{position: 'absolute', left: TE_W / 2 - 50, top: TILE_HV / 2 - 50 - 18, width: 100, height: 100, borderRadius: 50, background: `linear-gradient(145deg, #6A95FF 0%, ${accent.button} 60%, #1F4FD6 100%)`, boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.28), 0 12px 26px rgba(0,0,0,0.45), 0 0 34px rgba(48,107,255,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: fonts.display, fontWeight: 700, fontSize: 42, letterSpacing: '-0.03em', color: '#FFFFFF', transform: `scale(${0.6 + 0.4 * j})`}}>
+                {initials}
+              </div>
+              <div style={{position: 'absolute', right: 10, top: 10, width: 32, height: 32, borderRadius: 16, background: 'rgba(8,10,14,0.72)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                <CamIcon size={18} off color={ink.text2} />
+              </div>
+              <NameChip text={company} compact />
+            </div>
+          ) : null}
+          {/* Aviso "se unió" */}
+          {toast > 0.001 ? (
+            <div style={{position: 'absolute', left: PAD, width: AREA_W - j * (TE_W + 16), top: TILE_TOP + 14, display: 'flex', justifyContent: 'center', opacity: toast, transform: `translateY(${(1 - toast) * -10}px)`, pointerEvents: 'none'}}>
+              <div style={{display: 'flex', alignItems: 'center', gap: 10, padding: '8px 18px 8px 14px', borderRadius: 999, background: 'rgba(8,10,14,0.78)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.10), 0 8px 24px rgba(0,0,0,0.4)'}}>
+                <div style={{width: 10, height: 10, borderRadius: 5, background: status.ok, boxShadow: `0 0 8px ${status.ok}`}} />
+                <span style={{fontSize: 24, fontWeight: 600, color: '#FFFFFF', letterSpacing: '-0.01em', whiteSpace: 'nowrap'}}>{company} se unió a la llamada</span>
+              </div>
+            </div>
+          ) : null}
+        </>
+      ) : null}
 
       {tiles
         ? tiles.map((t, i) => {
@@ -237,7 +299,7 @@ export const CallCard: React.FC<CallCardProps> = ({
       ) : null}
 
       {/* Recuadro A: Lorenzo (foto) */}
-      {media || tiles ? null : (
+      {media || tiles || video ? null : (
       <div style={{position: 'absolute', left: PAD, top: TILE_TOP, width: TILE_W, height: TILE_H, borderRadius: 18, overflow: 'hidden', background: '#2A3140', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.06)'}}>
         {avatarSrc ? <Img src={avatarSrc} style={{width: '100%', height: '100%', objectFit: 'cover', objectPosition: '50% 18%', display: 'block', filter: 'brightness(0.95) contrast(1.04) saturate(0.95)'}} /> : null}
         {/* el fondo blanco de la foto se integra a la paleta oscura: tinte frío multiplicado */}
@@ -251,7 +313,7 @@ export const CallCard: React.FC<CallCardProps> = ({
       )}
 
       {/* Recuadro B: Tu Empresa (sin cámara, iniciales) */}
-      {media || tiles ? null : (
+      {media || tiles || video ? null : (
       <div
         style={{
           position: 'absolute',
@@ -295,14 +357,14 @@ export const CallCard: React.FC<CallCardProps> = ({
       )}
 
       {/* Fila inferior: contador · controles · estado */}
-      <div style={{position: 'absolute', left: PAD, right: PAD, top: tiles ? TILE_TOP + TILE_H3 + 24 : 392, height: 104, display: 'flex', alignItems: 'center'}}>
+      <div style={{position: 'absolute', left: PAD, right: PAD, top: video ? TILE_TOP + TILE_HV + 18 : tiles ? TILE_TOP + TILE_H3 + 24 : 392, height: compact ? 84 : 104, display: 'flex', alignItems: 'center'}}>
         <div style={{width: 250, flexShrink: 0}}>
           <div
             style={{
               display: 'inline-block',
               fontFamily: fonts.mono,
               fontWeight: 600,
-              fontSize: 60,
+              fontSize: compact ? 52 : 60,
               letterSpacing: '-0.02em',
               lineHeight: 1,
               fontVariantNumeric: 'tabular-nums',
@@ -317,14 +379,14 @@ export const CallCard: React.FC<CallCardProps> = ({
         </div>
 
         <div style={{flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 14}}>
-          <RoundButton>
-            <MicIcon size={30} />
+          <RoundButton size={compact ? 56 : 64}>
+            <MicIcon size={compact ? 26 : 30} />
           </RoundButton>
-          <RoundButton>
-            <CamIcon size={30} />
+          <RoundButton size={compact ? 56 : 64}>
+            <CamIcon size={compact ? 26 : 30} />
           </RoundButton>
-          <RoundButton danger width={100}>
-            <HangUpIcon size={34} />
+          <RoundButton danger width={compact ? 88 : 100} size={compact ? 56 : 64}>
+            <HangUpIcon size={compact ? 30 : 34} />
           </RoundButton>
         </div>
 

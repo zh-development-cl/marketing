@@ -2,8 +2,8 @@ import React from 'react';
 import {AbsoluteFill, Easing, spring, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
 import {Pop, StepTitle} from '../fx/text';
 import {Moving} from '../fx/MotionBlur';
-import {inQuart, outExpo, prog, tween} from '../fx/ease';
-import {CallCard, CALLCARD_H3, CALLCARD_W} from '../ui/CallCard';
+import {inOutQuart, inQuart, outExpo, prog, tween} from '../fx/ease';
+import {CallCard, CALLCARD_HV, CALLCARD_W} from '../ui/CallCard';
 import {CallNotes, CALLNOTES_H, CALLNOTES_STACK, CALLNOTES_W} from '../ui/CallNotes';
 import {ExcelCard, InvoiceCard, WhatsAppCard} from '../ui/cards';
 import {beat, beatEnd, scenes} from '../timeline';
@@ -14,17 +14,10 @@ import type {SfxCue} from '../sound';
 // Debajo, una hoja "Notas de la llamada" donde se escriben en vivo, letra a letra, tres hallazgos; cada uno recibe
 // un marcador azul y, a su derecha, una mini tarjeta real (WhatsApp / Excel / factura) como prueba.
 const sc = scenes.step1;
-// Captura real de la llamada (Meet con Lorenzo y Nico). Cuando llegue el archivo, ponerlo en public/people/ y activar:
-//   {kind: 'image', src: 'people/meet.jpg', label: 'Lorenzo y Nico · ZH Development'}  o
-//   {kind: 'video', src: 'people/meet.mp4', startFrom: 0, label: 'Lorenzo y Nico · ZH Development'}
-type Meet = {kind: 'image' | 'video'; src: string; startFrom?: number; label?: string; objectPosition?: string};
-const MEET = null as Meet | null;
-// Tres recuadros chicos, como un Meet con tres participantes: Lorenzo, Nico y la empresa del cliente a la derecha.
-const TILES = [
-  {src: 'people/meet-lorenzo.jpg', label: 'Lorenzo · ZH', objectPosition: '50% 40%'},
-  {src: 'people/meet-nico.jpg', label: 'Nico · ZH', objectPosition: '50% 40%'},
-  {initials: 'TE', label: 'Tu Empresa'},
-];
+// Grabación real de la llamada (Meet, vista de orador: Lorenzo habla los primeros 4 s y después Nico), silenciada.
+// El clip arranca con la tarjeta; a los 4 s (frame 120 del clip) cambia el chip al nombre de Nico.
+const VIDEO = {src: 'people/meet-call.mp4', label: 'Lorenzo · ZH', label2: 'Nico · ZH', objectPosition: '50% 30%'};
+const NICO_AT = 120; // frame del clip en que entra Nico
 const PRE = 10;
 const POST = 12;
 const L = sc.from - PRE;
@@ -33,6 +26,7 @@ const loc = (a: number) => a - L;
 const tIn = loc(sc.from) - 4; // latigazo de la llamada: from-4 → from+6
 const tTitle = 12;
 const tCount0 = loc(beat('step1', 'llamada')); // 00:00 empieza a correr
+const tJoin = tCount0 - 8; // "Tu Empresa" se une a la llamada justo antes de que arranque el contador
 const tCount1 = loc(beat('step1', 'quita')); // llega a 30:00 (verde + chime)
 const tSpeak0 = loc(sc.voAt);
 const tSpeak1 = loc(beatEnd('step1', 'quita'));
@@ -58,6 +52,7 @@ const tickFrames = (l: Line) => {
 
 export const sfxCues: SfxCue[] = [
   {name: 'whoosh-hard', at: L + tIn},
+  {name: 'pop', at: L + tJoin + 6, gain: 0.45}, // Tu Empresa se une
   {name: 'whoosh-soft', at: L + tSheet - 2, gain: 0.6},
   {name: 'paper', at: L + tSheet + 6, gain: 0.5},
   ...LINES.flatMap((l, li) => tickFrames(l).map((t) => ({name: 'tick' as const, at: L + t, gain: li === LINES.length - 1 ? 0.15 : 0.25}))),
@@ -112,16 +107,24 @@ export const Step1: React.FC = () => {
 
       {/* Videollamada: entra desde la derecha con latigazo, sale a la izquierda con la hoja */}
       {showCall ? (
-        <Moving x={(f) => tween(f, tIn, tIn + 12, 1400, 0, outExpo) + exitX(f)} y={() => 0} opacity={(f) => prog(f, tIn, 4)} blur={0.18} style={{left: (1080 - CALLCARD_W) / 2, top: 490}}>
-          <div style={{width: CALLCARD_W, height: CALLCARD_H3}}>
-            <CallCard seconds={seconds} done={done} speaking={speaking} tick={frame} avatarSrc={staticFile('people/lorenzo.jpg')} media={MEET ? {...MEET, src: staticFile(MEET.src)} : undefined} tiles={TILES.map((t) => ({...t, src: t.src ? staticFile(t.src) : undefined}))} />
+        <Moving x={(f) => tween(f, tIn, tIn + 12, 1400, 0, outExpo) + exitX(f)} y={() => 0} opacity={(f) => prog(f, tIn, 4)} blur={0.18} style={{left: (1080 - CALLCARD_W) / 2, top: 466}}>
+          <div style={{width: CALLCARD_W, height: CALLCARD_HV}}>
+            <CallCard
+              seconds={seconds}
+              done={done}
+              speaking={speaking}
+              tick={frame}
+              video={{...VIDEO, src: staticFile(VIDEO.src), from: tIn - 1, labelMix: prog(frame, tIn - 1 + NICO_AT - 3, 6)}}
+              join={prog(frame, tJoin, 14, inOutQuart)}
+              joinToast={prog(frame, tJoin + 4, 6) * (1 - prog(frame, tJoin + 46, 8))}
+            />
           </div>
         </Moving>
       ) : null}
 
       {/* Hoja de notas: sube desde abajo del cuadro, sale a la izquierda con la llamada */}
       {showSheet ? (
-        <Moving x={exitX} y={(f) => tween(f, tSheet, tSheet + 14, 1000, 0, outExpo)} opacity={(f) => prog(f, tSheet, 5)} blur={0.12} style={{left: (1080 - CALLNOTES_W) / 2, top: 980}}>
+        <Moving x={exitX} y={(f) => tween(f, tSheet, tSheet + 14, 1000, 0, outExpo)} opacity={(f) => prog(f, tSheet, 5)} blur={0.12} style={{left: (1080 - CALLNOTES_W) / 2, top: 1004}}>
           <div style={{width: CALLNOTES_W + CALLNOTES_STACK, height: CALLNOTES_H + CALLNOTES_STACK}}>
             <CallNotes lines={lines} cursorLine={cursorLine} cursorOn={cursorOn} />
           </div>
