@@ -23,6 +23,8 @@ const tWin = loc(HANDOFF); // 8: la ventana aparece y el montón pasa a esta esc
 const tFly = tWin + 3; // la ventana ya está naciendo cuando despega la primera tarjeta
 const STAGGER = 0.85; // frames entre despegues (38 tarjetas → ~32 frames de flujo continuo)
 const FLY = 14;
+const LIFT = 5; // frames del fundido con que una tarjeta sube de capa al despegar (se dibuja dos veces mientras tanto)
+const LIFT_OUT = 2; // últimos frames de ese fundido en que se retira la copia que sigue en la capa del montón
 const tLine = loc(beat('pitch', 'Hacemos')) + 2;
 const tChecks = loc(beat('pitch', 'resuelve')) - 2;
 const tOut = loc(sc.to) - 6;
@@ -78,7 +80,9 @@ export const Pitch: React.FC = () => {
   const columns = COLUMNS.map((col, c) => ({
     label: col.label,
     color: col.color,
-    count: CARDS.filter((card, i) => card.ev.col === c && landed[i]).length,
+    // Contador continuo: cada aterrizaje suma 1 en 4 frames con easing y AppWindow lo dibuja como odómetro
+    // (termina exacto en el entero de tarjetas de la columna).
+    count: CARDS.reduce((acc, card, i) => acc + (card.ev.col === c ? prog(frame, landAt(i), 4, inOutQuart) : 0), 0),
     check: 0, // los checks grandes van en una capa encima de las tarjetas
   }));
   const checks = COLUMNS.map((_, c) => prog(frame, tChecks + c * 3, 9, inOutQuart));
@@ -109,21 +113,41 @@ export const Pitch: React.FC = () => {
               // leve arco hacia arriba al despegar
               return hp.cy - c.h / 2 + (sp.cy - hp.cy) * q - Math.sin(q * Math.PI) * 60;
             };
+            // Subida de capa al despegar: un zIndex no se puede "easear", así que durante los primeros LIFT frames del
+            // vuelo la tarjeta se dibuja DOS veces con las mismas x/y/rotate/scale: la copia "montón" sigue en su capa
+            // de siempre (10 + i) y la copia "vuelo" entra encima (300 + fly) con fundido 0→1, de modo que una tarjeta
+            // enterrada emerge a través de las que la tapan en vez de aparecer entera de golpe. La de abajo se retira
+            // (1→0) recién en los últimos LIFT_OUT frames, cuando la de arriba ya es opaca: así el cuerpo de la
+            // tarjeta nunca se transparenta a medio fundido y la sombra no cambia en seco al quitarla. La copia doble
+            // solo existe LIFT frames por tarjeta (unas 6 tarjetas duplicadas a la vez como máximo).
+            const liftIn = prog(frame, flyAt(i), LIFT, inOutQuart);
+            const liftOut = prog(frame, flyAt(i) + LIFT - LIFT_OUT, LIFT_OUT, inOutQuart);
+            const motion = {
+              x,
+              y,
+              rotate: (f: number) => hp.rot * (1 - flyP(i, f)),
+              scale: (f: number) => hp.scale + (WIN_SCALE - hp.scale) * flyP(i, f),
+              blur: 0.16,
+            };
+            const face = (
+              <div style={{position: 'relative', width: c.w, height: c.h}}>
+                <CardFace i={i} dim={dim + (1 - dim) * p} tag={1 - p} />
+                {done > 0.01 ? <LandedCheck k={done} /> : null}
+              </div>
+            );
             return (
-              <Moving
-                key={i}
-                x={x}
-                y={y}
-                rotate={(f) => hp.rot * (1 - flyP(i, f))}
-                scale={(f) => hp.scale + (WIN_SCALE - hp.scale) * flyP(i, f)}
-                blur={0.16}
-                style={{zIndex: p <= 0 ? 10 + i : 300 + c.fly}}
-              >
-                <div style={{position: 'relative', width: c.w, height: c.h}}>
-                  <CardFace i={i} dim={dim + (1 - dim) * p} tag={1 - p} />
-                  {done > 0.01 ? <LandedCheck k={done} /> : null}
-                </div>
-              </Moving>
+              <React.Fragment key={i}>
+                {liftOut < 1 ? (
+                  <Moving {...motion} opacity={() => 1 - liftOut} style={{zIndex: 10 + i}}>
+                    {face}
+                  </Moving>
+                ) : null}
+                {liftIn > 0 ? (
+                  <Moving {...motion} opacity={() => liftIn} style={{zIndex: 300 + c.fly}}>
+                    {face}
+                  </Moving>
+                ) : null}
+              </React.Fragment>
             );
           })}
 

@@ -4,8 +4,9 @@ import {LogoDraw} from './LogoDraw';
 
 // Ventana de app "Tu Empresa · sistema" (850 x 840): marco oscuro tipo navegador con tres puntos, monograma ZH en la
 // barra de título, píldora "en línea" y tres columnas con cabecera (cotizaciones · stock · cobros), contador por
-// columna y un check verde al pie (`check` 0..1 lo escala). No anima por sí sola; las tarjetas de cada columna las
-// coloca la escena encima usando la geometría exportada en WINDOW (columnLeft / slotTop).
+// columna (odómetro: `count` puede ser fraccionario y el número rueda en vez de cambiar en seco) y un check verde al
+// pie (`check` 0..1 lo escala). No anima por sí sola; las tarjetas de cada columna las coloca la escena encima usando
+// la geometría exportada en WINDOW (columnLeft / slotTop).
 
 export const WINDOW = {
   x: 110,
@@ -26,7 +27,28 @@ export const COL_W = Math.floor((WINDOW.w - WINDOW.pad * 2 - WINDOW.colGap * 2) 
 export const columnLeft = (c: number) => WINDOW.x + WINDOW.pad + c * (COL_W + WINDOW.colGap);
 export const slotTop = (k: number) => WINDOW.y + WINDOW.slotTop + k * WINDOW.slotStep;
 
+// `count` admite decimales: la parte fraccionaria es el avance del rodillo del entero actual al siguiente.
 export type WindowColumn = {label: string; color: string; count: number; check: number};
+
+// Contador tipo odómetro para la píldora de cada columna: se apilan el entero actual (`lo`) y el siguiente, y se
+// desplazan una línea hacia arriba según la parte fraccionaria con fundido cruzado, así el número rueda con easing en
+// vez de reemplazarse de un frame al otro (si value es entero se ve exactamente como texto plano). El ancho crece
+// suave al pasar de 1 a 2 cifras (en mono cada cifra mide 1ch) para que la píldora no se ensanche de golpe en 9→10;
+// el clip solo recorta arriba/abajo (inset negativo a los lados) para que el "10" centrado nunca quede cortado. No
+// fija alturas: conserva la métrica de una línea de texto, de modo que la píldora mide lo mismo que antes.
+const RollNumber: React.FC<{value: number}> = ({value}) => {
+  const lo = Math.max(0, Math.floor(value));
+  const t = Math.max(0, Math.min(1, value - lo));
+  const digits = (n: number) => String(n).length;
+  const w = digits(lo) + (digits(lo + 1) - digits(lo)) * t;
+  const shift = `${(-t * 100).toFixed(2)}%`;
+  return (
+    <span style={{position: 'relative', display: 'inline-flex', justifyContent: 'center', width: `${w.toFixed(3)}ch`, clipPath: 'inset(0 -1ch)'}}>
+      <span style={{display: 'block', flex: 'none', whiteSpace: 'nowrap', transform: `translateY(${shift})`, opacity: 1 - t}}>{lo}</span>
+      <span style={{position: 'absolute', left: '50%', top: '100%', display: 'block', whiteSpace: 'nowrap', transform: `translate(-50%, ${shift})`, opacity: t}}>{lo + 1}</span>
+    </span>
+  );
+};
 
 // Check verde al pie de una columna (`check` 0..1 lo escala), en coordenadas relativas a la ventana.
 const CheckDot: React.FC<{c: number; check: number}> = ({c, check}) => (
@@ -102,7 +124,7 @@ export const AppWindow: React.FC<{columns: WindowColumn[]; company?: string; sty
             <div style={{fontSize: 28, fontWeight: 600, color: col.color, letterSpacing: '-0.01em'}}>{col.label}</div>
             <div style={{flex: 1}} />
             <div style={{fontFamily: fonts.mono, fontSize: 24, fontWeight: 500, color: ink.text2, background: 'rgba(255,255,255,0.06)', borderRadius: 999, padding: '2px 11px', minWidth: 22, textAlign: 'center', fontVariantNumeric: 'tabular-nums'}}>
-              {col.count}
+              <RollNumber value={col.count} />
             </div>
           </div>
           <div style={{position: 'absolute', left, top: WINDOW.headerTop + 44, width: COL_W, height: 2, background: col.color, opacity: 0.5, borderRadius: 1}} />
