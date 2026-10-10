@@ -23,10 +23,8 @@ export const ReelV4: React.FC = () => {
           </Sequence>
         );
       })}
-      {/* Marca de agua: todo el reel salvo el cierre, que la muestra grande */}
-      {/* La marca de agua se apaga junto con la música (outro.to − 100 … − 86), antes de que el handle grande del cierre
-          aparezca: nunca dos "@" a la vez. */}
-      <Watermark opacity={frame < 6 ? frame / 6 : frame > scenes.outro.to - 100 ? Math.max(0, (scenes.outro.to - 86 - frame) / 14) : 1} />
+      {/* La marca de agua se funde con el resto en los últimos 10 frames (el reel termina en "¿qué esperas?"). */}
+      <Watermark opacity={frame < 6 ? frame / 6 : Math.max(0, Math.min(1, (scenes.outro.to - frame) / 10))} />
       {/* Voz por escena */}
       {Object.entries(scenes).map(([key, sc]) =>
         sc.audio ? (
@@ -46,8 +44,8 @@ export const ReelV4: React.FC = () => {
         <Audio
           src={staticFile(MUSIC_FILE)}
           volume={(f) => {
-            // La música se apaga después de la última palabra y antes del sting del cierre (outro.to − 58), como en la referencia.
-            const fadeOut = Math.min(1, Math.max(0, (scenes.outro.to - 70 - f) / 30));
+            // La música se apaga en los últimos 36 frames, junto con el fundido a negro.
+            const fadeOut = Math.min(1, Math.max(0, (scenes.outro.to - f) / 36));
             const fadeIn = Math.min(1, f / 20);
             // La cama sube ~7 LU a lo largo del tema: desde el paso 02 se baja 3 dB (rampa de 2 s) para que la voz
             // siga mandando ≥ 3 LU en las frases con pocos efectos.

@@ -1,17 +1,16 @@
 import React from 'react';
-import {AbsoluteFill, Easing, Img, interpolate, staticFile, useCurrentFrame} from 'remotion';
+import {AbsoluteFill, Easing, Img, staticFile, useCurrentFrame} from 'remotion';
 import {BlurIn, Pop, Typewriter} from '../fx/text';
 import {Moving} from '../fx/MotionBlur';
-import {clamp, inOutQuart, inQuart, keyframes, outQuart, prog} from '../fx/ease';
+import {inOutQuart, inQuart, keyframes, outQuart, prog} from '../fx/ease';
 import {LogoDraw} from '../ui/LogoDraw';
-import {InstagramGlyph} from '../ui/Watermark';
-import {accent, fonts, ink, shadow, watermark} from '../tokens';
+import {accent, fonts, ink, shadow} from '../tokens';
 import {beat, scenes, wordsOf} from '../timeline';
 import type {SfxCue} from '../sound';
 
 // Escena 9 · cierre. El teléfono (escena anterior) se encogió a un punto; el punto se vuelve el bloque azul del
 // logo, el monograma se dibuja, aparece "ZH Development", la frase palabra por palabra, el botón con un cursor
-// que hace clic, el dominio y el equipo. Al final todo se atenúa y queda el ícono de Instagram con el usuario.
+// que hace clic, el dominio y el equipo. Termina en "¿qué esperas?" con un fundido corto a negro.
 const sc = scenes.outro;
 const L = sc.from - 8;
 const loc = (a: number) => a - L;
@@ -28,16 +27,13 @@ const tClick = loc(beat('outro', 'minutos')) + 4;
 const tLink = loc(beat('outro', 'minutos')) + 8; // el link aparece como respuesta al toque
 const tWhy = loc(beat('outro', 'Qué')) - 3; // "¿qué esperas?"
 const tTeam = tClick + 6; // el equipo entra tras el clic, durante "minutos"
-const tEnd = loc(sc.to) - 58; // atenuar y mostrar ícono de Instagram (silencio corto tras la música, ~1,7 s de ícono)
+const tEnd = loc(sc.to); // fin del reel: termina en "¿qué esperas?" con un fundido corto a negro (sin tarjeta de Instagram)
 
 export const sfxCues: SfxCue[] = [
   {name: 'logo', at: L + tDraw, gain: 0.9},
   {name: 'whoosh-soft', at: L + tName, gain: 0.5},
   {name: 'pop', at: L + tCta, gain: 0.7},
   {name: 'click', at: L + tClick, gain: 0.9},
-  // Cierre: golpe grave (sting) sobre el ícono de Instagram, con un brillo encima; la música ya terminó.
-  {name: 'sting', at: L + tEnd + 6, gain: 1.0},
-  {name: 'chime', at: L + tEnd + 9, gain: 0.8}, // brillo 3 frames después del golpe
 ];
 
 const LOGO_W = 420;
@@ -50,7 +46,7 @@ export const Outro: React.FC = () => {
   const fill = prog(frame, tFill, 12);
   const accentIn = prog(frame, tDot + 10, 8, inOutQuart); // el bloque nace desde cero con arranque suave, cuando la tarjeta ya es un punto
   const glow = prog(frame, tFill, 30);
-  const dim = prog(frame, tEnd - 8, 12); // el cierre se funde del todo antes de que entre el ícono (tEnd + 4)
+  const dim = prog(frame, tEnd - 10, 10, inOutQuart); // fundido final a negro (el reel vuelve a empezar en negro)
   // Clic: la presión reparte el recorrido en 5 frames y vuelve en 8, con easing simétrico (nada de 80 % en un frame).
   const press = prog(frame, tClick, 5, Easing.inOut(Easing.quad)) * (1 - prog(frame, tClick + 6, 8, Easing.inOut(Easing.quad)));
   const land = prog(frame, tClick - 4, 4, Easing.inOut(Easing.quad)); // el dedo aterriza sobre el botón en los 4 frames previos al clic
@@ -59,7 +55,7 @@ export const Outro: React.FC = () => {
   return (
     <AbsoluteFill>
       {/* Push-in continuo muy leve: la pantalla nunca se congela del todo */}
-      <div style={{position: 'absolute', inset: 0, opacity: 1 - dim, filter: dim > 0 ? `blur(${dim * 12}px)` : undefined, transform: `scale(${(1 + 0.035 * Math.min(1, Math.max(0, frame / tEnd))).toFixed(4)})`, transformOrigin: '50% 42%'}}>
+      <div style={{position: 'absolute', inset: 0, opacity: 1 - dim, transform: `scale(${(1 + 0.035 * Math.min(1, Math.max(0, frame / tEnd))).toFixed(4)})`, transformOrigin: '50% 42%'}}>
         {/* Punto → bloque azul del logo (el bloque está en (630,110) del viewBox 1000 → en px del lienzo) */}
         <div style={{position: 'absolute', left: LOGO_X, top: LOGO_Y}}>
           <LogoDraw width={LOGO_W} draw={draw} fill={fill} accentIn={accentIn} glow={glow * 0.8 * (0.8 + 0.2 * Math.sin(frame / 9))} />
@@ -125,15 +121,6 @@ export const Outro: React.FC = () => {
         </div>
       </div>
 
-      {/* Cierre: ícono de Instagram y usuario */}
-      <div style={{position: 'absolute', left: 0, right: 0, top: 850, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 22, opacity: prog(frame, tEnd + 4, 10)}}>
-        <Pop at={tEnd + 4} from={0.5}>
-          <InstagramGlyph size={150} color={interpolate(frame, [tEnd + 16, tEnd + 30], [0, 1], clamp)} />
-        </Pop>
-        <BlurIn at={tEnd + 10}>
-          <div style={{fontFamily: fonts.mono, fontWeight: 600, fontSize: 40, letterSpacing: '0.08em', color: ink.text}}>{watermark.handle}</div>
-        </BlurIn>
-      </div>
     </AbsoluteFill>
   );
 };
