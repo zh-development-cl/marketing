@@ -1,5 +1,5 @@
 import React from 'react';
-import {Img, OffthreadVideo, Sequence} from 'remotion';
+import {Img, OffthreadVideo, Sequence, useCurrentFrame} from 'remotion';
 import {accent, fonts, ink, shadow, status} from '../tokens';
 import {formatClock} from './CallBar';
 
@@ -16,7 +16,9 @@ export const CALLCARD_HV = 520; // alto en modo video: recuadro grande (792 x 32
 
 // Grabación real de la llamada (video silenciado). `from`: frame local de la escena en que arranca el clip (frame 0
 // del archivo); `label`/`label2`: chip con el nombre de quien habla, cruzado con `labelMix` (0 → label, 1 → label2).
-export type CallVideo = {src: string; from?: number; startFrom?: number; label: string; label2?: string; labelMix?: number; objectPosition?: string};
+// Con `src2` + `switchAt` (frame del clip) el segundo clip entra en fundido de `fadeDur` frames sobre el primero
+// (la vista de orador del Meet corta en seco; aquí se cruza suave).
+export type CallVideo = {src: string; src2?: string; switchAt?: number; fadeDur?: number; from?: number; startFrom?: number; label: string; label2?: string; labelMix?: number; objectPosition?: string};
 
 export type CallCardProps = {
   seconds: number; // segundos transcurridos (mm:ss)
@@ -91,6 +93,14 @@ const CheckIcon: React.FC<{size?: number; color?: string}> = ({size = 22, color 
     <path d="M5 12.5l4.5 4.5L19 7.5" />
   </svg>
 );
+
+// Segundo clip de la grabación: entra en fundido sobre el primero (frame relativo a su Sequence).
+const VideoFadeIn: React.FC<{dur: number; children: React.ReactNode}> = ({dur, children}) => {
+  const f = useCurrentFrame();
+  const k = Math.max(0, Math.min(1, f / Math.max(1, dur)));
+  const e = k * k * (3 - 2 * k); // smoothstep
+  return <div style={{position: 'absolute', inset: 0, opacity: e}}>{children}</div>;
+};
 
 // Chip con nombre en la esquina inferior izquierda de un recuadro de video.
 const NameChip: React.FC<{text: string; compact?: boolean}> = ({text, compact}) => (
@@ -224,6 +234,13 @@ export const CallCard: React.FC<CallCardProps> = ({
             <Sequence from={video.from ?? 0} layout="none">
               <OffthreadVideo src={video.src} muted startFrom={video.startFrom ?? 0} style={{width: '100%', height: '100%', objectFit: 'cover', objectPosition: video.objectPosition ?? '50% 30%', display: 'block'}} />
             </Sequence>
+            {video.src2 !== undefined ? (
+              <Sequence from={(video.from ?? 0) + (video.switchAt ?? 0)} layout="none">
+                <VideoFadeIn dur={video.fadeDur ?? 10}>
+                  <OffthreadVideo src={video.src2} muted style={{width: '100%', height: '100%', objectFit: 'cover', objectPosition: video.objectPosition ?? '50% 30%', display: 'block'}} />
+                </VideoFadeIn>
+              </Sequence>
+            ) : null}
             <div style={{position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0) 45%, rgba(0,0,0,0.42) 100%)'}} />
             <div style={{position: 'absolute', inset: 0, opacity: 1 - mix}}>
               <NameChip text={video.label} />
