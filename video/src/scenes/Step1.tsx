@@ -30,12 +30,12 @@ export const Step1: React.FC = () => {
   const t1 = wordFrame('step1', 'minutos');
   const total = Math.floor(interpolate(frame, [t0, t1], [0, 1800], {easing: Easing.out(Easing.cubic), ...clamp}));
   const minutes = Math.floor(total / 60);
-  // Los segundos ruedan como odómetro (37 no divide a 60) en vez de alternar dos estados.
-  const seconds = total >= 1800 ? 0 : frame < t0 ? 0 : ((frame - t0) * 37) % 60;
+  const seconds = total % 60;
   const arrived = total >= 1800;
   const pulse = 1 + 0.12 * Math.sin(Math.PI * interpolate(frame, [t1, t1 + 12], [0, 1], clamp));
-  const callIn = spring({frame: frame - 6, fps, config: {damping: 16, stiffness: 100}});
+  const callIn = spring({frame: frame - 18, fps, config: {damping: 16, stiffness: 100}});
   const findAt = wordFrame('step1', 'encontrar');
+  const reviewAt = wordFrame('step1', 'entender');
   const listOpen = spring({frame: frame - findAt, fps, config: {damping: 16, stiffness: 120}});
 
   return (
@@ -43,7 +43,7 @@ export const Step1: React.FC = () => {
       <StepLabel n="01" title="Entender" />
 
       {/* Las tarjetas llegan desde sus órbitas del caos y se ordenan */}
-      <div style={{position: 'absolute', inset: 0, perspective: 1500}}>
+      <div style={{position: 'absolute', inset: 0, perspective: 1500, zIndex: 0}}>
         {ALL_CARDS.map((Card, i) => {
           const o = orbits[i];
           const p = spring({frame, fps, config: {damping: 18, stiffness: 70}});
@@ -55,6 +55,8 @@ export const Step1: React.FC = () => {
           const cy = cellTop + CELL_H / 2;
           const fromX = width / 2 + o.x - cx;
           const fromY = height / 2 + o.y - cy;
+          // Mientras la voz dice "entender", un repaso tarjeta por tarjeta.
+          const hl = interpolate(frame, [reviewAt + i * 8, reviewAt + i * 8 + 2, reviewAt + i * 8 + 9, reviewAt + i * 8 + 12], [0, 1, 1, 0], clamp);
           return (
             <div
               key={i}
@@ -66,6 +68,9 @@ export const Step1: React.FC = () => {
                 height: CARD_H,
                 transformOrigin: 'center',
                 transform: `translate(${interpolate(p, [0, 1], [fromX, 0])}px, ${interpolate(p, [0, 1], [fromY, 0])}px) rotateX(${interpolate(p, [0, 1], [o.rx, 0])}deg) rotateY(${interpolate(p, [0, 1], [o.ry, 0])}deg) rotateZ(${interpolate(p, [0, 1], [o.rz, 0])}deg) scale(${interpolate(p, [0, 1], [1, SCALE])})`,
+                opacity: interpolate(frame, [0, 6], [0, 1], clamp),
+                borderRadius: 28,
+                boxShadow: `0 0 0 5px rgba(143,176,255,${hl}), 0 0 ${40 * hl}px rgba(36,92,228,${0.6 * hl})`,
               }}
             >
               <Card />
@@ -78,6 +83,7 @@ export const Step1: React.FC = () => {
       <div
         style={{
           position: 'absolute',
+          zIndex: 1,
           top: 950,
           width: 840,
           borderRadius: 32,

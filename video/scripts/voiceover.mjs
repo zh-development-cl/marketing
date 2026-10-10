@@ -66,6 +66,18 @@ const normalizeTwoPass = (input, output) => {
     '-af', `${filter}:measured_I=${s.input_i}:measured_TP=${s.input_tp}:measured_LRA=${s.input_lra}:measured_thresh=${s.input_thresh}:offset=${s.target_offset}:linear=true`,
     '-ar', '44100', '-ac', '1', '-c:a', 'libmp3lame', '-b:a', '160k', output,
   ], {stdio: ['ignore', 'pipe', 'pipe']});
+  // Pasada 3: en clips cortos el modo lineal topa con el pico y se queda corto; se corrige con ganancia y limitador.
+  const check = execFileSync('sh', ['-c', `ffmpeg -hide_banner -nostats -i "${output}" -af "${filter}:print_format=json" -f null - 2>&1`]).toString();
+  const got = Number(JSON.parse(check.match(/\{[\s\S]*\}/)[0]).input_i);
+  if (Math.abs(got - TARGET_LUFS) > 0.3) {
+    const fixed = `${output}.fix.mp3`;
+    execFileSync('ffmpeg', [
+      '-hide_banner', '-nostats', '-y', '-i', output,
+      '-af', `volume=${(TARGET_LUFS - got).toFixed(2)}dB,alimiter=limit=${Math.pow(10, TRUE_PEAK / 20).toFixed(3)}:attack=5:release=50`,
+      '-ar', '44100', '-ac', '1', '-c:a', 'libmp3lame', '-b:a', '160k', fixed,
+    ], {stdio: ['ignore', 'pipe', 'pipe']});
+    fs.renameSync(fixed, output);
+  }
 };
 
 const only = process.env.VO_ONLY?.split(',').map((x) => x.trim()).filter(Boolean);

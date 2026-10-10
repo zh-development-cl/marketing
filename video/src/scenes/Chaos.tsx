@@ -25,6 +25,7 @@ export const Chaos: React.FC = () => {
   const {fps, width, height, durationInFrames} = useVideoConfig();
   const drift = frame / 30;
   const labelsOpacity = interpolate(frame, [durationInFrames - 12, durationInFrames - 2], [1, 0], clamp);
+  const cardsOpacity = interpolate(frame, [durationInFrames - 10, durationInFrames - 4], [1, 0], clamp);
   const handAt = wordFrame('chaos', 'todo');
 
   return (
@@ -34,6 +35,7 @@ export const Chaos: React.FC = () => {
         style={{
           perspective: 1500,
           perspectiveOrigin: '50% 50%',
+          opacity: cardsOpacity,
           transform: `scale(${interpolate(frame, [0, durationInFrames], [1, 1.1])})`,
         }}
       >

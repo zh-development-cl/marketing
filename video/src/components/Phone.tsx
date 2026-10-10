@@ -6,12 +6,12 @@ export type Notification = {
   icon: React.ReactNode;
   app: string;
   title: string;
-  body: string;
+  body: React.ReactNode;
   time: string;
 };
 
 // iPhone con pantalla de bloqueo y notificaciones apiladas que entran una por una.
-// Tamaños pensados para verse a escala 0.9 a 0.95 en un lienzo de 1080 px: nada bajo 28 px reales.
+// Tamaños pensados para verse a escala 0.9 a 0.95 en un lienzo de 1080 px (cuerpo 30 px → 27 a 28 px reales).
 export const Phone: React.FC<{
   notifications: Notification[];
   startAt?: number; // frame en que empieza a caer la primera notificación
@@ -105,13 +105,13 @@ export const Phone: React.FC<{
                 <div style={{flex: 1, minWidth: 0}}>
                   <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 10}}>
                     <div style={{fontFamily: fonts.sans, fontWeight: 600, fontSize: 30, color: '#fff'}}>{n.app}</div>
-                    <div style={{fontFamily: fonts.sans, fontSize: 24, color: 'rgba(255,255,255,0.55)', flex: 'none'}}>{n.time}</div>
+                    <div style={{fontFamily: fonts.sans, fontSize: 26, color: 'rgba(255,255,255,0.55)', flex: 'none'}}>{n.time}</div>
                   </div>
                   <div style={{fontFamily: fonts.sans, fontWeight: 600, fontSize: 30, color: '#fff', marginTop: 2}}>{n.title}</div>
                   <div
                     style={{
                       fontFamily: fonts.sans,
-                      fontSize: 28,
+                      fontSize: 30,
                       lineHeight: 1.2,
                       color: 'rgba(255,255,255,0.8)',
                       display: '-webkit-box',

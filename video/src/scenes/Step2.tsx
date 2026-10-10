@@ -14,18 +14,43 @@ const Row: React.FC<{at: number; label: string; value: React.ReactNode; strong?:
     <div
       style={{
         display: 'grid',
-        gridTemplateColumns: '170px 1fr',
+        gridTemplateColumns: '190px 1fr',
         gap: 20,
         padding: '18px 0',
         borderBottom: `1px solid ${colors.line}`,
-        opacity: p,
-        transform: `translateY(${interpolate(p, [0, 1], [16, 0])}px)`,
+        position: 'relative',
       }}
     >
-      <div style={{fontFamily: fonts.mono, fontSize: 26, letterSpacing: '0.12em', textTransform: 'uppercase', color: colors.signalOnDark, paddingTop: 6}}>
+      {/* Esqueleto: el documento se ve "rellenándose" hasta que la voz nombra cada fila */}
+      <div style={{position: 'absolute', left: 0, top: 26, width: 120, height: 16, borderRadius: 8, background: colors.line2, opacity: 1 - p}} />
+      <div style={{position: 'absolute', left: 210, top: 26, width: '52%', height: 16, borderRadius: 8, background: colors.line2, opacity: 1 - p}} />
+      <div
+        style={{
+          fontFamily: fonts.mono,
+          fontSize: 30,
+          letterSpacing: '0.12em',
+          textTransform: 'uppercase',
+          color: colors.signalOnDark,
+          paddingTop: 6,
+          opacity: p,
+          transform: `translateY(${interpolate(p, [0, 1], [12, 0])}px)`,
+        }}
+      >
         {label}
       </div>
-      <div style={{fontFamily: fonts.sans, fontSize: 34, color: colors.text, lineHeight: 1.35, fontWeight: strong ? 600 : 400}}>{value}</div>
+      <div
+        style={{
+          fontFamily: fonts.sans,
+          fontSize: 34,
+          color: colors.text,
+          lineHeight: 1.35,
+          fontWeight: strong ? 600 : 400,
+          opacity: p,
+          transform: `translateY(${interpolate(p, [0, 1], [12, 0])}px)`,
+        }}
+      >
+        {value}
+      </div>
     </div>
   );
 };

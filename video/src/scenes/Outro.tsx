@@ -17,23 +17,25 @@ const Line: React.FC<{at: number; children: React.ReactNode}> = ({at, children})
 export const Outro: React.FC = () => {
   const frame = useCurrentFrame();
   const {fps, durationInFrames} = useVideoConfig();
-  const logo = spring({frame, fps, config: {damping: 14, stiffness: 90}});
+  const logo = spring({frame: frame - (wordFrame('outro', 'Somos') - 6), fps, config: {damping: 14, stiffness: 90}});
+  const accent = spring({frame: frame - (wordFrame('outro', 'ZH') - 2), fps, config: {damping: 9, stiffness: 170}});
+  const bob = Math.sin(frame / 14) * 6;
   const ctaAt = wordFrame('outro', 'Agenda') - 12;
   const cta = spring({frame: frame - ctaAt, fps, config: {damping: 12, stiffness: 140}});
-  const domain = spring({frame: frame - (wordFrame('outro', 'link') - 4), fps, config: {damping: 16}});
+  const domain = spring({frame: frame - (wordFrame('outro', 'minutos') - 4), fps, config: {damping: 16}});
   const pulse = frame > ctaAt + 12 ? 1 + 0.02 * Math.sin((frame - ctaAt) / 6) : 1;
-  const glow = 0.35 + 0.15 * Math.sin(frame / 12);
+  const glow = 0.3 + 0.3 * Math.sin(frame / 9);
   return (
     <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
       <div
         style={{
           opacity: logo,
-          transform: `scale(${interpolate(logo, [0, 1], [0.7, 1]) * interpolate(frame, [0, durationInFrames], [1, 1.06])})`,
-          filter: `drop-shadow(0 0 60px rgba(36,92,228,${glow}))`,
+          transform: `translateY(${bob}px) scale(${interpolate(logo, [0, 1], [0.7, 1]) * interpolate(frame, [0, durationInFrames], [1, 1.06]) * (1 + 0.012 * Math.sin(frame / 9))})`,
+          filter: `drop-shadow(0 0 90px rgba(36,92,228,${glow}))`,
           marginTop: -140,
         }}
       >
-        <Logo width={520} />
+        <Logo width={520} accent={interpolate(accent, [0, 1], [0, 1])} />
       </div>
       <div
         style={{

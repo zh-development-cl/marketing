@@ -24,7 +24,7 @@ const Panel: React.FC<{at: number; title: string; children: React.ReactNode}> = 
         transform: `translateY(${interpolate(p, [0, 1], [50, 0])}px)`,
       }}
     >
-      <div style={{fontFamily: fonts.mono, fontSize: 26, letterSpacing: '0.12em', textTransform: 'uppercase', color: colors.text2, marginBottom: 14}}>
+      <div style={{fontFamily: fonts.mono, fontSize: 30, letterSpacing: '0.12em', textTransform: 'uppercase', color: colors.text, marginBottom: 14}}>
         {title}
       </div>
       {children}
@@ -64,7 +64,7 @@ export const Step3: React.FC = () => {
                     padding: '14px 0',
                     textAlign: 'center',
                     fontFamily: fonts.mono,
-                    fontSize: 26,
+                    fontSize: 28,
                     color: colors.text2,
                   }}
                 >
@@ -86,7 +86,7 @@ export const Step3: React.FC = () => {
               gap: 14,
               position: 'relative',
               overflow: 'hidden',
-              height: 40 + 32 * a + 122 * b + 66 * c,
+              height: 40 + 76 * a + 130 * b + 70 * c,
             }}
           >
             {/* El cliente escribe… */}

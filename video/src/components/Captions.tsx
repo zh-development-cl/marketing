@@ -12,17 +12,20 @@ const clamp = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
 
 export const Captions: React.FC<{items: Caption[]}> = ({items}) => {
   const frame = useCurrentFrame();
-  const current = items.find((c) => frame >= c.from && frame < c.to);
-  if (!current) return null;
-  const opacity = current.hold
-    ? interpolate(frame, [current.from, current.from + 4], [0, 1], clamp)
-    : interpolate(frame, [current.from, current.from + 4, current.to - 4, current.to], [0, 1, 1, 0], clamp);
-  const y = interpolate(frame, [current.from, current.from + 5], [14, 0], clamp);
+  const idx = items.findIndex((c) => frame >= c.from && frame < c.to);
+  if (idx < 0) return null;
+  const current = items[idx];
+  const prev = items[idx - 1];
+  // Si la frase anterior terminó justo cuando empieza esta, la caja no se apaga ni vuelve a subir.
+  const continuous = Boolean(prev && prev.hold && prev.to === current.from);
+  const fadeIn = continuous ? 1 : interpolate(frame, [current.from, current.from + 4], [0, 1], clamp);
+  const fadeOut = current.hold ? 1 : interpolate(frame, [current.to - 4, current.to], [1, 0], clamp);
+  const y = continuous ? 0 : interpolate(frame, [current.from, current.from + 5], [14, 0], clamp);
   return (
     <AbsoluteFill style={{justifyContent: 'flex-end', alignItems: 'center', paddingBottom: CAPTION_BOTTOM}}>
       <div
         style={{
-          opacity,
+          opacity: fadeIn * fadeOut,
           transform: `translateY(${y}px)`,
           maxWidth: 840,
           padding: '18px 32px',

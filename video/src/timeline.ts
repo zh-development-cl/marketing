@@ -20,9 +20,9 @@ const designed: Record<SceneKey, number> = {
   chaos: s(4.1),
   step1: s(4),
   step2: s(4.6),
-  step3: s(6),
+  step3: s(8.5),
   step4: s(3),
-  outro: s(9),
+  outro: s(9.7),
 };
 
 export const order: SceneKey[] = ['hook', 'imagine', 'chaos', 'step1', 'step2', 'step3', 'step4', 'outro'];
