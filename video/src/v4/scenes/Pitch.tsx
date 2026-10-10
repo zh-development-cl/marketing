@@ -84,7 +84,7 @@ export const Pitch: React.FC = () => {
                 blur={0.3}
                 style={{zIndex: 10 + i}}
               >
-                <CardFace i={i} dim={dim + (1 - dim) * p} />
+                <CardFace i={i} dim={dim + (1 - dim) * p} tag={1 - p} />
               </Moving>
             );
           })}

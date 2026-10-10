@@ -6,7 +6,7 @@ import {accent, fonts, ink} from '../tokens';
 // actual grande en mono tabular que acompaña al cabezal. `hour` es decimal (8 .. 19). `glow` 0..1 intensifica el
 // cabezal (p. ej. al llegar a 19:00). No anima por sí sola.
 
-export const RULER = {x0: 80, x1: 1000, top: 418, h0: 8, h1: 19} as const;
+export const RULER = {x0: 80, x1: 1000, top: 456, h0: 8, h1: 19} as const;
 
 export const xOfHour = (h: number) => RULER.x0 + ((h - RULER.h0) / (RULER.h1 - RULER.h0)) * (RULER.x1 - RULER.x0);
 

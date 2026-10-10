@@ -48,7 +48,7 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({progress = 1, style})
       {METRICS.map((m, i) => {
         const t = clamp01((progress - i * 0.14) / 0.4);
         return (
-          <div key={m.label} style={{display: 'flex', alignItems: 'baseline', gap: 12, paddingRight: 34, marginRight: 34, borderRight: i < METRICS.length - 1 ? '1px solid rgba(255,255,255,0.09)' : 'none', ...enter(t)}}>
+          <div key={m.label} style={{display: 'flex', alignItems: 'baseline', gap: 12, paddingRight: 26, marginRight: 26, borderRight: i < METRICS.length - 1 ? '1px solid rgba(255,255,255,0.09)' : 'none', ...enter(t)}}>
             <div style={{fontFamily: fonts.display, fontWeight: 700, fontSize: 44, letterSpacing: '-0.03em', color: ink.text, lineHeight: 1, fontVariantNumeric: 'tabular-nums'}}>{m.value}</div>
             <div style={{fontFamily: fonts.mono, fontSize: 15, letterSpacing: '0.08em', textTransform: 'uppercase', color: ink.text3, whiteSpace: 'nowrap'}}>{m.label}</div>
           </div>
@@ -56,8 +56,8 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({progress = 1, style})
       })}
       <div style={{marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 10, ...enter(tNote)}}>
         <div style={{width: 8, height: 8, borderRadius: 4, background: accent.strong, boxShadow: `0 0 12px ${accent.glow}`}} />
-        <div style={{fontSize: 18, color: ink.text2, whiteSpace: 'nowrap'}}>
-          <b style={{fontWeight: 600, color: ink.text}}>3 facturas</b> por cobrar · recordatorio enviado
+        <div style={{fontSize: 17, color: ink.text2, whiteSpace: 'nowrap'}}>
+          <b style={{fontWeight: 600, color: ink.text}}>3 facturas</b> con recordatorio enviado
         </div>
       </div>
     </div>

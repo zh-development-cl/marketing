@@ -16,8 +16,8 @@ export const WIN_SCALE = WINDOW.cardScale; // escala dentro de la ventana
 export type Col = 0 | 1 | 2;
 export const COLUMNS = [
   {label: 'cotizaciones', color: accent.text},
-  {label: 'stock', color: status.ok},
-  {label: 'cobros', color: status.warn},
+  {label: 'stock', color: accent.text},
+  {label: 'cobros', color: accent.text},
 ] as const;
 
 export type DayEvent = {time: string; kind: string; variant: number; col: Col; add: number};
@@ -67,9 +67,9 @@ export const heapPlace = (i: number) => {
   const {w, h} = CARDS[i];
   const W = w * HEAP_SCALE;
   const H = h * HEAP_SCALE;
-  let cx = 236 + col * 172 + (hash(i, 21) - 0.5) * 120;
+  let cx = 226 + col * 164 + (hash(i, 21) - 0.5) * 120;
   let cy = 710 + row * 150 + (hash(i, 22) - 0.5) * 90;
-  cx = Math.max(30 + W / 2, Math.min(1050 - W / 2, cx));
+  cx = Math.max(30 + W / 2, Math.min(950 - W / 2, cx));
   cy = Math.max(600 + H / 2, Math.min(1290 - H / 2, cy));
   const rot = (hash(i, 23) - 0.5) * 16;
   return {cx, cy, rot};
@@ -88,7 +88,7 @@ export const slotPlace = (i: number) => {
 export const dimFor = (i: number, entered: number) => 1 - 0.07 * Math.min(5, Math.max(0, entered - 1 - i));
 
 // Cara de la tarjeta: la tarjeta real + etiqueta de hora encima + contorno de resalte opcional.
-export const CardFace: React.FC<{i: number; dim: number; hl?: [number, string] | null}> = ({i, dim, hl}) => {
+export const CardFace: React.FC<{i: number; dim: number; hl?: [number, string] | null; tag?: number}> = ({i, dim, hl, tag = 1}) => {
   const {w, h, node, ev} = CARDS[i];
   const k = hl ? hl[0] : 0;
   const c = hl ? hl[1] : 'transparent';
@@ -105,6 +105,7 @@ export const CardFace: React.FC<{i: number; dim: number; hl?: [number, string] |
           top: -17,
           padding: '2px 11px 3px',
           borderRadius: 999,
+          opacity: Math.max(0, Math.min(1, tag)),
           background: 'rgba(9,12,18,0.94)',
           border: '1px solid rgba(255,255,255,0.14)',
           boxShadow: '0 4px 12px rgba(0,0,0,0.5)',

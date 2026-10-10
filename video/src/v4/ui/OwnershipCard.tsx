@@ -8,7 +8,7 @@ import {accent, fonts, ink, shadow, status} from '../tokens';
 // valor de un resorte 0..1 (puede pasar de 1) por fila, `footer` 0..1 revela la línea del pie, `glow` 0..1 sube
 // el brillo azul de la cabecera.
 
-export const OWNERSHIP_W = 860;
+export const OWNERSHIP_W = 840;
 export const OWNERSHIP_H = 660;
 
 export type OwnershipCardProps = {
@@ -200,9 +200,9 @@ export const OwnershipCard: React.FC<OwnershipCardProps> = ({company = 'Tu Empre
           alignItems: 'center',
           justifyContent: 'center',
           fontFamily: fonts.mono,
-          fontSize: 26,
+          fontSize: 28,
           letterSpacing: '0.01em',
-          color: ink.text3,
+          color: ink.text2,
           whiteSpace: 'nowrap',
           opacity: fo,
           filter: fb > 0.3 ? `blur(${fb}px)` : undefined,

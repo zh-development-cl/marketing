@@ -113,7 +113,7 @@ export const spreadWords = (text: string, at: number, every = 4): TWord[] =>
 
 // Etiqueta "paso 0N" + título en minúsculas, como en la referencia: etiqueta pequeña en acento arriba, título bold grande.
 // El título se revela de izquierda a derecha con estela (barrido) y sale igual, hacia la izquierda.
-export const StepTitle: React.FC<{n: string; title: string; at: number; out?: number; top?: number; accentColor?: string}> = ({n, title, at, out, top = 250, accentColor = '#8FB0FF'}) => {
+export const StepTitle: React.FC<{n: string; title: string; at: number; out?: number; top?: number; accentColor?: string}> = ({n, title, at, out, top = 288, accentColor = '#8FB0FF'}) => {
   const frame = useCurrentFrame();
   const p = interpolate(frame, [at + 3, at + 14], [0, 1], {...clamp, easing: Easing.out(Easing.poly(4))});
   const q = out === undefined ? 1 : interpolate(frame, [out, out + 9], [1, 0], {...clamp, easing: Easing.in(Easing.poly(3))});
@@ -127,7 +127,7 @@ export const StepTitle: React.FC<{n: string; title: string; at: number; out?: nu
         style={{
           fontFamily: fonts.display,
           fontWeight: 700,
-          fontSize: 132,
+          fontSize: 118,
           letterSpacing: '-0.035em',
           color: ink.text,
           lineHeight: 1.05,

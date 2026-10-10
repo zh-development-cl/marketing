@@ -7,7 +7,7 @@ import {accent, apps, fonts} from '../tokens';
 // (la escena los hace crecer letra a letra), un cursor opcional, un marcador azul translúcido que crece con `mark`
 // (0..1) y, a la derecha, una "prueba" (`proof`: una mini tarjeta ya envuelta en Pop). No anima por sí sola.
 
-export const CALLNOTES_W = 900;
+export const CALLNOTES_W = 840;
 export const CALLNOTES_H = 460;
 export const CALLNOTES_STACK = 12;
 
@@ -29,7 +29,7 @@ export type CallNotesProps = {
   style?: React.CSSProperties;
 };
 
-const PAD = 48;
+const PAD = 44;
 const ACCENT = accent.button;
 const INK = apps.paperInk;
 const MUTED = apps.paperMuted;

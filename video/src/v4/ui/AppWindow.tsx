@@ -8,9 +8,9 @@ import {LogoDraw} from './LogoDraw';
 // coloca la escena encima usando la geometría exportada en WINDOW (columnLeft / slotTop).
 
 export const WINDOW = {
-  x: 100,
+  x: 110,
   y: 486,
-  w: 880,
+  w: 850,
   h: 700,
   titleH: 64,
   pad: 28,

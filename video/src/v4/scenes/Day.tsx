@@ -29,9 +29,9 @@ export const tEvents = EVENTS.map((e) => frameOfHour(hourOf(e.time)));
 // Resaltes por beat: [tipos, color, desde, hasta] en frames locales.
 const HL: Array<{kinds: string[]; color: string; from: number; to: number}> = [
   {kinds: ['whatsapp'], color: accent.strong, from: loc(beat('day', 'cotizar')) - 2, to: loc(beatEnd('day', 'WhatsApp')) + 10},
-  {kinds: ['excel'], color: status.ok, from: loc(beat('day', 'planillas')) - 2, to: loc(beatEnd('day', 'planillas')) + 10},
+  {kinds: ['excel'], color: accent.strong, from: loc(beat('day', 'planillas')) - 2, to: loc(beatEnd('day', 'planillas')) + 10},
   // (se apaga antes de HANDOFF: la escena Pitch no resalta)
-  {kinds: ['invoice', 'bank'], color: status.warn, from: loc(beat('day', 'pagos')) - 3, to: Math.min(loc(beatEnd('day', 'pagos')) + 10, loc(HANDOFF) - 10)},
+  {kinds: ['invoice', 'bank'], color: accent.strong, from: loc(beat('day', 'pagos')) - 3, to: Math.min(loc(beatEnd('day', 'pagos')) + 10, loc(HANDOFF) - 10)},
 ];
 const highlightOf = (kind: string, f: number): [number, string] | null => {
   for (const h of HL) {
@@ -74,11 +74,11 @@ export const Day: React.FC = () => {
   return (
     <AbsoluteFill>
       {/* Bloque regla + contador: entra desde abajo con desenfoque mientras el gancho sale hacia arriba */}
-      <Moving y={(f) => tween(f, 4, 16, 900, 0, outExpo)} opacity={() => 1 - off} extraBlur={() => off * 14} blur={0.3}>
+      <Moving y={(f) => tween(f, 4, 16, 1700, 0, outExpo)} opacity={(f) => prog(f, 4, 6) * (1 - off)} extraBlur={() => off * 14} blur={0.3}>
         <div style={{position: 'relative', width: 1080, height: 1920}}>
           <TimeRuler hour={hour} glow={endGlow} />
           {/* Contador abajo (fuera de la zona insegura) */}
-          <div style={{position: 'absolute', left: 0, right: 0, top: 1340, textAlign: 'center'}}>
+          <div style={{position: 'absolute', left: 0, right: 0, top: 1296, textAlign: 'center'}}>
             <div
               style={{
                 fontFamily: fonts.mono,
@@ -108,7 +108,7 @@ export const Day: React.FC = () => {
                 style={{
                   position: 'absolute',
                   left: 640,
-                  top: 1356 - p * 46,
+                  top: 1312 - p * 46,
                   fontFamily: fonts.mono,
                   fontWeight: 600,
                   fontSize: 44,
@@ -122,7 +122,7 @@ export const Day: React.FC = () => {
             );
           })}
           {/* Pie de la regla: cierre de jornada */}
-          <div style={{position: 'absolute', left: 80, top: 488, fontFamily: fonts.mono, fontSize: 26, letterSpacing: '0.06em', color: ink.text3, whiteSpace: 'nowrap'}}>
+          <div style={{position: 'absolute', left: 80, top: 526, fontFamily: fonts.mono, fontSize: 26, letterSpacing: '0.06em', color: ink.text3, whiteSpace: 'nowrap'}}>
             lunes · un día cualquiera
           </div>
         </div>

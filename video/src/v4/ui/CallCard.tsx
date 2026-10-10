@@ -9,7 +9,7 @@ import {formatClock} from './CallBar';
 // colgar en rojo) y una píldora de estado ("Notas en vivo" → "Diagnóstico listo"). No anima por sí sola: la escena
 // pasa `seconds`, `done` (0..1, resorte) y `tick` (frame) para las barras de nivel.
 
-export const CALLCARD_W = 900;
+export const CALLCARD_W = 840;
 export const CALLCARD_H = 520;
 
 export type CallCardProps = {
@@ -53,6 +53,13 @@ const CamIcon: React.FC<{size?: number; off?: boolean; color?: string}> = ({size
 const HangUpIcon: React.FC<{size?: number}> = ({size = 32}) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill={ICON} aria-hidden style={{display: 'block'}}>
     <path d="M3.3 13.2c-.6-.6-.6-1.6-.1-2.3C5.3 8.3 8.5 7 12 7s6.7 1.3 8.8 3.9c.5.7.5 1.7-.1 2.3l-1.7 1.7c-.6.6-1.6.6-2.3.1l-1.9-1.5c-.5-.4-.8-1-.7-1.6l.1-1.2c-1.3-.5-2.8-.5-4.2 0l.1 1.2c.1.6-.2 1.2-.7 1.6l-1.9 1.5c-.7.5-1.7.5-2.3-.1l-1.9-1.7z" />
+  </svg>
+);
+
+const ClockIcon: React.FC<{size?: number; color?: string}> = ({size = 20, color = ink.text2}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" aria-hidden style={{display: 'block'}}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M12 7.5V12l3 2" />
   </svg>
 );
 
@@ -174,7 +181,7 @@ export const CallCard: React.FC<CallCardProps> = ({
         <div style={{width: 12, height: 12, borderRadius: 6, background: status.ok, boxShadow: `0 0 10px ${status.ok}`}} />
         <div style={{fontSize: 26, fontWeight: 600, letterSpacing: '-0.015em', color: ink.text}}>Llamada de diagnóstico</div>
         <div style={{marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8, padding: '6px 14px 6px 12px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.07)'}}>
-          <LockIcon size={18} />
+          <ClockIcon size={20} />
           <span style={{fontSize: 26, fontWeight: 500, color: ink.text2, letterSpacing: '-0.01em', fontVariantNumeric: 'tabular-nums'}}>30 min</span>
         </div>
       </div>
@@ -196,9 +203,9 @@ export const CallCard: React.FC<CallCardProps> = ({
       {/* Recuadro A: Lorenzo (foto) */}
       {media ? null : (
       <div style={{position: 'absolute', left: PAD, top: TILE_TOP, width: TILE_W, height: TILE_H, borderRadius: 18, overflow: 'hidden', background: '#2A3140', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.06)'}}>
-        {avatarSrc ? <Img src={avatarSrc} style={{width: '100%', height: '100%', objectFit: 'cover', objectPosition: '50% 18%', display: 'block', filter: 'brightness(0.78) contrast(1.06) saturate(0.85)'}} /> : null}
+        {avatarSrc ? <Img src={avatarSrc} style={{width: '100%', height: '100%', objectFit: 'cover', objectPosition: '50% 18%', display: 'block', filter: 'brightness(0.95) contrast(1.04) saturate(0.95)'}} /> : null}
         {/* el fondo blanco de la foto se integra a la paleta oscura: tinte frío multiplicado */}
-        <div style={{position: 'absolute', inset: 0, background: 'linear-gradient(180deg, #5C6B85 0%, #3B4761 100%)', mixBlendMode: 'multiply', opacity: 0.75}} />
+        <div style={{position: 'absolute', inset: 0, background: 'linear-gradient(180deg, #5C6B85 0%, #3B4761 100%)', mixBlendMode: 'multiply', opacity: 0.38}} />
         {/* viñeta de cámara: bordes más oscuros y un leve tinte frío */}
         <div style={{position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 85% 80% at 50% 40%, rgba(0,0,0,0) 55%, rgba(0,0,0,0.42) 100%)'}} />
         <div style={{position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(20,30,50,0.10) 0%, rgba(0,0,0,0) 40%, rgba(0,0,0,0.38) 100%)'}} />
