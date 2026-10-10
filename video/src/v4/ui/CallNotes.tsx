@@ -4,8 +4,9 @@ import {accent, apps, fonts} from '../tokens';
 
 // Hoja "Notas de la llamada" (900 x 460 + 12 px de hojas apiladas detrás), mismo papel que ui/Paper.tsx: cabecera
 // ZH + etiqueta, título en serif, tres renglones con regla tenue. Cada renglón muestra `typed` caracteres del texto
-// (la escena los hace crecer letra a letra), un cursor opcional, un marcador azul translúcido que crece con `mark`
-// (0..1) y, a la derecha, una "prueba" (`proof`: una mini tarjeta ya envuelta en Pop). No anima por sí sola.
+// (la escena los hace crecer letra a letra; cada letra entra con fundido y 3 px de subida), un cursor opcional con
+// opacidad continua, un marcador azul translúcido que crece con `mark` (0..1) y, a la derecha, una "prueba" (`proof`:
+// una mini tarjeta ya envuelta en Pop). No anima por sí sola.
 
 export const CALLNOTES_W = 840;
 export const CALLNOTES_H = 472;
@@ -13,7 +14,8 @@ export const CALLNOTES_STACK = 12;
 
 export type NoteLine = {
   text: string; // "1. cotizaciones repetidas por WhatsApp"
-  typed: number; // caracteres visibles (0 = renglón vacío)
+  typed: number; // caracteres escritos, continuo (0 = renglón vacío; la fracción es el fundido de las últimas letras)
+  fade?: number; // caracteres sobre los que cada letra termina de entrar (opacidad = (typed - k) / fade); 1 por defecto
   mark?: number; // 0..1 ancho del marcador (tras completarse)
   proof?: React.ReactNode; // mini tarjeta a la derecha (la escena la escala y la anima)
   proofRotate?: number; // grados de inclinación de la prueba
@@ -23,7 +25,7 @@ export type NoteLine = {
 export type CallNotesProps = {
   lines: NoteLine[];
   cursorLine?: number; // índice del renglón con cursor (-1 = ninguno)
-  cursorOn?: boolean; // visible (la escena lo hace parpadear cuando no escribe)
+  cursorAlpha?: number; // 0..1 opacidad del cursor (la escena lo pulsa en reposo y lo funde al aparecer y cambiar de renglón)
   label?: string; // etiqueta de la cabecera, arriba a la derecha
   title?: string; // "Notas de la llamada"
   style?: React.CSSProperties;
@@ -54,7 +56,8 @@ const Monogram: React.FC = () => (
   </div>
 );
 
-export const CallNotes: React.FC<CallNotesProps> = ({lines, cursorLine = -1, cursorOn = true, label = 'Llamada de diagnóstico · 30 min', title = 'Notas de la llamada', style}) => {
+export const CallNotes: React.FC<CallNotesProps> = ({lines, cursorLine = -1, cursorAlpha = 1, label = 'Llamada de diagnóstico · 30 min', title = 'Notas de la llamada', style}) => {
+  const a = clamp01(cursorAlpha);
   return (
     <div style={{position: 'relative', width: CALLNOTES_W, height: CALLNOTES_H, ...style}}>
       {/* Hojas apiladas detrás */}
@@ -103,10 +106,24 @@ export const CallNotes: React.FC<CallNotesProps> = ({lines, cursorLine = -1, cur
         {/* Renglones */}
         {lines.map((ln, i) => {
           const top = ROW_TOP + i * ROW_H;
-          const shown = ln.text.slice(0, Math.max(0, Math.min(ln.text.length, Math.floor(ln.typed))));
-          const started = shown.length > 0;
-          const prefix = shown.slice(0, 2);
-          const body = shown.slice(2).replace(/^\s/, '');
+          const typed = Math.max(0, ln.typed);
+          const fade = Math.max(1e-3, ln.fade ?? 1);
+          const started = typed > 0;
+          // Letras con algo de tinta (k < typed): el prefijo "1." y el cuerpo, sin el espacio que los separa (lo pone el
+          // margen). Cada letra es un span propio que entra con fundido y 3 px de subida según su avance (typed - k) / fade;
+          // el ancho del renglón (y por tanto el del marcador) sigue siendo el del texto ya escrito.
+          const shown = ln.text.slice(0, Math.min(ln.text.length, Math.ceil(typed)));
+          const bodyAt = 2 + (/^\s/.test(ln.text.slice(2)) ? 1 : 0); // índice de la primera letra del cuerpo
+          const glyph = (ch: string, k: number) => {
+            const o = clamp01((typed - k) / fade);
+            return (
+              <span key={k} style={{display: 'inline-block', whiteSpace: 'pre', opacity: o, transform: `translateY(${((1 - o) * 3).toFixed(2)}px)`}}>
+                {ch}
+              </span>
+            );
+          };
+          const prefix = shown.slice(0, 2).split('').map((ch, k) => glyph(ch, k));
+          const body = shown.slice(bodyAt).split('').map((ch, k) => glyph(ch, bodyAt + k));
           const m = clamp01(ln.mark ?? 0);
           const cursor = cursorLine === i;
           return (
@@ -141,8 +158,8 @@ export const CallNotes: React.FC<CallNotesProps> = ({lines, cursorLine = -1, cur
                         marginLeft: 4,
                         borderRadius: 1.5,
                         background: ACCENT,
-                        opacity: cursorOn ? 1 : 0,
-                        boxShadow: cursorOn ? `0 0 8px rgba(48,107,255,0.6)` : undefined,
+                        opacity: a,
+                        boxShadow: `0 0 8px rgba(48,107,255,${(0.6 * a).toFixed(3)})`,
                       }}
                     />
                   ) : null}

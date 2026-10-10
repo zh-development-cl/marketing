@@ -42,6 +42,7 @@ const LINES: Line[] = [
 ];
 const lineEnd = (l: Line) => l.at + l.dur; // último carácter escrito → marcador + prueba
 const MARK_DUR = 12;
+const TYPE_FADE = 2; // frames que tarda cada letra en entrar (fundido + 3 px de subida) sin alterar el ritmo del tecleo
 
 // Un 'tick' cada 3 frames mientras se escribe (≈9 por segundo: tecleo, no zumbido) y nunca en el frame del marcador.
 const tickFrames = (l: Line) => {
@@ -69,18 +70,30 @@ const exitX = (f: number) => tween(f, tOut, tOut + 10, 0, -1400, inQuart);
 const PROOF_ROT = [-2.2, 1.6, -1.2];
 const PROOF_DY = [-2, 0, 6]; // la factura (más alta) baja un poco para no tapar el #REF! de la planilla
 
+// Cursor de la hoja: pulso coseno de BLINK frames entre 0,2 y 1 con la fase anclada en `t0` (ahí vale 1), así al dejar
+// de escribir la opacidad sigue en 1 y baja suave, sin salto.
+const BLINK = 16;
+const pulseAt = (f: number, t0: number) => 0.2 + 0.8 * (0.5 + 0.5 * Math.cos(((f - t0) / BLINK) * 2 * Math.PI));
+// Apagón alrededor de `at`: baja a 0 en los `dur` frames previos y vuelve a 1 en los `dur` siguientes (en `at` vale 0,
+// de modo que el cursor cambia de renglón apagado).
+const dip = (f: number, at: number, dur: number) => (f < at ? 1 - prog(f, at - dur, dur, Easing.linear) : prog(f, at, dur, Easing.linear));
+
 export const Step1: React.FC = () => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
 
   // Contador 00:00 → 30:00 con easing inOut cuadrático (monótono: nunca retrocede).
   const seconds = 1800 * prog(frame, tCount0, tCount1 - tCount0, inOutQuad);
-  const done = frame >= tCount1 ? spring({frame: frame - tCount1, fps, config: {damping: 11, stiffness: 180}}) : 0;
+  // Resorte suave: el cruce blanco → verde del contador y "Notas en vivo" → "Diagnóstico listo" dura ~6 frames.
+  const done = frame >= tCount1 ? spring({frame: frame - tCount1, fps, config: {damping: 14, stiffness: 120}}) : 0;
   const speaking = prog(frame, tSpeak0, 6) * (1 - prog(frame, tSpeak1, 6)); // barras de nivel en fundido
 
   // Renglones: letras escritas, marcador y prueba.
   const lines = LINES.map((l, i) => {
-    const typed = Math.floor(tween(frame, l.at, lineEnd(l), 0, l.text.length, Easing.linear));
+    // `typed` continuo (sin Math.floor): la fracción es el fundido de las últimas letras, que CallNotes entra una a una
+    // en TYPE_FADE frames. Sigue corriendo TYPE_FADE frames después del final para que la última letra termine de entrar.
+    const rate = l.text.length / l.dur; // letras por frame
+    const typed = tween(frame, l.at, lineEnd(l) + TYPE_FADE, 0, l.text.length + rate * TYPE_FADE, Easing.linear);
     const mark = prog(frame, lineEnd(l), MARK_DUR, outExpo);
     const tProof = lineEnd(l) + 1;
     const proof =
@@ -89,14 +102,22 @@ export const Step1: React.FC = () => {
           {i === 0 ? <WhatsAppCard variant={1} /> : i === 1 ? <ExcelCard variant={0} /> : <InvoiceCard variant={0} />}
         </Pop>
       ) : undefined;
-    return {text: l.text, typed, mark, proof, proofRotate: PROOF_ROT[i], proofDy: PROOF_DY[i]};
+    return {text: l.text, typed, fade: rate * TYPE_FADE, mark, proof, proofRotate: PROOF_ROT[i], proofDy: PROOF_DY[i]};
   });
-  // Cursor: parpadea en el primer renglón vacío apenas llega la hoja, fijo en el renglón que se escribe y
-  // parpadeando en el último completado.
+  // Cursor: en el primer renglón vacío apenas llega la hoja, fijo en el renglón que se escribe y en reposo en el último
+  // completado. Alfa continuo: 1 mientras escribe; en reposo pulsa con la fase anclada en el frame en que dejó de
+  // escribir (en la primera aparición arranca en el mínimo: nace subiendo) y, si va a escribir en el mismo renglón, sube
+  // a 1 en los 8 frames previos. Se enciende en fundido al aparecer y, en cada cambio de renglón, se apaga 3 frames,
+  // salta apagado y se enciende 3 frames.
   const active = LINES.findIndex((l) => frame >= l.at && frame < lineEnd(l));
   const lastDone = LINES.reduce((acc, l, i) => (frame >= lineEnd(l) ? i : acc), -1);
   const cursorLine = active >= 0 ? active : frame >= tSheet + 10 ? Math.max(0, lastDone) : -1;
-  const cursorOn = active >= 0 ? true : frame % 16 < 9;
+  const restAt = lastDone >= 0 ? lineEnd(LINES[lastDone]) : tSheet + 10 + BLINK / 2; // ancla de fase del pulso en reposo
+  const nextIdx = LINES.findIndex((l) => frame < l.at); // próximo renglón que se escribirá (-1 = ninguno)
+  const toTyping = nextIdx === cursorLine ? prog(frame, LINES[nextIdx].at - 8, 8, Easing.linear) : 0;
+  const pulse = active >= 0 ? 1 : Math.max(toTyping, pulseAt(frame, restAt));
+  const rowFade = LINES.slice(1).reduce((acc, l) => acc * dip(frame, l.at, 3), prog(frame, tSheet + 10, 5));
+  const cursorAlpha = pulse * rowFade;
 
   const showCall = frame >= tIn - 1 && frame <= tOut + 11;
   const showSheet = frame >= tSheet - 1 && frame <= tOut + 11;
@@ -126,7 +147,7 @@ export const Step1: React.FC = () => {
       {showSheet ? (
         <Moving x={exitX} y={(f) => tween(f, tSheet, tSheet + 16, 1000, 0, Easing.out(Easing.cubic))} opacity={(f) => prog(f, tSheet, 6)} blur={0.12} style={{left: (1080 - CALLNOTES_W) / 2, top: 1004}}>
           <div style={{width: CALLNOTES_W + CALLNOTES_STACK, height: CALLNOTES_H + CALLNOTES_STACK}}>
-            <CallNotes lines={lines} cursorLine={cursorLine} cursorOn={cursorOn} />
+            <CallNotes lines={lines} cursorLine={cursorLine} cursorAlpha={cursorAlpha} />
           </div>
         </Moving>
       ) : null}

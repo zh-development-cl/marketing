@@ -1,13 +1,14 @@
 import React from 'react';
-import {Img, OffthreadVideo, Sequence, useCurrentFrame} from 'remotion';
+import {Img, interpolateColors, OffthreadVideo, Sequence, useCurrentFrame} from 'remotion';
 import {accent, fonts, ink, shadow, status} from '../tokens';
 import {formatClock} from './CallBar';
 
 // Tarjeta de videollamada (900 x 520, esquinas 28): cabecera "Llamada de diagnóstico" + píldora "30 min"; dos
 // recuadros de video (foto de Lorenzo con chip "Lorenzo · ZH Development" y barras de nivel cuando habla; recuadro
 // oscuro "TE" / "Tu Empresa" con la cámara apagada); abajo el contador mono grande mm:ss, los controles (mic, cámara,
-// colgar en rojo) y una píldora de estado ("Notas en vivo" → "Diagnóstico listo"). No anima por sí sola: la escena
-// pasa `seconds`, `done` (0..1, resorte) y `tick` (frame) para las barras de nivel.
+// colgar en rojo) y una píldora de estado ("Notas en vivo" → "Diagnóstico listo", cruce en fundido). No anima por sí
+// sola: la escena pasa `seconds`, `done` (0..1, resorte; color, glow y píldoras siguen esa rampa de forma continua) y
+// `tick` (frame) para las barras de nivel.
 
 export const CALLCARD_W = 840;
 export const CALLCARD_H = 520;
@@ -193,7 +194,9 @@ export const CallCard: React.FC<CallCardProps> = ({
   style,
 }) => {
   const d = Math.max(0, Math.min(1.3, done));
-  const isDone = d > 0.01;
+  const k = Math.min(1, d); // 0..1 sin el rebote del resorte: glow del contador y cruce de las píldoras
+  // Contador: blanco → verde en rampa continua (llega al verde un poco antes de que el glow termine de crecer).
+  const clockColor = interpolateColors(Math.min(1, d * 1.6), [0, 1], ['#FFFFFF', status.ok]);
   const compact = Boolean(video); // fila inferior más baja para dejar sitio al video
   const j = Math.max(0, Math.min(1, join));
   const toast = Math.max(0, Math.min(1, joinToast));
@@ -389,8 +392,8 @@ export const CallCard: React.FC<CallCardProps> = ({
               letterSpacing: '-0.02em',
               lineHeight: 1,
               fontVariantNumeric: 'tabular-nums',
-              color: isDone ? status.ok : '#FFFFFF',
-              textShadow: isDone ? `0 0 ${Math.round(22 * Math.min(1, d))}px rgba(61,214,140,0.55)` : undefined,
+              color: clockColor,
+              textShadow: `0 0 ${(22 * k).toFixed(1)}px rgba(61,214,140,${(0.55 * k).toFixed(3)})`,
               transform: `scale(${pulse})`,
               transformOrigin: '0% 50%',
             }}
@@ -412,7 +415,7 @@ export const CallCard: React.FC<CallCardProps> = ({
         </div>
 
         <div style={{width: 250, flexShrink: 0, position: 'relative', height: 50}}>
-          {/* "Notas en vivo" (antes) */}
+          {/* "Notas en vivo" (antes): se funde y encoge mientras "Diagnóstico listo" crece, en espejo */}
           <div
             style={{
               position: 'absolute',
@@ -426,7 +429,9 @@ export const CallCard: React.FC<CallCardProps> = ({
               borderRadius: 999,
               background: 'rgba(255,255,255,0.06)',
               boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.07)',
-              opacity: isDone ? 0 : 1,
+              opacity: 1 - Math.min(1, d * 2.2),
+              transform: `scale(${1 - 0.15 * k})`,
+              transformOrigin: '100% 50%',
             }}
           >
             <div style={{width: 10, height: 10, borderRadius: 5, background: status.danger, boxShadow: `0 0 8px ${status.danger}`}} />
