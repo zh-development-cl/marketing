@@ -98,7 +98,7 @@ export const Step1: React.FC = () => {
 
   return (
     <AbsoluteFill>
-      <StepTitle n="01" title="entender" at={tTitle} out={END - 20} />
+      <StepTitle n="01" title="entender" at={tTitle} out={END - 28} />
 
       {/* Videollamada: entra desde la derecha con latigazo, sale a la izquierda con la hoja */}
       {showCall ? (

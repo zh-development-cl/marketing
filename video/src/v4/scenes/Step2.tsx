@@ -14,7 +14,7 @@ import type {SfxCue} from '../sound';
 const sc = scenes.step2;
 const L = sc.from - 8;
 const loc = (a: number) => a - L;
-const tTitle = 1; // empieza mientras la escena anterior aún sale
+const tTitle = 4; // entra cuando el título del paso 01 ya terminó de salir
 const tRing = loc(beat('step2', 'Después')) - 12; // el anillo nace con la primera palabra (nunca pantalla vacía)
 const tChips = ['alcance', 'plazo', 'precio'].map((w) => loc(beat('step2', w)) - 3); // lo visual 1–2 frames delante del audio
 const tPaper = loc(beat('step2', 'precio')) + 12;

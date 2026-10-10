@@ -60,7 +60,7 @@ export const Hook: React.FC = () => {
     ));
   return (
     <AbsoluteFill style={{zIndex: 5}}>
-      <Moving x={() => 0} y={() => -900 * out} opacity={() => 1 - out * 0.6} extraBlur={() => out * 10} blur={0.3}>
+      <Moving x={() => 0} y={() => -1400 * out} opacity={() => 1 - out} extraBlur={() => out * 10} blur={0.3}>
         <div style={{position: 'absolute', left: 0, top: 0, width: 1080, height: 1920}}>
           <div style={{position: 'absolute', left: 90, top: 640, width: 940}}>
             <div style={{fontFamily: fonts.mono, fontSize: 32, letterSpacing: '0.06em', color: ink.text3, opacity: prompt, marginBottom: 30, whiteSpace: 'nowrap'}}>
