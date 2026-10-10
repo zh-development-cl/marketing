@@ -11,13 +11,15 @@ export type Notification = {
 };
 
 // iPhone con pantalla de bloqueo y notificaciones apiladas que entran una por una.
+// Tamaños pensados para verse a escala 0.9 a 0.95 en un lienzo de 1080 px: nada bajo 28 px reales.
 export const Phone: React.FC<{
   notifications: Notification[];
   startAt?: number; // frame en que empieza a caer la primera notificación
   gap?: number; // frames entre notificaciones
   scale?: number;
   tone?: 'chaos' | 'calm';
-}> = ({notifications, startAt = 0, gap = 9, scale = 1, tone = 'chaos'}) => {
+  date?: string;
+}> = ({notifications, startAt = 0, gap = 9, scale = 1, tone = 'chaos', date = 'martes 13 de octubre'}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
   const W = 560;
@@ -63,14 +65,12 @@ export const Phone: React.FC<{
           }}
         />
         {/* Hora */}
-        <div style={{position: 'absolute', top: 110, left: 0, right: 0, textAlign: 'center'}}>
-          <div style={{fontFamily: fonts.sans, fontSize: 30, color: 'rgba(255,255,255,0.75)', fontWeight: 500}}>
-            lunes 13 de octubre
-          </div>
+        <div style={{position: 'absolute', top: 100, left: 0, right: 0, textAlign: 'center'}}>
+          <div style={{fontFamily: fonts.sans, fontSize: 30, color: 'rgba(255,255,255,0.75)', fontWeight: 500}}>{date}</div>
           <div
             style={{
               fontFamily: fonts.display,
-              fontSize: 130,
+              fontSize: 124,
               fontWeight: 500,
               color: '#fff',
               lineHeight: 1,
@@ -82,7 +82,7 @@ export const Phone: React.FC<{
           </div>
         </div>
         {/* Notificaciones */}
-        <div style={{position: 'absolute', top: 330, left: 18, right: 18, display: 'flex', flexDirection: 'column', gap: 12}}>
+        <div style={{position: 'absolute', top: 300, left: 16, right: 16, display: 'flex', flexDirection: 'column', gap: 14}}>
           {notifications.map((n, i) => {
             const t = frame - startAt - i * gap;
             const p = spring({frame: t, fps, config: {damping: 14, stiffness: 140}});
@@ -95,7 +95,7 @@ export const Phone: React.FC<{
                   display: 'flex',
                   gap: 16,
                   alignItems: 'center',
-                  padding: '16px 18px',
+                  padding: '18px 20px',
                   borderRadius: 26,
                   background: 'rgba(255,255,255,0.14)',
                   backdropFilter: 'blur(20px)',
@@ -103,21 +103,21 @@ export const Phone: React.FC<{
               >
                 {n.icon}
                 <div style={{flex: 1, minWidth: 0}}>
-                  <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'baseline'}}>
-                    <div style={{fontFamily: fonts.sans, fontWeight: 600, fontSize: 24, color: '#fff'}}>{n.app}</div>
-                    <div style={{fontFamily: fonts.sans, fontSize: 20, color: 'rgba(255,255,255,0.55)'}}>{n.time}</div>
+                  <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 10}}>
+                    <div style={{fontFamily: fonts.sans, fontWeight: 600, fontSize: 30, color: '#fff'}}>{n.app}</div>
+                    <div style={{fontFamily: fonts.sans, fontSize: 24, color: 'rgba(255,255,255,0.55)', flex: 'none'}}>{n.time}</div>
                   </div>
-                  <div style={{fontFamily: fonts.sans, fontWeight: 600, fontSize: 24, color: '#fff', marginTop: 2}}>
-                    {n.title}
-                  </div>
+                  <div style={{fontFamily: fonts.sans, fontWeight: 600, fontSize: 30, color: '#fff', marginTop: 2}}>{n.title}</div>
                   <div
                     style={{
                       fontFamily: fonts.sans,
-                      fontSize: 23,
+                      fontSize: 28,
+                      lineHeight: 1.2,
                       color: 'rgba(255,255,255,0.8)',
-                      whiteSpace: 'nowrap',
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
                       overflow: 'hidden',
-                      textOverflow: 'ellipsis',
                     }}
                   >
                     {n.body}

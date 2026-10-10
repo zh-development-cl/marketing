@@ -2,12 +2,14 @@ import React from 'react';
 import {interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import {colors, fonts} from '../brand/tokens';
 
-// Etiqueta "paso 0N" + título de la etapa, arriba de la escena.
-export const StepLabel: React.FC<{n: string; title: string; subtitle?: string}> = ({n, title, subtitle}) => {
+// Etiqueta "paso 0N" + título de la etapa, arriba de la escena (bajo la zona superior de Instagram).
+// `subtitleAt` deja que la línea secundaria entre más tarde, por ejemplo cuando la voz la dice.
+export const StepLabel: React.FC<{n: string; title: string; subtitle?: string; subtitleAt?: number}> = ({n, title, subtitle, subtitleAt = 6}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
   const p = spring({frame, fps, config: {damping: 16, stiffness: 120}});
   const line = spring({frame: frame - 6, fps, config: {damping: 18}});
+  const sub = spring({frame: frame - subtitleAt, fps, config: {damping: 16, stiffness: 140}});
   return (
     <div style={{position: 'absolute', top: 250, left: 0, right: 0, textAlign: 'center'}}>
       <div
@@ -47,9 +49,11 @@ export const StepLabel: React.FC<{n: string; title: string; subtitle?: string}> 
           style={{
             marginTop: 8,
             fontFamily: fonts.sans,
-            fontSize: 38,
-            color: colors.text2,
-            opacity: line,
+            fontWeight: 500,
+            fontSize: 40,
+            color: colors.text,
+            opacity: sub,
+            transform: `translateY(${interpolate(sub, [0, 1], [16, 0])}px)`,
           }}
         >
           {subtitle}

@@ -1,5 +1,6 @@
 // Genera la voz en off por escena con ElevenLabs: audio normalizado en public/vo/ y tiempos por palabra en src/vo.json.
 // Uso: node scripts/voiceover.mjs [voiceId]
+// VO_ONLY=hook,outro regenera solo esas escenas (y conserva el resto en src/vo.json). VO_DRY_RUN=1 no llama a la API.
 // Requiere ELEVENLABS_API_KEY en video/.env (no se sube al repo) y ffmpeg en el PATH.
 import {execFileSync} from 'node:child_process';
 import fs from 'node:fs';
@@ -23,11 +24,11 @@ const script = {
   hook: ['¿Qué es ZH Development?'],
   imagine: ['Imagina que esta es tu empresa:'],
   chaos: ['mensajes, planillas, correos, cobros…', 'todo a mano.'],
-  step1: ['En ZH partimos con una llamada de 30 minutos', 'para entender tu operación y encontrar lo que más tiempo te quita.'],
+  step1: ['Todo parte con una llamada de 30 minutos', 'para entender tu operación', 'y encontrar lo que más tiempo te quita.'],
   step2: ['Después recibes una propuesta escrita,', 'con alcance, plazo y precio.'],
-  step3: ['Construimos por etapas, con entregas que puedes probar,', 'y usamos IA solo donde aporta, siempre con revisión humana.'],
-  step4: ['Y todo queda a nombre de tu empresa.'],
-  outro: ['ZH Development: software a medida que conecta tu operación.', 'Agenda tu llamada de 30 minutos.'],
+  step3: ['Construimos por etapas,', 'con entregas que puedes probar,', 'y usamos IA solo donde aporta,', 'siempre con revisión humana.'],
+  step4: ['Cuando está en uso, lo seguimos mejorando contigo.', 'Y todo queda a nombre de tu empresa.'],
+  outro: ['Somos ZH Development:', 'software a medida que conecta tu operación.', 'Agenda tu llamada de 30 minutos en el link de la bio.'],
 };
 
 // Palabra mostrada → cómo se pronuncia (varias palabras permitidas). Se compara sin puntuación.
@@ -53,7 +54,7 @@ fs.mkdirSync(outDir, {recursive: true});
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'vo-'));
 
 const normalizeTwoPass = (input, output) => {
-  const filter = `loudnorm=I=${TARGET_LUFS}:TP=${TRUE_PEAK}:LRA=9`;
+  const filter = `loudnorm=I=${TARGET_LUFS}:TP=${TRUE_PEAK}:LRA=15`;
   // Pasada 1: medir. ffmpeg imprime el JSON por stderr.
   const measured = execFileSync('sh', ['-c', `ffmpeg -hide_banner -nostats -i "${input}" -af "${filter}:print_format=json" -f null - 2>&1`]).toString();
   const m = measured.match(/\{[\s\S]*\}/);
@@ -67,10 +68,14 @@ const normalizeTwoPass = (input, output) => {
   ], {stdio: ['ignore', 'pipe', 'pipe']});
 };
 
-const result = {voiceId, model, targetLufs: TARGET_LUFS, scenes: {}};
+const only = process.env.VO_ONLY?.split(',').map((x) => x.trim()).filter(Boolean);
+const voPath = path.join(root, 'src', 'vo.json');
+const previous = fs.existsSync(voPath) ? JSON.parse(fs.readFileSync(voPath, 'utf8')) : {scenes: {}};
+const result = {voiceId, model, targetLufs: TARGET_LUFS, scenes: only ? {...previous.scenes} : {}};
 let totalChars = 0;
 
 for (const [scene, segments] of Object.entries(script)) {
+  if (only && !only.includes(scene)) continue;
   // Palabras mostradas y su versión hablada, segmento por segmento.
   const shownWords = segments.map((seg) => seg.split(/\s+/).filter(Boolean));
   const spokenText = shownWords.map((ws) => ws.map((w) => spokenFor(w).spoken).join(' ')).join(' ');
@@ -97,6 +102,7 @@ for (const [scene, segments] of Object.entries(script)) {
     });
     if (!res.ok) throw new Error(`${scene}: ${res.status} ${await res.text()}`);
     data = await res.json();
+    if (!data.alignment) throw new Error(`${scene}: la respuesta no trae alignment`);
     fs.writeFileSync(raw, Buffer.from(data.audio_base64, 'base64'));
     normalizeTwoPass(raw, path.join(outDir, file));
   }
@@ -134,9 +140,10 @@ for (const [scene, segments] of Object.entries(script)) {
   if (k !== spokenWords.length) throw new Error(`${scene}: sobran palabras habladas (${spokenWords.length - k})`);
 
   result.scenes[scene] = {file: `vo/${file}`, duration, captions};
+  // Se escribe después de cada escena: si algo falla a mitad, audio y tiempos quedan consistentes.
+  fs.writeFileSync(voPath, JSON.stringify(result, null, 2));
   console.log(`${scene}: ${duration.toFixed(2)} s · ${spokenText.length} chars`);
 }
 
-fs.writeFileSync(path.join(root, 'src', 'vo.json'), JSON.stringify(result, null, 2));
 fs.rmSync(tmp, {recursive: true, force: true});
 console.log(`total: ${totalChars} caracteres · voz ${voiceId} · normalizado a ${TARGET_LUFS} LUFS`);

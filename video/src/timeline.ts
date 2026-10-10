@@ -15,21 +15,31 @@ const TAIL = 0.45; // segundos de aire después de la última palabra
 export type SceneKey = 'hook' | 'imagine' | 'chaos' | 'step1' | 'step2' | 'step3' | 'step4' | 'outro';
 
 const designed: Record<SceneKey, number> = {
-  hook: s(2.6),
+  hook: s(2.3),
   imagine: s(2.5),
-  chaos: s(4.5),
+  chaos: s(4.1),
   step1: s(4),
-  step2: s(4),
+  step2: s(4.6),
   step3: s(6),
   step4: s(3),
-  outro: s(6),
+  outro: s(9),
 };
 
 export const order: SceneKey[] = ['hook', 'imagine', 'chaos', 'step1', 'step2', 'step3', 'step4', 'outro'];
 
+// Escenas con subtítulos. En las demás el texto grande en pantalla ya es la voz.
+const CAPTIONED: SceneKey[] = ['step1', 'step2', 'step3', 'step4'];
+
 export type Word = {text: string; start: number; end: number};
 type VoScene = {file: string; duration: number; captions: Array<{text: string; start: number; end: number; words: Word[]}>};
 const voScenes = vo.scenes as Record<SceneKey, VoScene>;
+
+for (const k of order) {
+  const scene = voScenes[k];
+  if (!scene || !scene.captions.every((c) => Array.isArray(c.words) && c.words.length > 0)) {
+    throw new Error(`vo.json sin tiempos por palabra en "${k}": corre node scripts/voiceover.mjs`);
+  }
+}
 
 let cursor = 0;
 export const scenes = Object.fromEntries(
@@ -45,25 +55,34 @@ export const scenes = Object.fromEntries(
 export const TOTAL = cursor;
 
 export type CaptionWord = {text: string; from: number; to: number};
-export type Caption = {from: number; to: number; words: CaptionWord[]};
+// `hold`: la frase siguiente empieza justo cuando termina esta, así que la caja no se apaga entre medio.
+export type Caption = {from: number; to: number; hold: boolean; words: CaptionWord[]};
 
 // Subtítulos en frames absolutos del video, con tiempos por palabra.
-export const captions: Caption[] = order.flatMap((key) => {
-  const base = scenes[key].from + VO_OFFSET;
-  return voScenes[key].captions.map((c) => ({
-    from: base + s(c.start),
-    to: base + s(c.end) + s(0.35),
-    words: c.words.map((w) => ({text: w.text, from: base + s(w.start), to: base + s(w.end)})),
-  }));
-});
+export const captions: Caption[] = order
+  .filter((key) => CAPTIONED.includes(key))
+  .flatMap((key) => {
+    const base = scenes[key].from + VO_OFFSET;
+    const list = voScenes[key].captions;
+    return list.map((c, i) => {
+      const next = list[i + 1];
+      return {
+        from: base + s(c.start),
+        to: next ? base + s(next.start) : base + s(c.end) + s(0.35),
+        hold: Boolean(next),
+        words: c.words.map((w) => ({text: w.text, from: base + s(w.start), to: base + s(w.end)})),
+      };
+    });
+  });
 
-// Frame absoluto en que se pronuncia una palabra (primera coincidencia) dentro de una escena.
-// Útil para que un elemento aparezca justo cuando la voz lo dice.
+// Frame local de la escena en que se pronuncia una palabra (primera coincidencia).
+// Sirve para que un elemento aparezca justo cuando la voz lo dice.
+const clean = (w: string) => w.toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
 export const wordFrame = (key: SceneKey, word: string): number => {
-  const target = word.toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
+  const target = clean(word);
   for (const c of voScenes[key].captions) {
     for (const w of c.words) {
-      if (w.text.toLowerCase().replace(/[^\p{L}\p{N}]/gu, '') === target) return VO_OFFSET + s(w.start);
+      if (clean(w.text) === target) return VO_OFFSET + s(w.start);
     }
   }
   throw new Error(`No encuentro la palabra "${word}" en la voz de ${key}`);

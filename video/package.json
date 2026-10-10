@@ -1,14 +1,16 @@
 {
-  "name": "video",
+  "name": "zh-marketing-video",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "private": true,
+  "description": "Reels de ZH Development hechos con Remotion",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "studio": "remotion studio src/index.ts",
+    "render": "remotion render src/index.ts Reel01 out/reel-01.mp4",
+    "vo": "node scripts/voiceover.mjs",
+    "vo:dry": "VO_DRY_RUN=1 node scripts/voiceover.mjs",
+    "review": "bash scripts/review.sh out/reel-01.mp4",
+    "typecheck": "tsc -p tsconfig.json"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "devDependencies": {
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",

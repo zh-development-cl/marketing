@@ -31,7 +31,7 @@ export const Reel01: React.FC = () => {
     const Scene = components[key];
     if (i > 0) {
       items.push(
-        <TransitionSeries.Transition key={`t-${key}`} presentation={fade()} timing={linearTiming({durationInFrames: TRANSITION})} />,
+        <TransitionSeries.Transition key={`t-${key}`} presentation={fade({shouldFadeOutExitingScene: true})} timing={linearTiming({durationInFrames: TRANSITION})} />,
       );
     }
     items.push(
