@@ -1,5 +1,5 @@
 import React from 'react';
-import {Img} from 'remotion';
+import {Img, OffthreadVideo} from 'remotion';
 import {accent, fonts, ink, shadow, status} from '../tokens';
 import {formatClock} from './CallBar';
 
@@ -21,6 +21,9 @@ export type CallCardProps = {
   company?: string; // 'Tu Empresa'
   initials?: string; // 'TE'
   avatarSrc?: string; // staticFile('people/lorenzo.jpg')
+  // Captura real de la llamada (foto o video de un Meet con Lorenzo y Nico): ocupa el ancho completo en vez de los dos
+  // recuadros. `startFrom` = frame del video desde el que se reproduce (silenciado).
+  media?: {kind: 'image' | 'video'; src: string; startFrom?: number; label?: string; objectPosition?: string};
   style?: React.CSSProperties;
 };
 
@@ -143,6 +146,7 @@ export const CallCard: React.FC<CallCardProps> = ({
   company = 'Tu Empresa',
   initials = 'TE',
   avatarSrc,
+  media,
   style,
 }) => {
   const d = Math.max(0, Math.min(1.3, done));
@@ -175,7 +179,22 @@ export const CallCard: React.FC<CallCardProps> = ({
         </div>
       </div>
 
+      {media ? (
+        /* Captura real de la llamada (foto o video), a todo el ancho */
+        <div style={{position: 'absolute', left: PAD, top: TILE_TOP, width: CALLCARD_W - PAD * 2, height: TILE_H, borderRadius: 18, overflow: 'hidden', background: '#1A2030', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.06)'}}>
+          {media.kind === 'video' ? (
+            <OffthreadVideo src={media.src} muted startFrom={media.startFrom ?? 0} style={{width: '100%', height: '100%', objectFit: 'cover', objectPosition: media.objectPosition ?? '50% 50%', display: 'block'}} />
+          ) : (
+            <Img src={media.src} style={{width: '100%', height: '100%', objectFit: 'cover', objectPosition: media.objectPosition ?? '50% 50%', display: 'block'}} />
+          )}
+          <div style={{position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0) 45%, rgba(0,0,0,0.42) 100%)'}} />
+          <NameChip text={media.label ?? name} />
+          <LevelBars tick={tick} on={speaking} />
+        </div>
+      ) : null}
+
       {/* Recuadro A: Lorenzo (foto) */}
+      {media ? null : (
       <div style={{position: 'absolute', left: PAD, top: TILE_TOP, width: TILE_W, height: TILE_H, borderRadius: 18, overflow: 'hidden', background: '#2A3140', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.06)'}}>
         {avatarSrc ? <Img src={avatarSrc} style={{width: '100%', height: '100%', objectFit: 'cover', objectPosition: '50% 18%', display: 'block', filter: 'brightness(0.78) contrast(1.06) saturate(0.85)'}} /> : null}
         {/* el fondo blanco de la foto se integra a la paleta oscura: tinte frío multiplicado */}
@@ -186,8 +205,10 @@ export const CallCard: React.FC<CallCardProps> = ({
         <NameChip text={name} />
         <LevelBars tick={tick} on={speaking} />
       </div>
+      )}
 
       {/* Recuadro B: Tu Empresa (sin cámara, iniciales) */}
+      {media ? null : (
       <div
         style={{
           position: 'absolute',
@@ -228,6 +249,7 @@ export const CallCard: React.FC<CallCardProps> = ({
         </div>
         <NameChip text={company} />
       </div>
+      )}
 
       {/* Fila inferior: contador · controles · estado */}
       <div style={{position: 'absolute', left: PAD, right: PAD, top: 392, height: 104, display: 'flex', alignItems: 'center'}}>

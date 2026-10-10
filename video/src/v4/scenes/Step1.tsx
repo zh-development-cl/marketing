@@ -14,6 +14,11 @@ import type {SfxCue} from '../sound';
 // Debajo, una hoja "Notas de la llamada" donde se escriben en vivo, letra a letra, tres hallazgos; cada uno recibe
 // un marcador azul y, a su derecha, una mini tarjeta real (WhatsApp / Excel / factura) como prueba.
 const sc = scenes.step1;
+// Captura real de la llamada (Meet con Lorenzo y Nico). Cuando llegue el archivo, ponerlo en public/people/ y activar:
+//   {kind: 'image', src: 'people/meet.jpg', label: 'Lorenzo y Nico · ZH Development'}  o
+//   {kind: 'video', src: 'people/meet.mp4', startFrom: 0, label: 'Lorenzo y Nico · ZH Development'}
+type Meet = {kind: 'image' | 'video'; src: string; startFrom?: number; label?: string; objectPosition?: string};
+const MEET = null as Meet | null;
 const PRE = 10;
 const POST = 12;
 const L = sc.from - PRE;
@@ -104,7 +109,7 @@ export const Step1: React.FC = () => {
       {showCall ? (
         <Moving x={(f) => tween(f, tIn, tIn + 10, 1400, 0, outExpo) + exitX(f)} y={() => 0} blur={0.3} style={{left: (1080 - CALLCARD_W) / 2, top: 460}}>
           <div style={{width: CALLCARD_W, height: CALLCARD_H}}>
-            <CallCard seconds={seconds} done={done} speaking={speaking} tick={frame} avatarSrc={staticFile('people/lorenzo.jpg')} />
+            <CallCard seconds={seconds} done={done} speaking={speaking} tick={frame} avatarSrc={staticFile('people/lorenzo.jpg')} media={MEET ? {...MEET, src: staticFile(MEET.src)} : undefined} />
           </div>
         </Moving>
       ) : null}
