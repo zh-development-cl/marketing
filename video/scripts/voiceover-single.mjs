@@ -30,7 +30,7 @@ const voPath = path.join(root, 'src', 'v4', 'vo.json');
 const scripts = {
   v5: {
     hook: ['¿Qué es ZH Development?'],
-    day: ['En una pyme, el día se va en lo mismo:', 'cotizar por WhatsApp, cuadrar planillas, perseguir pagos.'],
+    day: ['En tu empresa, el día se va en lo mismo:', 'cotizar por WhatsApp, cuadrar planillas, perseguir pagos.'],
     pitch: ['Hacemos el software que lo resuelve.'],
     step1: ['Partimos con una llamada de 30 minutos', 'para encontrar lo que más tiempo te quita.'],
     step2: ['Después, una propuesta escrita:', 'alcance, plazo y precio. Sin sorpresas.'],

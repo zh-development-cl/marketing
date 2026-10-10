@@ -3,7 +3,7 @@ import {AbsoluteFill, Easing, spring, staticFile, useCurrentFrame, useVideoConfi
 import {Pop, StepTitle} from '../fx/text';
 import {Moving} from '../fx/MotionBlur';
 import {inQuart, outExpo, prog, tween} from '../fx/ease';
-import {CallCard, CALLCARD_H, CALLCARD_W} from '../ui/CallCard';
+import {CallCard, CALLCARD_H3, CALLCARD_W} from '../ui/CallCard';
 import {CallNotes, CALLNOTES_H, CALLNOTES_STACK, CALLNOTES_W} from '../ui/CallNotes';
 import {ExcelCard, InvoiceCard, WhatsAppCard} from '../ui/cards';
 import {beat, beatEnd, scenes} from '../timeline';
@@ -18,7 +18,13 @@ const sc = scenes.step1;
 //   {kind: 'image', src: 'people/meet.jpg', label: 'Lorenzo y Nico · ZH Development'}  o
 //   {kind: 'video', src: 'people/meet.mp4', startFrom: 0, label: 'Lorenzo y Nico · ZH Development'}
 type Meet = {kind: 'image' | 'video'; src: string; startFrom?: number; label?: string; objectPosition?: string};
-const MEET = {kind: 'image', src: 'people/meet.jpg', label: 'Lorenzo y Nico · ZH', objectPosition: '50% 42%'} as Meet | null;
+const MEET = null as Meet | null;
+// Tres recuadros chicos, como un Meet con tres participantes: Lorenzo, Nico y la empresa del cliente a la derecha.
+const TILES = [
+  {src: 'people/meet-lorenzo.jpg', label: 'Lorenzo · ZH', objectPosition: '50% 40%'},
+  {src: 'people/meet-nico.jpg', label: 'Nico · ZH', objectPosition: '50% 40%'},
+  {initials: 'TE', label: 'Tu Empresa'},
+];
 const PRE = 10;
 const POST = 12;
 const L = sc.from - PRE;
@@ -107,15 +113,15 @@ export const Step1: React.FC = () => {
       {/* Videollamada: entra desde la derecha con latigazo, sale a la izquierda con la hoja */}
       {showCall ? (
         <Moving x={(f) => tween(f, tIn, tIn + 10, 1400, 0, outExpo) + exitX(f)} y={() => 0} blur={0.3} style={{left: (1080 - CALLCARD_W) / 2, top: 460}}>
-          <div style={{width: CALLCARD_W, height: CALLCARD_H}}>
-            <CallCard seconds={seconds} done={done} speaking={speaking} tick={frame} avatarSrc={staticFile('people/lorenzo.jpg')} media={MEET ? {...MEET, src: staticFile(MEET.src)} : undefined} />
+          <div style={{width: CALLCARD_W, height: CALLCARD_H3}}>
+            <CallCard seconds={seconds} done={done} speaking={speaking} tick={frame} avatarSrc={staticFile('people/lorenzo.jpg')} media={MEET ? {...MEET, src: staticFile(MEET.src)} : undefined} tiles={TILES.map((t) => ({...t, src: t.src ? staticFile(t.src) : undefined}))} />
           </div>
         </Moving>
       ) : null}
 
       {/* Hoja de notas: sube desde abajo del cuadro, sale a la izquierda con la llamada */}
       {showSheet ? (
-        <Moving x={exitX} y={(f) => tween(f, tSheet, tSheet + 12, 420, 0, outExpo)} blur={0.12} style={{left: (1080 - CALLNOTES_W) / 2, top: 1004}}>
+        <Moving x={exitX} y={(f) => tween(f, tSheet, tSheet + 12, 420, 0, outExpo)} blur={0.12} style={{left: (1080 - CALLNOTES_W) / 2, top: 950}}>
           <div style={{width: CALLNOTES_W + CALLNOTES_STACK, height: CALLNOTES_H + CALLNOTES_STACK}}>
             <CallNotes lines={lines} cursorLine={cursorLine} cursorOn={cursorOn} />
           </div>

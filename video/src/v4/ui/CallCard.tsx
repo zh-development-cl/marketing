@@ -11,6 +11,7 @@ import {formatClock} from './CallBar';
 
 export const CALLCARD_W = 840;
 export const CALLCARD_H = 520;
+export const CALLCARD_H3 = 446; // alto con tres recuadros chicos (Lorenzo · Nico · Tu Empresa)
 
 export type CallCardProps = {
   seconds: number; // segundos transcurridos (mm:ss)
@@ -24,12 +25,15 @@ export type CallCardProps = {
   // Captura real de la llamada (foto o video de un Meet con Lorenzo y Nico): ocupa el ancho completo en vez de los dos
   // recuadros. `startFrom` = frame del video desde el que se reproduce (silenciado).
   media?: {kind: 'image' | 'video'; src: string; startFrom?: number; label?: string; objectPosition?: string};
+  // Tres (o más) recuadros chicos en fila, como un Meet con varios participantes: foto (src) o iniciales.
+  tiles?: Array<{src?: string; initials?: string; label: string; objectPosition?: string}>;
   style?: React.CSSProperties;
 };
 
 const PAD = 24;
 const TILE_W = (CALLCARD_W - PAD * 2 - 16) / 2; // 418
 const TILE_H = 290;
+const TILE_H3 = 214; // alto de los recuadros cuando son tres en fila
 const TILE_TOP = 80;
 
 const ICON = '#FFFFFF';
@@ -77,13 +81,15 @@ const CheckIcon: React.FC<{size?: number; color?: string}> = ({size = 22, color 
 );
 
 // Chip con nombre en la esquina inferior izquierda de un recuadro de video.
-const NameChip: React.FC<{text: string}> = ({text}) => (
+const NameChip: React.FC<{text: string; compact?: boolean}> = ({text, compact}) => (
   <div
     style={{
       position: 'absolute',
-      left: 12,
-      bottom: 12,
-      maxWidth: TILE_W - 24,
+      left: compact ? 8 : 12,
+      bottom: compact ? 8 : 12,
+      maxWidth: compact ? 236 : TILE_W - 24,
+      transform: compact ? 'scale(0.86)' : undefined,
+      transformOrigin: 'left bottom',
       display: 'flex',
       alignItems: 'center',
       gap: 8,
@@ -154,6 +160,7 @@ export const CallCard: React.FC<CallCardProps> = ({
   initials = 'TE',
   avatarSrc,
   media,
+  tiles,
   style,
 }) => {
   const d = Math.max(0, Math.min(1.3, done));
@@ -165,7 +172,7 @@ export const CallCard: React.FC<CallCardProps> = ({
       style={{
         position: 'relative',
         width: CALLCARD_W,
-        height: CALLCARD_H,
+        height: tiles ? CALLCARD_H3 : CALLCARD_H,
         boxSizing: 'border-box',
         borderRadius: 28,
         background: 'linear-gradient(180deg, #161B26 0%, #0F131B 100%)',
@@ -186,7 +193,36 @@ export const CallCard: React.FC<CallCardProps> = ({
         </div>
       </div>
 
-      {media ? (
+      {tiles
+        ? tiles.map((t, i) => {
+            const n = tiles.length;
+            const w = (CALLCARD_W - PAD * 2 - 16 * (n - 1)) / n;
+            const left = PAD + i * (w + 16);
+            return (
+              <div key={i} style={{position: 'absolute', left, top: TILE_TOP, width: w, height: TILE_H3, borderRadius: 16, overflow: 'hidden', background: t.src ? '#1A2030' : 'radial-gradient(ellipse 70% 60% at 50% 42%, #243049 0%, #171C28 60%, #11151E 100%)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.06)'}}>
+                {t.src ? (
+                  <>
+                    <Img src={t.src} style={{width: '100%', height: '100%', objectFit: 'cover', objectPosition: t.objectPosition ?? '50% 45%', display: 'block'}} />
+                    <div style={{position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(0,0,0,0.04) 0%, rgba(0,0,0,0) 45%, rgba(0,0,0,0.45) 100%)'}} />
+                  </>
+                ) : (
+                  <>
+                    <div style={{position: 'absolute', left: w / 2 - 44, top: TILE_H3 / 2 - 44 - 14, width: 88, height: 88, borderRadius: 44, background: `linear-gradient(145deg, #6A95FF 0%, ${accent.button} 60%, #1F4FD6 100%)`, boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.28), 0 12px 26px rgba(0,0,0,0.45), 0 0 34px rgba(48,107,255,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: fonts.display, fontWeight: 700, fontSize: 38, letterSpacing: '-0.03em', color: '#FFFFFF'}}>
+                      {t.initials}
+                    </div>
+                    <div style={{position: 'absolute', right: 10, top: 10, width: 32, height: 32, borderRadius: 16, background: 'rgba(8,10,14,0.72)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                      <CamIcon size={18} off color={ink.text2} />
+                    </div>
+                  </>
+                )}
+                <NameChip text={t.label} compact />
+                {i === 0 ? <LevelBars tick={tick} on={speaking} /> : null}
+              </div>
+            );
+          })
+        : null}
+
+      {media && !tiles ? (
         /* Captura real de la llamada (foto o video), a todo el ancho */
         <div style={{position: 'absolute', left: PAD, top: TILE_TOP, width: CALLCARD_W - PAD * 2, height: TILE_H, borderRadius: 18, overflow: 'hidden', background: '#1A2030', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.06)'}}>
           {media.kind === 'video' ? (
@@ -201,7 +237,7 @@ export const CallCard: React.FC<CallCardProps> = ({
       ) : null}
 
       {/* Recuadro A: Lorenzo (foto) */}
-      {media ? null : (
+      {media || tiles ? null : (
       <div style={{position: 'absolute', left: PAD, top: TILE_TOP, width: TILE_W, height: TILE_H, borderRadius: 18, overflow: 'hidden', background: '#2A3140', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.06)'}}>
         {avatarSrc ? <Img src={avatarSrc} style={{width: '100%', height: '100%', objectFit: 'cover', objectPosition: '50% 18%', display: 'block', filter: 'brightness(0.95) contrast(1.04) saturate(0.95)'}} /> : null}
         {/* el fondo blanco de la foto se integra a la paleta oscura: tinte frío multiplicado */}
@@ -215,7 +251,7 @@ export const CallCard: React.FC<CallCardProps> = ({
       )}
 
       {/* Recuadro B: Tu Empresa (sin cámara, iniciales) */}
-      {media ? null : (
+      {media || tiles ? null : (
       <div
         style={{
           position: 'absolute',
@@ -259,7 +295,7 @@ export const CallCard: React.FC<CallCardProps> = ({
       )}
 
       {/* Fila inferior: contador · controles · estado */}
-      <div style={{position: 'absolute', left: PAD, right: PAD, top: 392, height: 104, display: 'flex', alignItems: 'center'}}>
+      <div style={{position: 'absolute', left: PAD, right: PAD, top: tiles ? TILE_TOP + TILE_H3 + 24 : 392, height: 104, display: 'flex', alignItems: 'center'}}>
         <div style={{width: 250, flexShrink: 0}}>
           <div
             style={{
