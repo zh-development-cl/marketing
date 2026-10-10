@@ -31,7 +31,7 @@ const scripts = {
     chaos: ['mensajes, planillas, correos, cobros…', 'todo a mano.'],
     step1: ['Partimos con una llamada de 30 minutos', 'para encontrar lo que más tiempo te quita.'],
     step2: ['Después, una propuesta escrita:', 'alcance, plazo y precio. Sin sorpresas.'],
-    step3: ['Construimos por etapas, con entregas que puedes probar,', 'y usamos IA solo donde aporta, con revisión humana.'],
+    step3: ['Construimos por etapas, con entregas que puedes probar,', 'y usamos IA con revisión humana.'],
     step4: ['Y todo queda a nombre de tu empresa.'],
     outro: ['ZH Development: software a medida que conecta tu operación.', 'Agenda tu llamada de 30 minutos. Link en la bio.'],
   },

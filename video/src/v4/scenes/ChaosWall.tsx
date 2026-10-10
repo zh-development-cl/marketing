@@ -30,7 +30,7 @@ const tOrderEnd = loc(step1.from) + 14;
 const tTitle = loc(step1.from) - 4;
 const tCall = loc(beat('step1', 'llamada')) - 6; // la barra aparece justo antes de "llamada"
 const tTimer0 = loc(beat('step1', 'llamada'));
-const tTimer1 = loc(beatEnd('step1', 'minutos')) + 2; // llega a 30:00 cuando termina "minutos"
+const tTimer1 = loc(beatEnd('step1', 'quita')) + 4; // llega a 30:00 con la última palabra
 const tOut = loc(step1.to) - 6; // latigazo de salida
 const END = loc(step1.to) + 6;
 
@@ -75,7 +75,7 @@ export const ChaosWall: React.FC = () => {
             grid={WALL}
             spread={560}
             depth={900}
-            camera={(f) => keyframes(f, [[0, 1.0], [tOrderStart, 1.06], [tOrderEnd, 1.0]], inOutQuart)}
+            camera={(f) => keyframes(f, [[0, 1.0], [tOrderStart, 1.06], [tOrderEnd, 1.0], [tOut, 1.035]], inOutQuart)}
           />
           {/* Etiquetas del caos en distintos lugares */}
           {labels.map((l) => (
@@ -87,7 +87,7 @@ export const ChaosWall: React.FC = () => {
           ))}
           <div style={{position: 'absolute', left: 70, top: 1340, zIndex: 3000, opacity: labelsOut}}>
             <BlurIn at={tTodo - 2} dy={24}>
-              <div style={{fontFamily: fonts.hand, fontWeight: 600, fontSize: 150, color: accent.text, transform: 'rotate(-5deg)', textShadow: '0 8px 30px rgba(0,0,0,0.9)'}}>todo a mano</div>
+              <div style={{fontFamily: fonts.hand, fontWeight: 600, fontSize: 170, color: ink.text, transform: 'rotate(-5deg)', textShadow: '0 8px 30px rgba(0,0,0,0.9)'}}>todo a mano</div>
             </BlurIn>
           </div>
           {/* Paso 01 */}

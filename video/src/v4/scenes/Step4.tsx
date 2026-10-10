@@ -23,11 +23,14 @@ const notes = [
 ];
 const noteAt = [tCount0 + 4, tCount0 + 14];
 export const END = loc(sc.to) + 8;
+const tShrink = END - 16; // el teléfono se encoge hasta un punto
+const DOT = {x: 595, y: 589}; // centro del bloque azul del logo en el cierre
 
 export const sfxCues: SfxCue[] = [
   {name: 'whoosh-soft', at: L + tPhone},
   ...noteAt.map((a) => ({name: 'pop' as const, at: L + a, gain: 0.6})),
   {name: 'chime', at: L + tCount1, gain: 0.6},
+  {name: 'whoosh-hard', at: L + tShrink, gain: 0.8},
 ];
 
 export const Step4: React.FC = () => {
@@ -38,9 +41,9 @@ export const Step4: React.FC = () => {
     <AbsoluteFill>
       <StepTitle n="04" title="mejorar" at={tTitle} out={END - 14} top={230} />
       <Moving
-        x={() => PHONE.x}
-        y={(f) => keyframes(f, [[tPhone, PHONE.y + 760], [tPhone + 14, PHONE.y + 150]], outExpo)}
-        scale={() => 0.82}
+        x={(f) => keyframes(f, [[tShrink, PHONE.x], [END - 2, DOT.x - PHONE.w / 2]], inOutQuart)}
+        y={(f) => keyframes(f, [[tPhone, PHONE.y + 760], [tPhone + 14, PHONE.y + 150], [tShrink, PHONE.y + 150], [END - 2, DOT.y]], f < tShrink ? outExpo : inOutQuart)}
+        scale={(f) => keyframes(f, [[tShrink, 0.82], [END - 2, 0.02]], inOutQuart)}
         opacity={(f) => prog(f, tPhone, 6)}
         blur={0.3}
         origin="top center"

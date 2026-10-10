@@ -46,7 +46,7 @@ export const Step2: React.FC = () => {
       {/* Anillo + fichas conectadas */}
       <div style={{position: 'absolute', left: 0, right: 0, top: 560, opacity: ringOut, display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
         <Pop at={tRing} from={0.7}>
-          <Ring progress={ringP} label={ringP >= 1 ? '✓' : `${Math.round(ringP * 100)}%`} sub="propuesta escrita" size={320} />
+          <Ring progress={ringP} label={ringP >= 1 ? '✓' : ''} sub="propuesta escrita" size={320} />
         </Pop>
         {/* Líneas del árbol */}
         <svg width={700} height={110} style={{marginTop: 6}}>
