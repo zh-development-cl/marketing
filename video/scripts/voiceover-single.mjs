@@ -23,6 +23,13 @@ const TAG = process.env.VO_TAG ?? '[confident, warm]'; // una sola etiqueta para
 const STABILITY = Number(process.env.VO_STABILITY || '0.5'); // v3: 0 creativo (más emoción) · 0,5 natural · 1 robusto
 const STYLE = Number(process.env.VO_STYLE || '0'); // solo multilingual_v2: exageración de estilo 0..1 (v3 lo ignora)
 const TREBLE = process.env.VO_TREBLE !== '0'; // realce de agudos en el proceso (VO_TREBLE=0 lo apaga: voz más natural)
+const EQ = process.env.VO_EQ || ''; // filtro ffmpeg extra antes de normalizar (p. ej. corte suave de sibilancia)
+// Pausas extra tras una palabra mostrada: "WhatsApp:0.15,planillas:0.2" agrega silencio en medio del hueco que
+// sigue a la primera aparición de cada palabra (los tiempos por palabra se corren en lo mismo, sin otra pasada de STT).
+const PAUSES = (process.env.VO_PAUSES || '').split(',').filter(Boolean).map((x) => {
+  const [word, sec] = x.split(':');
+  return {word, sec: Number(sec)};
+});
 const TARGET_LUFS = -16;
 const TRUE_PEAK = -1.5;
 const SET = process.env.VO_SET || 'v5';
@@ -78,9 +85,9 @@ const measureI = (file) => {
 };
 const normalize = (input, output) => {
   const filter = `loudnorm=I=${TARGET_LUFS}:TP=${TRUE_PEAK}:LRA=15`;
-  const measured = sh(`ffmpeg -hide_banner -nostats -i "${input}" -af "${filter}:print_format=json" -f null - 2>&1`);
+  const measured = sh(`ffmpeg -hide_banner -nostats -i "${input}" -af "${TREBLE ? 'treble=g=2:f=6000:w=0.7,' : ''}${EQ ? `${EQ},` : ''}${filter}:print_format=json" -f null - 2>&1`);
   const s = JSON.parse(measured.match(/\{[\s\S]*\}/)[0]);
-  ffmpeg(['-i', input, '-af', `${TREBLE ? 'treble=g=2:f=6000:w=0.7,' : ''}${filter}:measured_I=${s.input_i}:measured_TP=${s.input_tp}:measured_LRA=${s.input_lra}:measured_thresh=${s.input_thresh}:offset=${s.target_offset}:linear=true`, '-ar', '44100', '-ac', '1', '-c:a', 'pcm_s16le', output]);
+  ffmpeg(['-i', input, '-af', `${TREBLE ? 'treble=g=2:f=6000:w=0.7,' : ''}${EQ ? `${EQ},` : ''}${filter}:measured_I=${s.input_i}:measured_TP=${s.input_tp}:measured_LRA=${s.input_lra}:measured_thresh=${s.input_thresh}:offset=${s.target_offset}:linear=true`, '-ar', '44100', '-ac', '1', '-c:a', 'pcm_s16le', output]);
   for (let i = 0; i < 3; i++) {
     const got = measureI(output);
     if (Math.abs(got - TARGET_LUFS) <= 0.3) break;
@@ -141,11 +148,23 @@ ffmpeg(['-i', raw, '-af', TEMPO !== 1 ? `atempo=${TEMPO}` : 'anull', '-ar', '441
 const master = path.join(tmp, 'take-norm.wav');
 normalize(stretched, master);
 fs.mkdirSync(outDir, {recursive: true});
-const takeDur = Number(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', master]).toString().trim());
-ffmpeg(['-i', master, '-af', 'afade=t=out:st=' + Math.max(0, takeDur - 0.08).toFixed(3) + ':d=0.08', '-c:a', 'pcm_s16le', path.join(outDir, 'toma-completa.wav')]); // misma cola suave al final de la toma
-
 // ---------- 2. Palabras sobre el audio final ----------
 const heard = process.env.VO_DRY_RUN ? [] : await transcribe(master);
+// Pausas extra (de atrás hacia adelante, para que los tiempos de las anteriores sigan valiendo).
+const inserts = PAUSES.map(({word, sec}) => {
+  const i = heard.findIndex((w) => strip(w.text) === strip(word));
+  if (i < 0 || i + 1 >= heard.length) throw new Error(`VO_PAUSES: no encontré "${word}" en la toma`);
+  return {word, sec, at: (heard[i].end + heard[i + 1].start) / 2};
+}).sort((a, b) => b.at - a.at);
+for (const {word, sec, at} of inserts) {
+  const padded = `${master}.pad.wav`;
+  ffmpeg(['-i', master, '-filter_complex', `[0:a]atrim=0:${at.toFixed(4)},asetpts=PTS-STARTPTS[a];anullsrc=r=44100:cl=mono,atrim=0:${sec}[z];[0:a]atrim=${at.toFixed(4)},asetpts=PTS-STARTPTS[b];[a][z][b]concat=n=3:v=0:a=1[o]`, '-map', '[o]', '-ar', '44100', '-ac', '1', '-c:a', 'pcm_s16le', padded]);
+  fs.renameSync(padded, master);
+  for (const w of heard) if (w.start >= at) { w.start += sec; w.end += sec; }
+  console.log(`pausa +${sec} s tras "${word}" (en ${at.toFixed(2)} s)`);
+}
+const takeDur = Number(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', master]).toString().trim());
+ffmpeg(['-i', master, '-af', 'afade=t=out:st=' + Math.max(0, takeDur - 0.08).toFixed(3) + ':d=0.08', '-c:a', 'pcm_s16le', path.join(outDir, 'toma-completa.wav')]); // misma cola suave al final de la toma
 let k = 0;
 const warnings = [];
 const perScene = {};
@@ -181,7 +200,7 @@ if (warnings.length) console.warn(warnings.join('\n'));
 
 // ---------- 3. Corte por escena ----------
 const total = Number(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', master]).toString().trim());
-const result = {voiceId, model: MODEL, tempo: TEMPO, take: TAKE, tag: TAG, stability: STABILITY, style: STYLE, treble: TREBLE, targetLufs: TARGET_LUFS, single: true, scenes: {}};
+const result = {voiceId, model: MODEL, tempo: TEMPO, take: TAKE, tag: TAG, stability: STABILITY, style: STYLE, treble: TREBLE, eq: EQ, pauses: PAUSES, targetLufs: TARGET_LUFS, single: true, scenes: {}};
 order.forEach((scene, i) => {
   const caps = perScene[scene];
   const first = caps[0].start;

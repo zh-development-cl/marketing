@@ -1,44 +1,63 @@
 {
-  "voiceId": "HkBAWtIjRg1c5ST2J7To",
+  "voiceId": "VvYiNBPylZtUh8Bf6u8l",
   "model": "eleven_v3",
   "tempo": 1,
   "take": "1",
+  "tag": "",
+  "stability": 0.5,
+  "style": 0,
+  "treble": false,
+  "eq": "equalizer=f=7500:t=q:w=1.5:g=-2.5,highshelf=f=10000:g=-2",
+  "pauses": [
+    {
+      "word": "WhatsApp",
+      "sec": 0.15
+    },
+    {
+      "word": "planillas",
+      "sec": 0.2
+    },
+    {
+      "word": "precio",
+      "sec": 0.3
+    }
+  ],
   "targetLufs": -16,
   "single": true,
   "scenes": {
     "hook": {
       "file": "vo-v5/hook.wav",
-      "duration": 2.66,
+      "duration": 2.26,
       "captions": [
         {
           "text": "¿Qué hacemos en ZH Development?",
-          "start": 0.02,
-          "end": 2.66,
+          "start": 0.08,
+          "end": 2.26,
           "words": [
             {
               "text": "¿Qué",
-              "start": 0.02,
-              "end": 0.2
+              "start": 0.08,
+              "end": 0.22
             },
             {
               "text": "hacemos",
-              "start": 0.22,
-              "end": 0.78
+              "start": 0.24,
+              "end": 0.74
             },
             {
               "text": "en",
-              "start": 0.82,
-              "end": 1.06
+              "start": 0.8,
+              "end": 0.92
             },
             {
               "text": "ZH",
-              "start": 1.12,
-              "end": 1.84
+              "start": 1,
+              "end": 1.56
             },
             {
               "text": "Development?",
-              "start": 1.88,
-              "end": 2.66
+              "start": 1.6,
+              "end": 2.26
             }
           ]
         }
@@ -46,12 +65,12 @@
     },
     "day": {
       "file": "vo-v5/day.wav",
-      "duration": 7.18,
+      "duration": 6.11,
       "captions": [
         {
           "text": "En tu empresa, el día se va en lo mismo:",
           "start": 0.12,
-          "end": 2.44,
+          "end": 2.14,
           "words": [
             {
               "text": "En",
@@ -60,90 +79,90 @@
             },
             {
               "text": "tu",
-              "start": 0.26,
+              "start": 0.24,
               "end": 0.32
             },
             {
               "text": "empresa,",
               "start": 0.34,
-              "end": 0.84
+              "end": 0.78
             },
             {
               "text": "el",
-              "start": 1.16,
-              "end": 1.22
+              "start": 1.04,
+              "end": 1.1
             },
             {
               "text": "día",
-              "start": 1.28,
-              "end": 1.48
+              "start": 1.16,
+              "end": 1.3
             },
             {
               "text": "se",
-              "start": 1.58,
-              "end": 1.7
+              "start": 1.36,
+              "end": 1.46
             },
             {
               "text": "va",
-              "start": 1.74,
-              "end": 1.82
+              "start": 1.5,
+              "end": 1.58
             },
             {
               "text": "en",
-              "start": 1.84,
-              "end": 1.92
+              "start": 1.62,
+              "end": 1.68
             },
             {
               "text": "lo",
-              "start": 1.94,
-              "end": 2.02
+              "start": 1.72,
+              "end": 1.78
             },
             {
               "text": "mismo:",
-              "start": 2.1,
-              "end": 2.44
+              "start": 1.84,
+              "end": 2.14
             }
           ]
         },
         {
           "text": "cotizar por WhatsApp, cuadrar planillas, perseguir pagos.",
-          "start": 3.1,
-          "end": 7.18,
+          "start": 2.48,
+          "end": 6.11,
           "words": [
             {
               "text": "cotizar",
-              "start": 3.1,
-              "end": 3.5
+              "start": 2.48,
+              "end": 2.88
             },
             {
               "text": "por",
-              "start": 3.58,
-              "end": 3.7
+              "start": 2.94,
+              "end": 3.06
             },
             {
               "text": "WhatsApp,",
-              "start": 3.74,
-              "end": 4.28
+              "start": 3.1,
+              "end": 3.54
             },
             {
               "text": "cuadrar",
-              "start": 4.72,
-              "end": 5.1
+              "start": 3.93,
+              "end": 4.23
             },
             {
               "text": "planillas,",
-              "start": 5.18,
-              "end": 5.86
+              "start": 4.31,
+              "end": 4.87
             },
             {
               "text": "perseguir",
-              "start": 6.26,
-              "end": 6.64
+              "start": 5.27,
+              "end": 5.67
             },
             {
               "text": "pagos.",
-              "start": 6.74,
-              "end": 7.18
+              "start": 5.75,
+              "end": 6.11
             }
           ]
         }
@@ -151,42 +170,42 @@
     },
     "pitch": {
       "file": "vo-v5/pitch.wav",
-      "duration": 2.18,
+      "duration": 1.82,
       "captions": [
         {
           "text": "Hacemos el software que lo resuelve.",
           "start": 0.12,
-          "end": 2.18,
+          "end": 1.82,
           "words": [
             {
               "text": "Hacemos",
               "start": 0.12,
-              "end": 0.54
+              "end": 0.52
             },
             {
               "text": "el",
-              "start": 0.6,
-              "end": 0.68
+              "start": 0.56,
+              "end": 0.64
             },
             {
               "text": "software",
-              "start": 0.8,
-              "end": 1.36
+              "start": 0.76,
+              "end": 1.14
             },
             {
               "text": "que",
-              "start": 1.4,
-              "end": 1.48
+              "start": 1.16,
+              "end": 1.22
             },
             {
               "text": "lo",
-              "start": 1.52,
-              "end": 1.62
+              "start": 1.26,
+              "end": 1.32
             },
             {
               "text": "resuelve.",
-              "start": 1.66,
-              "end": 2.18
+              "start": 1.36,
+              "end": 1.82
             }
           ]
         }
@@ -194,94 +213,94 @@
     },
     "step1": {
       "file": "vo-v5/step1.wav",
-      "duration": 4.98,
+      "duration": 4.28,
       "captions": [
         {
           "text": "Partimos con una llamada de 30 minutos",
           "start": 0.12,
-          "end": 2.6,
+          "end": 2.3,
           "words": [
             {
               "text": "Partimos",
               "start": 0.12,
-              "end": 0.7
+              "end": 0.56
             },
             {
               "text": "con",
-              "start": 0.74,
-              "end": 0.86
+              "start": 0.58,
+              "end": 0.7
             },
             {
               "text": "una",
-              "start": 0.9,
-              "end": 1.02
+              "start": 0.74,
+              "end": 0.84
             },
             {
               "text": "llamada",
-              "start": 1.06,
-              "end": 1.44
+              "start": 0.9,
+              "end": 1.24
             },
             {
               "text": "de",
-              "start": 1.48,
-              "end": 1.64
+              "start": 1.28,
+              "end": 1.34
             },
             {
               "text": "30",
-              "start": 1.68,
-              "end": 2
+              "start": 1.46,
+              "end": 1.74
             },
             {
               "text": "minutos",
-              "start": 2.079,
-              "end": 2.6
+              "start": 1.82,
+              "end": 2.3
             }
           ]
         },
         {
           "text": "para encontrar lo que más tiempo te quita.",
-          "start": 2.72,
-          "end": 4.98,
+          "start": 2.32,
+          "end": 4.28,
           "words": [
             {
               "text": "para",
-              "start": 2.72,
-              "end": 2.86
+              "start": 2.32,
+              "end": 2.44
             },
             {
               "text": "encontrar",
-              "start": 2.88,
-              "end": 3.42
+              "start": 2.46,
+              "end": 2.9
             },
             {
               "text": "lo",
-              "start": 3.46,
-              "end": 3.52
+              "start": 2.94,
+              "end": 2.98
             },
             {
               "text": "que",
-              "start": 3.64,
-              "end": 3.78
+              "start": 3.1,
+              "end": 3.24
             },
             {
               "text": "más",
-              "start": 3.9,
-              "end": 4.14
+              "start": 3.3,
+              "end": 3.5
             },
             {
               "text": "tiempo",
-              "start": 4.18,
-              "end": 4.46
+              "start": 3.54,
+              "end": 3.799
             },
             {
               "text": "te",
-              "start": 4.52,
-              "end": 4.64
+              "start": 3.86,
+              "end": 3.98
             },
             {
               "text": "quita.",
-              "start": 4.68,
-              "end": 4.98
+              "start": 4,
+              "end": 4.28
             }
           ]
         }
@@ -289,69 +308,69 @@
     },
     "step2": {
       "file": "vo-v5/step2.wav",
-      "duration": 5.88,
+      "duration": 5.66,
       "captions": [
         {
           "text": "Después, una propuesta escrita:",
           "start": 0.12,
-          "end": 1.94,
+          "end": 1.92,
           "words": [
             {
               "text": "Después,",
               "start": 0.12,
-              "end": 0.64
+              "end": 0.6
             },
             {
               "text": "una",
-              "start": 0.88,
-              "end": 0.98
+              "start": 0.84,
+              "end": 0.96
             },
             {
               "text": "propuesta",
-              "start": 1.06,
-              "end": 1.46
+              "start": 1.04,
+              "end": 1.44
             },
             {
               "text": "escrita:",
-              "start": 1.5,
-              "end": 1.94
+              "start": 1.48,
+              "end": 1.92
             }
           ]
         },
         {
           "text": "alcance, plazo y precio. Sin sorpresas.",
-          "start": 2.48,
-          "end": 5.88,
+          "start": 2.52,
+          "end": 5.66,
           "words": [
             {
               "text": "alcance,",
-              "start": 2.48,
+              "start": 2.52,
               "end": 3.1
             },
             {
               "text": "plazo",
               "start": 3.32,
-              "end": 3.74
-            },
-            {
-              "text": "y",
-              "start": 3.76,
               "end": 3.8
             },
             {
+              "text": "y",
+              "start": 3.84,
+              "end": 3.88
+            },
+            {
               "text": "precio.",
-              "start": 3.9,
-              "end": 4.34
+              "start": 3.96,
+              "end": 4.32
             },
             {
               "text": "Sin",
               "start": 4.9,
-              "end": 5.08
+              "end": 5.02
             },
             {
               "text": "sorpresas.",
-              "start": 5.18,
-              "end": 5.88
+              "start": 5.08,
+              "end": 5.66
             }
           ]
         }
@@ -359,89 +378,89 @@
     },
     "step3": {
       "file": "vo-v5/step3.wav",
-      "duration": 6.98,
+      "duration": 6.42,
       "captions": [
         {
           "text": "Construimos por etapas, con entregas que puedes probar,",
           "start": 0.12,
-          "end": 3.26,
+          "end": 3.06,
           "words": [
             {
               "text": "Construimos",
               "start": 0.12,
-              "end": 0.78
+              "end": 0.76
             },
             {
               "text": "por",
-              "start": 0.86,
-              "end": 0.96
+              "start": 0.78,
+              "end": 0.88
             },
             {
               "text": "etapas,",
-              "start": 1,
-              "end": 1.52
+              "start": 0.92,
+              "end": 1.38
             },
             {
               "text": "con",
-              "start": 1.86,
-              "end": 1.96
+              "start": 1.72,
+              "end": 1.84
             },
             {
               "text": "entregas",
-              "start": 2,
-              "end": 2.44
+              "start": 1.88,
+              "end": 2.26
             },
             {
               "text": "que",
-              "start": 2.5,
-              "end": 2.62
+              "start": 2.32,
+              "end": 2.44
             },
             {
               "text": "puedes",
-              "start": 2.64,
-              "end": 2.92
+              "start": 2.46,
+              "end": 2.76
             },
             {
               "text": "probar,",
-              "start": 2.96,
-              "end": 3.26
+              "start": 2.78,
+              "end": 3.06
             }
           ]
         },
         {
           "text": "y usamos IA con revisión humana.",
-          "start": 3.74,
-          "end": 6.98,
+          "start": 3.6,
+          "end": 6.42,
           "words": [
             {
               "text": "y",
-              "start": 3.74,
-              "end": 3.78
+              "start": 3.6,
+              "end": 3.64
             },
             {
               "text": "usamos",
-              "start": 3.84,
-              "end": 4.4
+              "start": 3.68,
+              "end": 4.1
             },
             {
               "text": "IA",
-              "start": 4.46,
-              "end": 5.88
+              "start": 4.16,
+              "end": 5.48
             },
             {
               "text": "con",
-              "start": 5.98,
-              "end": 6.1
+              "start": 5.5,
+              "end": 5.62
             },
             {
               "text": "revisión",
-              "start": 6.16,
-              "end": 6.58
+              "start": 5.66,
+              "end": 6.04
             },
             {
               "text": "humana.",
-              "start": 6.6,
-              "end": 6.98
+              "start": 6.06,
+              "end": 6.42
             }
           ]
         }
@@ -449,52 +468,52 @@
     },
     "step4": {
       "file": "vo-v5/step4.wav",
-      "duration": 2.38,
+      "duration": 1.92,
       "captions": [
         {
           "text": "Y todo queda a nombre de tu empresa.",
           "start": 0.12,
-          "end": 2.38,
+          "end": 1.92,
           "words": [
             {
               "text": "Y",
               "start": 0.12,
-              "end": 0.18
+              "end": 0.16
             },
             {
               "text": "todo",
-              "start": 0.4,
-              "end": 0.72
+              "start": 0.32,
+              "end": 0.54
             },
             {
               "text": "queda",
-              "start": 0.86,
-              "end": 1.12
+              "start": 0.64,
+              "end": 0.84
             },
             {
               "text": "a",
-              "start": 1.14,
-              "end": 1.22
+              "start": 0.88,
+              "end": 0.9
             },
             {
               "text": "nombre",
-              "start": 1.32,
-              "end": 1.64
+              "start": 0.98,
+              "end": 1.24
             },
             {
               "text": "de",
-              "start": 1.68,
-              "end": 1.74
+              "start": 1.26,
+              "end": 1.34
             },
             {
               "text": "tu",
-              "start": 1.8,
-              "end": 1.88
+              "start": 1.38,
+              "end": 1.439
             },
             {
               "text": "empresa.",
-              "start": 1.9,
-              "end": 2.38
+              "start": 1.48,
+              "end": 1.92
             }
           ]
         }
@@ -502,104 +521,104 @@
     },
     "outro": {
       "file": "vo-v5/outro.wav",
-      "duration": 8.36,
+      "duration": 7.62,
       "captions": [
         {
           "text": "ZH Development: software a medida que conecta tu operación.",
           "start": 0.12,
-          "end": 4.92,
+          "end": 4.1,
           "words": [
             {
               "text": "ZH",
               "start": 0.12,
-              "end": 0.84
+              "end": 0.7
             },
             {
               "text": "Development:",
-              "start": 0.88,
-              "end": 1.6
+              "start": 0.72,
+              "end": 1.38
             },
             {
               "text": "software",
-              "start": 2.2,
-              "end": 2.62
+              "start": 1.92,
+              "end": 2.26
             },
             {
               "text": "a",
-              "start": 2.66,
-              "end": 2.68
+              "start": 2.3,
+              "end": 2.32
             },
             {
               "text": "medida",
-              "start": 2.74,
-              "end": 3.14
+              "start": 2.38,
+              "end": 2.72
             },
             {
               "text": "que",
-              "start": 3.48,
-              "end": 3.62
+              "start": 2.82,
+              "end": 2.92
             },
             {
               "text": "conecta",
-              "start": 3.66,
-              "end": 4.1
+              "start": 2.96,
+              "end": 3.36
             },
             {
               "text": "tu",
-              "start": 4.18,
-              "end": 4.28
+              "start": 3.38,
+              "end": 3.46
             },
             {
               "text": "operación.",
-              "start": 4.32,
-              "end": 4.92
+              "start": 3.5,
+              "end": 4.1
             }
           ]
         },
         {
           "text": "Agenda tu llamada de 30 minutos. ¿Qué esperas?",
-          "start": 5.64,
-          "end": 8.36,
+          "start": 4.86,
+          "end": 7.62,
           "words": [
             {
               "text": "Agenda",
-              "start": 5.64,
-              "end": 5.98
+              "start": 4.86,
+              "end": 5.2
             },
             {
               "text": "tu",
-              "start": 6.02,
-              "end": 6.08
+              "start": 5.22,
+              "end": 5.28
             },
             {
               "text": "llamada",
-              "start": 6.12,
-              "end": 6.48
+              "start": 5.32,
+              "end": 5.66
             },
             {
               "text": "de",
-              "start": 6.52,
-              "end": 6.64
+              "start": 5.7,
+              "end": 5.8
             },
             {
               "text": "30",
-              "start": 6.66,
-              "end": 6.94
+              "start": 5.82,
+              "end": 6.06
             },
             {
               "text": "minutos.",
-              "start": 7,
-              "end": 7.5
+              "start": 6.14,
+              "end": 6.62
             },
             {
               "text": "¿Qué",
-              "start": 7.76,
-              "end": 7.86
+              "start": 6.94,
+              "end": 7.08
             },
             {
               "text": "esperas?",
-              "start": 7.9,
-              "end": 8.36
+              "start": 7.14,
+              "end": 7.62
             }
           ]
         }
