@@ -8,3 +8,6 @@ renders/
 .env.*
 video/node_modules/
 video/out/
+
+# Tomas de casting de voz (material de prueba; la elegida se copia a vo-v5)
+video/public/vo-cast-*/
