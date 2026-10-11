@@ -155,7 +155,9 @@ const build = (): DayCard[] => {
     const ev: DayEvent = {time: `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`, kind: x.kind, variant: x.variant, col: x.col, add: x.add};
     const {w, h, node} = makeNode(ev, `x${k}`);
     const side = hash(k, 66); // desde dónde entra
-    const from = side < 0.4 ? {dx: 1200, dy: 0, drot: 24} : side < 0.8 ? {dx: -1200, dy: 0, drot: -24} : {dx: -700, dy: -600, drot: 18};
+    // Las que entran por arriba a la izquierda salen desde lo bastante lejos para que su primer frame quede fuera de
+    // cuadro (con -700/-600 dos tarjetas nacían un frame nítidas dentro de la pantalla antes de despegar).
+    const from = side < 0.4 ? {dx: 1200, dy: 0, drot: 24} : side < 0.8 ? {dx: -1200, dy: 0, drot: -24} : {dx: -1100, dy: -700, drot: 18};
     list.push({w, h, node, ev, at, extra: true, heap: extraHeap(k, w, h), from});
   });
   // Orden de llegada (estable): define el apilado en el montón.

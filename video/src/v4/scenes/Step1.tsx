@@ -56,9 +56,9 @@ export const sfxCues: SfxCue[] = [
   {name: 'pop', at: L + tJoin + 6, gain: 0.45}, // Tu Empresa se une
   {name: 'whoosh-soft', at: L + tSheet - 2, gain: 0.6},
   {name: 'paper', at: L + tSheet + 6, gain: 0.5},
-  ...LINES.flatMap((l, li) => tickFrames(l).map((t) => ({name: 'tick' as const, at: L + t, gain: li === LINES.length - 1 ? 0.15 : 0.25}))),
+  ...LINES.flatMap((l, li) => tickFrames(l).map((t) => ({name: 'tick' as const, at: L + t, gain: li === LINES.length - 1 ? 0.08 : 0.25}))),
   ...LINES.map((l) => ({name: 'pop' as const, at: L + lineEnd(l), gain: 0.6})),
-  {name: 'chime', at: L + tCount1, gain: 0.45}, // bajo "quita": la palabra manda
+  {name: 'chime', at: L + tCount1, gain: 0.2}, // bajo "quita": la palabra manda (a 0,45 tapaba "te quita")
   {name: 'whip', at: L + tOut},
 ];
 
