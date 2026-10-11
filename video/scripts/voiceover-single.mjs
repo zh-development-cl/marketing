@@ -20,6 +20,7 @@ const MODEL = process.env.VO_MODEL || 'eleven_v3';
 const TEMPO = Number(process.env.VO_TEMPO || '1.2');
 const TAKE = process.env.VO_TAKE || '1';
 const TAG = process.env.VO_TAG || '[confident, warm]'; // una sola etiqueta para toda la toma
+const STABILITY = Number(process.env.VO_STABILITY || '0.5'); // v3: 0 creativo (más emoción) · 0,5 natural · 1 robusto
 const TARGET_LUFS = -16;
 const TRUE_PEAK = -1.5;
 const SET = process.env.VO_SET || 'v5';
@@ -39,7 +40,8 @@ const scripts = {
     outro: ['ZH Development: software a medida que conecta tu operación.', 'Agenda tu llamada de 30 minutos. ¿Qué esperas?'],
   },
 };
-const script = scripts[SET];
+const SCRIPT = process.env.VO_SCRIPT || 'v5'; // versión del guion (VO_SET solo decide la carpeta de salida)
+const script = scripts[SCRIPT] ?? scripts[SET];
 const pronounce = {ZH: 'Zeta Hache', '30': 'treinta', IA: 'inteligencia artificial'};
 // Formas en que el STT puede devolver cada palabra mostrada.
 const forms = {ZH: ['zeta hache', 'zeta ache', 'zh', 'zeta eich', 'zeta age'], '30': ['treinta', '30'], IA: ['inteligencia artificial', 'ia']};
@@ -115,7 +117,7 @@ if (process.env.VO_DRY_RUN) {
 } else {
   const cacheDir = path.join(os.tmpdir(), 'zh-vo-raw');
   fs.mkdirSync(cacheDir, {recursive: true});
-  const cacheKey = createHash('sha1').update([voiceId, MODEL, fullText, TAKE].join('|')).digest('hex');
+  const cacheKey = createHash('sha1').update([voiceId, MODEL, fullText, TAKE, STABILITY].join('|')).digest('hex');
   const cachePath = path.join(cacheDir, `single-${cacheKey}.mp3`);
   if (fs.existsSync(cachePath)) {
     fs.copyFileSync(cachePath, raw);
@@ -124,7 +126,7 @@ if (process.env.VO_DRY_RUN) {
     const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}?output_format=mp3_44100_128`, {
       method: 'POST',
       headers: {'xi-api-key': key, 'content-type': 'application/json'},
-      body: JSON.stringify({text: fullText, model_id: MODEL, voice_settings: {stability: 0.5, similarity_boost: 0.8, use_speaker_boost: true}}),
+      body: JSON.stringify({text: fullText, model_id: MODEL, voice_settings: {stability: STABILITY, similarity_boost: 0.8, use_speaker_boost: true}}),
     });
     if (!res.ok) throw new Error(`TTS ${res.status}: ${await res.text()}`);
     fs.writeFileSync(raw, Buffer.from(await res.arrayBuffer()));
@@ -177,7 +179,7 @@ if (warnings.length) console.warn(warnings.join('\n'));
 
 // ---------- 3. Corte por escena ----------
 const total = Number(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', master]).toString().trim());
-const result = {voiceId, model: MODEL, tempo: TEMPO, take: TAKE, targetLufs: TARGET_LUFS, single: true, scenes: {}};
+const result = {voiceId, model: MODEL, tempo: TEMPO, take: TAKE, tag: TAG, stability: STABILITY, targetLufs: TARGET_LUFS, single: true, scenes: {}};
 order.forEach((scene, i) => {
   const caps = perScene[scene];
   const first = caps[0].start;
