@@ -19,8 +19,10 @@ const voiceId = process.argv[2] || 'HkBAWtIjRg1c5ST2J7To'; // JC - Motivational 
 const MODEL = process.env.VO_MODEL || 'eleven_v3';
 const TEMPO = Number(process.env.VO_TEMPO || '1.2');
 const TAKE = process.env.VO_TAKE || '1';
-const TAG = process.env.VO_TAG || '[confident, warm]'; // una sola etiqueta para toda la toma
+const TAG = process.env.VO_TAG ?? '[confident, warm]'; // una sola etiqueta para toda la toma (VO_TAG='' = sin etiqueta)
 const STABILITY = Number(process.env.VO_STABILITY || '0.5'); // v3: 0 creativo (más emoción) · 0,5 natural · 1 robusto
+const STYLE = Number(process.env.VO_STYLE || '0'); // solo multilingual_v2: exageración de estilo 0..1 (v3 lo ignora)
+const TREBLE = process.env.VO_TREBLE !== '0'; // realce de agudos en el proceso (VO_TREBLE=0 lo apaga: voz más natural)
 const TARGET_LUFS = -16;
 const TRUE_PEAK = -1.5;
 const SET = process.env.VO_SET || 'v5';
@@ -78,7 +80,7 @@ const normalize = (input, output) => {
   const filter = `loudnorm=I=${TARGET_LUFS}:TP=${TRUE_PEAK}:LRA=15`;
   const measured = sh(`ffmpeg -hide_banner -nostats -i "${input}" -af "${filter}:print_format=json" -f null - 2>&1`);
   const s = JSON.parse(measured.match(/\{[\s\S]*\}/)[0]);
-  ffmpeg(['-i', input, '-af', `treble=g=2:f=6000:w=0.7,${filter}:measured_I=${s.input_i}:measured_TP=${s.input_tp}:measured_LRA=${s.input_lra}:measured_thresh=${s.input_thresh}:offset=${s.target_offset}:linear=true`, '-ar', '44100', '-ac', '1', '-c:a', 'pcm_s16le', output]);
+  ffmpeg(['-i', input, '-af', `${TREBLE ? 'treble=g=2:f=6000:w=0.7,' : ''}${filter}:measured_I=${s.input_i}:measured_TP=${s.input_tp}:measured_LRA=${s.input_lra}:measured_thresh=${s.input_thresh}:offset=${s.target_offset}:linear=true`, '-ar', '44100', '-ac', '1', '-c:a', 'pcm_s16le', output]);
   for (let i = 0; i < 3; i++) {
     const got = measureI(output);
     if (Math.abs(got - TARGET_LUFS) <= 0.3) break;
@@ -107,7 +109,7 @@ const transcribe = async (file) => {
 const order = Object.keys(script);
 const shown = Object.fromEntries(order.map((k) => [k, script[k].map((seg) => seg.split(/\s+/).filter(Boolean))]));
 const spokenScene = (k) => shown[k].map((ws) => ws.map(spokenFor).join(' ')).join(' ');
-const fullText = `${TAG} ${order.map(spokenScene).join('\n\n')}`;
+const fullText = `${TAG ? `${TAG} ` : ''}${order.map(spokenScene).join('\n\n')}`;
 console.log(`texto (${fullText.length} caracteres):\n${fullText}\n`);
 
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'vo1-'));
@@ -117,7 +119,7 @@ if (process.env.VO_DRY_RUN) {
 } else {
   const cacheDir = path.join(os.tmpdir(), 'zh-vo-raw');
   fs.mkdirSync(cacheDir, {recursive: true});
-  const cacheKey = createHash('sha1').update([voiceId, MODEL, fullText, TAKE, STABILITY].join('|')).digest('hex');
+  const cacheKey = createHash('sha1').update([voiceId, MODEL, fullText, TAKE, STABILITY, ...(STYLE ? [STYLE] : [])].join('|')).digest('hex');
   const cachePath = path.join(cacheDir, `single-${cacheKey}.mp3`);
   if (fs.existsSync(cachePath)) {
     fs.copyFileSync(cachePath, raw);
@@ -126,7 +128,7 @@ if (process.env.VO_DRY_RUN) {
     const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}?output_format=mp3_44100_128`, {
       method: 'POST',
       headers: {'xi-api-key': key, 'content-type': 'application/json'},
-      body: JSON.stringify({text: fullText, model_id: MODEL, voice_settings: {stability: STABILITY, similarity_boost: 0.8, use_speaker_boost: true}}),
+      body: JSON.stringify({text: fullText, model_id: MODEL, voice_settings: {stability: STABILITY, similarity_boost: 0.8, use_speaker_boost: true, ...(MODEL === 'eleven_v3' ? {} : {style: STYLE})}}),
     });
     if (!res.ok) throw new Error(`TTS ${res.status}: ${await res.text()}`);
     fs.writeFileSync(raw, Buffer.from(await res.arrayBuffer()));
@@ -179,7 +181,7 @@ if (warnings.length) console.warn(warnings.join('\n'));
 
 // ---------- 3. Corte por escena ----------
 const total = Number(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', master]).toString().trim());
-const result = {voiceId, model: MODEL, tempo: TEMPO, take: TAKE, tag: TAG, stability: STABILITY, targetLufs: TARGET_LUFS, single: true, scenes: {}};
+const result = {voiceId, model: MODEL, tempo: TEMPO, take: TAKE, tag: TAG, stability: STABILITY, style: STYLE, treble: TREBLE, targetLufs: TARGET_LUFS, single: true, scenes: {}};
 order.forEach((scene, i) => {
   const caps = perScene[scene];
   const first = caps[0].start;
