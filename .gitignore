@@ -6,3 +6,5 @@ renders/
 *.mov
 .env
 .env.*
+crm/dev/preview.html
+crm/dev/shots/
