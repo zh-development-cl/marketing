@@ -83,6 +83,9 @@ const ok = (cond, msg) => { if (!cond) errors.push("falló: " + msg); else notes
   await page.getByRole("button", { name: "Contestó", exact: true }).click();
   await page.fill("#c-notas", "Coordina despachos con planillas y WhatsApp. Quiere ver el estado de cada pedido.");
   await page.fill("#c-dur", "12");
+  await page.getByRole("button", { name: "Agregar transcripción" }).click();
+  await page.fill("#c-trans", "Lorenzo: Te aviso que voy a grabar la llamada para tomar notas.\nCarolina: Dale, no hay problema.\nCarolina: Hoy los despachos los vemos en una planilla y por WhatsApp.");
+  await page.check("#c-avisada");
   await page.getByRole("button", { name: "Analizar con Claude" }).click();
   await page.locator(".work .analysis").waitFor();
   await shot(page, "03-analisis.png");
@@ -142,6 +145,15 @@ const ok = (cond, msg) => { if (!cond) errors.push("falló: " + msg); else notes
   ok((await page.locator("table.leads tbody tr").count()) === 1, "la búsqueda por teléfono funciona");
   await page.fill("#buscar", "");
 
+  await page.locator("table.leads tbody tr", { hasText: "Matías Rojas" }).click();
+  await page.locator("#lead-title", { hasText: "Matías Rojas" }).waitFor();
+  await page.locator("details.data summary").click();
+  await page.check("#l-nocontactar");
+  await toast(page, "Marcado como no contactar.");
+  ok(await page.locator(".drawer .note.bad", { hasText: "Pidió no ser contactado" }).isVisible(), "la ficha avisa que no hay que contactarlo");
+  ok((await page.locator(".work-tabs button", { hasText: "Redactar con Claude" }).count()) === 0, "sin redactar ni llamar para quien pidió no ser contactado");
+  await page.keyboard.press("Escape");
+
   await page.locator(".side .nav button", { hasText: "Embudo" }).click();
   await page.locator(".board .col").first().waitFor();
   await shot(page, "08-embudo.png");
@@ -152,6 +164,7 @@ const ok = (cond, msg) => { if (!cond) errors.push("falló: " + msg); else notes
   await shot(page, "09-borradores.png");
   await page.locator(".side .nav button", { hasText: "Hoy" }).click();
   await page.waitForTimeout(150);
+  ok((await page.locator(".panel", { hasText: "Nuevos por contactar" }).locator(".lrow").count()) === 1, "quien pidió no ser contactado sale de Hoy");
   await shot(page, "10-hoy.png");
   await noOverflow(page, "escritorio");
 
@@ -169,6 +182,9 @@ const ok = (cond, msg) => { if (!cond) errors.push("falló: " + msg); else notes
   ok(count("actividades") >= 3, `actividades registradas (${count("actividades")})`);
   const lead = Object.values(dump).find((d) => d.nombre === "Carolina Pérez");
   ok(lead && lead.telefono === "+56912345678" && lead.cargo === "Jefa de operaciones", "el lead guarda teléfono E.164 y el cargo detectado en la llamada");
+  const llamada = Object.values(dump).find((d) => d.tipo === "llamada");
+  ok(llamada && llamada.grabacionAvisada === true && llamada.transcripcion.includes("grabar"), "la llamada guarda la transcripción y el aviso de grabación");
+  ok(Object.values(dump).some((d) => d.nombre === "Matías Rojas" && d.noContactar === true && d.proxima === null), "la marca de no contactar queda guardada");
   const prompts = await page.evaluate(() => window.__mockPrompts);
   const mailPrompt = prompts.find((p) => p.includes("Escribe un correo"));
   ok(mailPrompt && mailPrompt.includes("Transportes Andes") && mailPrompt.includes("Llamada · Contestó"), "Claude recibe los datos y el historial del lead");

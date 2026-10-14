@@ -467,6 +467,7 @@ const ETAPAS = [
 const ETAPA = Object.fromEntries(ETAPAS.map((e) => [e.id, e]));
 const RUTA = ["nuevo", "contactado", "reunion", "propuesta", "negociacion"];
 const isOpen = (l) => (ETAPA[l.etapa] || ETAPA.nuevo).open;
+const contactable = (l) => isOpen(l) && !l.noContactar;
 
 const ORIGENES = [["web", "Formulario web"], ["agenda", "Agenda web"], ["instagram", "Instagram"], ["linkedin", "LinkedIn"], ["referido", "Referido"], ["evento", "Evento"], ["prospeccion", "Prospección"], ["otro", "Otro"]];
 const ACCIONES = [["llamar", "Llamar"], ["whatsapp", "WhatsApp"], ["correo", "Correo"], ["reunion", "Reunión"], ["otro", "Otra tarea"]];
@@ -483,7 +484,7 @@ const OBJETIVOS = [
   ["libre", "Otro", "lo que digan las instrucciones"],
 ];
 const PRIORIDADES = [["alta", "Alta"], ["media", "Media"], ["baja", "Baja"]];
-const MOTIVOS = ["Precio de implementación", "Costo mensual o mantención", "Eligió otra alternativa", "Sin presupuesto", "No es el momento", "Dejó de responder", "No calza con lo que hacemos", "Otro"];
+const MOTIVOS = ["Precio de implementación", "Costo mensual o mantención", "Eligió otra alternativa", "Sin presupuesto", "No es el momento", "Dejó de responder", "Pidió no ser contactado", "No calza con lo que hacemos", "Otro"];
 const CONTACTOS = new Set(["llamada", "whatsapp", "correo", "reunion"]);
 const REGISTROS = [["nota", "Nota"], ["whatsapp", "WhatsApp"], ["correo", "Correo"], ["reunion", "Reunión"]];
 
@@ -1092,7 +1093,7 @@ function Feed({ items, showLead, limit }) {
       <span class=${cx("feed-ico", a.autor === "claude" && "claude")}><${Icon} name=${ACT_ICON[a.tipo] || "note"} /></span>
       <div style="min-width:0">
         <p class="feed-title">${showLead && lead ? html`<button onClick=${() => openLead(lead.id)}>${leadName(lead)}</button> · ` : null}${actTitulo(a)}</p>
-        <p class="feed-meta">${ago(a.fecha)}${a.autor ? " · " + nameOf(a.autor) : ""}${a.linea ? " · línea " + a.linea : ""}</p>
+        <p class="feed-meta">${ago(a.fecha)}${a.autor ? " · " + nameOf(a.autor) : ""}${a.linea ? " · línea " + a.linea : ""}${a.grabacionAvisada === true ? " · grabación avisada" : a.grabacionAvisada === false ? " · sin registro de aviso de grabación" : ""}</p>
         ${a.resumen ? html`<p class="feed-text">${showLead ? clip(a.resumen.replace(/\s+/g, " "), 160) : clip(a.resumen, 2000)}</p>` : null}
         ${an && an.resumen && !showLead ? html`<details style="margin-top:6px"><summary class="small" style="cursor:pointer;color:var(--accent)">Análisis de Claude${an.interes && an.interes !== "sin_datos" ? " · interés " + an.interes : ""}</summary><${AnalysisView} a=${an} /></details>` : null}
         ${a.transcripcion && !showLead ? html`<details style="margin-top:6px"><summary class="small" style="cursor:pointer;color:var(--fg-3)">Transcripción (${Math.round(a.transcripcion.length / 1000)} mil caracteres)</summary><p class="feed-text">${a.transcripcion}</p></details>` : null}
@@ -1122,12 +1123,12 @@ function LeadRow({ lead, mode }) {
       ${mode === "new" && lead.necesidad ? html`<span class="lrow-note">${clip(lead.necesidad, 140)}</span>` : null}
     </button>
     <div class="lrow-side">
-      ${mode === "next" ? html`<${NextTag} proxima=${lead.proxima} />` : mode === "stale" ? html`<span class="tag">${lead.ultimoContacto ? "Último contacto " + ago(lead.ultimoContacto) : "Sin contacto"}</span>` : html`<span class="tag">${origenLabel(lead.origen) || "Nuevo"} · ${ago(lead.creado)}</span>`}
-      <div class="lrow-actions">
+      ${lead.noContactar ? html`<span class="tag late">No contactar</span>` : mode === "next" ? html`<${NextTag} proxima=${lead.proxima} />` : mode === "stale" ? html`<span class="tag">${lead.ultimoContacto ? "Último contacto " + ago(lead.ultimoContacto) : "Sin contacto"}</span>` : html`<span class="tag">${origenLabel(lead.origen) || "Nuevo"} · ${ago(lead.creado)}</span>`}
+      ${lead.noContactar ? null : html`<div class="lrow-actions">
         ${lead.telefono ? html`<button class="btn small icon" title="Llamar y registrar" aria-label=${"Llamar a " + leadName(lead)} onClick=${() => openLead(lead.id, "llamada")}><${Icon} name="phone" /></button>` : null}
         ${wa ? html`<a class="btn small icon" title="Abrir WhatsApp" aria-label=${"WhatsApp a " + leadName(lead)} href=${wa} target="_blank" rel="noopener"><${Icon} name="chat" /></a>` : null}
         <button class="btn small icon" title="Redactar con Claude" aria-label=${"Redactar mensaje para " + leadName(lead)} onClick=${() => openLead(lead.id, "redactar")}><${Icon} name="spark" /></button>
-      </div>
+      </div>`}
     </div>
   </div>`;
 }
@@ -1137,7 +1138,7 @@ function LeadRow({ lead, mode }) {
 function HoyView() {
   const { leads, acts, drafts, openDraft, openModal, nav, equipo, me } = useCtx();
   const t = todayKey();
-  const abiertos = leads.filter(isOpen);
+  const abiertos = leads.filter(contactable);
   const byNext = (a, b) => (a.proxima.fecha + (a.proxima.hora || "")).localeCompare(b.proxima.fecha + (b.proxima.hora || ""));
   const pend = abiertos.filter((l) => l.proxima && l.proxima.fecha && l.proxima.fecha <= t).sort(byNext);
   const late = pend.filter((l) => l.proxima.fecha < t).length;
@@ -1271,7 +1272,7 @@ function LeadsView() {
         <tbody>${list.map((l) => html`<tr key=${l.id} onClick=${() => openLead(l.id)}>
           <td><div class="cell-name"><b>${leadName(l)}</b>${leadSub(l) ? html`<span>${leadSub(l)}</span>` : null}</div></td>
           <td><div style="display:grid;gap:6px;justify-items:start"><${StagePill} etapa=${l.etapa} /><${Meter} etapa=${l.etapa} /></div></td>
-          <td><${NextTag} proxima=${l.proxima} /></td>
+          <td>${l.noContactar ? html`<span class="tag late">No contactar</span>` : html`<${NextTag} proxima=${l.proxima} />`}</td>
           <td class="small muted">${l.ultimoContacto ? ago(l.ultimoContacto) : "—"}${l.intentos ? html`<br />${l.intentos} sin respuesta` : null}</td>
           <td><span class="phone">${l.telefono ? fmtPhone(l.telefono) : "—"}</span></td>
           <td class="small">${l.responsable ? nameOf(l.responsable) : html`<span class="muted">—</span>`}</td>
@@ -1305,7 +1306,7 @@ function EmbudoView() {
           <div class="col-head"><${StagePill} etapa=${e.id} /><span class="count">${items.length}</span></div>
           ${items.map((l) => html`<button key=${l.id} class="kcard" draggable=${canWrite ? "true" : "false"} onDragStart=${(ev) => { ev.dataTransfer.setData("text/plain", l.id); ev.dataTransfer.effectAllowed = "move"; }} onClick=${() => openLead(l.id)}>
             <b>${leadName(l)}</b>${leadSub(l) ? html`<span>${leadSub(l)}</span>` : null}
-            <div><${NextTag} proxima=${l.proxima} /></div>
+            <div>${l.noContactar ? html`<span class="tag late">No contactar</span>` : html`<${NextTag} proxima=${l.proxima} />`}</div>
           </button>`)}
           ${!items.length ? html`<p class="small muted" style="padding:6px 4px">Sin leads</p>` : null}
         </div>`;
@@ -1440,6 +1441,7 @@ function DraftEditor({ id }) {
   const restore = async () => { try { await api.updateDraft(id, { estado: "por_revisar" }); } catch (e) { toast(dbErrorText(e), "bad"); } };
 
   const title = `${isMail ? "Correo" : "WhatsApp"} para ${lead ? leadName(lead) : "lead eliminado"}`;
+  const blocked = !!(lead && lead.noContactar);
   const sent = stored.estado === "enviado";
   const len = (d.texto || "").length;
 
@@ -1450,14 +1452,15 @@ function DraftEditor({ id }) {
     ${isMail ? html`
       <button class="btn" onClick=${doCopyHtml}><${Icon} name="copy" />Copiar HTML</button>
       <button class="btn" onClick=${doCopyMail}><${Icon} name="copy" />Copiar correo</button>
-      <a class="btn primary" href=${gmailLink(correo, d.asunto, cfg)} target="_blank" rel="noopener" onClick=${() => { save(); doCopyMail(); }}><${Icon} name="ext" />Copiar y abrir Gmail</a>` : html`
+      ${blocked ? html`<button class="btn primary" disabled>No contactar</button>` : html`<a class="btn primary" href=${gmailLink(correo, d.asunto, cfg)} target="_blank" rel="noopener" onClick=${() => { save(); doCopyMail(); }}><${Icon} name="ext" />Copiar y abrir Gmail</a>`}` : html`
       <button class="btn" onClick=${doCopyWa}><${Icon} name="copy" />Copiar texto</button>
-      ${waLink(tel, d.texto, cfg) ? html`<a class="btn primary" href=${waLink(tel, d.texto, cfg)} target="_blank" rel="noopener" onClick=${() => save()}><${Icon} name="ext" />Abrir en WhatsApp</a>` : html`<button class="btn primary" disabled>Falta el teléfono</button>`}`}
+      ${blocked ? html`<button class="btn primary" disabled>No contactar</button>` : waLink(tel, d.texto, cfg) ? html`<a class="btn primary" href=${waLink(tel, d.texto, cfg)} target="_blank" rel="noopener" onClick=${() => save()}><${Icon} name="ext" />Abrir en WhatsApp</a>` : html`<button class="btn primary" disabled>Falta el teléfono</button>`}`}
     ${!sent && lead ? html`<button class="btn" onClick=${() => setSending(true)} disabled=${!canWrite}><${Icon} name="check" />Marcar como enviado</button>` : null}`;
 
   return html`<${Modal} title=${title} onClose=${() => { save(); closeModal(); }} wide foot=${foot} labelId="draft-title">
     <div class="editor">
       <div class="editor-fields">
+        ${blocked ? html`<div class="note bad"><${Icon} name="info" /><div>Esta persona pidió no ser contactada. No envíes este mensaje.</div></div>` : null}
         ${sent ? html`<div class="note"><${Icon} name="check" /><div>Enviado ${ago(stored.enviado)}. Si lo editas, el historial conserva lo que se registró al enviarlo.</div></div>` : null}
         ${sending ? html`<div class="note" style="display:grid;gap:10px">
           <p><b>¿Ya lo enviaste?</b> Se registra en el historial del lead.</p>
@@ -1541,7 +1544,16 @@ function LeadDrawer({ id, tab: initialTab, onClose }) {
   const save = (patch) => api.updateLead(lead.id, patch).catch((e) => toast(dbErrorText(e), "bad"));
   const del = async () => { try { onClose(); await api.deleteLead(lead.id); toast("Lead eliminado."); } catch (e) { toast(dbErrorText(e), "bad"); } };
   const leadDrafts = drafts.filter((d) => d.leadId === lead.id && d.estado !== "descartado");
-  const wa = waLink(lead.telefono, "", cfg);
+  const noc = !!lead.noContactar;
+  const wa = noc ? null : waLink(lead.telefono, "", cfg);
+  const toggleNo = async (on) => {
+    try {
+      await api.updateLead(lead.id, on ? { noContactar: true, noContactarDesde: nowISO(), proxima: null } : { noContactar: false });
+      await api.addAct({ leadId: lead.id, tipo: "nota", resumen: on ? "Pidió no ser contactado. Queda fuera de llamadas y mensajes." : "Se quitó la marca de no contactar." });
+      if (on && (tab === "llamada" || tab === "redactar")) setTab("");
+      toast(on ? "Marcado como no contactar." : "Se quitó la marca de no contactar.");
+    } catch (e) { toast(dbErrorText(e), "bad"); }
+  };
 
   return html`<div>
     <div class="scrim" onClick=${onClose}></div>
@@ -1561,9 +1573,11 @@ function LeadDrawer({ id, tab: initialTab, onClose }) {
           ${lead.prioridad === "alta" ? html`<span class="tag warn">Prioridad alta</span>` : null}
           ${lead.intentos ? html`<span class="tag">${lead.intentos} ${lead.intentos === 1 ? "llamada" : "llamadas"} sin respuesta</span>` : null}
           ${lead.caso ? html`<span class="tag" title="Caso en el repositorio propuestaszh">Caso ${lead.caso}</span>` : null}
+          ${noc ? html`<span class="tag late">No contactar</span>` : null}
         </div>
       </div>
       <div class="drawer-body" ref=${bodyRef}>
+        ${noc ? html`<div class="note bad"><${Icon} name="info" /><div>Pidió no ser contactado${lead.noContactarDesde ? " (" + ago(lead.noContactarDesde) + ")" : ""}. No lo llames ni le escribas; puedes seguir anotando en el historial. La marca se quita en «Datos del lead».</div></div>` : null}
         <section>
           <h3 class="sr">Contacto</h3>
           <div class="contact-lines">
@@ -1571,15 +1585,15 @@ function LeadDrawer({ id, tab: initialTab, onClose }) {
               <${Icon} name="phone" />
               ${lead.telefono ? html`<span class="value">${fmtPhone(lead.telefono)}</span>
                 <button class="btn small" onClick=${async () => toast((await copyText(lead.telefono)) ? "Número copiado." : "No se pudo copiar.")}><${Icon} name="copy" />Copiar</button>
-                <a class="btn small" href=${"tel:" + lead.telefono}>Llamar</a>
+                ${noc ? null : html`<a class="btn small" href=${"tel:" + lead.telefono}>Llamar</a>`}
                 ${wa ? html`<a class="btn small" href=${wa} target="_blank" rel="noopener"><${Icon} name="chat" />WhatsApp</a>` : null}
-                <button class="btn small primary" onClick=${() => setTab("llamada")}>Registrar llamada</button>` : html`<span class="missing">Sin teléfono</span>`}
+                ${noc ? null : html`<button class="btn small primary" onClick=${() => setTab("llamada")}>Registrar llamada</button>`}` : html`<span class="missing">Sin teléfono</span>`}
             </div>
             <div class="cline">
               <${Icon} name="mail" />
               ${lead.correo ? html`<span class="value text">${lead.correo}</span>
                 <button class="btn small" onClick=${async () => toast((await copyText(lead.correo)) ? "Correo copiado." : "No se pudo copiar.")}><${Icon} name="copy" />Copiar</button>` : html`<span class="missing">Sin correo</span>`}
-              <button class="btn small claude" onClick=${() => setTab("redactar")}><${Icon} name="spark" />Redactar</button>
+              ${noc ? null : html`<button class="btn small claude" onClick=${() => setTab("redactar")}><${Icon} name="spark" />Redactar</button>`}
             </div>
           </div>
         </section>
@@ -1588,12 +1602,12 @@ function LeadDrawer({ id, tab: initialTab, onClose }) {
 
         <section class="work">
           <div class="work-tabs" role="tablist" aria-label="Registrar">
-            <button type="button" aria-pressed=${tab === "llamada" ? "true" : "false"} onClick=${() => setTab(tab === "llamada" ? "" : "llamada")}><${Icon} name="phone" />Registrar llamada</button>
-            <button type="button" aria-pressed=${tab === "redactar" ? "true" : "false"} onClick=${() => setTab(tab === "redactar" ? "" : "redactar")}><${Icon} name="spark" />Redactar con Claude</button>
+            ${noc ? null : html`<button type="button" aria-pressed=${tab === "llamada" ? "true" : "false"} onClick=${() => setTab(tab === "llamada" ? "" : "llamada")}><${Icon} name="phone" />Registrar llamada</button>`}
+            ${noc ? null : html`<button type="button" aria-pressed=${tab === "redactar" ? "true" : "false"} onClick=${() => setTab(tab === "redactar" ? "" : "redactar")}><${Icon} name="spark" />Redactar con Claude</button>`}
             <button type="button" aria-pressed=${tab === "otro" ? "true" : "false"} onClick=${() => setTab(tab === "otro" ? "" : "otro")}><${Icon} name="note" />Otro registro</button>
           </div>
-          ${tab === "llamada" ? html`<${CallLogger} lead=${lead} hist=${hist} onDone=${() => setTab("")} />` : null}
-          ${tab === "redactar" ? html`<${Composer} lead=${lead} hist=${hist} onDone=${() => setTab("")} />` : null}
+          ${tab === "llamada" && !noc ? html`<${CallLogger} lead=${lead} hist=${hist} onDone=${() => setTab("")} />` : null}
+          ${tab === "redactar" && !noc ? html`<${Composer} lead=${lead} hist=${hist} onDone=${() => setTab("")} />` : null}
           ${tab === "otro" ? html`<${OtherLogger} lead=${lead} onDone=${() => setTab("")} />` : null}
           ${!tab ? html`<div class="work-body"><p class="small muted">Registra cada llamada (con su transcripción, si la tienes), pide a Claude un correo o un WhatsApp, o anota una reunión o un mensaje que mandaste por fuera.</p></div>` : null}
         </section>
@@ -1621,6 +1635,7 @@ function LeadDrawer({ id, tab: initialTab, onClose }) {
             <div class="span-2"><${TextField} id="l-notas" label="Notas internas" multiline value=${lead.notas} disabled=${!canWrite} onSave=${(v) => save({ notas: v })} hint="Claude las usa como contexto, pero no las cita en los mensajes." /></div>
             <${TextField} id="l-valor" label="Valor estimado (CLP sin IVA)" mono value=${lead.valor ? String(lead.valor) : ""} disabled=${!canWrite} onSave=${(v) => { const n = Number(String(v).replace(/\D/g, "")); save({ valor: n > 0 ? n : null }); }} hint=${lead.valor ? clp.format(lead.valor) + " + IVA" : "Solo para uso interno"} />
             <${TextField} id="l-caso" label="Caso en propuestaszh" value=${lead.caso} disabled=${!canWrite} onSave=${(v) => save({ caso: v })} hint="Ej.: 2026-cliente-proyecto" />
+            <label class="check span-2" for="l-nocontactar"><input type="checkbox" id="l-nocontactar" checked=${noc} disabled=${!canWrite} onChange=${(e) => toggleNo(e.currentTarget.checked)} />Pidió no ser contactado: no llamar ni escribir. Queda registrado con la fecha y el lead sale de las listas de trabajo.</label>
           </div>
           <p class="small muted" style="margin-top:12px">Creado ${ago(lead.creado)}${lead.creadoPor ? " por " + nameOf(lead.creadoPor) : ""} · actualizado ${ago(lead.actualizado)}</p>
           ${canWrite ? html`<div class="actions" style="margin-top:12px">${confirmDel ? html`<span class="small">¿Eliminar el lead, su historial y sus borradores?</span><button class="btn small danger" onClick=${del}>Sí, eliminar</button><button class="btn small ghost" onClick=${() => setConfirmDel(false)}>Cancelar</button>` : html`<button class="btn small ghost danger" onClick=${() => setConfirmDel(true)}><${Icon} name="trash" />Eliminar lead</button>`}</div>` : null}
@@ -1686,6 +1701,7 @@ function CallLogger({ lead, hist, onDone }) {
   const [useData, setUseData] = useState(true);
   const [retry, setRetry] = useState(true);
   const [toContactado, setToContactado] = useState(true);
+  const [avisada, setAvisada] = useState(false);
   const ctl = useRef(null);
   useEffect(() => ls.set("linea", linea), [linea]);
   useEffect(() => () => { if (ctl.current) ctl.current.abort(); }, []);
@@ -1727,7 +1743,7 @@ function CallLogger({ lead, hist, onDone }) {
     try {
       const now = nowISO();
       const transcripcion = trans.length > 180000 ? trans.slice(0, 180000) + "\n[transcripción recortada]" : trans;
-      await api.addAct({ leadId: lead.id, tipo: "llamada", resultado, linea, duracion: Number(duracion) > 0 ? Number(duracion) : null, resumen: notas || (an ? an.resumen : ""), transcripcion: transcripcion || null, analisis: an || null });
+      await api.addAct({ leadId: lead.id, tipo: "llamada", resultado, linea, duracion: Number(duracion) > 0 ? Number(duracion) : null, resumen: notas || (an ? an.resumen : ""), transcripcion: transcripcion || null, grabacionAvisada: transcripcion ? avisada : null, analisis: an || null });
       const patch = { ultimoIntento: now, intentos: sinResp ? (lead.intentos || 0) + 1 : 0 };
       if (!sinResp && resultado !== "equivocado") patch.ultimoContacto = now;
       let etapa = lead.etapa;
@@ -1756,7 +1772,8 @@ function CallLogger({ lead, hist, onDone }) {
     </div>
     <label class="field" for="c-notas"><span>Notas de la llamada</span><textarea id="c-notas" class="textarea" rows="4" placeholder="Qué se habló, qué necesita, qué quedamos en hacer" value=${notas} onInput=${(e) => setNotas(e.currentTarget.value)}></textarea></label>
     ${showTrans ? html`<label class="field" for="c-trans"><span>Transcripción</span><textarea id="c-trans" class="textarea" rows="7" placeholder="Pega aquí la transcripción de la llamada" value=${trans} onInput=${(e) => setTrans(e.currentTarget.value)}></textarea>
-      <small class="hint">Pégala desde la grabación del iPhone (app Notas) o desde la herramienta que uses. También puedes subir un .txt, .vtt o .srt.</small></label>` : null}
+      <small class="hint">En el iPhone: app Notas → Grabaciones de llamadas → Copiar transcripción. También puedes subir un .txt, .vtt o .srt.</small></label>
+      <label class="check" for="c-avisada"><input type="checkbox" id="c-avisada" checked=${avisada} onChange=${(e) => setAvisada(e.currentTarget.checked)} />Avisé al inicio que la llamada se grababa y la persona estuvo de acuerdo</label>` : null}
     <div class="actions">
       ${!showTrans ? html`<button class="btn small" onClick=${() => setShowTrans(true)}><${Icon} name="doc" />Agregar transcripción</button>` : null}
       <label class="btn small"><${Icon} name="upload" />Subir archivo<input type="file" accept=".txt,.vtt,.srt,.md,text/plain" class="sr" onChange=${(e) => readFile(e.currentTarget.files && e.currentTarget.files[0])} /></label>
@@ -1968,8 +1985,9 @@ function ImportModal() {
   const prepare = (list) => {
     const out = list.map((l, i) => {
       const lead = { nombre: String(l.nombre || "").trim(), empresa: String(l.empresa || "").trim(), cargo: String(l.cargo || "").trim(), telefono: normPhone(l.telefono || ""), correo: String(l.correo || "").trim().toLowerCase(), rubro: String(l.rubro || "").trim(), ciudad: String(l.ciudad || "").trim(), origen: ORIGEN_IDS.has(fold(l.origen)) ? fold(l.origen) : "", necesidad: String(l.necesidad || "").trim(), notas: String(l.notas || "").trim() };
-      const dup = findDup(leads, lead) || list.slice(0, i).some((p) => (lead.telefono && normPhone(p.telefono || "") === lead.telefono) || (lead.correo && String(p.correo || "").trim().toLowerCase() === lead.correo));
-      return { lead, dup };
+      const prev = findDup(leads, lead);
+      const dup = prev || list.slice(0, i).some((p) => (lead.telefono && normPhone(p.telefono || "") === lead.telefono) || (lead.correo && String(p.correo || "").trim().toLowerCase() === lead.correo));
+      return { lead, dup, noc: !!(prev && prev.noContactar) };
     }).filter((x) => x.lead.nombre || x.lead.empresa || x.lead.telefono || x.lead.correo);
     setRows(out);
     setSel(Object.fromEntries(out.map((x, i) => [i, !x.dup])));
@@ -2028,7 +2046,7 @@ function ImportModal() {
           <thead><tr><th><span class="sr">Agregar</span></th><th>Nombre</th><th>Empresa</th><th>Teléfono</th><th>Correo</th><th>Necesidad</th></tr></thead>
           <tbody>${rows.map((x, i) => html`<tr key=${i} class=${x.dup ? "dup" : ""}>
             <td><input type="checkbox" aria-label=${"Agregar " + (x.lead.nombre || x.lead.empresa)} checked=${!!sel[i]} onChange=${(e) => setSel((s) => ({ ...s, [i]: e.currentTarget.checked }))} /></td>
-            <td>${x.lead.nombre || "—"}${x.dup ? html`<br /><span class="tag warn">Ya existe</span>` : null}</td><td>${x.lead.empresa || "—"}</td>
+            <td>${x.lead.nombre || "—"}${x.dup ? html`<br /><span class=${x.noc ? "tag late" : "tag warn"}>${x.noc ? "Ya existe · no contactar" : "Ya existe"}</span>` : null}</td><td>${x.lead.empresa || "—"}</td>
             <td class="phone">${x.lead.telefono ? fmtPhone(x.lead.telefono) : "—"}</td><td>${x.lead.correo || "—"}</td><td>${clip(x.lead.necesidad, 80) || "—"}</td>
           </tr>`)}</tbody>
         </table></div>`}
@@ -2305,7 +2323,7 @@ function App() {
   const canWrite = me.canWrite !== false && !readOnly;
   const leadsById = useMemo(() => Object.fromEntries((leads || []).map((l) => [l.id, l])), [leads]);
   const team = useMemo(() => { const s = new Set(Object.keys(equipo)); if (me.id) s.add(me.id); (leads || []).forEach((l) => l.responsable && /^u_/.test(l.responsable) && s.add(l.responsable)); return [...s]; }, [equipo, me.id, leads]);
-  const pendientes = (leads || []).filter((l) => isOpen(l) && l.proxima && l.proxima.fecha && l.proxima.fecha <= todayKey()).length;
+  const pendientes = (leads || []).filter((l) => contactable(l) && l.proxima && l.proxima.fecha && l.proxima.fecha <= todayKey()).length;
   const porRevisar = drafts.filter((d) => d.estado === "por_revisar").length;
   const counts = { hoy: pendientes, borradores: porRevisar, leads: (leads || []).filter(isOpen).length };
 

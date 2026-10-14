@@ -35,6 +35,11 @@ próxima acción con atajos (hoy, mañana, en 3 días hábiles, en una semana); 
   historial, el contexto de ZH y las reglas de tono; no inventa precios, plazos ni casos.
 - **Otro registro:** notas, WhatsApp o correos mandados por fuera y reuniones.
 
+En «Datos del lead», **«Pidió no ser contactado»** deja registrada la fecha, saca al lead de las
+listas de trabajo y bloquea llamar, escribir y redactar (ver `docs/crm-telefonia-whatsapp.md`).
+Al registrar una llamada con transcripción hay una casilla para dejar constancia de que se avisó
+que se grababa.
+
 Las etapas son: Por contactar → Contactado → Reunión → Propuesta enviada → Negociación, más
 Ganado, Perdido (con motivo y lo que dijo el cliente) y En pausa.
 
@@ -75,8 +80,8 @@ Colecciones de la base del artifact (documentos JSON):
 
 | Colección | Documento | Campos principales |
 |---|---|---|
-| `leads` | un lead | `nombre`, `empresa`, `cargo`, `telefono` (E.164, `+569…`), `correo`, `sitio`, `rubro`, `ciudad`, `origen` (`web`, `agenda`, `instagram`, `linkedin`, `referido`, `evento`, `prospeccion`, `otro`), `etapa` (`nuevo`, `contactado`, `reunion`, `propuesta`, `negociacion`, `ganado`, `perdido`, `pausa`), `prioridad` (`alta`, `media`, `baja`), `trato` (`tu`, `usted`), `necesidad`, `notas`, `responsable` (id de usuario), `proxima` (`{tipo, fecha AAAA-MM-DD, hora, nota}` o `null`), `intentos`, `ultimoContacto`, `ultimoIntento`, `motivoPerdida`, `valor` (CLP sin IVA), `caso` (id en `propuestaszh`), `creado`, `actualizado`, `creadoPor` |
-| `actividades` | un contacto o cambio | `leadId`, `tipo` (`llamada`, `whatsapp`, `correo`, `reunion`, `nota`, `etapa`), `fecha` (ISO), `autor`, `resultado`, `linea`, `duracion`, `resumen`, `transcripcion`, `analisis`, `de`, `a`, `borradorId` |
+| `leads` | un lead | `nombre`, `empresa`, `cargo`, `telefono` (E.164, `+569…`), `correo`, `sitio`, `rubro`, `ciudad`, `origen` (`web`, `agenda`, `instagram`, `linkedin`, `referido`, `evento`, `prospeccion`, `otro`), `etapa` (`nuevo`, `contactado`, `reunion`, `propuesta`, `negociacion`, `ganado`, `perdido`, `pausa`), `prioridad` (`alta`, `media`, `baja`), `trato` (`tu`, `usted`), `necesidad`, `notas`, `responsable` (id de usuario), `proxima` (`{tipo, fecha AAAA-MM-DD, hora, nota}` o `null`), `intentos`, `ultimoContacto`, `ultimoIntento`, `motivoPerdida`, `noContactar`, `noContactarDesde`, `valor` (CLP sin IVA), `caso` (id en `propuestaszh`), `creado`, `actualizado`, `creadoPor` |
+| `actividades` | un contacto o cambio | `leadId`, `tipo` (`llamada`, `whatsapp`, `correo`, `reunion`, `nota`, `etapa`), `fecha` (ISO), `autor`, `resultado`, `linea`, `duracion`, `resumen`, `transcripcion`, `grabacionAvisada`, `analisis`, `de`, `a`, `borradorId` |
 | `borradores` | un correo o WhatsApp | `leadId`, `canal` (`correo`, `whatsapp`), `estado` (`por_revisar`, `listo`, `enviado`, `descartado`), `objetivo`, `instrucciones`, `firma` (id de usuario), `generadoPor`; correo: `plantilla` (`carta`, `destacado`), `asunto`, `preheader`, `etiqueta`, `titular`, `saludo`, `parrafos[]`, `puntos[]`, `cta {texto, url}`, `cierre`, `posdata`; WhatsApp: `texto` |
 | `equipo` | uno por usuario (id `u_…`) | `nombre`, `cargo`, `telefono`, `correo` (la firma) |
 | `config` | `general` | `whatsappNegocios`, `agendaUrl`, `gmailCuenta`, `abrirWhatsapp` (`app`, `web`) |
