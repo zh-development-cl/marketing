@@ -41,7 +41,7 @@ Gracias por la conversación de ayer. Te dejo por escrito lo que te comenté, pa
 
 En ZH Development hacemos software a medida, automatización e IA para optimizar procesos manuales: conectamos los sistemas que ya usan o creamos nuevos desde cero.
 
-Dónde aporta más valor en R-Log lo definimos juntos después del diagnóstico, viendo cómo trabajan hoy.
+Dónde podría servir en R-Log lo definimos juntos después del diagnóstico, entendiendo cómo funcionan sus procesos y dónde se está perdiendo valor.
 
 Partimos con un diagnóstico sin compromiso. Si tiene sentido seguir, va una propuesta escrita con alcance, plazo y precio cerrado. Todo queda a nombre de R-Log y, si lo prefieren, con mantención y soporte nuestro.
 
