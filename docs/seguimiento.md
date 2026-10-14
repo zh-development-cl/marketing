@@ -10,7 +10,7 @@ Actualizado: 2026-10-14. Las fechas suponen que las llamadas fueron el miércole
 | VinoPrint | César Aldana | Pidió que lo llamen. | Llamar | Jue 15 oct, 10:00 | Nik |
 | Logística Integral | Pablo Salazar | Pidió que lo llamen. | Llamar | Jue 15 oct, 10:20 | Nik |
 | Gimeco | Felipe Contreras | Hablar en diciembre. | WhatsApp corto hoy; llamar en diciembre | Mar 1 dic | Nik |
-| Flosam | Julio Gutiérrez | Pidió que lo llamen. | Llamar | Vie 16 oct, 12:00 | Bozzo |
+| Flosam | Julio Gutiérrez | Aceptó reunión. | Reunión por Meet; mandar invitación a jgutierrez@flosam.cl hoy | Vie 16 oct, 12:00 | Bozzo |
 | Natufeed | José Miguel Figueroa | Quiere reunión. | WhatsApp para agendar | Hoy | Nik |
 | Mr Wash | Nicolás Edwards | Ya no trabaja ahí; está en un laboratorio. Puede hacer el nexo. | WhatsApp pidiendo el contacto | Hoy | Bozzo |
 | Megaklean | Harry Winkler | Pidió que lo llamen. | Llamar | Jue 15 oct, 11:00 | Bozzo |
@@ -21,11 +21,25 @@ VinoPrint y Logística Integral quedaron las dos a las 10:00 con Nik. Una a las 
 ## Qué aprendimos en nueve llamadas
 
 - **Dos de nueve ya tenían proveedor o cambiaron de trabajo.** Es normal. Las dos sirvieron igual: una ofrece referidos y la otra un nexo.
-- **Cuatro pidieron que los llamen de vuelta a una hora concreta.** Eso es mejor que "mándame un correo". Confirmen cada una por WhatsApp una hora antes.
+- **Tres pidieron que los llamen de vuelta a una hora concreta y uno ya aceptó reunión.** Eso es mejor que "mándame un correo". Confirmen cada una por WhatsApp una hora antes.
 - **Solo uno pidió correo.** La regla sigue: el correo va con dos horarios para reunión, no solo con información.
 - **Un dato clave de Lubri Express:** en Valdivia ya hay un equipo de desarrollo atendiendo pymes. Compiten con locales en regiones; la ventaja de ZH es que trabaja remoto con todo Chile y deja el código a nombre del cliente.
 
 ---
+
+## Datos de contacto, para copiar
+
+| Empresa | Contacto | WhatsApp | Correo |
+|---------|----------|----------|--------|
+| Lubri Express | Alex Núñez | +56 9 8384 5381 | anunez@lubri-express.cl |
+| Natufeed | José Miguel Figueroa | +56 9 9657 5018 | jmfigueroa@natufeed.cl |
+| Mr Wash | Nicolás Edwards | +56 9 6300 6822 | nedwards@mrwash.cl (ya no trabaja ahí; usar WhatsApp) |
+| Gimeco | Felipe Contreras | +56 9 7966 4576 | felipe.contreras@gimeco.cl |
+| R-Log | Walther Rauff | +56 9 9183 8466 | wrauff@r-log.cl, con copia a jmora@r-log.cl |
+| Flosam | Julio Gutiérrez | +56 9 9256 9793 | jgutierrez@flosam.cl |
+| Megaklean | Harry Winkler | +56 9 8340 6668 | harryw@megaklean.cl |
+| VinoPrint | César Aldana | +56 9 4299 5768 | cesar.aldana@vinoprint.cl |
+| Logística Integral | Pablo Salazar | +56 9 5413 2378 | pablo.salazar@logistica-integral.cl |
 
 ## Mensajes para mandar hoy
 
@@ -119,9 +133,30 @@ Todavía no sabemos qué hacen. Primera pregunta de la llamada: "Antes que nada,
 
 Igual: primero confirmar a qué se dedican y si siguen operando. Si es transporte, el pitch es la guía desde el celular del chofer y la factura del mes desde los viajes. Y el aviso de que el sitio no carga.
 
-### Flosam, viernes 16 a las 12:00 (Bozzo)
+### Flosam, reunión viernes 16 a las 12:00 (Bozzo)
 
-Guion en `guiones-llamadas-2.md`. Pitch: ficha por container con contrato y fecha de término, avisos de vencimiento, factura de arriendo sola. Pregunta de seguimiento: cuántos containers tienen en arriendo hoy.
+Julio ya aceptó la reunión. Hoy: crear el evento en Google Calendar con Meet, invitar a jgutierrez@flosam.cl, y mandar este correo. Mañana jueves, un WhatsApp de confirmación.
+
+> **Para:** jgutierrez@flosam.cl
+> **Asunto:** Reunión viernes 12:00: control de containers en arriendo
+>
+> Hola Julio:
+>
+> Gracias por la conversación de hoy. Te confirmo la reunión del viernes 16 a las 12:00 por Google Meet; la invitación con el link ya está en tu correo.
+>
+> La idea es que me cuentes cómo llevan hoy los containers en arriendo, en qué obra está cada uno y hasta cuándo, y cómo arman la factura de cada mes. Con eso te muestro cómo quedaría una ficha por container que avisa los vencimientos y saca la factura sola, y te digo qué se puede automatizar y qué no.
+>
+> Si puedes, ten a mano la planilla o el documento con el que controlan los arriendos hoy.
+>
+> Saludos,
+> [Nombre]
+> ZH Development · zhdevelopment.cl · [celular]
+
+**WhatsApp del jueves:**
+
+> Hola Julio, soy [nombre] de ZH Development. Te confirmo mañana viernes a las 12 por Meet, el link está en la invitación que te mandé al correo. ¿Sigue en pie?
+
+**Para la reunión:** lleven una maqueta simple de la ficha de un container (obra, cliente, fecha de inicio, fecha de término, estado, última factura) y una lista con tres o cuatro vencimientos de ejemplo. Dibujada en una lámina basta; lo importante es que Julio se vea en ella. Primero que él cuente cómo lo hace hoy, después la maqueta, y al final la pregunta: "Si te mandamos una propuesta escrita con alcance, plazo y precio para esto, ¿la revisas con calma la próxima semana?".
 
 ---
 
