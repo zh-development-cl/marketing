@@ -23,6 +23,11 @@ Cómo enviarlo desde Gmail:
 Enlaces: «Agendar diagnóstico» va a la agenda del sitio (`zhdevelopment.cl/#calendario`);
 «Conocer ZH Development» al inicio; el teléfono abre WhatsApp.
 
+Logos: el de ZH es el `apple-touch-icon.png` de la landing. El de R-Log se carga desde su
+sitio (`https://r-log.cl/wp-content/uploads/2023/08/r-log-logo.png`, PNG con fondo
+transparente) en una caja blanca a la derecha de la cabecera, como en las portadas de
+propuesta (ZH a la izquierda, cliente a la derecha).
+
 Versión en texto plano, por si se prefiere un correo simple:
 
 ```
