@@ -10,7 +10,54 @@ Fecha: 2026-10-14. Se llama primero a las de menor probabilidad y menor importan
 
 **Orden:** suma de las dos, de menor a mayor. Es un juicio hecho desde los sitios web, no un dato. Después de cada llamada, corrijan la nota con lo que escucharon.
 
-## La lista
+## Hoja de llamadas
+
+Teléfonos y correos vienen de la base original. Cuando el sitio publica otro número, va después del punto medio. Los sitios marcados entre paréntesis no están operativos.
+
+| # | Empresa | Sitio | Contacto | Cargo | Teléfono | Correo |
+|---|---------|-------|----------|-------|----------|--------|
+| 1 | Logística Integral | logistica-integral.cl (no carga) | Pablo Salazar | Dueño | +56 9 5413 2378 | pablo.salazar@logistica-integral.cl |
+| 2 | Mas Logística Chile | maslogisticachile.cl (no carga) | Santiago Pérez Eyzaguirre | CEO y cofundador | +56 9 9968 4110 | santiago@maslogisticachile.cl |
+| 3 | Instalamos | instalamos.cl (bloquea lectura) | Felipe Valverde | Fundador | +56 9 6602 2458 | fvalverde@instalamos.cl |
+| 4 | VinoPrint | vinoprint.cl (en construcción) | César Aldana | Director y fundador | +56 9 4299 5768 | cesar.aldana@vinoprint.cl |
+| 5 | Transportes IMACK | transportesimack.cl (plantilla sin terminar) | Katherine Rodríguez | Gerenta general de operaciones | +56 9 4029 7270 | krodriguez@transportesimack.cl |
+| 6 | Lubri Express | lubri-express.cl | Alex Núñez | Socio | +56 9 8384 5381 | anunez@lubri-express.cl |
+| 7 | GTI Climatización | gticlimatizacion.cl (en construcción) | José Tello | Dueño | +56 9 9820 7518 | jose@gticlimatizacion.cl |
+| 8 | Transportes González | transgonzalez.cl | Jorge González | Dueño | +56 9 6728 9973 · fijo +56 2 2855 5236 | jgonzalez@transgonzalez.cl |
+| 9 | Gimeco | gimeco.cl | Felipe Contreras | Fundador | +56 9 7966 4576 | felipe.contreras@gimeco.cl |
+| 10 | FastCut | fastcut.cl | Luis Castillo | Socio fundador | +56 9 9820 0972 | lcastillo@fastcut.cl |
+| 11 | Flosam | flosam.cl | Julio Gutiérrez | Dueño | +56 9 9256 9793 | jgutierrez@flosam.cl |
+| 12 | Natufeed | natufeed.cl | José Miguel Figueroa | Managing director y fundador | +56 9 9657 5018 | jmfigueroa@natufeed.cl |
+| 13 | Mr Wash | mrwash.cl | Nicolás Edwards Neut | Socio y gerente general | +56 9 6300 6822 | nedwards@mrwash.cl |
+| 14 | Mundo Máquinas | mundomaquinasltda.cl | Manuel Estrada Yáñez | Socio fundador y gerente comercial | +56 9 5412 3756 | manuel.estrada@mundomaquinasltda.cl |
+| 15 | Megaklean | megaklean.cl | Harry Winkler | Dueño y gerente general | +56 9 8340 6668 | harryw@megaklean.cl |
+| 16 | Grupo Almma | grupoalmma.cl | Marcelo León | Partner manager | +56 9 4776 9177 | mleon@grupoalmma.cl |
+| 17 | Brimat | brimat.cl | Pierre Brisbois | Dueño y CEO | +56 9 9232 9800 | pierre@brimat.cl |
+| 18 | Sur de Chile Textiles | sdctextiles.cl | Mauricio Palma | Dueño | +56 9 5768 1978 | mpalma@surdechiletextiles.cl |
+| 19 | R-Log | r-log.cl | Walther Rauff | Socio y CEO | +56 9 9183 8466 | wrauff@r-log.cl |
+| 20 | Packner | packner.cl | Andrés Alliende | Cofundador y gerente general | +56 9 8901 9851 | andres@packner.cl |
+| 21 | Repuestos Norte | repuestosnorte.cl | Miguel Vilches | Dueño | +56 9 7625 6548 | miguelvilches@repuestosnorte.cl |
+| 22 | Rodados | rodados.cl | Patricio Carrasco | Dueño | +56 9 5003 3214 | pcarrasco@rodados.cl |
+| 23 | Criogas | criogas.cl | Juan Lira | CEO y fundador | +56 9 4423 4470 | jilira@criogas.cl |
+| 24 | SúperDespacho | superdespacho.cl | Javier Conejeros | Socio y cofundador | +56 9 9144 1215 | jconejeros@superdespacho.cl |
+| 25 | Diper | diper.cl | Daniel Muñoz Cubillos | Gerente de operaciones | +56 9 6648 9703 | danielmunoz@diper.cl |
+| 26 | Serteq | serteq.cl | Luis Quintanilla | Dueño | +56 9 7649 6307 · comercial +56 9 5489 2593 | luis.quintanilla@serteq.cl |
+| 27 | Induventa | induventa.cl | Gustavo Schleyer | Gerente de ventas y dueño | +56 9 6217 9008 | gustavo@induventa.cl |
+| 28 | Lock Security | locksecurity.cl | Frank Colonna | Director fundador | +56 9 7386 7046 | frank@locksecurity.cl |
+| 29 | Farmanostica | farmanostica.cl | Carlos Cifuentes | Copropietario | +56 9 5984 2057 | carlos.cifuentes@farmanostica.cl |
+| 30 | Beeco | beecochile.com | Ignacio Varela (en la base: Uteau) | CEO y fundador | +56 9 3373 8591 | i.varela@beecochile.com |
+| 31 | Hebe Insumos | hebeinsumos.cl | Javier Samur Fajuri | Gerente general y fundador | +56 9 3743 6221 · sitio +56 9 3007 0008 | jsamur@hebeinsumos.cl |
+| 32 | Royal Tec | royaltec.cl | Sebastián Sepúlveda | Socio fundador y gerente de finanzas | +56 9 9975 3674 | ssepulveda@royaltec.cl |
+| 33 | Cohasa | cohasa.cl | Cristian Hanania | Socio | +56 9 9122 1944 | chanania@cohasa.cl |
+| 34 | Inverco Chile | invercochile.com (suspendido) | Matías Facuse | Dueño y director ejecutivo | +56 9 8293 0413 | mfacuse@invercochile.com |
+| 35 | Tribú | tribufood.cl | José Luis Jara | Socio y gerente de finanzas | +56 9 8923 3381 | jljara@tribufood.cl |
+| 36 | Bioxiplas | bioxiplas.cl | Alexis Arias | COO, director de operaciones | +56 9 9873 1066 | alexisarias@bioxiplas.cl |
+| 37 | Le Pascui | lepascui.cl | Luis Checura | Socio gerente | +56 9 8768 6402 | luis.checura@lepascui.cl |
+| 38 | FirstCargo | firstcargo.cl | Juan Alberto Borie | Dueño | +56 9 8199 9333 | jaborie@firstcargo.cl |
+| 39 | Contapro360 | contapro360.cl | Roberto Santander | Socio y director | +56 9 8806 5230 | rsantanderh@gmail.com |
+| 40 | De Raíz Chile | deraizchile.cl | Vicente Cominetti | Dueño | +56 9 7211 2490 | vcominetti@deraizchile.cl |
+
+## Puntuación
 
 | # | Empresa | Contacto | Prob. | Imp. | Por qué |
 |---|---------|----------|-------|------|---------|
