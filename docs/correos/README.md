@@ -6,7 +6,7 @@ rótulos mono, botones píldora `#0A54DC`, fuentes del sistema y todos los estil
 que se vean bien en Gmail y Outlook.
 
 Logos por URL, desde `https://zhdevelopment.cl/marca/` (ver «Marca para correos y firmas» en el
-README de la landing): sobre la cabecera en tinta va `zh-logo-horizontal-blanco.png` a 220×32;
+README de la landing): sobre la cabecera en tinta va `zh-logo-horizontal-blanco.png` a 200×29, con `max-width:100%` para que en un teléfono angosto se achique en vez de quedar bajo el logo del cliente;
 sobre fondo claro iría `zh-logo-horizontal.png` o `zh-logo-simple.png`. El logo del cliente se
 carga desde su propio sitio, en una caja blanca a la derecha de la cabecera, como en las
 portadas de propuesta (ZH a la izquierda, cliente a la derecha). Los botones de agenda apuntan a
