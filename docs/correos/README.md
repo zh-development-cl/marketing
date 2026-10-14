@@ -28,7 +28,7 @@ Cómo enviarlo desde Gmail:
 3. Pegar en un correo nuevo de Gmail. Se conservan colores, botones y enlaces.
 4. Revisar que los dos logos carguen y enviar.
 
-Enlaces: «Agendar diagnóstico» va a `zhdevelopment.cl/agendar`; «zhdevelopment.cl» al inicio;
+Enlaces: «Agendar diagnóstico» va a `zhdevelopment.cl/agendar`; «Conocer ZH Development» al inicio;
 el teléfono abre WhatsApp. El logo de R-Log es
 `https://r-log.cl/wp-content/uploads/2023/08/r-log-logo.png` (PNG con fondo transparente).
 
