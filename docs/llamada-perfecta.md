@@ -105,19 +105,26 @@ Que la acepte mientras siguen en la línea. Una invitación aceptada en la llama
 
 Es la opción que decidimos usar. Manden el mensaje y llamen entre 10 y 20 minutos después, cuando todavía lo tiene fresco.
 
-> "Hola Daniel, soy [nombre], de ZH Development. Vi que en Diper venden por Bsale y reparten con flota propia. Te voy a llamar en unos 15 minutos por un tema de los pedidos que les llegan por WhatsApp. Si prefieres otra hora, me dices."
+Escríbanlo como le escribirían al amigo de un amigo: en dos mensajes, sin puntuación perfecta, con un comentario propio. Así se ve en el teléfono de Daniel:
 
-- **Nombre y empresa en la primera línea.** Es lo que se ve en la notificación.
-- **Un dato real de su empresa.** Muestra que no es un mensaje masivo.
-- **"En unos 15 minutos" y no "en un rato".** Una hora concreta hace que la llamada llegue cuando la espera.
-- **El tema, en pocas palabras.** Le da una razón para contestar sin contarle todo.
-- **"Si prefieres otra hora, me dices".** Le da el control sin invitarlo a decir que no.
-- **Sin "son dos minutos".** Es la frase de todos los que llaman a vender.
+> Hola Daniel! Soy [nombre], de ZH Development
+>
+> Estuve pegado en la página de Diper, lo de "un pedido, una factura, un despacho" está muy bueno. Te llamo en 15 min más por un tema de los pedidos que les llegan por whatsapp, si andas complicado me dices y lo vemos más rato
+
+Por qué esta versión no huele a plantilla:
+
+- **Son dos mensajes.** Nadie manda un párrafo redondo de una. El primero es corto y solo dice quién eres; el segundo trae el resto.
+- **Tiene una opinión propia.** "Está muy bueno" es algo que diría una persona que de verdad miró la página. Un bot no opina.
+- **Las frases miden distinto.** La versión anterior tenía cinco frases del mismo largo, cada una con una función. Eso es lo que delata a la IA.
+- **"15 min más", "whatsapp" en minúscula, "si andas complicado".** Así se escribe desde el celular. "Si prefieres otra hora, me dices" es de correo formal.
+- **Sin "pregunta corta", sin "te lo comento por si", sin dos puntos.** Son muletillas de plantilla.
+
+Lo que no cambia: nombre y empresa en la primera línea, un dato real del sitio, la hora concreta y el tema en pocas palabras.
 
 **Según lo que responda:**
 
 - **Propone otra hora:** llamen exactamente a esa hora.
-- **"No me interesa":** no llamen. "Gracias por avisarme, Daniel. Que te vaya bien."
+- **"No me interesa":** no llamen. "Vale, gracias por responder igual. Que te vaya bien."
 - **No responde:** llamen igual en el horario que dijeron.
 
 **La apertura de la llamada se acorta:**
@@ -126,20 +133,51 @@ Es la opción que decidimos usar. Manden el mensaje y llamen entre 10 y 20 minut
 
 Y de ahí sigue igual: las dos opciones del problema y "¿te pasa alguna, o estoy muy perdido?".
 
-**El tema para cada empresa**, después de "Te voy a llamar en unos 15 minutos por un tema de…":
+**El mensaje para cada empresa.** Cada uno tiene una estructura un poco distinta a propósito. Si los ocho fueran iguales con el nombre cambiado, volverían a sonar a molde.
 
-| Empresa | Dato de la empresa | Tema |
-|---------|--------------------|------|
-| Transportes González | "Vi que trabajan con camiones isotérmicos." | "…los respaldos de temperatura y guías de cada viaje." |
-| Serteq | "Vi que arriendan grúas horquilla a clientes como CCU y Jumbo." | "…el control de mantenciones de los equipos arrendados." |
-| Diper | "Vi que venden por Bsale y reparten con flota propia." | "…los pedidos que les llegan por WhatsApp." |
-| Bioxiplas | "Vi que a cada cliente le prometen métricas de plástico evitado y CO₂." | "…cómo calculan esas métricas para cada cliente." |
-| Hebe Insumos | "Vi que venden fillers y bioestimuladores solo a profesionales." | "…la validación de los profesionales que se registran." |
-| Cohasa | "Vi que importan desde China y prometen propuestas en 48 horas." | "…el costeo de importaciones en Defontana." |
-| Transportes IMACK | "Entré a su página transportesimack.cl." | "…algo que vi en la página y que les conviene saber." |
-| Inverco Chile | "Vi que llevan más de 30 años financiando pymes." | "…la lectura de carpetas tributarias en las evaluaciones." |
+**Transportes González**, en "usted":
 
-Con don Jorge y don Luis, en "usted": "Lo voy a llamar en unos 15 minutos… Si prefiere otra hora, me dice."
+> Hola don Jorge, buenos días. Le habla [nombre], de ZH Development
+>
+> Vi en su página que trabajan con camiones isotérmicos. Lo voy a llamar en unos 15 minutos por el tema de los respaldos de temperatura y las guías de cada viaje. Si le acomoda más otra hora, me dice nomás
+
+**Serteq**, en "usted":
+
+> Hola don Luis, le habla [nombre], de ZH Development
+>
+> Estuve viendo la página de Serteq, quedó muy bien. Vi que arriendan grúas a CCU y Jumbo, y lo llamo en 15 minutos más por cómo llevan las mantenciones de los equipos arrendados. Si está en terreno, dígame a qué hora le acomoda
+
+**Bioxiplas:**
+
+> Hola Alexis! Soy [nombre], de ZH Development
+>
+> Me metí a la página de Bioxiplas y me quedé pegado con lo de las métricas de plástico evitado y CO₂ por cliente. Te llamo en 15 min por eso mismo, cómo las calculan. Si andas en otra, dime y lo dejamos pa más tarde
+
+**Hebe Insumos:**
+
+> Hola Javier, soy [nombre], de ZH Development
+>
+> Estuve viendo la tienda de Hebe (buena la idea de la academy). Te llamo en 15 min más, es por cómo validan a los profesionales que se registran. Si no es buen momento me avisas
+
+**Cohasa:**
+
+> Hola Cristian! Soy [nombre], de ZH Development
+>
+> Vi que importan desde China y que prometen propuestas en 48 hrs, y encima desarrollaron CatchUp y RutaGo. Te llamo en 15 min por un tema de costeo de importaciones en Defontana. Si andas complicado, dime a qué hora
+
+**Transportes IMACK:**
+
+> Hola Katherine, soy [nombre], de ZH Development
+>
+> Me metí a transportesimack.cl y creo que hay algo que les conviene saber de la página. Te llamo en 15 min y te cuento, es corto. Si prefieres que te lo escriba, me dices
+
+**Inverco Chile:**
+
+> Hola Matías, soy [nombre], de ZH Development
+>
+> Vi en tu LinkedIn que llevan 30+ años financiando pymes. Te llamo en 15 min más por un tema de las carpetas tributarias que leen los analistas en cada evaluación. Si andas en reunión, dime y te llamo después
+
+**Antes de mandarlos**, cámbienles una palabra o dos con su propia forma de hablar. Si tú no dices "pegado" o "en otra", no lo escribas. Lo que delata un mensaje es que no suene a quien lo manda.
 
 Anoten en la planilla que mandaron aviso. Así, con el tiempo, pueden comparar contra llamadas sin aviso.
 
