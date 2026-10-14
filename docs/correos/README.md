@@ -7,7 +7,7 @@ fuentes del sistema y todos los estilos en línea, para que se vean bien en Gmai
 
 ## rlog-presentacion.html
 
-Correo a Walther (R-Log) después de la llamada del 2026-10-14: qué hace ZH, dónde podría
+Correo a Walther (R-Log) al día siguiente de la llamada del 2026-10-14: qué hace ZH, dónde podría
 servir en R-Log y cómo trabajamos, para que lo revise con su socio y, si les hace sentido,
 agenden un diagnóstico sin compromiso.
 
@@ -33,7 +33,7 @@ Versión en texto plano, por si se prefiere un correo simple:
 ```
 Hola Walther:
 
-Gracias por la conversación de hoy. Te dejo por escrito lo que te comenté, para que lo revises con tu socio.
+Gracias por la conversación de ayer. Te dejo por escrito lo que te comenté, para que lo revises con tu socio.
 
 En ZH Development hacemos software a medida, automatización e IA, con revisión humana si lo prefieren: conectamos los sistemas que ya usan, automatizamos lo repetitivo y, donde hay documentos, la IA los lee y una persona puede revisar y aprobar antes de que avance.
 
