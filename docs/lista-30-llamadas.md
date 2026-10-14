@@ -11,6 +11,8 @@ Cómo leer cada ficha:
 
 ## Orden sugerido
 
+El orden definitivo, con probabilidad de cierre e importancia por empresa, está en `orden-de-llamadas.md`. Las tandas de abajo agrupan por tipo de dolor. Los guiones de 7 partes de estas empresas están en `guiones-llamadas-2.md`.
+
 | Tanda | Empresas | Por qué en este orden |
 |-------|----------|-----------------------|
 | 0 | Las 8 de calentamiento | Ya investigadas y con guion completo. |
