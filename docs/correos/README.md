@@ -5,10 +5,11 @@ Correos con el mismo marco que usa la landing para la agenda (`_tools/correos/` 
 rótulos mono, botones píldora `#0A54DC`, fuentes del sistema y todos los estilos en línea, para
 que se vean bien en Gmail y Outlook.
 
-Marca en la cabecera: el ícono `https://zhdevelopment.cl/marca/zh-icono.png` a 32 px y, al
-lado, «ZH Development» y «Software & IA» como texto (igual que los correos de agenda de la
-landing). Así, con las imágenes bloqueadas (Outlook las bloquea hasta que el remitente es de
-confianza), la marca se sigue leyendo; un logotipo completo en imagen quedaba como ícono roto.
+Marca en la cabecera: `https://zhdevelopment.cl/marca/zh-logo-horizontal-blanco.png` a
+200×29, con `max-width:100%` y `height:auto` para que en un teléfono angosto se achique en vez
+de quedar bajo el logo del cliente, y con `alt="ZH Development"` estilizado (blanco, 15 px,
+semibold, con `font-family`) para que, con las imágenes bloqueadas (Outlook las bloquea hasta
+que el remitente es de confianza), se lea el nombre en vez de un ícono roto en Times.
 El logo del cliente se carga desde su propio sitio, en una caja blanca a la derecha de la
 cabecera, como en las portadas de propuesta (ZH a la izquierda, cliente a la derecha), con
 `alt` para que se lea su nombre si no carga. Los botones de agenda apuntan a
