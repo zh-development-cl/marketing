@@ -101,6 +101,31 @@ Que la acepte mientras siguen en la línea. Una invitación aceptada en la llama
 | Después de dos llamadas sin respuesta | No hay datos. En Chile casi nadie contesta números desconocidos | Mandar un mensaje con una pregunta concreta. |
 | Después de hablar por teléfono | Velocify: los mensajes después del contacto suben la conversión en 112 % | Mandarlo siempre, el mismo día. |
 
+### Si parten por WhatsApp, sin haber llamado
+
+Es el orden que el estudio de Velocify desaconseja, así que pruébenlo con la mitad de las empresas y comparen. Si lo usan, el WhatsApp no avisa una llamada: es el contacto en sí, y busca una respuesta por escrito.
+
+> "Hola Daniel, soy [nombre], de ZH Development. Vi que en Diper reparten con flota propia y venden por Bsale. Pregunta corta: ¿los pedidos de los restaurantes les llegan por WhatsApp y alguien los pasa a mano? Si no es tema, me dices y no te escribo más."
+
+- **Nombre y empresa en la primera línea.** Es lo que se ve en la notificación, junto al aviso de que el número no está en sus contactos.
+- **"Pregunta corta"** avisa que responder cuesta poco.
+- **No menciona ninguna llamada.** Si responde, recién ahí se propone llamar. Si no responde en dos o tres días, se llama, partiendo por "te escribí por WhatsApp por lo de los pedidos".
+
+La versión para cada empresa:
+
+| Empresa | Mensaje |
+|---------|---------|
+| Transportes González | "Hola don Jorge, soy [nombre], de ZH Development. Vi que trabajan con camiones isotérmicos. Pregunta corta: cuando un cliente les pide el respaldo de temperatura o la guía firmada de un viaje, ¿lo arman a mano? Si no es tema, me dice y no le escribo más." |
+| Serteq | "Hola don Luis, soy [nombre], de ZH Development. Vi que arriendan y mantienen grúas horquilla para clientes como CCU y Jumbo. Pregunta corta: ¿las mantenciones de cada equipo las controlan en Excel? Si no es tema, me dice y no le escribo más." |
+| Diper | El mensaje de arriba. |
+| Bioxiplas | "Hola Alexis, soy [nombre], de ZH Development. Vi que a cada cliente le prometen métricas de plástico evitado y CO₂. Pregunta corta: ¿esas métricas las calculan a mano en Excel? Si no es tema, me dices y no te escribo más." |
+| Hebe Insumos | "Hola Javier, soy [nombre], de ZH Development. Vi que venden fillers y bioestimuladores solo a profesionales. Pregunta corta: cuando alguien nuevo se registra en la tienda, ¿lo validan a mano? Si no es tema, me dices y no te escribo más." |
+| Cohasa | "Hola Cristian, soy [nombre], de ZH Development. Vi que importan desde China y prometen propuestas en 48 horas. Pregunta corta: ¿el costeo de cada importación lo cuadran a mano antes de pasarlo a Defontana? Si no es tema, me dices y no te escribo más." |
+| Transportes IMACK | "Hola Katherine, soy [nombre], de ZH Development. Entré a transportesimack.cl y todavía muestra el texto de ejemplo de la plantilla y un teléfono que no es el de ustedes. Te lo comento por si les están llegando menos cotizaciones. ¿Lo tenían visto?" |
+| Inverco Chile | "Hola Matías, soy [nombre], de ZH Development. Vi que llevan más de 30 años financiando pymes. Pregunta corta: ¿sus analistas leen a mano las carpetas tributarias y facturas de cada solicitud? Si no es tema, me dices y no te escribo más." |
+
+Con Inverco, confirmen antes en LinkedIn que la empresa siga operando.
+
 ### El mensaje después de dos llamadas sin respuesta
 
 > "Hola Daniel, soy [nombre], de ZH Development. Te llamé un par de veces. Vi que en Diper reparten con flota propia y venden por Bsale. ¿Los pedidos de los restaurantes les llegan por WhatsApp y alguien los pasa a mano? Si no es tema, me dices y no te escribo más."
