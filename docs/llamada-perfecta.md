@@ -6,7 +6,7 @@ Se basa en datos globales de llamadas en frío (Gong, *Cold Calling Sucks*, Belk
 
 ## Por qué esta estructura
 
-- **En Chile casi nadie contesta números desconocidos.** Según Truecaller, el 70 % de las llamadas de números desconocidos son spam, y cada persona recibe unas 31 al mes. Hay que llegar con nombre y contexto antes de llamar.
+- **En Chile casi nadie contesta números desconocidos.** Según Truecaller, el 70 % de las llamadas de números desconocidos son spam, y cada persona recibe unas 31 al mes. Hay que llamar desde un número que se vea confiable, insistir más de una vez y apoyarse en WhatsApp después.
 - **Los chilenos son directos y pragmáticos en lo comercial.** Lo dice el blog de HubSpot en español. Ir al grano rinde más que el saludo largo.
 - **En Latinoamérica se evita el "no" directo.** Lo señala Renato Cuéllar, consultor de prospección B2B en la región. El "mándame información" suele ser un no educado. Hay que hacer fácil decir que no, y preguntar en vez de presionar.
 - **Las aperturas cortas que piden permiso son las que más agendan.** Rondan el 11 % de reuniones en los datos de Gong, contra el 2 % del "¿te pillo en mal momento?".
@@ -18,9 +18,7 @@ Se basa en datos globales de llamadas en frío (Gong, *Cold Calling Sucks*, Belk
 
 **Desde dónde.** Un celular con WhatsApp con foto, nombre y "ZH Development" en el perfil. Así, cuando busquen el número, aparece una persona y no un spam.
 
-**WhatsApp previo, una hora antes.** Es una hipótesis, no un dato medido: prueben con la mitad de las llamadas y comparen.
-
-> "Hola Daniel, soy [nombre], de ZH Development. Te voy a llamar en un rato por un tema de pedidos por WhatsApp en Diper. Son dos minutos."
+**Primero se llama, no se escribe.** El único estudio con datos sobre mensajes antes de la primera llamada, de Velocify, encontró que mandarlos bajaba un 39 % la probabilidad de llegar a hablar con el prospecto. Es un estudio de Estados Unidos, con SMS y no WhatsApp, así que no es concluyente para Chile, pero es la mejor evidencia que hay. Ver la sección "WhatsApp: cuándo y qué escribir".
 
 ---
 
@@ -93,19 +91,59 @@ Que la acepte mientras siguen en la línea. Una invitación aceptada en la llama
 
 ---
 
-## Después de la llamada
+## WhatsApp: cuándo y qué escribir
 
-**WhatsApp de confirmación, el mismo día:**
+### Cuándo
+
+| Momento | Qué dice la evidencia | Qué hacer |
+|---------|-----------------------|-----------|
+| Antes de la primera llamada | Velocify: baja un 39 % la probabilidad de contactar | No mandarlo. Si quieren probarlo, solo con la mitad de las empresas y midiendo. |
+| Después de dos llamadas sin respuesta | No hay datos. En Chile casi nadie contesta números desconocidos | Mandar un mensaje con una pregunta concreta. |
+| Después de hablar por teléfono | Velocify: los mensajes después del contacto suben la conversión en 112 % | Mandarlo siempre, el mismo día. |
+
+### El mensaje después de dos llamadas sin respuesta
+
+> "Hola Daniel, soy [nombre], de ZH Development. Te llamé un par de veces. Vi que en Diper reparten con flota propia y venden por Bsale. ¿Los pedidos de los restaurantes les llegan por WhatsApp y alguien los pasa a mano? Si no es tema, me dices y no te escribo más."
+
+Por qué está armado así:
+
+- **Unas 50 palabras.** En correos en frío, los mensajes de 20 a 50 palabras son los que más respuestas tienen, según datos de Hunter y Lavender.
+- **Palabras simples.** Los mensajes escritos en lenguaje sencillo reciben más respuestas que los técnicos.
+- **Termina en una pregunta de interés, no pidiendo una reunión.** Gong analizó 304 mil correos de venta: en el primer contacto, preguntar si hay interés agenda más reuniones que pedir una fecha.
+- **Un dato real de su empresa.** La personalización es lo que más separa a los mensajes que reciben respuesta de los que no.
+- **Una salida explícita.** En Latinoamérica se evita el "no" directo. Ofrecer la salida facilita que respondan, y reduce las denuncias por spam.
+- **Sin links.** Con tanta estafa telefónica en Chile, un link de un desconocido parece phishing. El sitio va en el perfil.
+
+### Si responde
+
+- **"Sí, nos pasa":** "Justo eso resolvemos. ¿Te llamo cinco minutos hoy a las 4 o mañana a las 10?" Aquí sí se propone un horario, porque ya mostró interés.
+- **"No, eso lo tenemos resuelto":** "Buenísimo. ¿Cómo lo hacen?" A veces lo "resuelto" es una persona tipeando.
+- **"No me interesa":** "Gracias por responder, Daniel. No te escribo más." Y lo sacan de la lista.
+
+### Si no responde
+
+Un solo recordatorio, tres o cuatro días después:
+
+> "Daniel, ¿alcanzaste a ver esto? Si no es prioridad ahora, todo bien."
+
+Si tampoco responde, se suelta la cuenta por un par de meses. Más mensajes aumentan el riesgo de bloqueo.
+
+### Después de hablar por teléfono
+
+El mismo día:
 
 > "Daniel, gracias por la conversación. Quedamos el jueves a las 10 por Meet; ahí te muestro cómo un pedido de WhatsApp queda armado en Bsale. Si puedes, ten a mano un par de pedidos de ejemplo, con audio y todo."
 
-**Si no contestó:** WhatsApp corto y otro intento en dos o tres días, a otra hora. Hasta unos 6 intentos en el mes antes de soltar la cuenta.
+### Para no perder el número
 
----
+- **Siempre uno a uno y escrito a mano.** WhatsApp bloquea cuentas por mensajes masivos o automatizados, y por denuncias de personas que no tienen guardado el número.
+- **Perfil completo.** Foto, nombre, "ZH Development" y el sitio web.
+- **Si alguien pide que no le escriban, no se le escribe más.** Seguir insistiendo es causa directa de bloqueo.
+- **Usen un número que no sea el único con el que operan.** Si lo bloquean, no pierden a sus clientes.
 
 ## Cómo medir si funciona
 
-Anoten cada intento en una planilla con estas columnas: fecha, hora, empresa, si mandaron WhatsApp previo, si contestaron, si hablaron con quien decide, y el resultado.
+Anoten cada intento en una planilla con estas columnas: fecha, hora, empresa, canal (llamada o WhatsApp), si contestaron o respondieron, si hablaron con quien decide, y el resultado.
 
 Referencias para comparar. Son de datos globales, no de Chile:
 
@@ -120,6 +158,8 @@ Con ocho empresas, lo esperable es hablar con dos a cuatro personas y quizás ag
 
 Desde agosto de 2025, Subtel exige el prefijo 809 para las llamadas comerciales no solicitadas, y prohíbe las llamadas automatizadas o masivas desde otros números. La norma no dice con claridad si aplica a llamadas manuales entre empresas. Unas pocas llamadas a mano desde un celular parecen fuera de su espíritu, pero antes de escalar o usar un marcador automático, confírmenlo con un abogado.
 
+La Ley 21.719 de protección de datos personales entra en vigencia el 1 de diciembre de 2026, aunque hay un proyecto en el Congreso para postergarla a 2027. El celular de un gerente sacado de una base de datos es un dato personal. Tengan claro de dónde sacaron cada contacto, díganlo si se lo preguntan, y saquen de la lista a quien lo pida. Según una de las guías revisadas, las pymes tendrían un año en que la Agencia solo puede amonestar. Igual, confírmenlo con un abogado.
+
 ## Fuentes
 
 - [Gong: 90 mil llamadas en frío](https://www.gong.io/blog/cold-call-opening-lines)
@@ -133,3 +173,12 @@ Desde agosto de 2025, Subtel exige el prefijo 809 para las llamadas comerciales 
 - [Chócale: la confianza en el teléfono está rota](https://chocale.cl/2026/03/la-confianza-en-el-telefono-esta-rota/)
 - [El Desconcierto: 70 % de llamadas desconocidas son spam](https://eldesconcierto.cl/tendencias/chile-pionero-spam-telefonico-el-70-las-llamadas-desconocidas-son-publicidad-y-cobranza-n5458726)
 - [Pauta: prefijo 809 de Subtel](https://www.pauta.cl/actualidad/2025/03/20/subtel-regula-llamadas-comerciales-desde-agosto-el-prefijo-809-identificara-las-no-solicitadas.html)
+- [Velocify: texto antes y después del contacto (MarketingProfs)](https://marketingprofs.com/charts/2013/10210/texting-prospects-at-the-right-time-boosts-conversion)
+- [Velocify: estudio de optimización de ventas](https://www.slideshare.net/Velocify/the-ultimate-contact-strategy)
+- [Hunter: largo ideal de un correo en frío](https://hunter.io/blog/cold-email-word-count)
+- [Autobound sobre los datos de Lavender](https://www.autobound.ai/blog/how-writing-style-impacts-sales-email-performance)
+- [Prospeo sobre el estudio de Gong de 304 mil correos](https://prospeo.io/s/cold-email-call-to-action)
+- [Benchmarks de WhatsApp en frío](https://sbl.so/whatsapp/whatsapp-cold-outreach-reply-rates/)
+- [Bloqueos de WhatsApp](https://www.ubergizmo.com/2025/11/whatsapp-bans/)
+- [G5 Noticias: WhatsApp como canal de venta en Chile](https://g5noticias.cl/2026/08/14/de-chat-a-canal-de-ventas-por-que-las-empresas-en-chile-estan-migrando-de-whatsapp-business-a-whatsapp-api/)
+- [Diario Constitucional: vigencia de la Ley 21.719](https://www.diarioconstitucional.cl/2026/06/12/la-ley-21-719-entra-en-vigor-el-1-de-diciembre-y-expone-vacios-en-regulacion-de-pequenas-empresas/)
