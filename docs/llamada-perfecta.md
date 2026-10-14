@@ -126,6 +126,33 @@ Una planilla con una fila por intento: fecha, hora, empresa, canal, si contestó
 
 Tres minutos y medio. Tú hablaste más que él. El descubrimiento se hace en la reunión del viernes.
 
+### Cómo decirlo para que fluya
+
+El texto está bien; lo que suena leído es el ritmo. Cinco cosas que lo arreglan:
+
+1. **Después de "¿cómo estás?", espera y contesta.** "Bien, ¿y tú?", "Bien también". Es el primer intercambio real. Si sigues de largo, la otra persona ya decidió que es una grabación.
+2. **Una idea por respiración, pausa al final.** El pitch de 35 segundos se dice seguido, pero en partes de una frase. Las pausas son para que el otro meta un "ya" o un "mm". Eso es lo que convierte un monólogo en conversación.
+3. **Conectores de persona, no de texto.** "Mira", "oye", "te cuento en corto", "la cosa es que". Un guion escrito no los tiene; alguien hablando, siempre.
+4. **Primero qué hacen, en una línea; después la escena.** Si te cortan en cualquier punto con "¿de qué se trata?", saltas a la línea de qué hacen y sigues desde ahí.
+5. **Más lento de lo que te sale natural**, sobre todo en los primeros 15 segundos. Los nervios aceleran, y rápido suena a vendedor.
+
+Así queda Diper en partes. Es lo que llevas en el celular o en un papel mientras llamas:
+
+1. "Buenas tardes, Daniel, ¿cómo estás?" [espera y contesta lo que diga]
+2. "Soy Lorenzo, no nos conocemos. Te llamo de ZH Development."
+3. "Mira, te cuento en corto por qué te llamo y tú me dices si tiene sentido, ¿ya?" [espera el "ya"]
+4. "Estuve viendo la página de Diper, lo de un pedido, una factura, un despacho."
+5. "Nosotros hacemos que los pedidos que llegan por WhatsApp entren solos a Bsale, sin que alguien los tipee."
+6. "Lo típico en distribuidoras como la de ustedes es que los restaurantes grandes piden por WhatsApp, a veces en audio, y alguien de administración lo pasa a mano. Treinta, cuarenta pedidos al día. Y cada tanto se va una cantidad mal."
+7. "Para no hacerte perder el tiempo: ¿les pasa algo así, o estoy perdido?" [espera]
+
+**Cómo ensayarlo:**
+
+- Grábate en una nota de voz diciendo las 7 partes. Escúchala. Todo lo que te suene a leído, cámbialo por como lo dirías tú.
+- Diez veces en voz alta hasta que salga sin mirar. La primera llamada real no es el ensayo.
+- El socio hace de Daniel y corta en lugares distintos: en la parte 2 con "¿de qué se trata?", en la 4 con "no tengo tiempo", en la 7 con "mándame un correo". Cada corte tiene su salida en los guiones.
+- Las primeras dos llamadas del día, a las empresas que menos importan. La voz se suelta a la tercera.
+
 ### Objeciones, con lo que dicen los datos
 
 Primero, pausa de un segundo. Después, darle la razón. Después, una pregunta. Después, volver a pedir. Nunca discutir.
