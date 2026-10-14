@@ -1,6 +1,8 @@
 # Llamadas de calentamiento: investigación, dolor y pitch
 
-Fecha: 2026-10-14. Ocho empresas chicas para practicar en frío antes de llamar a las 10 principales del ICP.
+Fecha: 2026-10-14. Guion literal de cada llamada en `guiones-llamadas.md`.
+
+Ocho empresas chicas para practicar en frío antes de llamar a las 10 principales del ICP.
 
 Fuente: el sitio web de cada empresa, revisado el 2026-10-14, más búsqueda web cuando el sitio no alcanzaba. Los teléfonos y correos personales de cada contacto están en la base original; aquí van solo los teléfonos públicos del sitio.
 
@@ -47,7 +49,7 @@ Usen "usted" de entrada. Pasen a "tú" solo si la otra persona lo hace primero.
 - Facturación a fin de mes cruzando viajes contra guías en Excel.
 
 **Pitch**
-> "Vi que ustedes trabajan con camiones isotérmicos y que su promesa es entregar en perfectas condiciones y a tiempo. Nosotros hacemos software para empresas de transporte. Por ejemplo, que el informe de temperatura de cada viaje y la guía firmada le lleguen solos al cliente, y que la facturación del mes salga de los viajes sin cuadrar planillas. Le pregunto: hoy, cuando un cliente le pide respaldo de un viaje, ¿quién lo arma y cuánto se demora?"
+> "Vi que ustedes trabajan con camiones isotérmicos y que su promesa es entregar en perfectas condiciones y a tiempo. Nosotros hacemos software a medida para pymes. En transporte, por ejemplo, podemos hacer que el informe de temperatura de cada viaje y la guía firmada le lleguen solos al cliente, y que la facturación del mes salga de los viajes sin cuadrar planillas. Le pregunto: hoy, cuando un cliente le pide respaldo de un viaje, ¿quién lo arma y cuánto se demora?"
 
 **Objeción probable:** "Esto lo hacemos con la secretaria y funciona."
 **Respuesta:** "Perfecto, entonces la idea no es reemplazarla, es que deje de tipear. ¿Cuántas horas a la semana se le van en eso?"
@@ -73,7 +75,7 @@ Usen "usted" de entrada. Pasen a "tú" solo si la otra persona lo hace primero.
 - Facturación mensual de arriendos, que con clientes como CCU o Jumbo exige orden de compra, HES o portal de proveedores.
 
 **Pitch**
-> "Vi que ustedes arriendan y mantienen equipos para clientes como CCU, Agrosuper y Jumbo. Trabajamos con empresas de arriendo de maquinaria. Lo típico que resolvemos es tener en un solo lugar qué equipo está en qué cliente, cuándo le toca mantención y que el técnico cierre la orden desde el celular, con fotos y firma. La factura mensual sale de ahí, sin cuadrar planillas. ¿Hoy cómo saben cuándo le toca mantención a cada equipo?"
+> "Vi que ustedes arriendan y mantienen equipos para clientes como CCU, Agrosuper y Jumbo. Nosotros hacemos software a medida para pymes. En arriendo de maquinaria, lo típico es necesitar tener en un solo lugar qué equipo está en qué cliente, cuándo le toca mantención y que el técnico cierre la orden desde el celular, con fotos y firma. La factura mensual sale de ahí, sin cuadrar planillas. ¿Hoy cómo saben cuándo le toca mantención a cada equipo?"
 
 **Objeción probable:** "Ya tenemos un ERP."
 **Respuesta:** "No lo reemplazamos. Lo conectamos con lo que hoy queda afuera, que suele ser la parte de terreno."
