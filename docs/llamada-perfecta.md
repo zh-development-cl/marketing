@@ -97,9 +97,51 @@ Que la acepte mientras siguen en la línea. Una invitación aceptada en la llama
 
 | Momento | Qué dice la evidencia | Qué hacer |
 |---------|-----------------------|-----------|
-| Antes de la primera llamada | Velocify: baja un 39 % la probabilidad de contactar | No mandarlo. Si quieren probarlo, solo con la mitad de las empresas y midiendo. |
+| Antes de la primera llamada | Velocify: baja un 39 % la probabilidad de contactar | Decidimos avisar igual, con el mensaje de "Si avisan la llamada por WhatsApp", y medir el resultado. |
 | Después de dos llamadas sin respuesta | No hay datos. En Chile casi nadie contesta números desconocidos | Mandar un mensaje con una pregunta concreta. |
 | Después de hablar por teléfono | Velocify: los mensajes después del contacto suben la conversión en 112 % | Mandarlo siempre, el mismo día. |
+
+### Si avisan la llamada por WhatsApp
+
+Es la opción que decidimos usar. Manden el mensaje y llamen entre 10 y 20 minutos después, cuando todavía lo tiene fresco.
+
+> "Hola Daniel, soy [nombre], de ZH Development. Vi que en Diper venden por Bsale y reparten con flota propia. Te voy a llamar en unos 15 minutos por un tema de los pedidos que les llegan por WhatsApp. Si prefieres otra hora, me dices."
+
+- **Nombre y empresa en la primera línea.** Es lo que se ve en la notificación.
+- **Un dato real de su empresa.** Muestra que no es un mensaje masivo.
+- **"En unos 15 minutos" y no "en un rato".** Una hora concreta hace que la llamada llegue cuando la espera.
+- **El tema, en pocas palabras.** Le da una razón para contestar sin contarle todo.
+- **"Si prefieres otra hora, me dices".** Le da el control sin invitarlo a decir que no.
+- **Sin "son dos minutos".** Es la frase de todos los que llaman a vender.
+
+**Según lo que responda:**
+
+- **Propone otra hora:** llamen exactamente a esa hora.
+- **"No me interesa":** no llamen. "Gracias por avisarme, Daniel. Que te vaya bien."
+- **No responde:** llamen igual en el horario que dijeron.
+
+**La apertura de la llamada se acorta:**
+
+> **Tú:** Hola Daniel, soy [nombre], de ZH Development. Te escribí hace un rato. ¿Me das 30 segundos para contarte por qué, y tú decides si seguimos?
+
+Y de ahí sigue igual: las dos opciones del problema y "¿te pasa alguna, o estoy muy perdido?".
+
+**El tema para cada empresa**, después de "Te voy a llamar en unos 15 minutos por un tema de…":
+
+| Empresa | Dato de la empresa | Tema |
+|---------|--------------------|------|
+| Transportes González | "Vi que trabajan con camiones isotérmicos." | "…los respaldos de temperatura y guías de cada viaje." |
+| Serteq | "Vi que arriendan grúas horquilla a clientes como CCU y Jumbo." | "…el control de mantenciones de los equipos arrendados." |
+| Diper | "Vi que venden por Bsale y reparten con flota propia." | "…los pedidos que les llegan por WhatsApp." |
+| Bioxiplas | "Vi que a cada cliente le prometen métricas de plástico evitado y CO₂." | "…cómo calculan esas métricas para cada cliente." |
+| Hebe Insumos | "Vi que venden fillers y bioestimuladores solo a profesionales." | "…la validación de los profesionales que se registran." |
+| Cohasa | "Vi que importan desde China y prometen propuestas en 48 horas." | "…el costeo de importaciones en Defontana." |
+| Transportes IMACK | "Entré a su página transportesimack.cl." | "…algo que vi en la página y que les conviene saber." |
+| Inverco Chile | "Vi que llevan más de 30 años financiando pymes." | "…la lectura de carpetas tributarias en las evaluaciones." |
+
+Con don Jorge y don Luis, en "usted": "Lo voy a llamar en unos 15 minutos… Si prefiere otra hora, me dice."
+
+Anoten en la planilla que mandaron aviso. Así, con el tiempo, pueden comparar contra llamadas sin aviso.
 
 ### Si parten por WhatsApp, sin haber llamado
 
