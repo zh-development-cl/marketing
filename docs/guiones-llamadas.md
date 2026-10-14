@@ -5,7 +5,8 @@ Fecha: 2026-10-14. Versión alineada con los datos de `llamada-perfecta.md`. La 
 ## Cómo usar estos guiones
 
 - La llamada vende la reunión. No es una entrevista: el pitch de 30 a 40 segundos es lo que más pesa, y se dice seguido, sin parar a preguntar.
-- Una pregunta de chequeo después del pitch. Una de seguimiento como máximo. El resto se pregunta en la reunión.
+- La apertura en Chile: nombre sin apellido, "no nos conocemos", de dónde llamas y qué hacen en una línea. Es la fórmula de David Abellán en el podcast *Tengo un Plan*, y calza con los datos de Gong: reconocer que es en frío y decir la razón.
+- Una pregunta de chequeo después del pitch, precedida de "para no hacerte perder el tiempo". Una de seguimiento como máximo. El resto se pregunta en la reunión.
 - Pedir la reunión antes de los 3 minutos, con dos horarios concretos. Mandar la invitación durante la llamada.
 - Lo que va entre corchetes son instrucciones o datos para reemplazar. No se dice.
 - Léanlos en voz alta hasta que el pitch salga sin leer. Un pitch leído se nota.
@@ -80,11 +81,11 @@ Pausa de un segundo. Dar la razón. Una pregunta. Volver a pedir la reunión. Nu
 
 **Apertura**
 
-> "Hola, don Jorge, ¿cómo está? Le habla [nombre], de ZH Development. Lo llamo porque vi la página de Transportes González y tengo una idea puntual para su empresa. Es una llamada en frío, así que ¿me da 30 segundos y usted decide si seguimos?"
+> "Hola, don Jorge, ¿cómo está? Le habla [nombre]. No nos conocemos: lo llamo de ZH Development, hacemos que el papeleo de cada viaje salga solo, sin que nadie lo tipee. ¿Me da 30 segundos y usted decide si seguimos?"
 
 **Pitch, seguido**
 
-> "Vi que trabajan con camiones isotérmicos desde el 90, con furgones de 1,7 a 15 toneladas. En transporte refrigerado, lo típico es que el cliente pida el respaldo de temperatura y la guía firmada de cada viaje, y que alguien en la oficina lo arme a mano con lo que mandan los choferes por WhatsApp. Y a fin de mes, cuadrar los viajes contra las guías en Excel para facturar. Nosotros hacemos que eso salga solo: el chofer sube la guía y el registro de temperatura desde el celular, el cliente recibe su respaldo sin pedirlo, y la factura del mes sale de los viajes. Sin cambiar el GPS ni el termo que ya tienen. ¿Le pasa algo así, o estoy perdido?"
+> "Vi que trabajan con camiones isotérmicos desde el 90, con furgones de 1,7 a 15 toneladas. En transporte refrigerado, lo típico es que el cliente pida el respaldo de temperatura y la guía firmada de cada viaje, y que alguien en la oficina lo arme a mano con lo que mandan los choferes por WhatsApp. Y a fin de mes, cuadrar los viajes contra las guías en Excel para facturar. Nosotros hacemos que eso salga solo: el chofer sube la guía y el registro de temperatura desde el celular, el cliente recibe su respaldo sin pedirlo, y la factura del mes sale de los viajes. Sin cambiar el GPS ni el termo que ya tienen. Para no hacerle perder el tiempo: ¿le pasa algo así, o estoy perdido?"
 
 **Seguimiento, una sola**
 
@@ -113,11 +114,11 @@ Pausa de un segundo. Dar la razón. Una pregunta. Volver a pedir la reunión. Nu
 
 **Apertura**
 
-> "Hola, don Luis, ¿cómo está? Le habla [nombre], de ZH Development. Lo llamo porque estuve en la página de Serteq y tengo una idea puntual para ustedes. Es en frío, así que ¿me da 30 segundos y usted decide?"
+> "Hola, don Luis, ¿cómo está? Le habla [nombre]. No nos conocemos: lo llamo de ZH Development, hacemos que las empresas de arriendo tengan controlados sus equipos y mantenciones sin planillas. ¿Me da 30 segundos y usted decide?"
 
 **Pitch, seguido**
 
-> "Vi que arriendan y mantienen grúas horquilla y transpaletas para CCU, Agrosuper y Jumbo, y que la página quedó muy bien. En arriendo de equipos, lo típico es tener en una planilla qué equipo está en qué cliente, que las mantenciones dependan de que alguien se acuerde del horómetro, y que el técnico reporte por WhatsApp lo que hizo. Nosotros hacemos un sistema donde cada equipo tiene su ficha, el técnico cierra la orden desde el celular con fotos y firma, el sistema avisa cuándo toca mantención, y la factura mensual de arriendo sale sola, con la orden de compra del cliente adjunta. Sin reemplazar el ERP que tengan. ¿Le pasa algo así, o estoy perdido?"
+> "Vi que arriendan y mantienen grúas horquilla y transpaletas para CCU, Agrosuper y Jumbo, y que la página quedó muy bien. En arriendo de equipos, lo típico es tener en una planilla qué equipo está en qué cliente, que las mantenciones dependan de que alguien se acuerde del horómetro, y que el técnico reporte por WhatsApp lo que hizo. Nosotros hacemos un sistema donde cada equipo tiene su ficha, el técnico cierra la orden desde el celular con fotos y firma, el sistema avisa cuándo toca mantención, y la factura mensual de arriendo sale sola, con la orden de compra del cliente adjunta. Sin reemplazar el ERP que tengan. Para no hacerle perder el tiempo: ¿le pasa algo así, o estoy perdido?"
 
 **Seguimiento, una sola**
 
@@ -146,11 +147,11 @@ Pausa de un segundo. Dar la razón. Una pregunta. Volver a pedir la reunión. Nu
 
 **Apertura**
 
-> "Hola, Daniel, ¿cómo estás? Soy [nombre], de ZH Development. Te llamo porque estuve en la página de Diper y tengo una idea puntual para ustedes. Es en frío, así que ¿me das 30 segundos y tú decides si seguimos?"
+> "Hola, Daniel, ¿cómo estás? Soy [nombre]. No nos conocemos: te llamo de ZH Development, hacemos que los pedidos que llegan por WhatsApp entren solos a Bsale. ¿Me das 30 segundos y tú decides si seguimos?"
 
 **Pitch, seguido**
 
-> "Vi que venden por Bsale y que reparten con flota propia en 27 comunas, lo de 'un pedido, una factura, un despacho'. En distribuidoras así, lo típico es que los restaurantes grandes no usen la web: piden por WhatsApp, a veces en audio, y alguien de administración lo pasa a mano a Bsale. Treinta o cuarenta pedidos al día tipeados, y cada tanto se va una cantidad mal y hay que ir a buscar la mercadería de vuelta. Nosotros hacemos que ese WhatsApp quede armado como pedido en Bsale, con productos y cantidades, y la persona solo revisa y aprueba. No cambia Bsale ni la forma en que piden los clientes. ¿Les pasa algo así, o estoy perdido?"
+> "Vi que venden por Bsale y que reparten con flota propia en 27 comunas, lo de 'un pedido, una factura, un despacho'. En distribuidoras así, lo típico es que los restaurantes grandes no usen la web: piden por WhatsApp, a veces en audio, y alguien de administración lo pasa a mano a Bsale. Treinta o cuarenta pedidos al día tipeados, y cada tanto se va una cantidad mal y hay que ir a buscar la mercadería de vuelta. Nosotros hacemos que ese WhatsApp quede armado como pedido en Bsale, con productos y cantidades, y la persona solo revisa y aprueba. No cambia Bsale ni la forma en que piden los clientes. Para no hacerte perder el tiempo: ¿les pasa algo así, o estoy perdido?"
 
 **Seguimiento, una sola**
 
@@ -179,11 +180,11 @@ Pausa de un segundo. Dar la razón. Una pregunta. Volver a pedir la reunión. Nu
 
 **Apertura**
 
-> "Hola, Alexis, ¿cómo estás? Soy [nombre], de ZH Development. Te llamo porque estuve leyendo sobre Bioxiplas y tengo una idea puntual para ustedes. Es en frío, así que ¿me das 30 segundos y tú decides?"
+> "Hola, Alexis, ¿cómo estás? Soy [nombre]. No nos conocemos: te llamo de ZH Development, automatizamos reportes que hoy se arman a mano en Excel. ¿Me das 30 segundos y tú decides?"
 
 **Pitch, seguido**
 
-> "Vi que a cada cliente le prometen métricas de impacto: plástico evitado, CO₂ reducido, aporte a su reporte ESG. Y que trabajan con salmoneras y plantas de alimentos. En una fábrica así, lo típico es que esas métricas se calculen a mano, cruzando las ventas de Defontana con factores en una planilla, una vez al año o cuando el cliente las pide. Nosotros hacemos que salgan solas cada mes desde las ventas de cada cliente, en un PDF con su logo, listas para que el área de sostenibilidad de una Camanchaca las pegue en su reporte. Nadie las arma, y el cliente las recibe sin pedirlas. ¿Les pasa algo así, o estoy perdido?"
+> "Vi que a cada cliente le prometen métricas de impacto: plástico evitado, CO₂ reducido, aporte a su reporte ESG. Y que trabajan con salmoneras y plantas de alimentos. En una fábrica así, lo típico es que esas métricas se calculen a mano, cruzando las ventas de Defontana con factores en una planilla, una vez al año o cuando el cliente las pide. Nosotros hacemos que salgan solas cada mes desde las ventas de cada cliente, en un PDF con su logo, listas para que el área de sostenibilidad de una Camanchaca las pegue en su reporte. Nadie las arma, y el cliente las recibe sin pedirlas. Para no hacerte perder el tiempo: ¿les pasa algo así, o estoy perdido?"
 
 **Seguimiento, una sola**
 
@@ -212,11 +213,11 @@ Pausa de un segundo. Dar la razón. Una pregunta. Volver a pedir la reunión. Nu
 
 **Apertura**
 
-> "Hola, Javier, ¿cómo estás? Soy [nombre], de ZH Development. Te llamo porque estuve en la tienda de Hebe y tengo una idea puntual para ustedes. Es en frío, así que ¿me das 30 segundos y tú decides?"
+> "Hola, Javier, ¿cómo estás? Soy [nombre]. No nos conocemos: te llamo de ZH Development, automatizamos validaciones y trazabilidad para tiendas online. ¿Me das 30 segundos y tú decides?"
 
 **Pitch, seguido**
 
-> "Vi que venden fillers, bioestimuladores e hilos solo a profesionales de la salud, por la tienda, y que tienen Hebe Academy. En una importadora así, lo típico es que cada registro nuevo se valide a mano, mirando el título o buscando en el registro de prestadores, y que la trazabilidad de qué lote se le vendió a quién esté en planillas. Nosotros hacemos que el registro se valide solo contra el registro de la Superintendencia de Salud y que a ustedes les llegue la ficha lista para aprobar con un clic, y que cada venta quede con su lote y vencimiento asociado al cliente. Si hay que ubicar a todos los que compraron un lote, sale en un minuto. ¿Les pasa algo así, o estoy perdido?"
+> "Vi que venden fillers, bioestimuladores e hilos solo a profesionales de la salud, por la tienda, y que tienen Hebe Academy. En una importadora así, lo típico es que cada registro nuevo se valide a mano, mirando el título o buscando en el registro de prestadores, y que la trazabilidad de qué lote se le vendió a quién esté en planillas. Nosotros hacemos que el registro se valide solo contra el registro de la Superintendencia de Salud y que a ustedes les llegue la ficha lista para aprobar con un clic, y que cada venta quede con su lote y vencimiento asociado al cliente. Si hay que ubicar a todos los que compraron un lote, sale en un minuto. Para no hacerte perder el tiempo: ¿les pasa algo así, o estoy perdido?"
 
 **Seguimiento, una sola**
 
@@ -245,11 +246,11 @@ Pausa de un segundo. Dar la razón. Una pregunta. Volver a pedir la reunión. Nu
 
 **Apertura**
 
-> "Hola, Cristian, ¿cómo estás? Soy [nombre], de ZH Development. Te llamo porque estuve revisando Cohasa y tengo una idea puntual. Es en frío, así que ¿me das 30 segundos y tú decides?"
+> "Hola, Cristian, ¿cómo estás? Soy [nombre]. No nos conocemos: te llamo de ZH Development, hacemos integraciones a medida con sistemas como Defontana. ¿Me das 30 segundos y tú decides?"
 
 **Pitch, seguido**
 
-> "Vi que importan desde su oficina en China, que prometen propuestas en 48 horas, y que desarrollaron CatchUp y RutaGo, así que no te voy a hablar de digitalizarse. En importadoras con varias líneas de negocio, lo típico es que el costeo de cada embarque se cuadre en Excel antes de entrar a Defontana, con flete, seguro, internación y tipo de cambio, y que las cotizaciones se armen a mano para llegar a las 48 horas. Nosotros hacemos integraciones a medida: el costeo entra solo a Defontana desde los documentos del embarque, y las cotizaciones salen de una base de precios que se actualiza con cada importación. Y si les falta capacidad de desarrollo para sus propios productos, podemos ser ese equipo, con el código a nombre de Cohasa. ¿Alguna de las tres te hace sentido, o estoy perdido?"
+> "Vi que importan desde su oficina en China, que prometen propuestas en 48 horas, y que desarrollaron CatchUp y RutaGo, así que no te voy a hablar de digitalizarse. En importadoras con varias líneas de negocio, lo típico es que el costeo de cada embarque se cuadre en Excel antes de entrar a Defontana, con flete, seguro, internación y tipo de cambio, y que las cotizaciones se armen a mano para llegar a las 48 horas. Nosotros hacemos integraciones a medida: el costeo entra solo a Defontana desde los documentos del embarque, y las cotizaciones salen de una base de precios que se actualiza con cada importación. Y si les falta capacidad de desarrollo para sus propios productos, podemos ser ese equipo, con el código a nombre de Cohasa. Para no hacerte perder el tiempo: ¿alguna de las tres te hace sentido, o estoy perdido?"
 
 **Seguimiento, una sola**
 
@@ -278,7 +279,7 @@ Pausa de un segundo. Dar la razón. Una pregunta. Volver a pedir la reunión. Nu
 
 **Apertura**
 
-> "Hola, Katherine, ¿cómo estás? Soy [nombre], de ZH Development. Te llamo porque busqué su empresa y vi algo en su página que creo que te conviene saber. Es en frío, así que ¿me das 30 segundos?"
+> "Hola, Katherine, ¿cómo estás? Soy [nombre]. No nos conocemos: te llamo de ZH Development, hacemos sitios web y cotizadores para empresas de transporte. Vi algo en su página que te conviene saber, ¿me das 30 segundos?"
 
 **Pitch, seguido, dicho como un aviso**
 
@@ -311,11 +312,11 @@ Pausa de un segundo. Dar la razón. Una pregunta. Volver a pedir la reunión. Nu
 
 **Apertura**
 
-> "Hola, Matías, ¿cómo estás? Soy [nombre], de ZH Development. Te llamo porque vi tu perfil y tengo una idea puntual para Inverco. Es en frío, así que ¿me das 30 segundos y tú decides?"
+> "Hola, Matías, ¿cómo estás? Soy [nombre]. No nos conocemos: te llamo de ZH Development, usamos inteligencia artificial para leer documentos financieros, con revisión humana. ¿Me das 30 segundos y tú decides?"
 
 **Pitch, seguido**
 
-> "Vi que Inverco lleva más de 30 años financiando pymes, desde Talca. En financiamiento a pymes, lo típico es que un analista pase horas leyendo carpetas tributarias, facturas y balances para armar cada evaluación, y que el dato que importa esté en la página 40 de un PDF del SII. Nosotros usamos inteligencia artificial para que esos documentos se lean solos y el analista reciba la ficha armada, con el origen de cada dato marcado para que lo verifique. Nada avanza sin que alguien de tu equipo lo apruebe, y todo queda en cuentas a nombre de Inverco. ¿Les pasa algo así, o estoy perdido?"
+> "Vi que Inverco lleva más de 30 años financiando pymes, desde Talca. En financiamiento a pymes, lo típico es que un analista pase horas leyendo carpetas tributarias, facturas y balances para armar cada evaluación, y que el dato que importa esté en la página 40 de un PDF del SII. Nosotros usamos inteligencia artificial para que esos documentos se lean solos y el analista reciba la ficha armada, con el origen de cada dato marcado para que lo verifique. Nada avanza sin que alguien de tu equipo lo apruebe, y todo queda en cuentas a nombre de Inverco. Para no hacerte perder el tiempo: ¿les pasa algo así, o estoy perdido?"
 
 **Seguimiento, una sola**
 

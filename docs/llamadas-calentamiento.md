@@ -25,9 +25,9 @@ Primero los dueños con negocio simple, al final las más sofisticadas o con dat
 
 Según los datos de Gong sobre 90 mil llamadas en frío (detalle en `llamada-perfecta.md`):
 
-1. **Apertura, 10 segundos.** "Hola [nombre], ¿cómo estás? Soy [tu nombre], de ZH Development. Te llamo porque… ¿me das 30 segundos y tú decides?"
+1. **Apertura, 10 segundos.** "Hola [nombre], ¿cómo estás? Soy [tu nombre]. No nos conocemos: te llamo de ZH Development, [qué hacen, en una línea]. ¿Me das 30 segundos y tú decides?"
 2. **Pitch, 30 a 40 segundos seguidos.** Un problema concreto de su rubro, con detalle, y cómo desaparece. En "nosotros".
-3. **Una pregunta de chequeo.** "¿Les pasa algo así, o estoy perdido?" Una de seguimiento como máximo.
+3. **Una pregunta de chequeo.** "Para no hacerte perder el tiempo: ¿les pasa algo así, o estoy perdido?" Una de seguimiento como máximo.
 4. **Pedir la reunión antes de los 3 minutos**, con dos horarios. Invitación durante la llamada.
 
 Tuteo con gerentes y fundadores, "usted" con don Jorge y don Luis. El guion literal de cada llamada está en `guiones-llamadas.md`. Los "dolores" de más abajo son hipótesis para armar el pitch, no preguntas para hacer en la llamada.

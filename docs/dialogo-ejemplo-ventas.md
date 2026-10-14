@@ -18,15 +18,15 @@ Las respuestas de Daniel, las cifras y el nombre del socio son inventados. Lo qu
 
 **Daniel:** Bien… ¿de dónde?
 
-**Tú:** ZH Development, hacemos software para distribuidoras. Te llamo porque estuve en la página de Diper y tengo una idea puntual para ustedes. Es en frío, así que ¿me das 30 segundos y tú decides si seguimos?
+**Tú:** No nos conocemos. Te llamo de ZH Development, hacemos que los pedidos que llegan por WhatsApp entren solos a Bsale. ¿Me das 30 segundos y tú decides si seguimos?
 
 **Daniel:** Ya, dale.
 
-> Quince segundos. Nombre, "¿cómo estás?", la razón de la llamada y permiso. Nada de "¿te pillo en mal momento?".
+> Quince segundos. Nombre sin apellido, "¿cómo estás?", "no nos conocemos", de dónde llamas y qué hacen en una línea, y permiso. Nada de "¿te pillo en mal momento?".
 
 ## Pitch
 
-**Tú:** Vi que venden por Bsale y que reparten con flota propia en 27 comunas, lo de "un pedido, una factura, un despacho". En distribuidoras así, lo típico es que los restaurantes grandes no usen la web: piden por WhatsApp, a veces en audio, y alguien de administración lo pasa a mano a Bsale. Treinta o cuarenta pedidos al día tipeados, y cada tanto se va una cantidad mal y hay que ir a buscar la mercadería de vuelta. Nosotros hacemos que ese WhatsApp quede armado como pedido en Bsale, con productos y cantidades, y la persona solo revisa y aprueba. No cambia Bsale ni la forma en que piden los clientes. ¿Les pasa algo así, o estoy perdido?
+**Tú:** Vi que venden por Bsale y que reparten con flota propia en 27 comunas, lo de "un pedido, una factura, un despacho". En distribuidoras así, lo típico es que los restaurantes grandes no usen la web: piden por WhatsApp, a veces en audio, y alguien de administración lo pasa a mano a Bsale. Treinta o cuarenta pedidos al día tipeados, y cada tanto se va una cantidad mal y hay que ir a buscar la mercadería de vuelta. Nosotros hacemos que ese WhatsApp quede armado como pedido en Bsale, con productos y cantidades, y la persona solo revisa y aprueba. No cambia Bsale ni la forma en que piden los clientes. Para no hacerte perder el tiempo: ¿les pasa algo así, o estoy perdido?
 
 > Treinta y cinco segundos seguidos. Describe una escena concreta de su día, con cifras, no "ahorrar tiempo". Dice "nosotros". Termina en una sola pregunta que se responde con sí o no.
 

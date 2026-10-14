@@ -7,7 +7,7 @@ Los datos vienen de estudios con muestras grandes (Gong, Belkins, Velocify) y de
 ## Resumen en diez líneas
 
 1. **La llamada en frío vende la reunión, no descubre.** En 90 mil llamadas analizadas por Gong, las exitosas tienen al vendedor hablando más (55 %), con un pitch seguido de 37 segundos, y al prospecto respondiendo corto. Hacer muchas preguntas no mejora nada. Esto corrige el diálogo de ejemplo anterior, donde el prospecto hablaba más.
-2. **Apertura de 10 segundos:** nombre, "¿cómo estás?", "te llamo porque…" y pedir 30 segundos. Nunca "¿te pillo en mal momento?".
+2. **Apertura de 10 segundos:** nombre sin apellido, "¿cómo estás?", "no nos conocemos", de dónde llamas y qué hacen en una línea, y pedir 30 segundos. Nunca "¿te pillo en mal momento?".
 3. **Pitch de 30 a 40 segundos, específico y con "nosotros".** Un problema concreto de su rubro, con detalle, y cómo desaparece. Las llamadas exitosas usan "nosotros" un 65 % más.
 4. **Una pregunta de chequeo**, no cinco: "¿les pasa algo así, o estoy perdido?".
 5. **Pedir la reunión con dos horarios concretos** y mandar la invitación durante la llamada.
@@ -90,9 +90,9 @@ Una planilla con una fila por intento: fecha, hora, empresa, canal, si contestó
 | Momento | Qué pasa | Dato |
 |---------|----------|------|
 | 0 a 5 s | "Hola Daniel, ¿cómo estás? Soy [nombre], de ZH Development." | "¿Cómo has estado?" agenda 6,6 veces más que el promedio. "¿Te pillo en mal momento?" baja un 40 %. |
-| 5 a 15 s | "Te llamo porque… ¿me das 30 segundos y tú decides?" | Decir la razón de la llamada sube el éxito 2,1 veces. Pedir permiso reconociendo que es en frío: 11 % de reuniones, contra 1,5 % de base. |
+| 5 a 15 s | "No nos conocemos. Te llamo de ZH Development, [qué hacen, en una línea]. ¿Me das 30 segundos y tú decides?" | Decir la razón de la llamada sube el éxito 2,1 veces. Pedir permiso reconociendo que es en frío: 11 % de reuniones, contra 1,5 % de base. "No nos conocemos" es la forma natural de decirlo en español. |
 | 15 a 50 s | Pitch seguido, específico, en "nosotros". | Las llamadas exitosas tienen un pitch de 37 segundos sin interrupción, contra 25. Usan "nosotros" un 65 % más. |
-| 50 a 60 s | Una pregunta de chequeo. | La cantidad de preguntas no cambia el resultado. Abrir con preguntas de descubrimiento sí lo empeora. |
+| 50 a 60 s | "Para no hacerte perder el tiempo:" y una pregunta de chequeo. | La cantidad de preguntas no cambia el resultado. Abrir con preguntas de descubrimiento sí lo empeora. |
 | 1 a 3 min | Escuchar corto, una pregunta de seguimiento como máximo, pedir la reunión con dos horarios. | En las llamadas exitosas, el prospecto habla en intervenciones de 3,5 segundos; en las fallidas, de 8. |
 | 3 a 5 min | Objeción, pausa, dar la razón, volver a pedir. Invitación en vivo. | Los mejores vendedores hacen una pausa más larga después de una objeción, no más corta. |
 
@@ -102,11 +102,11 @@ Una planilla con una fila por intento: fecha, hora, empresa, canal, si contestó
 >
 > **Daniel:** Bien… ¿de dónde?
 >
-> **Tú:** ZH Development, hacemos software para distribuidoras. Te llamo porque estuve en la página de Diper y tengo una idea puntual para ustedes. Es en frío, así que ¿me das 30 segundos y tú decides si seguimos?
+> **Tú:** No nos conocemos. Te llamo de ZH Development, hacemos que los pedidos que llegan por WhatsApp entren solos a Bsale. ¿Me das 30 segundos y tú decides si seguimos?
 >
 > **Daniel:** Ya, dale.
 >
-> **Tú:** Vi que venden por Bsale y que reparten con flota propia en 27 comunas, lo de "un pedido, una factura, un despacho". En distribuidoras así, lo típico es que los restaurantes grandes no usen la web: piden por WhatsApp, a veces en audio, y alguien de administración lo pasa a mano a Bsale. Treinta o cuarenta pedidos al día tipeados, y cada tanto se va una cantidad mal y hay que ir a buscar la mercadería de vuelta. Nosotros hacemos que ese WhatsApp quede armado como pedido en Bsale, con productos y cantidades, y la persona solo revisa y aprueba. No cambia Bsale ni la forma en que piden los clientes. ¿Les pasa algo así, o estoy perdido?
+> **Tú:** Vi que venden por Bsale y que reparten con flota propia en 27 comunas, lo de "un pedido, una factura, un despacho". En distribuidoras así, lo típico es que los restaurantes grandes no usen la web: piden por WhatsApp, a veces en audio, y alguien de administración lo pasa a mano a Bsale. Treinta o cuarenta pedidos al día tipeados, y cada tanto se va una cantidad mal y hay que ir a buscar la mercadería de vuelta. Nosotros hacemos que ese WhatsApp quede armado como pedido en Bsale, con productos y cantidades, y la persona solo revisa y aprueba. No cambia Bsale ni la forma en que piden los clientes. Para no hacerte perder el tiempo: ¿les pasa algo así, o estoy perdido?
 >
 > **Daniel:** Sí, lo del WhatsApp es tal cual.
 >
@@ -153,6 +153,22 @@ Primero, pausa de un segundo. Después, darle la razón. Después, una pregunta.
 - **Dos horarios concretos**, no "¿cuándo te acomoda?".
 
 Los guiones por empresa en `guiones-llamadas.md` ya están actualizados con esta estructura.
+
+### Lo que tomamos del clip de *Tengo un Plan*
+
+David Abellán, vendedor español, guioniza una llamada en frío en el podcast *Tengo un Plan* (febrero de 2025). Él mismo dice que no está estudiado, que es lo que a él le funcionó. Calza casi entero con los datos de Gong, y suena mejor en español:
+
+- **Nombre sin apellido.** "Soy David", no "David Abellán". "A menos que seas Steve Jobs."
+- **"No nos conocemos."** Adelanta la objeción: la otra persona se relaja porque ya no tiene que preguntarse quién eres. Es la versión natural en español del "permission-based opener" que en Gong agenda el 11 %.
+- **"Te llamo de…"** y qué hacen, en una línea: "ayudamos a empresas a crear una sensación olfativa a través de los aromas". Para ZH: "hacemos que los pedidos de WhatsApp entren solos a Bsale".
+- **"Para no hacerte perder el tiempo…"** como transición. Dice que respeta el tiempo del otro y el suyo. Lo adoptamos antes de la pregunta de chequeo.
+- **Mandar por escrito el mismo día** lo que se habló: "la gente cree lo que ve, no lo que escucha". Es nuestro WhatsApp de confirmación.
+- **Contestar al momento** cuando alguien escribe. Él dice que sube el cierre un 300 %; no da fuente, pero la dirección coincide con lo que mide Velocify.
+- **Una venta toma de 5 a 12 contactos**, y la mayoría de los vendedores para a la tercera llamada. Es la misma conclusión que Velocify: por eso la secuencia tiene 6 contactos y se retoma a los dos meses.
+
+Lo que no tomamos: después de "para no hacerte perder el tiempo", él entra a preguntar cuántos empleados tienen, qué producto usan y quién decide. Vende un producto de catálogo con tres precios, y esa llamada puede cotizar. ZH vende un proyecto a medida que hay que mostrar, y Gong mide que en la llamada en frío las preguntas no suman. Para ZH, después de esa frase va una pregunta y la reunión. La de "quién decide" sí se hace, pero como cierre: "¿invitamos a tu socio a los mismos 20 minutos?".
+
+**Una idea suya que vale la pena pensar:** responde "¿cuánto cuesta?" con tres niveles ("10, 20 o 30, y con cada uno tienes esto"). Si ZH define tres paquetes con precio, por ejemplo una automatización simple, una integración y una con inteligencia artificial, la llamada deja de esquivar la pregunta de precio. Mientras no existan, se mantiene la respuesta de la sección de objeciones.
 
 ---
 
@@ -351,3 +367,5 @@ La Ley 21.719 de protección de datos personales entra en vigencia el 1 de dicie
 - [NapoleonCat: usuarios de LinkedIn en Chile](https://napoleoncat.com/stats/linkedin-users-in-chile/)
 - [Expandi con datos de Belkins: aceptación y respuesta en LinkedIn](https://expandi.io/blog/linkedin-connection-message-templates/)
 - [Snov.io: correos en frío, apertura y secuencias](https://snov.io/blog/es/estadisticas-de-correos-electronicos-no-solicitados/)
+- [Tengo un Plan: clip de 53 segundos con David Abellán](https://www.youtube.com/shorts/qEhcohcI9BE)
+- [Tengo un Plan: la llamada completa guionizada, 5 minutos](https://www.youtube.com/watch?v=T-FT7W9e02g)
