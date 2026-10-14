@@ -10,7 +10,7 @@ Actualizado: 2026-10-14. Las fechas suponen que las llamadas fueron el miércole
 | VinoPrint | César Aldana | Pidió que lo llamen. | Llamar | Jue 15 oct, 10:00 | Nik |
 | Logística Integral | Pablo Salazar | Pidió que lo llamen. | Llamar | Jue 15 oct, 10:20 | Nik |
 | Gimeco | Felipe Contreras | Hablar en diciembre. | WhatsApp corto hoy; llamar en diciembre | Mar 1 dic | Nik |
-| Flosam | Julio Gutiérrez | Aceptó reunión. | Reunión por Meet; mandar invitación a jgutierrez@flosam.cl hoy | Vie 16 oct, 12:00 | Bozzo |
+| Flosam | Julio Gutiérrez | Aceptó reunión. No dio su correo. | WhatsApp hoy pidiendo el correo; luego invitación de Meet | Vie 16 oct, 12:00 | Bozzo |
 | Natufeed | José Miguel Figueroa | Quiere reunión. | WhatsApp para agendar | Hoy | Nik |
 | Mr Wash | Nicolás Edwards | Ya no trabaja ahí; está en un laboratorio. Puede hacer el nexo. | WhatsApp pidiendo el contacto | Hoy | Bozzo |
 | Megaklean | Harry Winkler | Pidió que lo llamen. | Llamar | Jue 15 oct, 11:00 | Bozzo |
@@ -135,28 +135,23 @@ Igual: primero confirmar a qué se dedican y si siguen operando. Si es transport
 
 ### Flosam, reunión viernes 16 a las 12:00 (Bozzo)
 
-Julio ya aceptó la reunión. Hoy: crear el evento en Google Calendar con Meet, invitar a jgutierrez@flosam.cl, y mandar este correo. Mañana jueves, un WhatsApp de confirmación.
+Julio aceptó la reunión pero no dio su correo; el de la base no está validado. Hoy, un WhatsApp que le ofrece el correo que tenemos para que solo confirme:
 
-> **Para:** jgutierrez@flosam.cl
-> **Asunto:** Reunión viernes 12:00: control de containers en arriendo
+> Hola Julio! Lorenzo acá, de ZH Development, recién hablamos por teléfono
 >
-> Hola Julio:
->
-> Gracias por la conversación de hoy. Te confirmo la reunión del viernes 16 a las 12:00 por Google Meet; la invitación con el link ya está en tu correo.
->
-> La idea es que me cuentes cómo llevan hoy los containers en arriendo, en qué obra está cada uno y hasta cuándo, y cómo arman la factura de cada mes. Con eso te muestro cómo quedaría una ficha por container que avisa los vencimientos y saca la factura sola, y te digo qué se puede automatizar y qué no.
->
-> Si puedes, ten a mano la planilla o el documento con el que controlan los arriendos hoy.
->
-> Saludos,
-> [Nombre]
-> ZH Development · zhdevelopment.cl · [celular]
+> Para dejar agendada la reunión del viernes a las 12, ¿te mando la invitación de Meet a jgutierrez@flosam.cl o prefieres otro correo?
+
+Versión sin mostrar el correo: "¿me pasas tu correo y te mando la invitación de Meet?".
+
+**Cuando responda:** evento en Google Calendar con Meet, 12:00 a 12:30. En la descripción: "Me cuentas cómo llevan hoy los containers en arriendo y te muestro cómo quedaría una ficha por container que avisa vencimientos y saca la factura sola. Si puedes, ten a mano la planilla con la que los controlan."
+
+**Si no responde hoy:** mañana en la mañana, mandar la invitación al correo de la base igual y avisar por WhatsApp.
 
 **WhatsApp del jueves:**
 
-> Hola Julio, soy [nombre] de ZH Development. Te confirmo mañana viernes a las 12 por Meet, el link está en la invitación que te mandé al correo. ¿Sigue en pie?
+> Hola Julio, soy Lorenzo de ZH Development. Te confirmo mañana viernes a las 12 por Meet, el link está en la invitación. ¿Sigue en pie?
 
-**Para la reunión:** lleven una maqueta simple de la ficha de un container (obra, cliente, fecha de inicio, fecha de término, estado, última factura) y una lista con tres o cuatro vencimientos de ejemplo. Dibujada en una lámina basta; lo importante es que Julio se vea en ella. Primero que él cuente cómo lo hace hoy, después la maqueta, y al final la pregunta: "Si te mandamos una propuesta escrita con alcance, plazo y precio para esto, ¿la revisas con calma la próxima semana?".
+**Para la reunión:** una maqueta simple de la ficha de un container (obra, cliente, fecha de inicio, fecha de término, estado, última factura) y tres o cuatro vencimientos de ejemplo. Primero que Julio cuente cómo lo hace hoy, después la maqueta, y al final: "Si te mandamos una propuesta escrita con alcance, plazo y precio para esto, ¿la revisas la próxima semana?".
 
 ---
 
