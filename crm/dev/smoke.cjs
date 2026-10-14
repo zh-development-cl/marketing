@@ -84,8 +84,7 @@ const ok = (cond, msg) => { if (!cond) errors.push("falló: " + msg); else notes
   await page.fill("#c-notas", "Coordina despachos con planillas y WhatsApp. Quiere ver el estado de cada pedido.");
   await page.fill("#c-dur", "12");
   await page.getByRole("button", { name: "Agregar transcripción" }).click();
-  await page.fill("#c-trans", "Lorenzo: Te aviso que voy a grabar la llamada para tomar notas.\nCarolina: Dale, no hay problema.\nCarolina: Hoy los despachos los vemos en una planilla y por WhatsApp.");
-  await page.check("#c-avisada");
+  await page.fill("#c-trans", "Carolina: Hoy los despachos los vemos en una planilla y por WhatsApp.\nLorenzo: ¿Cuántas bodegas tienen?\nCarolina: Tres.");
   await page.getByRole("button", { name: "Analizar con Claude" }).click();
   await page.locator(".work .analysis").waitFor();
   await shot(page, "03-analisis.png");
@@ -183,7 +182,7 @@ const ok = (cond, msg) => { if (!cond) errors.push("falló: " + msg); else notes
   const lead = Object.values(dump).find((d) => d.nombre === "Carolina Pérez");
   ok(lead && lead.telefono === "+56912345678" && lead.cargo === "Jefa de operaciones", "el lead guarda teléfono E.164 y el cargo detectado en la llamada");
   const llamada = Object.values(dump).find((d) => d.tipo === "llamada");
-  ok(llamada && llamada.grabacionAvisada === true && llamada.transcripcion.includes("grabar"), "la llamada guarda la transcripción y el aviso de grabación");
+  ok(llamada && llamada.transcripcion === null && llamada.analisis && llamada.analisis.resumen, "por defecto la llamada guarda notas y análisis, sin la transcripción completa");
   ok(Object.values(dump).some((d) => d.nombre === "Matías Rojas" && d.noContactar === true && d.proxima === null), "la marca de no contactar queda guardada");
   const prompts = await page.evaluate(() => window.__mockPrompts);
   const mailPrompt = prompts.find((p) => p.includes("Escribe un correo"));

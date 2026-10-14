@@ -37,8 +37,8 @@ próxima acción con atajos (hoy, mañana, en 3 días hábiles, en una semana); 
 
 En «Datos del lead», **«Pidió no ser contactado»** deja registrada la fecha, saca al lead de las
 listas de trabajo y bloquea llamar, escribir y redactar (ver `docs/crm-telefonia-whatsapp.md`).
-Al registrar una llamada con transcripción hay una casilla para dejar constancia de que se avisó
-que se grababa.
+Al registrar una llamada se guardan las notas y el análisis de Claude; la transcripción completa
+se guarda solo si se marca esa opción.
 
 Las etapas son: Por contactar → Contactado → Reunión → Propuesta enviada → Negociación, más
 Ganado, Perdido (con motivo y lo que dijo el cliente) y En pausa.
@@ -70,9 +70,10 @@ escritorio con la sesión de **WhatsApp Business del número de negocios**. Ver
 
 ## Llamadas y transcripción
 
-El CRM no graba llamadas: la grabación se hace en el teléfono (o en la central que se contrate) y
-la transcripción se pega en «Registrar llamada». Las opciones, costos y el aviso legal de grabar
-están en `docs/crm-telefonia-whatsapp.md`.
+El CRM no graba llamadas. Lo práctico es dictar las notas justo al cortar (micrófono del teclado
+del teléfono) y dejar que Claude las ordene; si hay una transcripción, se pega o se sube en
+«Registrar llamada». Las opciones para transcribir sin aviso, sus costos y lo legal están en
+`docs/crm-telefonia-whatsapp.md`.
 
 ## Datos
 

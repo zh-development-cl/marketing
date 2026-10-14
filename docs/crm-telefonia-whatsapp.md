@@ -8,9 +8,8 @@ confirmar**. La parte legal resume lo que dicen las fuentes; no es asesoría leg
 | Tema | Qué hacer ahora | Si después quieren que sea automático |
 |---|---|---|
 | WhatsApp | Poner el número de negocios en la app **WhatsApp Business** (gratis) y abrirla en el computador con WhatsApp Web; el CRM abre cada chat con el texto listo. | WhatsApp Business Platform (API) en **coexistencia** con la app, a través de un proveedor, y un servidor chico que registre cada mensaje en el CRM. |
-| Grabar llamadas | Grabación nativa del iPhone en la línea de negocios: avisa sola a las dos partes y deja audio y transcripción en Notas. | Un número chileno nuevo en una central en la nube (Zadarma, CloudTalk, JustCall o Twilio): llamadas desde el computador, grabadas y transcritas solas. |
-| Transcribir | Copiar la transcripción del iPhone y pegarla en «Registrar llamada»; Claude hace el resumen. El iPhone transcribe llamadas en español de México y de EE.UU.; **español de Chile no figura: hay que probarlo**. | Si el iPhone no transcribe, un servicio por API transcribe el audio por menos de US$0,20 por llamada de 30 minutos. |
-| Legal | Avisar que se graba y pedir el acuerdo; respetar a quien pide no ser contactado; antes del 1-12-2026, actualizar la política de privacidad de la web (Ley 21.719). | Lo mismo, más los avisos que exija el proveedor que se use. |
+| Notas de las llamadas | Dictar las notas en el CRM justo al cortar (micrófono del teclado del teléfono); Claude las ordena. No se graba la voz del cliente. | Una línea en la nube que grabe y transcriba sola, con un número nuevo. El iPhone no sirve para esto: siempre avisa a las dos personas. |
+| Legal | Según la jurisprudencia citada, grabar sin avisar una llamada en la que uno participa no es el delito del 161-A. Desde el 1-12-2026 (Ley 21.719) hay que mencionarlo en la política de privacidad y guardar lo mínimo. | Lo mismo, según lo que haga el proveedor que se use. |
 
 ## 1. WhatsApp Business con el número de negocios
 
@@ -59,58 +58,39 @@ respuestas automáticas.
 - **Requiere un servidor** (por ejemplo, una función en Vercel) que reciba los avisos de Meta. El
   CRM es una página dentro de claude.ai y no puede recibirlos directamente.
 
-## 2. Grabar y transcribir las llamadas
+## 2. Notas de las llamadas, sin avisar al cliente
 
-### Ahora: la grabación del iPhone
+La idea es tener buenas notas de cada llamada para el seguimiento, sin que el cliente escuche un
+aviso de grabación al empezar.
 
-- **Disponible en Chile:** Apple publica los países donde no está (Unión Europea, Rusia, Turquía y
-  algunos países de Medio Oriente y África, entre otros) y Chile no está en esa lista.
-- **Aviso automático:** durante la llamada se toca el botón de grabar. El iPhone reproduce un
-  aviso a las dos personas, y Apple pide además asegurarse de que la otra persona esté de acuerdo.
-- **Dónde queda:**
-  - En la app Notas, carpeta «Grabaciones de llamadas»: el audio y la transcripción, separada
-    por persona.
-  - Se puede «Copiar transcripción», «Compartir audio» o «Guardar archivos de audio».
-  - Si se borra el audio, se borra también la transcripción.
-- **Español de Chile por confirmar:**
-  - Apple lista la transcripción de llamadas solo en español de México y de EE.UU.
-  - Prueben con una llamada corta en la línea de negocios.
-  - Si no aparece la transcripción, hay dos salidas. Una: probar con el iPhone en «Español
-    (México)» (no verificado). Otra: exportar el audio y transcribirlo aparte (ver abajo).
-- **Resumen de Apple:** requiere iPhone 15 Pro o posterior y solo existe en español de México y
-  EE.UU. No hace falta: el resumen lo hace Claude en el CRM.
-- **Doble línea:** Apple no dice si la grabación funciona en la segunda línea, así que hay que
-  probarla en la de negocios. Antes de llamar, elijan la línea de negocios en el iPhone.
+### Lo que ya funciona: dictar las notas al cortar
 
-**Android:**
-- La app Teléfono de Google graba con aviso a las dos partes, pero no transcribe; su
-  disponibilidad en Chile está **por confirmar**.
-- Samsung documenta en Chile la grabación de llamadas, y Galaxy AI transcribe en español de
-  México, España y EE.UU.; español de Chile **por confirmar**.
+1. En la ficha del lead, «Registrar llamada» → «Notas de la llamada».
+2. En el teléfono, toca el micrófono del teclado y dicta en 30 a 60 segundos lo que recuerdes, sin
+   orden: qué necesita, qué le preocupa, qué quedaste en mandar.
+3. «Analizar con Claude» lo ordena: resumen, necesidades, objeciones, lo que prometimos, próximos
+   pasos, etapa y próxima acción. Revisas y guardas.
 
-### Si el teléfono no transcribe: transcribir el audio
+No se graba la voz del cliente, así que no hay nada que avisar ni audio que guardar. No cuesta nada
+y funciona desde hoy.
 
-Servicios por API que reconocen español y separan a quién habla (precios a octubre de 2026):
+### Transcribir la conversación completa sin aviso
 
-| Servicio | Precio aproximado | Nota |
-|---|---|---|
-| Deepgram Nova-3 | US$0,0043/min | US$200 de crédito inicial; español latinoamericano (`es-419`) |
-| AssemblyAI | US$0,0035/min + US$0,02/h por separar voces | Cubre todos los dialectos del español |
-| ElevenLabs Scribe v2 | US$0,0037/min | Separa hasta 32 voces |
-| OpenAI gpt-4o-transcribe-diarize | US$0,006/min | Archivos de hasta 25 MB |
-
-Una llamada de 30 minutos cuesta menos de US$0,20. Para usarlo hay que crear la cuenta y guardar
-la clave como secreto del entorno, nunca en este repositorio. Con eso se puede armar el paso
-«audio → transcripción → análisis → ficha del lead», ya sea en una conversación con Claude o como
-botón del CRM a través de un conector.
-
-### Más adelante: llamadas grabadas y transcritas solas
-
-- **El número móvil actual no se puede llevar a Twilio:** Chile no está en sus guías de
-  portabilidad. Usar el móvil como identificador verificado en llamadas de Twilio es posible, pero
-  Twilio no garantiza que se vea bien en Chile.
-- **La ruta realista es un número chileno nuevo** en una central en la nube, que graba,
-  transcribe y avisa a un servidor:
+- **iPhone: no sirve.**
+  - Su grabación nativa siempre reproduce un aviso a las dos personas.
+  - Ese aviso no se puede quitar; solo se puede apagar la función completa.
+- **App Teléfono de Google en Android:** tampoco; avisa a las dos partes.
+- **Samsung:**
+  - Samsung Chile documenta la grabación de llamadas, pero no dice si avisa a la otra persona:
+    hay que probarlo.
+  - Galaxy AI transcribe en español de México, España y EE.UU.; el de Chile está **por
+    confirmar**.
+- **Una línea en la nube:**
+  - La central graba y transcribe. Si suena un aviso o no, lo define la configuración de cada
+    proveedor (**por confirmar** en cada caso).
+  - La llamada sale con un número nuevo, no con el móvil de negocios actual: Twilio no tiene a
+    Chile en su lista de portabilidad, y usar el móvil como identificador verificado en Twilio no
+    garantiza que se vea bien en Chile.
 
 | Opción | Número chileno | Costo aproximado | Transcripción en español | Conexión |
 |---|---|---|---|---|
@@ -119,39 +99,45 @@ botón del CRM a través de un conector.
 | JustCall | Móvil y fijo (con documentos y domicilio en Chile) | US$29 por usuario/mes, mínimo 2 | Incluida (español de Latinoamérica) | API y webhooks |
 | Twilio | Móvil +56 9: US$10/mes (con documentos y domicilio en Chile) | US$0,0746/min a móviles + US$0,0025/min de grabación | Por lotes o en tiempo real (Google o Deepgram) | Todo programable, incluido llamar desde el navegador |
 
-- **WhatsApp Business Calling API:** llamadas por WhatsApp con grabación y transcripción en
-  español incluidas y gratis por ahora. Las que inicia el cliente son gratis; las que inicia la
-  empresa hacia Chile cuestan US$0,0121/min y necesitan su permiso. Exige que el número esté en la
-  API y no en la app, y un límite de mensajería de 2.000 destinatarios diarios. Conviene evaluarla
-  más adelante.
+**Si tienen un audio y hay que transcribirlo**, estos servicios por API reconocen español y
+separan a quién habla (precios a octubre de 2026). Una llamada de 30 minutos cuesta menos de
+US$0,20. La clave va como secreto del entorno, nunca en este repositorio.
+
+| Servicio | Precio aproximado | Nota |
+|---|---|---|
+| Deepgram Nova-3 | US$0,0043/min | US$200 de crédito inicial; español latinoamericano (`es-419`) |
+| AssemblyAI | US$0,0035/min + US$0,02/h por separar voces | Cubre todos los dialectos del español |
+| ElevenLabs Scribe v2 | US$0,0037/min | Separa hasta 32 voces |
+| OpenAI gpt-4o-transcribe-diarize | US$0,006/min | Archivos de hasta 25 MB |
+
+**WhatsApp Business Calling API:** no sirve para esto. Graba y transcribe en español, pero
+reproduce un aviso obligatorio a las dos personas.
 
 ## 3. Lo legal en Chile
 
-> Resumen de las fuentes, no asesoría legal. Antes de grabar en forma sistemática, conviene una
-> revisión de un abogado.
+> Resumen de las fuentes, no asesoría legal. Si van a transcribir llamadas de forma sistemática,
+> conviene una consulta corta con un abogado.
 
-- **Grabar una llamada en la que uno participa:**
+- **Grabar sin avisar una llamada en la que uno participa:**
   - El artículo 161-A del Código Penal castiga grabar conversaciones privadas «sin autorización
     del afectado».
   - Según las fuentes citadas, la Corte Suprema ha entendido que ese delito supone que grabe un
-    tercero, no un participante.
-  - Igual, la práctica correcta es avisar al inicio, decir para qué se graba y pedir el acuerdo.
-    Frase sugerida: «Antes de partir: voy a grabar la llamada para tomar bien las notas y mandarte
-    un resumen. ¿Te parece?».
-  - En el CRM, «Registrar llamada» tiene la casilla «Avisé al inicio que la llamada se grababa».
+    tercero, no alguien que participa en la llamada.
+  - Hay doctrina que sostiene que sí podría haber delito si hay engaño. Si un cliente pregunta si
+    lo están grabando, no lo nieguen.
+  - Dictar las notas después de cortar no graba a nadie, así que no entra en esta discusión.
 - **Ley 21.719 de datos personales, vigente desde el 1-12-2026** (hay un proyecto en trámite para
   postergarla un año):
-  - Hace falta una base para tratar los datos de los leads: consentimiento (puede ser verbal),
-    interés legítimo o medidas precontractuales que pidió la persona.
-  - Hay que publicar una política con:
-    - finalidades;
-    - plazo de conservación;
-    - origen de los datos;
-    - transferencias al extranjero (claude.ai de Anthropic, Google, Resend, Vercel y el
-      proveedor de telefonía que se use);
-    - un canal para ejercer los derechos: acceso, rectificación, supresión y oposición, incluida
-      la oposición al marketing directo.
-  - Pendiente: actualizar `privacidad.html` de la landing antes de esa fecha.
+  - Las notas y una transcripción de una llamada con un cliente son datos personales.
+  - Sin consentimiento, la base posible es el interés legítimo: sin afectar los derechos de la
+    persona, que puede pedir que se le explique cuál es.
+  - La ley exige informarlo en la política de tratamiento: finalidad (notas internas de las
+    llamadas comerciales), plazo de conservación, proveedores en el extranjero (claude.ai de
+    Anthropic, Google, Resend, Vercel y el de telefonía, si se usa) y cómo pedir acceso,
+    corrección o borrado. Si además exige un aviso en cada llamada está **por confirmar**.
+  - Pendiente: agregar eso a `privacidad.html` de la landing antes de esa fecha.
+  - Guarden lo mínimo: por defecto el CRM guarda las notas y el análisis, no la transcripción
+    completa. Si graban audio con otra herramienta, bórrenlo después de transcribirlo.
 - **«No molestar»** (art. 28 B de la Ley del Consumidor):
   - Cubre teléfono, SMS, WhatsApp y correo; a quien pide no ser contactado se le saca de las
     bases en un día hábil.
@@ -172,11 +158,11 @@ botón del CRM a través de un conector.
 
 1. **Antes de llamar:** en **Hoy** está la lista de a quién llamar, con lo atrasado primero. En la
    ficha, «Registrar llamada» muestra el número grande con «Copiar» y «Llamar».
-2. **Durante la llamada:** llamas desde la línea de negocios y, al empezar, avisas que vas a
-   grabar.
+2. **Durante la llamada:** llamas desde la línea de negocios.
 3. **Al cortar:**
-   - Pegas la transcripción («Copiar transcripción» en Notas) o subes un `.txt`, `.vtt` o `.srt`.
-   - Marcas el resultado y el aviso de grabación, y agregas tus notas.
+   - Dictas tus notas en «Registrar llamada» o, si tienes una transcripción, la pegas o subes un
+     `.txt`, `.vtt` o `.srt`.
+   - Marcas el resultado. La transcripción completa se guarda solo si marcas esa opción.
 4. **«Analizar con Claude»:**
    - Deja el resumen, lo que necesita, las objeciones, lo que prometimos y el siguiente paso.
    - Propone la etapa y la próxima acción. Revisas y guardas.

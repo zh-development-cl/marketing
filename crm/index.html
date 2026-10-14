@@ -1093,7 +1093,7 @@ function Feed({ items, showLead, limit }) {
       <span class=${cx("feed-ico", a.autor === "claude" && "claude")}><${Icon} name=${ACT_ICON[a.tipo] || "note"} /></span>
       <div style="min-width:0">
         <p class="feed-title">${showLead && lead ? html`<button onClick=${() => openLead(lead.id)}>${leadName(lead)}</button> · ` : null}${actTitulo(a)}</p>
-        <p class="feed-meta">${ago(a.fecha)}${a.autor ? " · " + nameOf(a.autor) : ""}${a.linea ? " · línea " + a.linea : ""}${a.grabacionAvisada === true ? " · grabación avisada" : a.grabacionAvisada === false ? " · sin registro de aviso de grabación" : ""}</p>
+        <p class="feed-meta">${ago(a.fecha)}${a.autor ? " · " + nameOf(a.autor) : ""}${a.linea ? " · línea " + a.linea : ""}</p>
         ${a.resumen ? html`<p class="feed-text">${showLead ? clip(a.resumen.replace(/\s+/g, " "), 160) : clip(a.resumen, 2000)}</p>` : null}
         ${an && an.resumen && !showLead ? html`<details style="margin-top:6px"><summary class="small" style="cursor:pointer;color:var(--accent)">Análisis de Claude${an.interes && an.interes !== "sin_datos" ? " · interés " + an.interes : ""}</summary><${AnalysisView} a=${an} /></details>` : null}
         ${a.transcripcion && !showLead ? html`<details style="margin-top:6px"><summary class="small" style="cursor:pointer;color:var(--fg-3)">Transcripción (${Math.round(a.transcripcion.length / 1000)} mil caracteres)</summary><p class="feed-text">${a.transcripcion}</p></details>` : null}
@@ -1701,9 +1701,10 @@ function CallLogger({ lead, hist, onDone }) {
   const [useData, setUseData] = useState(true);
   const [retry, setRetry] = useState(true);
   const [toContactado, setToContactado] = useState(true);
-  const [avisada, setAvisada] = useState(false);
+  const [guardarTrans, setGuardarTrans] = useState(() => ls.get("guardarTrans", false));
   const ctl = useRef(null);
   useEffect(() => ls.set("linea", linea), [linea]);
+  useEffect(() => ls.set("guardarTrans", guardarTrans), [guardarTrans]);
   useEffect(() => () => { if (ctl.current) ctl.current.abort(); }, []);
 
   const contesto = resultado === "contesto" || resultado === "volver";
@@ -1743,7 +1744,7 @@ function CallLogger({ lead, hist, onDone }) {
     try {
       const now = nowISO();
       const transcripcion = trans.length > 180000 ? trans.slice(0, 180000) + "\n[transcripción recortada]" : trans;
-      await api.addAct({ leadId: lead.id, tipo: "llamada", resultado, linea, duracion: Number(duracion) > 0 ? Number(duracion) : null, resumen: notas || (an ? an.resumen : ""), transcripcion: transcripcion || null, grabacionAvisada: transcripcion ? avisada : null, analisis: an || null });
+      await api.addAct({ leadId: lead.id, tipo: "llamada", resultado, linea, duracion: Number(duracion) > 0 ? Number(duracion) : null, resumen: notas || (an ? an.resumen : ""), transcripcion: guardarTrans && transcripcion ? transcripcion : null, analisis: an || null });
       const patch = { ultimoIntento: now, intentos: sinResp ? (lead.intentos || 0) + 1 : 0 };
       if (!sinResp && resultado !== "equivocado") patch.ultimoContacto = now;
       let etapa = lead.etapa;
@@ -1770,10 +1771,11 @@ function CallLogger({ lead, hist, onDone }) {
       <div class="field"><span>Línea</span><${Seg} label="Línea" value=${linea} onChange=${setLinea} options=${[["negocios", "Negocios"], ["personal", "Personal"]]} /></div>
       <label class="field" for="c-dur"><span>Duración (minutos)</span><input id="c-dur" class="input mono" inputmode="numeric" value=${duracion} onInput=${(e) => setDuracion(e.currentTarget.value.replace(/[^\d]/g, ""))} /></label>
     </div>
-    <label class="field" for="c-notas"><span>Notas de la llamada</span><textarea id="c-notas" class="textarea" rows="4" placeholder="Qué se habló, qué necesita, qué quedamos en hacer" value=${notas} onInput=${(e) => setNotas(e.currentTarget.value)}></textarea></label>
+    <label class="field" for="c-notas"><span>Notas de la llamada</span><textarea id="c-notas" class="textarea" rows="4" placeholder="Qué se habló, qué necesita, qué quedamos en hacer" value=${notas} onInput=${(e) => setNotas(e.currentTarget.value)}></textarea>
+      <small class="hint">Al cortar, en el teléfono, toca el micrófono del teclado y dicta lo que recuerdes, sin orden. «Analizar con Claude» lo ordena.</small></label>
     ${showTrans ? html`<label class="field" for="c-trans"><span>Transcripción</span><textarea id="c-trans" class="textarea" rows="7" placeholder="Pega aquí la transcripción de la llamada" value=${trans} onInput=${(e) => setTrans(e.currentTarget.value)}></textarea>
-      <small class="hint">En el iPhone: app Notas → Grabaciones de llamadas → Copiar transcripción. También puedes subir un .txt, .vtt o .srt.</small></label>
-      <label class="check" for="c-avisada"><input type="checkbox" id="c-avisada" checked=${avisada} onChange=${(e) => setAvisada(e.currentTarget.checked)} />Avisé al inicio que la llamada se grababa y la persona estuvo de acuerdo</label>` : null}
+      <small class="hint">Pégala desde la herramienta que uses o sube un .txt, .vtt o .srt. Claude la usa para el análisis.</small></label>
+      <label class="check" for="c-guardar-trans"><input type="checkbox" id="c-guardar-trans" checked=${guardarTrans} onChange=${(e) => setGuardarTrans(e.currentTarget.checked)} />Guardar también la transcripción completa. Si no, solo quedan tus notas y el análisis de Claude.</label>` : null}
     <div class="actions">
       ${!showTrans ? html`<button class="btn small" onClick=${() => setShowTrans(true)}><${Icon} name="doc" />Agregar transcripción</button>` : null}
       <label class="btn small"><${Icon} name="upload" />Subir archivo<input type="file" accept=".txt,.vtt,.srt,.md,text/plain" class="sr" onChange=${(e) => readFile(e.currentTarget.files && e.currentTarget.files[0])} /></label>

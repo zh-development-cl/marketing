@@ -62,8 +62,8 @@ hacer y el teléfono formateado (`+56 9 1234 5678`).
    `compromisos`, `proximosPasos`, `interes` (`alto`, `medio`, `bajo`, `sin_datos`),
    `etapaSugerida` y `proxima`.
 3. `set` en `actividades`: `{leadId, tipo: "llamada", fecha, autor: "claude", resultado, linea,
-   duracion, resumen, transcripcion, grabacionAvisada, analisis}`. `grabacionAvisada` es `true`
-   solo si el usuario dice que avisó al inicio que se grababa; si no lo sabes, `null`.
+   duracion, resumen, transcripcion, analisis}`. Guarda `transcripcion` solo si el usuario pide
+   conservarla; si no, `null` (quedan las notas y el análisis).
 4. `update` del lead: `ultimoContacto` (si contestó), `ultimoIntento`, `intentos` (0 si contestó;
    +1 si no), `proxima`, y la `etapa` si cambia. Cada cambio de etapa agrega una actividad
    `{tipo: "etapa", de, a}`.
