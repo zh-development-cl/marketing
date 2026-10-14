@@ -1,109 +1,166 @@
-# La llamada ideal en frío, adaptada a Chile
+# Playbook de prospección: qué hacer y qué decir, con datos
 
-Fecha: 2026-10-14. Ejemplo con Diper. Reemplaza la apertura larga de `dialogo-ejemplo-ventas.md`.
+Fecha: 2026-10-14. Consolida la investigación de llamadas en frío para ZH Development. Reemplaza las versiones anteriores de este archivo.
 
-Se basa en datos globales de llamadas en frío (Gong, *Cold Calling Sucks*, Belkins), en lo poco que hay publicado sobre Latinoamérica y en datos de Chile sobre spam telefónico. No existe un estudio público de efectividad de llamadas en frío en Latinoamérica. Por eso, lo que es hipótesis está marcado como tal.
+Los datos vienen de estudios con muestras grandes (Gong, Belkins, Velocify) y de lo poco que hay sobre Chile. Ninguno es chileno ni de pymes de 5 personas, así que son hipótesis de partida: la planilla propia es la que manda después de unas 50 cuentas.
 
-## Por qué esta estructura
+## Resumen en diez líneas
 
-- **En Chile casi nadie contesta números desconocidos.** Según Truecaller, el 70 % de las llamadas de números desconocidos son spam, y cada persona recibe unas 31 al mes. Hay que llamar desde un número que se vea confiable, insistir más de una vez y apoyarse en WhatsApp después.
-- **Los chilenos son directos y pragmáticos en lo comercial.** Lo dice el blog de HubSpot en español. Ir al grano rinde más que el saludo largo.
-- **En Latinoamérica se evita el "no" directo.** Lo señala Renato Cuéllar, consultor de prospección B2B en la región. El "mándame información" suele ser un no educado. Hay que hacer fácil decir que no, y preguntar en vez de presionar.
-- **Las aperturas cortas que piden permiso son las que más agendan.** Rondan el 11 % de reuniones en los datos de Gong, contra el 2 % del "¿te pillo en mal momento?".
-- **Se necesitan varios intentos.** Una agencia española reporta unos 6 intentos por cuenta en un mes. Las guías de Latinoamérica hablan de 5 a 8 contactos entre llamada, WhatsApp, correo y LinkedIn.
-
----
-
-## Antes de llamar
-
-**Desde dónde.** Un celular con WhatsApp con foto, nombre y "ZH Development" en el perfil. Así, cuando busquen el número, aparece una persona y no un spam.
-
-**Primero se llama, no se escribe.** El único estudio con datos sobre mensajes antes de la primera llamada, de Velocify, encontró que mandarlos bajaba un 39 % la probabilidad de llegar a hablar con el prospecto. Es un estudio de Estados Unidos, con SMS y no WhatsApp, así que no es concluyente para Chile, pero es la mejor evidencia que hay. Ver la sección "WhatsApp: cuándo y qué escribir".
+1. **La llamada en frío vende la reunión, no descubre.** En 90 mil llamadas analizadas por Gong, las exitosas tienen al vendedor hablando más (55 %), con un pitch seguido de 37 segundos, y al prospecto respondiendo corto. Hacer muchas preguntas no mejora nada. Esto corrige el diálogo de ejemplo anterior, donde el prospecto hablaba más.
+2. **Apertura de 10 segundos:** nombre, "¿cómo estás?", "te llamo porque…" y pedir 30 segundos. Nunca "¿te pillo en mal momento?".
+3. **Pitch de 30 a 40 segundos, específico y con "nosotros".** Un problema concreto de su rubro, con detalle, y cómo desaparece. Las llamadas exitosas usan "nosotros" un 65 % más.
+4. **Una pregunta de chequeo**, no cinco: "¿les pasa algo así, o estoy perdido?".
+5. **Pedir la reunión con dos horarios concretos** y mandar la invitación durante la llamada.
+6. **Una llamada exitosa dura 4 a 6 minutos.** Si va en 2 y no hay reunión, no la alarguen con preguntas: pidan la reunión.
+7. **Llamar hasta 6 veces por empresa en un mes**, a horas distintas. Por marcación contesta 1 de 10; por empresa, 1 de 4.
+8. **Martes a jueves, primero en la tarde.** Entre 15:30 y 18:00, después 9:30 a 11:30. Nunca de 13:00 a 15:00 ni viernes en la tarde.
+9. **Ahora es buena época.** Mediados de octubre a mediados de diciembre. Enero y febrero están muertos en Chile.
+10. **WhatsApp después de hablar, siempre.** Antes de la primera llamada, los datos dicen que resta; decidimos avisar igual y medir.
 
 ---
 
-## La llamada
+## Qué hacer
 
-### 0 a 10 segundos: apertura
+### La secuencia por empresa
+
+Hasta 6 contactos en 4 semanas. Después, soltar por dos meses.
+
+| Día | Contacto |
+|-----|----------|
+| 1 | WhatsApp de aviso y llamada 15 minutos después, en la tarde. |
+| 3 | Segunda llamada, en la mañana. Sin mensaje. |
+| 5 | WhatsApp con una pregunta concreta (sección "después de dos llamadas"). |
+| 9 | Tercera llamada, en la tarde. |
+| 14 | Cuarta llamada, a otra hora. Si hay correo, un correo corto. |
+| 21 | Quinta llamada. |
+| 28 | Recordatorio por WhatsApp: "¿alcanzaste a ver esto?". Si nada, soltar. |
+
+Por qué 6: en 3,5 millones de leads analizados por Velocify, el 93 % de los que terminaron convirtiendo fueron contactados antes del sexto intento. Belkins, con 175 mil marcaciones, promedia 3 intentos por prospecto, y la probabilidad de contactar sube de 9,9 % por marcación a 24,5 % por prospecto.
+
+**Para las 10 empresas principales, agreguen LinkedIn.** En Chile hay 9,2 millones de usuarios, casi la mitad de la población. La solicitud de conexión se acepta en un 26 a 28 % de los casos, con o sin nota. Mándenla 2 o 3 días antes de la primera llamada, y en la llamada digan "te mandé una solicitud en LinkedIn". Es lo más parecido a la apertura "¿has escuchado de nosotros?", que es la que más reuniones agenda en los datos de Gong, y que ustedes todavía no pueden usar porque no tienen clientes del rubro.
+
+### Horarios para Chile
+
+Los estudios de Estados Unidos coinciden en martes a jueves y en la tarde. Belkins: miércoles es el mejor día y viernes el peor; de 15:00 a 16:00 rinde casi el doble que de 9:00 a 11:00. CallHippo e InsideSales: 16:00 a 17:00. Ajustado a Chile, donde el almuerzo corre de 13:00 a 15:00:
+
+| Prioridad | Franja |
+|-----------|--------|
+| 1 | Martes, miércoles y jueves, 15:30 a 18:00 |
+| 2 | Martes a jueves, 9:30 a 11:30 |
+| 3 | Lunes en la tarde |
+| Nunca | 13:00 a 15:00, viernes después de las 14:00, lunes antes de las 11:00 |
+
+Un dato que no es de Chile y hay que probar: en varios estudios, las 8:00 de la mañana rinden bien con dueños, porque contestan antes de que empiece el día.
+
+### Temporada
+
+Belkins mide las reuniones más bajas en julio, agosto y septiembre, y las más altas en febrero, mayo y noviembre. Eso es hemisferio norte. Para Chile:
+
+- **Mejor:** mediados de octubre a mediados de diciembre, y marzo a junio.
+- **Muerto:** del 15 de diciembre al 1 de marzo, y la semana del 18 de septiembre.
+- **Ahora** están en la mejor ventana del año. Las 8 de calentamiento esta semana, las 10 principales la próxima.
+
+### A quién pedir
+
+Belkins encontró que los gerentes son los más contactables (11 % contesta), los directores son los que más reuniones agendan, y los dueños o gerentes generales responden bien pero casi siempre piden "mándame algo" en vez de agendar en la llamada. En empresas de 5 personas el dueño contesta su propio celular, así que el problema no es llegar: es que diga que sí ahí mismo. Por eso la invitación se manda durante la llamada.
+
+### Qué esperar
+
+| Métrica | Promedio (EE. UU.) | Buenos vendedores |
+|---------|--------------------|-------------------|
+| Contesta, por marcación | 10 % | 13 a 15 % |
+| Contesta, por empresa (varios intentos) | 25 % | |
+| Conversación real, de los que contestan | 58 % | |
+| Reunión, de las conversaciones | 2 a 5 % | 6 a 11 % |
+
+Belkins midió que fuera de Estados Unidos contesta más gente (12 a 16 %) y las reuniones son de 1,6 a 7 veces más frecuentes. Chile está menos saturado de llamadas en frío B2B que Estados Unidos, así que es razonable esperar algo mejor que el promedio.
+
+Con 8 empresas: 2 a 3 conversaciones y, con suerte, 1 reunión. Con 50: unas 12 conversaciones y 1 a 3 reuniones. Las primeras 8 son para aprender, no para medir.
+
+### Qué anotar
+
+Una planilla con una fila por intento: fecha, hora, empresa, canal, si contestó, con quién habló, resultado y la objeción con sus palabras. Las columnas de resultado: no contestó, secretaria, equivocado, "mándame correo", no interesa, reunión. Belkins reporta que el 31 % de las llamadas contestadas son rechazo directo, 19 % piden seguimiento, 13 % es la persona equivocada y 13 % una secretaria. Si los números de ustedes se alejan mucho de eso, algo está pasando con la lista o con el guion.
+
+---
+
+## Qué decir en la llamada
+
+### La estructura, con los datos detrás
+
+| Momento | Qué pasa | Dato |
+|---------|----------|------|
+| 0 a 5 s | "Hola Daniel, ¿cómo estás? Soy [nombre], de ZH Development." | "¿Cómo has estado?" agenda 6,6 veces más que el promedio. "¿Te pillo en mal momento?" baja un 40 %. |
+| 5 a 15 s | "Te llamo porque… ¿me das 30 segundos y tú decides?" | Decir la razón de la llamada sube el éxito 2,1 veces. Pedir permiso reconociendo que es en frío: 11 % de reuniones, contra 1,5 % de base. |
+| 15 a 50 s | Pitch seguido, específico, en "nosotros". | Las llamadas exitosas tienen un pitch de 37 segundos sin interrupción, contra 25. Usan "nosotros" un 65 % más. |
+| 50 a 60 s | Una pregunta de chequeo. | La cantidad de preguntas no cambia el resultado. Abrir con preguntas de descubrimiento sí lo empeora. |
+| 1 a 3 min | Escuchar corto, una pregunta de seguimiento como máximo, pedir la reunión con dos horarios. | En las llamadas exitosas, el prospecto habla en intervenciones de 3,5 segundos; en las fallidas, de 8. |
+| 3 a 5 min | Objeción, pausa, dar la razón, volver a pedir. Invitación en vivo. | Los mejores vendedores hacen una pausa más larga después de una objeción, no más corta. |
+
+### La llamada ideal, con Diper
 
 > **Tú:** Hola Daniel, ¿cómo estás? Soy [nombre], de ZH Development.
 >
 > **Daniel:** Bien… ¿de dónde?
 >
-> **Tú:** ZH Development, ayudamos a distribuidoras a dejar de pasar pedidos a mano. Te llamo sin aviso, así que voy al grano: ¿me das 30 segundos y tú decides si seguimos?
+> **Tú:** ZH Development, hacemos software para distribuidoras. Te llamo porque estuve en la página de Diper y tengo una idea puntual para ustedes. Es en frío, así que ¿me das 30 segundos y tú decides si seguimos?
 >
 > **Daniel:** Ya, dale.
-
-### 10 a 40 segundos: el problema
-
-> **Tú:** Vi que reparten con flota propia en 27 comunas y que la tienda está conectada a Bsale. Me imagino que les pasa una de dos cosas: que los restaurantes piden por WhatsApp y alguien tiene que pasarlo a mano a Bsale, o que armar la ruta del día se come la mañana. ¿Te pasa alguna, o estoy muy perdido?
-
-Después de la pregunta, silencio. Que hable él.
-
-### 40 segundos a 3 minutos: tres preguntas
-
-> **Daniel:** Lo del WhatsApp, sí, harto.
 >
-> **Tú:** ¿Cuántos pedidos les llegan así en un día normal?
+> **Tú:** Vi que venden por Bsale y que reparten con flota propia en 27 comunas, lo de "un pedido, una factura, un despacho". En distribuidoras así, lo típico es que los restaurantes grandes no usen la web: piden por WhatsApp, a veces en audio, y alguien de administración lo pasa a mano a Bsale. Treinta o cuarenta pedidos al día tipeados, y cada tanto se va una cantidad mal y hay que ir a buscar la mercadería de vuelta. Nosotros hacemos que ese WhatsApp quede armado como pedido en Bsale, con productos y cantidades, y la persona solo revisa y aprueba. No cambia Bsale ni la forma en que piden los clientes. ¿Les pasa algo así, o estoy perdido?
 >
-> **Daniel:** Unos 30 o 40.
+> **Daniel:** Sí, lo del WhatsApp es tal cual.
 >
-> **Tú:** Harto. ¿Y quién los pasa?
+> **Tú:** ¿Cuántos al día, más o menos?
 >
-> **Daniel:** Una persona de administración.
+> **Daniel:** Unos 30.
 >
-> **Tú:** ¿Y qué pasa cuando se equivoca una cantidad?
+> **Tú:** Harto. Es más fácil mostrártelo que explicártelo por teléfono. ¿Te lo muestro en 20 minutos el jueves a las 4 o el viernes a las 10?
 >
-> **Daniel:** Devolución, despacho de nuevo… un cacho.
-
-Tres preguntas bastan. El resto se ve en la reunión.
-
-### 3 a 4 minutos: idea en una frase y pedir la reunión
-
-> **Tú:** Lo que hacemos es que ese WhatsApp quede armado como pedido en Bsale, y la persona de administración solo lo revise y lo apruebe. Es más fácil mostrártelo que explicártelo por teléfono. ¿Lo vemos 20 minutos el jueves a las diez? Si no te sirve, me lo dices ahí mismo y no te molesto más.
-
-Pidan 20 minutos y no media hora: un compromiso más chico es más fácil de aceptar. Propongan un horario concreto, no "cuando puedas".
-
-### Si dice "mándame información"
-
-En Latinoamérica eso suele ser un no educado. No lo discutas. Haz fácil que te diga la verdad:
-
-> **Tú:** Te la mando, sin problema. Para no llenarte el correo con algo que no te sirve, ¿es porque no es prioridad ahora o porque lo quieres ver con alguien más?
-
-- Si es con alguien más: "¿Lo invitamos a los mismos 20 minutos?"
-- Si no es prioridad: "Perfecto, ¿te escribo en un par de meses?" Anótalo y corta.
-
-### Si dice que ya lo tienen resuelto
-
-> **Tú:** Me imaginaba que sí. ¿Cómo lo resolvieron?
-
-Darle la razón primero baja la guardia. Muchas veces la respuesta muestra que lo "resuelto" es una persona tipeando.
-
-### Cierre: la invitación durante la llamada
-
-> **Tú:** Te mando la invitación ahora mismo mientras estamos hablando… Ahí te debería haber llegado. ¿La ves?
+> **Daniel:** El viernes a las 10 puede ser.
 >
-> **Daniel:** Sí, llegó.
+> **Tú:** Buena. Te mando la invitación ahora mientras hablamos, a [correo]… ¿te llegó?
 >
-> **Tú:** Buenísimo. Gracias, Daniel. Nos vemos el jueves.
+> **Daniel:** Sí.
+>
+> **Tú:** Perfecto. Gracias, Daniel, nos vemos el viernes.
 
-Que la acepte mientras siguen en la línea. Una invitación aceptada en la llamada se cae mucho menos que una prometida.
+Tres minutos y medio. Tú hablaste más que él. El descubrimiento se hace en la reunión del viernes.
+
+### Objeciones, con lo que dicen los datos
+
+Primero, pausa de un segundo. Después, darle la razón. Después, una pregunta. Después, volver a pedir. Nunca discutir.
+
+- **"Mándame un correo"** (1 de cada 10 llamadas contestadas, según Belkins; en Latinoamérica suele ser un no educado):
+  > "Te lo mando hoy. Para no mandarte algo genérico, ¿te sirve más ver cómo quedaría en su caso o una idea de precio?"
+  > [Responde] "Ya. Mira, eso es justo lo que te mostraría en 20 minutos. ¿Jueves a las 4 o viernes a las 10? Si después del correo no te hace sentido, me lo dices y listo."
+- **"No me interesa"** (1 de cada 3):
+  > "Vale, te entiendo. Una sola pregunta para no llamarte de nuevo: ¿es porque ya lo tienen resuelto o porque no es prioridad ahora?"
+- **"Ya tenemos un sistema"**:
+  > "Me imaginaba. ¿Y qué siguen haciendo a mano igual?"
+- **"¿Cuánto cuesta?"**:
+  > "Depende de qué automatizamos, y no te quiero tirar un número al aire. Antes de empezar te mandamos propuesta escrita con alcance, plazo y precio cerrado. Lo que sí te puedo decir es que partimos con una sola cosa, no con un proyecto grande."
+  Ojo: Gong midió que hablar de retorno de inversión en el primer contacto baja el éxito un 15 %. No prometan ahorros en plata.
+- **"¿Con quién han trabajado?"**:
+  > "Somos nuevos, por eso partimos acotado y con precio cerrado, y todo el código queda a nombre de ustedes. Si no les gusta, se quedan con lo hecho."
+- **"Lo tengo que ver con mi socio"**:
+  > "Perfecto. ¿Lo invitamos a los mismos 20 minutos? Así no cuentas todo dos veces."
+
+### Lo que cambia respecto de los guiones anteriores
+
+- **Menos preguntas, más pitch.** Los guiones anteriores tenían tres preguntas para profundizar. Ahora hay una de chequeo y una de seguimiento. El resto se pregunta en la reunión.
+- **El pitch describe el problema con detalle**, con cifras y escenas de su rubro, no con "ahorrar tiempo" ni "eficiencia". Según los autores de *Cold Calling Sucks*, "ahorrar tiempo" no es lo bastante específico para que alguien quiera reunirse.
+- **Se pide la reunión antes de los 3 minutos.**
+- **Dos horarios concretos**, no "¿cuándo te acomoda?".
+
+Los guiones por empresa en `guiones-llamadas.md` ya están actualizados con esta estructura.
 
 ---
 
-## WhatsApp: cuándo y qué escribir
-
-### Cuándo
-
-| Momento | Qué dice la evidencia | Qué hacer |
-|---------|-----------------------|-----------|
-| Antes de la primera llamada | Velocify: baja un 39 % la probabilidad de contactar | Decidimos avisar igual, con el mensaje de "Si avisan la llamada por WhatsApp", y medir el resultado. |
-| Después de dos llamadas sin respuesta | No hay datos. En Chile casi nadie contesta números desconocidos | Mandar un mensaje con una pregunta concreta. |
-| Después de hablar por teléfono | Velocify: los mensajes después del contacto suben la conversión en 112 % | Mandarlo siempre, el mismo día. |
+## Qué escribir por WhatsApp
 
 ### Si avisan la llamada por WhatsApp
 
-Es la opción que decidimos usar. Manden el mensaje y llamen entre 10 y 20 minutos después, cuando todavía lo tiene fresco.
+Es la opción que decidimos usar, aunque el único estudio con datos (Velocify, 3,5 millones de leads, mensajes SMS en Estados Unidos) encontró que escribir antes del primer contacto baja un 39 % la probabilidad de llegar a hablar. Por eso se mide. Manden el mensaje y llamen entre 10 y 20 minutos después, cuando todavía lo tiene fresco.
 
 Escríbanlo como le escribirían al amigo de un amigo: en dos mensajes, sin puntuación perfecta, con un comentario propio. Así se ve en el teléfono de Daniel:
 
@@ -183,7 +240,7 @@ Anoten en la planilla que mandaron aviso. Así, con el tiempo, pueden comparar c
 
 ### Si parten por WhatsApp, sin haber llamado
 
-Es el orden que el estudio de Velocify desaconseja, así que pruébenlo con la mitad de las empresas y comparen. Si lo usan, el WhatsApp no avisa una llamada: es el contacto en sí, y busca una respuesta por escrito.
+Si prefieren no llamar primero, el WhatsApp es el contacto en sí y busca una respuesta por escrito. Escríbanlos con el mismo tono suelto de los mensajes de aviso: estos ejemplos están más tiesos de lo que conviene.
 
 > "Hola Daniel, soy [nombre], de ZH Development. Vi que en Diper reparten con flota propia y venden por Bsale. Pregunta corta: ¿los pedidos de los restaurantes les llegan por WhatsApp y alguien los pasa a mano? Si no es tema, me dices y no te escribo más."
 
@@ -246,18 +303,15 @@ El mismo día:
 - **Si alguien pide que no le escriban, no se le escribe más.** Seguir insistiendo es causa directa de bloqueo.
 - **Usen un número que no sea el único con el que operan.** Si lo bloquean, no pierden a sus clientes.
 
-## Cómo medir si funciona
+## Cómo saber si funciona
 
-Anoten cada intento en una planilla con estas columnas: fecha, hora, empresa, canal (llamada o WhatsApp), si contestaron o respondieron, si hablaron con quien decide, y el resultado.
+Después de 50 cuentas, comparen contra la tabla de "Qué esperar". Tres preguntas que la planilla responde:
 
-Referencias para comparar. Son de datos globales, no de Chile:
+- **¿Contesta menos de 1 de cada 10?** Prueben otra franja horaria y revisen si el número sale como desconocido o con nombre.
+- **¿Contestan pero no hay conversación?** La apertura falla. Graben las llamadas con permiso y escuchen los primeros 15 segundos.
+- **¿Hay conversación pero no reunión?** El pitch no describe un problema que reconozcan, o la lista no es el ICP. Revisen la objeción anotada con sus palabras.
 
-| Métrica | Promedio | Buenos vendedores |
-|---------|----------|-------------------|
-| Llamadas contestadas por marcación | 5 % a 10 % | Alrededor de 13 % |
-| Reuniones por llamada contestada | 2 % a 5 % | 6 % a 11 % |
-
-Con ocho empresas, lo esperable es hablar con dos a cuatro personas y quizás agendar una reunión. Las primeras ocho sirven para aprender, no para medir. Las métricas empiezan a decir algo desde unas 50 cuentas.
+Y una prueba que vale la pena: la mitad de las empresas con WhatsApp de aviso, la otra mitad sin. En un mes sabrán si el aviso suma o resta en Chile.
 
 ## Ojo con la regulación
 
@@ -287,3 +341,13 @@ La Ley 21.719 de protección de datos personales entra en vigencia el 1 de dicie
 - [Bloqueos de WhatsApp](https://www.ubergizmo.com/2025/11/whatsapp-bans/)
 - [G5 Noticias: WhatsApp como canal de venta en Chile](https://g5noticias.cl/2026/08/14/de-chat-a-canal-de-ventas-por-que-las-empresas-en-chile-estan-migrando-de-whatsapp-business-a-whatsapp-api/)
 - [Diario Constitucional: vigencia de la Ley 21.719](https://www.diarioconstitucional.cl/2026/06/12/la-ley-21-719-entra-en-vigor-el-1-de-diciembre-y-expone-vacios-en-regulacion-de-pequenas-empresas/)
+- [Gong: anatomía de 90 mil llamadas en frío](https://www.gong.io/blog/is-cold-calling-dead)
+- [Gong: estadísticas de llamadas en frío](https://www.gong.io/blog/cold-call-stats)
+- [Gong: pausa después de una objeción](https://www.gong.io/resources/labs/handling-sales-objections/)
+- [Belkins: 175 mil marcaciones, días, horas y temporada](https://belkins.io/blog/cold-calling-benchmarks)
+- [Velocify: 93 % de los convertidos antes del sexto intento](https://natlawreview.com/node/60555/printable/print)
+- [Cognism: revisión de estudios sobre horarios](https://cognism.com/cold-calling-literature-review)
+- [ZoomInfo: 1,4 millones de llamadas por día de la semana](https://pipeline.zoominfo.com/sales/best-days-to-cold-call)
+- [NapoleonCat: usuarios de LinkedIn en Chile](https://napoleoncat.com/stats/linkedin-users-in-chile/)
+- [Expandi con datos de Belkins: aceptación y respuesta en LinkedIn](https://expandi.io/blog/linkedin-connection-message-templates/)
+- [Snov.io: correos en frío, apertura y secuencias](https://snov.io/blog/es/estadisticas-de-correos-electronicos-no-solicitados/)

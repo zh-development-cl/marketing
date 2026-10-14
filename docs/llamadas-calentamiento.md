@@ -23,12 +23,14 @@ Primero los dueños con negocio simple, al final las más sofisticadas o con dat
 
 ## Estructura de cada llamada
 
-1. **Apertura.** "Hola [nombre], ¿cómo estás? Te habla [tu nombre], de ZH Development. Vi que eres [cargo] en [empresa]…", seguido de algo concreto de su sitio y la razón de la llamada. Termina con "¿Te pillo en un buen momento?"
-2. **Gancho específico.** Algo que vieron en su sitio. Es lo que separa la llamada de un spam.
-3. **Pregunta de dolor.** Una sola, abierta. Después, callarse y anotar.
-4. **Cierre.** "¿Le parece una llamada de 30 minutos por Meet esta semana? Le llevo ideas concretas y, si hay algo, una propuesta escrita con alcance, plazo y precio."
+Según los datos de Gong sobre 90 mil llamadas en frío (detalle en `llamada-perfecta.md`):
 
-Usen "tú" con gerentes y fundadores, y "usted" con dueños de trayectoria larga. El guion literal de cada llamada está en `guiones-llamadas.md`.
+1. **Apertura, 10 segundos.** "Hola [nombre], ¿cómo estás? Soy [tu nombre], de ZH Development. Te llamo porque… ¿me das 30 segundos y tú decides?"
+2. **Pitch, 30 a 40 segundos seguidos.** Un problema concreto de su rubro, con detalle, y cómo desaparece. En "nosotros".
+3. **Una pregunta de chequeo.** "¿Les pasa algo así, o estoy perdido?" Una de seguimiento como máximo.
+4. **Pedir la reunión antes de los 3 minutos**, con dos horarios. Invitación durante la llamada.
+
+Tuteo con gerentes y fundadores, "usted" con don Jorge y don Luis. El guion literal de cada llamada está en `guiones-llamadas.md`. Los "dolores" de más abajo son hipótesis para armar el pitch, no preguntas para hacer en la llamada.
 
 ---
 

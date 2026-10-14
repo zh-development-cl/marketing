@@ -1,8 +1,8 @@
 # Diálogo de ejemplo: llamada de ventas a Diper
 
-Fecha: 2026-10-14. Ejemplo de cómo debería fluir una llamada completa, desde que contestan hasta agendar la reunión.
+Fecha: 2026-10-14. Versión corregida con los datos de Gong sobre 90 mil llamadas en frío: el vendedor habla más que el prospecto, el pitch va seguido y la reunión se pide antes de los 3 minutos. La versión anterior tenía al prospecto hablando más y cinco preguntas de descubrimiento; eso es lo que hacen las llamadas que fallan.
 
-Los nombres de terceros, las cifras y las respuestas de Daniel son inventados para el ejemplo. Lo real es lo que sale del sitio de Diper: su promesa, el reparto propio en 27 comunas y la tienda conectada a Bsale.
+Las respuestas de Daniel, las cifras y el nombre del socio son inventados. Lo que sale del sitio de Diper es real.
 
 ---
 
@@ -14,99 +14,77 @@ Los nombres de terceros, las cifras y las respuestas de Daniel son inventados pa
 
 **Daniel:** Sí, con él.
 
-**Tú:** Hola, Daniel, ¿cómo estás? Te habla [tu nombre], de ZH Development. Vi que eres gerente de operaciones en Diper y estuve revisando su página. Me gustó mucho eso de "un pedido, una factura, un despacho", y que repartan con flota propia en 27 comunas. Te llamo porque hacemos integraciones entre sistemas como Bsale, WhatsApp y el reparto, y creo que les puede servir. ¿Te pillo en un buen momento?
+**Tú:** Hola, Daniel, ¿cómo estás? Soy [nombre], de ZH Development.
 
-**Daniel:** Eh… tengo un par de minutos, estoy en bodega. ¿Qué es lo que venden?
+**Daniel:** Bien… ¿de dónde?
 
-**Tú:** Te lo hago corto. Más que venderte algo, te quería hacer una pregunta. De los pedidos que les llegan, ¿qué parte entra por la web y qué parte les llega por WhatsApp o por correo?
+**Tú:** ZH Development, hacemos software para distribuidoras. Te llamo porque estuve en la página de Diper y tengo una idea puntual para ustedes. Es en frío, así que ¿me das 30 segundos y tú decides si seguimos?
 
-> No respondas "qué vendes" con una lista de servicios. Devuelve una pregunta fácil de contestar.
+**Daniel:** Ya, dale.
 
-## Descubrimiento
+> Quince segundos. Nombre, "¿cómo estás?", la razón de la llamada y permiso. Nada de "¿te pillo en mal momento?".
 
-**Daniel:** Mira, la web la usan más que nada los clientes chicos. Los restaurantes grandes nos piden por WhatsApp, siempre ha sido así.
+## Pitch
 
-**Tú:** Tiene sentido. El dueño de un restaurante no se va a meter a una tienda a buscar quince productos. ¿Y esos pedidos de WhatsApp, cómo llegan a Bsale?
+**Tú:** Vi que venden por Bsale y que reparten con flota propia en 27 comunas, lo de "un pedido, una factura, un despacho". En distribuidoras así, lo típico es que los restaurantes grandes no usen la web: piden por WhatsApp, a veces en audio, y alguien de administración lo pasa a mano a Bsale. Treinta o cuarenta pedidos al día tipeados, y cada tanto se va una cantidad mal y hay que ir a buscar la mercadería de vuelta. Nosotros hacemos que ese WhatsApp quede armado como pedido en Bsale, con productos y cantidades, y la persona solo revisa y aprueba. No cambia Bsale ni la forma en que piden los clientes. ¿Les pasa algo así, o estoy perdido?
 
-**Daniel:** Los pasa la Cami, que está en administración. Ella va viendo los mensajes y los ingresa.
+> Treinta y cinco segundos seguidos. Describe una escena concreta de su día, con cifras, no "ahorrar tiempo". Dice "nosotros". Termina en una sola pregunta que se responde con sí o no.
 
-**Tú:** ¿Y cuántos son al día, más o menos?
+## Chequeo
 
-**Daniel:** Depende. Un día normal, unos 30 o 40. Los lunes, más.
+**Daniel:** Sí, lo del WhatsApp es tal cual. Lo pasa la Cami, de administración.
 
-**Tú:** Harto. ¿Y se les ha colado algún error en eso? Un producto que no era, una cantidad mal…
+**Tú:** ¿Cuántos al día, más o menos?
 
-**Daniel:** Sí, pasa. El otro día mandamos cajas de pizza de 30 en vez de 33 y el cliente nos hizo devolver todo. Y a veces el pedido llega en un audio, imagínate.
+**Daniel:** Un día normal, unos 30. Los lunes más.
 
-**Tú:** Claro, el audio es lo peor. Y después de que la Cami los ingresa, ¿cómo se arma la ruta del día?
+> Una pregunta de seguimiento, no cinco. Ya sabes que el dolor existe y cuánto pesa. El resto se pregunta en la reunión.
 
-**Daniel:** Eso lo veo yo en la mañana, con Google Maps y lo que conozco. Tenemos tres camionetas.
+## Pedir la reunión
 
-**Tú:** ¿Y cuánto te toma?
-
-**Daniel:** Una hora, hora y media, todos los días.
-
-> Llevas dos minutos y no has presentado nada. Pero ya sabes cuál es el dolor, cuánto volumen hay, quién lo sufre y cuánto tiempo cuesta. Cada pregunta salió de la respuesta anterior.
-
-## Propuesta
-
-**Tú:** Te cuento lo que se me ocurre, y me dices si estoy muy perdido. El cliente sigue pidiendo por WhatsApp igual que siempre: no le cambias nada. Pero el mensaje, o el audio, se lee solo y queda armado como pedido en Bsale, con los productos y las cantidades. La Cami ya no tipea: revisa y aprueba. Y con los pedidos aprobados del día, la ruta de las tres camionetas te sale armada en la mañana.
-
-> La propuesta usa sus propias palabras: la Cami, el audio, las tres camionetas. No suena a folleto.
-
-## Objeciones
-
-**Daniel:** ¿Y si lee mal el pedido?
-
-**Tú:** Por eso la Cami aprueba. Nada se factura sin que ella lo vea. La diferencia es que revisar un pedido ya armado toma segundos, y tipearlo toma minutos.
-
-**Daniel:** Ya… pero Bsale tiene integraciones, ¿no? Creo que tienen algo con WhatsApp.
-
-**Tú:** Bsale tiene herramientas para mandar mensajes y para vender. Lo que no hace es entender un mensaje desordenado de un restaurante y convertirlo en un pedido. Eso es justo lo que hacemos nosotros, conectado a su Bsale, sin cambiarlo.
+**Tú:** Harto. Es más fácil mostrártelo que explicártelo por teléfono: en 20 minutos ves cómo un audio de un restaurante queda armado en Bsale. ¿Jueves a las 4 o viernes a las 10?
 
 **Daniel:** ¿Y cuánto sale algo así?
 
-**Tú:** Depende de qué incluyamos, y no te quiero tirar un número al aire. Lo que hacemos es mandarte una propuesta escrita con alcance, plazo y precio cerrado antes de empezar, así sabes exactamente qué pagas. Y podemos partir solo con los pedidos de WhatsApp y dejar la ruta para después.
+**Tú:** Depende de qué incluyamos, y no te quiero tirar un número al aire. Antes de empezar te mandamos propuesta escrita con alcance, plazo y precio cerrado. Y partimos solo con los pedidos de WhatsApp, no con un proyecto grande. ¿Jueves o viernes?
 
-> Cada objeción se responde en dos o tres frases y se vuelve a la conversación. No se discute.
+**Daniel:** Igual lo tengo que ver con mi socio, él ve las platas.
 
-## Cierre
-
-**Daniel:** Igual esto lo tengo que ver con mi socio. Él ve las platas.
-
-**Tú:** Perfecto, tiene todo el sentido. ¿Cómo se llama tu socio?
+**Tú:** *(pausa)* Tiene sentido. ¿Cómo se llama?
 
 **Daniel:** Felipe.
 
-**Tú:** ¿Qué te parece si conversamos los tres, 30 minutos por Meet? Ustedes nos muestran cómo llega un pedido hoy, desde el WhatsApp hasta el despacho, y nosotros les decimos qué se puede automatizar y qué no. Si hay algo que valga la pena, les mandamos la propuesta. Si no, no les quitamos más tiempo.
+**Tú:** ¿Lo invitamos a los mismos 20 minutos? Así no cuentas todo dos veces.
 
-**Daniel:** Ya, puede ser. ¿Cuándo?
+**Daniel:** Ya. El viernes a las 10 podría ser, lo confirmo con él.
 
-**Tú:** ¿Les acomoda el jueves a las diez o el viernes a las cuatro?
+> Dos objeciones, dos veces se vuelve a pedir. Pausa antes de responder la segunda. Nunca se discute.
 
-**Daniel:** El jueves a las diez no, tengo reparto. El viernes a las cuatro debería estar bien. Lo confirmo con Felipe.
+## Cierre
 
-**Tú:** Buena. ¿A qué correo les mando la invitación?
+**Tú:** Buena. Te mando la invitación ahora mientras hablamos. ¿A qué correo?
 
-**Daniel:** Mándamela a mí y yo se la reenvío.
+**Daniel:** Al mío, daniel@diper.cl, y yo se la reenvío.
 
-**Tú:** Perfecto. Y para aprovechar bien la media hora, ¿podrías tener a mano un par de pedidos de WhatsApp tal como les llegan, con audio y todo?
+**Tú:** Listo, mandada… ¿te llegó?
 
-**Daniel:** Sí, eso sobra.
+**Daniel:** Sí.
 
-**Tú:** Excelente. Muchas gracias, Daniel. Que te vaya bien con el reparto.
+**Tú:** Perfecto. Y para aprovechar los 20 minutos, ten a mano un par de pedidos de WhatsApp tal como llegan, con audio y todo.
 
-**Daniel:** Dale, chao.
+**Daniel:** Dale, eso sobra.
 
-> Cuando dice "lo veo con mi socio", no lo dejes de mensajero. Invita al socio a la misma reunión. Cierra con dos horarios concretos y con algo que preparar: eso compromete a la otra persona.
+**Tú:** Gracias, Daniel. Nos vemos el viernes.
+
+> La invitación se acepta en la llamada. Una invitación prometida se cae; una aceptada en vivo, mucho menos.
 
 ---
 
-## Lo que hace que fluya
+## Lo que hace que funcione
 
-- **Daniel habla más que tú.** Tus intervenciones en el descubrimiento son de una línea.
-- **Cada pregunta nace de la respuesta anterior.** WhatsApp, luego quién lo pasa, luego cuántos, luego los errores, luego la ruta.
-- **Repites sus palabras.** "La Cami", "el audio", "las tres camionetas".
-- **Validas antes de preguntar.** "Tiene sentido", "claro, el audio es lo peor". Suena a conversación y no a interrogatorio.
-- **No presentas la empresa.** Presentas una idea para su problema, recién cuando ya lo conoces.
-- **El cierre es una propuesta concreta.** Treinta minutos, con quién, para qué, y dos horarios.
+- **Tú hablas más que él.** En las llamadas que agendan, el vendedor habla el 55 % del tiempo y el prospecto responde en intervenciones de 3 o 4 segundos.
+- **El pitch va seguido.** Treinta y cinco segundos sin preguntar nada. Las llamadas exitosas tienen un pitch de 37 segundos sin interrupción; las fallidas, de 25.
+- **Describe el problema, no la solución.** Audio, la Cami, 30 pedidos, la mercadería de vuelta. Daniel se reconoce en la escena antes de que le vendas nada.
+- **Una pregunta de chequeo y una de seguimiento.** La cantidad de preguntas no cambia el resultado, y abrir con preguntas lo empeora.
+- **Se pide la reunión a los 2 minutos**, con dos horarios. Cada objeción se responde corto y se vuelve a pedir.
+- **Tres minutos y medio.** Las llamadas que agendan duran 4 a 6 minutos; las que no, la mitad.
