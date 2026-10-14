@@ -39,9 +39,9 @@ Hola Walther:
 
 Gracias por la conversación de ayer. Te dejo por escrito lo que te comenté, para que lo revises con tu socio.
 
-En ZH Development hacemos software a medida, automatización e IA para optimizar procesos manuales: conectamos los sistemas que ya usan o creamos nuevos desde cero y automatizamos lo repetitivo.
+En ZH Development hacemos software a medida, automatización e IA para optimizar procesos manuales: conectamos los sistemas que ya usan o creamos nuevos desde cero.
 
-En R-Log, por lo que conversamos, hay tareas a mano que suelen poder automatizarse: ordenar los documentos que llegan por correo, responder por el estado de una carga o armar cotizaciones.
+Dónde aporta más valor en R-Log lo definimos juntos después del diagnóstico, viendo cómo trabajan hoy.
 
 Partimos con un diagnóstico sin compromiso. Si tiene sentido seguir, va una propuesta escrita con alcance, plazo y precio cerrado. Todo queda a nombre de R-Log y, si lo prefieren, con mantención y soporte nuestro.
 
