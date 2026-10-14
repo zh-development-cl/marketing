@@ -5,12 +5,19 @@ Correos con el mismo marco que usa la landing para la agenda (`_tools/correos/` 
 rótulos mono, botones píldora `#0A54DC`, fuentes del sistema y todos los estilos en línea, para
 que se vean bien en Gmail y Outlook.
 
-Logos por URL, desde `https://zhdevelopment.cl/marca/` (ver «Marca para correos y firmas» en el
-README de la landing): sobre la cabecera en tinta va `zh-logo-horizontal-blanco.png` a 200×29, con `max-width:100%` para que en un teléfono angosto se achique en vez de quedar bajo el logo del cliente;
-sobre fondo claro iría `zh-logo-horizontal.png` o `zh-logo-simple.png`. El logo del cliente se
-carga desde su propio sitio, en una caja blanca a la derecha de la cabecera, como en las
-portadas de propuesta (ZH a la izquierda, cliente a la derecha). Los botones de agenda apuntan a
+Marca en la cabecera: el ícono `https://zhdevelopment.cl/marca/zh-icono.png` a 32 px y, al
+lado, «ZH Development» y «Software & IA» como texto (igual que los correos de agenda de la
+landing). Así, con las imágenes bloqueadas (Outlook las bloquea hasta que el remitente es de
+confianza), la marca se sigue leyendo; un logotipo completo en imagen quedaba como ícono roto.
+El logo del cliente se carga desde su propio sitio, en una caja blanca a la derecha de la
+cabecera, como en las portadas de propuesta (ZH a la izquierda, cliente a la derecha), con
+`alt` para que se lea su nombre si no carga. Los botones de agenda apuntan a
 `https://zhdevelopment.cl/agendar`, la agenda sola para enlaces de correo.
+
+Fuentes siempre con propiedades separadas (`font-family`, `font-size`, `font-weight`,
+`line-height`), nunca con `font:` abreviada: Outlook web descarta la abreviada cuando lleva
+peso 600 y el texto cae a Times. Cada `<td>` lleva además su `font-family`, por si un cliente
+descarta la de un elemento.
 
 ## rlog-presentacion.html
 
