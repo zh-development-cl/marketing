@@ -51,7 +51,7 @@ En ZH Development hacemos software a medida, automatización e IA para optimizar
 
 Dónde podría servir en R-Log lo definimos juntos después del diagnóstico, entendiendo cómo funcionan sus procesos y dónde se está perdiendo valor.
 
-Partimos con un diagnóstico sin compromiso, donde exploraremos juntos su operación y las oportunidades de mejora. Si tiene sentido seguir, enviamos una propuesta escrita con alcance, plazo y precio cerrado. Todo queda a nombre de R-Log y, si lo prefieren, con mantención y soporte nuestro.
+Partimos con un diagnóstico sin compromiso, donde exploraremos juntos su operación y las oportunidades de mejora. Si avanzamos, todo lo que se construya queda a nombre de R-Log y, si lo prefieren, con mantención y soporte nuestro.
 
 Si ven algo que les haga sentido, agendamos: https://zhdevelopment.cl/agendar
 Más sobre nosotros en https://zhdevelopment.cl
