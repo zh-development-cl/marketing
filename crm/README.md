@@ -1,24 +1,32 @@
 # CRM de ZH Development
 
-CRM comercial liviano para seguir a los leads: a quién hay que llamar, a quién ya llamamos y qué
-quedó pendiente. Claude redacta los correos y los WhatsApp, y los deja como borradores para
+CRM interno de ZH: sigue a los leads desde el primer contacto (a quién hay que llamar, a quién ya
+llamamos y qué quedó pendiente) y, cuando se ganan, el trabajo con el cliente: proyectos, cobros,
+mantenciones y soporte. Claude redacta los correos y los WhatsApp, y los deja como borradores para
 revisarlos antes de enviarlos.
 
 - **Dónde está:** https://claude.ai/artifact/N794eV9P45xRM4VJ6BL5vL (privado; para que Nicolás
   pueda editarlo hay que compartirlo con él como editor desde el menú Compartir).
 - **Código:** `crm/index.html` (una sola página: HTML, CSS y JS, con Preact + htm desde cdnjs).
 - **Datos:** viven en la base de datos del artifact en claude.ai, **no en este repositorio**, que
-  es público. Nunca se suben al repo leads, teléfonos, correos ni transcripciones.
+  es público. Nunca se suben al repo leads, clientes, teléfonos, correos, RUT, facturas, montos ni
+  transcripciones.
 
 ## Qué hace
 
 | Sección | Para qué |
 |---|---|
-| Hoy | Lo que toca hoy (y lo atrasado), los leads nuevos sin contactar, los que no tienen próxima acción, los borradores por revisar y la actividad reciente. |
+| Hoy | Lo que toca hoy (y lo atrasado), los leads nuevos sin contactar, los que no tienen próxima acción, los borradores por revisar y la actividad reciente. Con clientes: pagos atrasados, cobros por facturar, hitos y garantías que terminan en los próximos 7 días, y el soporte abierto. |
+| **Ventas** | |
 | Leads | Tabla con búsqueda por nombre, empresa, correo o teléfono, y filtros por etapa, origen y responsable. |
 | Embudo | Tablero por etapa; se arrastra una tarjeta para cambiarla de etapa. |
+| **Clientes** | |
+| Clientes | Lista de clientes con sus servicios (proyecto en curso, garantía, mantención), las solicitudes abiertas y lo que falta cobrar. |
+| Proyectos | Tablero por las etapas de trabajo de ZH. |
+| Soporte | Solicitudes de los clientes, con su cobertura: garantía, mantención o evolutivo. |
+| Cobros | Anticipos, pagos por hito, evolutivos y mensualidades: por facturar, facturado, vencido y pagado. |
 | Borradores | Correos y WhatsApp redactados con Claude o a mano, con vista previa y acciones de envío. |
-| Ajustes | Firma de cada socio, WhatsApp de negocios, enlace para agendar, cuenta de Gmail, exportación. |
+| Ajustes | Firma de cada socio, WhatsApp de negocios, enlace para agendar, cuenta de Gmail, garantía y plazo de pago por defecto, exportación. |
 
 **Ficha del lead** (se abre al tocar un lead): teléfono y correo con copiar, llamar y WhatsApp;
 próxima acción con atajos (hoy, mañana, en 3 días hábiles, en una semana); y tres herramientas:
@@ -43,6 +51,62 @@ se guarda solo si se marca esa opción.
 Las etapas son: Por contactar → Contactado → Reunión → Propuesta enviada → Negociación, más
 Ganado, Perdido (con motivo y lo que dijo el cliente) y En pausa.
 
+## Etapa con clientes
+
+Sigue las políticas de `propuestaszh`: pagos por hitos (P-013), las etapas de trabajo de ZH
+(P-014) y la diferencia entre garantía, mantención técnica y desarrollo evolutivo (P-007).
+
+**De lead a cliente.** Al pasar un lead a «Ganado» se abre «Convertir en cliente»: crea el cliente
+(o suma el lead a uno existente) con el lead como contacto principal, el proyecto con el valor del
+lead, el calendario de pagos (30/40/30, 50/50, 40/60, un solo pago o definir después; el último
+cobro absorbe el redondeo) y, si se quiere, la mantención mensual. Un lead que ya estaba ganado
+muestra «Convertir en cliente» en su ficha.
+
+**Ficha del cliente.** Pestañas Resumen, Proyectos, Soporte, Cobros e Historial. Guarda los datos de
+facturación (razón social, RUT, giro, dirección, ciudad, correo de facturación), los contactos con
+su rol (decide, usuario, facturación, técnico) y uno principal, el responsable y el trato. Desde
+la ficha:
+
+- **Redactar para el cliente** (correo o WhatsApp), con objetivos: avance del proyecto, entrega y
+  garantía, recordatorio de pago, respuesta a una solicitud, coordinar reunión, pedir opinión,
+  mantención u otro. Claude recibe los datos del cliente, el proyecto (etapa, hitos y garantía),
+  el cobro (factura, vencimiento y total con IVA), la solicitud y el historial.
+- **Registrar reunión con acta:** se pegan o se dictan las notas y Claude arma el acta (resumen,
+  acuerdos, pendientes de ZH y del cliente, próxima reunión) y propone las solicitudes que
+  salieron, para crearlas con un clic.
+
+**Proyectos.** Tablero por etapa: Por iniciar, Entender, Diseñar, Construir, Probar y Mejorar (en
+producción, en garantía); Cerrado, En pausa y Cancelado se ven con «Mostrar cerrados». Cada
+proyecto tiene fechas (inicio, entrega estimada, puesta en producción), hitos con fecha, enlaces
+(repositorio, Figma, documentos), alcance, el caso en `propuestaszh` y sus cobros. Al pasar a
+«Mejorar» se fija la puesta en producción (hoy, si no tenía) y empieza a correr la garantía:
+60 días por defecto (P-007 dice de 30 a 60), configurable por proyecto y en Ajustes.
+
+**Cobros.** Montos en CLP sin IVA; la página muestra también el total con IVA (19 %). Estados:
+Por facturar → Facturado (n° de factura, fecha y vencimiento; si el vencimiento queda vacío, se
+usa el plazo de pago de Ajustes, 30 días por defecto) → Pagado (fecha del pago), o Anulado. La
+vista agrupa por mes (lo facturado, por su vencimiento), destaca lo vencido y tiene «Recordar»
+para que Claude redacte el recordatorio de pago; al marcarlo como enviado queda la fecha del
+último recordatorio en el cobro.
+
+**Mantenciones.** Plan, monto mensual sin IVA, qué incluye, desde cuándo, día de cobro (1 a 28) y
+estado (activa, pausada o terminada). Al abrir el CRM, cada mantención activa crea sola la
+mensualidad del mes en Cobros, con un id fijo para que no se duplique aunque dos socios lo abran
+a la vez. Si un mes no se cobra, la mensualidad se **anula** (si se borrara, se volvería a crear).
+
+**Soporte.** Cada solicitud tiene cobertura:
+
+- **Garantía:** error atribuible al desarrollo, dentro del plazo de garantía. Se corrige sin costo.
+- **Mantención:** mantener el sistema funcionando, seguro y respaldado, y el soporte básico. Lo cubre
+  la mensualidad.
+- **Evolutivo:** cambio, mejora o funcionalidad nueva. Se cotiza aparte.
+- **Por definir:** falta información.
+
+«Clasificar con Claude» propone cobertura, tipo, prioridad, pasos, preguntas para el cliente y una
+respuesta que queda como borrador. Un evolutivo lleva su cotización (por enviar, enviada,
+aprobada, rechazada) y, al aprobarse, crea su cobro. Estados: Nueva, En curso, Esperando al
+cliente, Resuelta y Descartada.
+
 ## Correos
 
 Claude escribe el contenido y la página lo arma con el diseño de ZH: el mismo sistema que los
@@ -56,17 +120,17 @@ papel, tablas y estilos en línea para Gmail y Outlook, fuentes del sistema, íc
 
 Para enviar: **«Copiar y abrir Gmail»** copia el correo con el diseño y abre un correo nuevo con
 el destinatario y el asunto (en la cuenta configurada en Ajustes); se pega el cuerpo con ⌘V o
-Ctrl+V y se envía. Después, **«Marcar como enviado»** lo registra en el historial y, si se quiere,
-programa una llamada de seguimiento a los 3 días hábiles. «Copiar HTML» entrega el documento
-completo para usarlo en otra herramienta (por ejemplo, Resend).
+Ctrl+V y se envía. Después, **«Marcar como enviado»** lo registra en el historial (del lead o del
+cliente) y, en un lead, si se quiere, programa una llamada de seguimiento a los 3 días hábiles.
+«Copiar HTML» entrega el documento completo para usarlo en otra herramienta (por ejemplo, Resend).
 
 ## WhatsApp
 
-«Abrir en WhatsApp» abre `wa.me` (o WhatsApp Web, según Ajustes) con el número del lead y el
-texto listo; se revisa y se envía desde WhatsApp. El mensaje sale de la cuenta de WhatsApp que
-esté abierta en ese dispositivo, así que en el computador conviene tener WhatsApp Web o la app de
-escritorio con la sesión de **WhatsApp Business del número de negocios**. Ver
-`docs/crm-telefonia-whatsapp.md`.
+«Abrir en WhatsApp» abre `wa.me` (o WhatsApp Web, según Ajustes) con el número del lead o del
+contacto del cliente y el texto listo; se revisa y se envía desde WhatsApp. El mensaje sale de la
+cuenta de WhatsApp que esté abierta en ese dispositivo, así que en el computador conviene tener
+WhatsApp Web o la app de escritorio con la sesión de **WhatsApp Business del número de
+negocios**. Ver `docs/crm-telefonia-whatsapp.md`.
 
 ## Llamadas y transcripción
 
@@ -77,37 +141,50 @@ del teléfono) y dejar que Claude las ordene; si hay una transcripción, se pega
 
 ## Datos
 
-Colecciones de la base del artifact (documentos JSON):
+Colecciones de la base del artifact (documentos JSON). Montos en CLP sin IVA, enteros; fechas de
+calendario `AAAA-MM-DD` en hora de Chile; marcas de tiempo en ISO.
 
 | Colección | Documento | Campos principales |
 |---|---|---|
-| `leads` | un lead | `nombre`, `empresa`, `cargo`, `telefono` (E.164, `+569…`), `correo`, `sitio`, `rubro`, `ciudad`, `origen` (`web`, `agenda`, `instagram`, `linkedin`, `referido`, `evento`, `prospeccion`, `otro`), `etapa` (`nuevo`, `contactado`, `reunion`, `propuesta`, `negociacion`, `ganado`, `perdido`, `pausa`), `prioridad` (`alta`, `media`, `baja`), `trato` (`tu`, `usted`), `necesidad`, `notas`, `responsable` (id de usuario), `proxima` (`{tipo, fecha AAAA-MM-DD, hora, nota}` o `null`), `intentos`, `ultimoContacto`, `ultimoIntento`, `motivoPerdida`, `noContactar`, `noContactarDesde`, `valor` (CLP sin IVA), `caso` (id en `propuestaszh`), `creado`, `actualizado`, `creadoPor` |
-| `actividades` | un contacto o cambio | `leadId`, `tipo` (`llamada`, `whatsapp`, `correo`, `reunion`, `nota`, `etapa`), `fecha` (ISO), `autor`, `resultado`, `linea`, `duracion`, `resumen`, `transcripcion`, `grabacionAvisada`, `analisis`, `de`, `a`, `borradorId` |
-| `borradores` | un correo o WhatsApp | `leadId`, `canal` (`correo`, `whatsapp`), `estado` (`por_revisar`, `listo`, `enviado`, `descartado`), `objetivo`, `instrucciones`, `firma` (id de usuario), `generadoPor`; correo: `plantilla` (`carta`, `destacado`), `asunto`, `preheader`, `etiqueta`, `titular`, `saludo`, `parrafos[]`, `puntos[]`, `cta {texto, url}`, `cierre`, `posdata`; WhatsApp: `texto` |
+| `leads` | un lead | `nombre`, `empresa`, `cargo`, `telefono` (E.164, `+569…`), `correo`, `sitio`, `rubro`, `ciudad`, `origen` (`web`, `agenda`, `instagram`, `linkedin`, `referido`, `evento`, `prospeccion`, `otro`), `etapa` (`nuevo`, `contactado`, `reunion`, `propuesta`, `negociacion`, `ganado`, `perdido`, `pausa`), `prioridad` (`alta`, `media`, `baja`), `trato` (`tu`, `usted`), `necesidad`, `notas`, `responsable` (id de usuario), `proxima` (`{tipo, fecha AAAA-MM-DD, hora, nota}` o `null`), `intentos`, `ultimoContacto`, `ultimoIntento`, `motivoPerdida`, `noContactar`, `noContactarDesde`, `valor`, `caso` (id en `propuestaszh`), `clienteId` (si se convirtió), `creado`, `actualizado`, `creadoPor` |
+| `clientes` | un cliente | `nombre`, `razonSocial`, `rut`, `giro`, `direccion`, `ciudad`, `correoFacturacion`, `sitio`, `rubro`, `contactos[]` (`{id, nombre, cargo, correo, telefono, rol, principal}`, con `rol` = `decisor`, `usuario`, `facturacion`, `tecnico` u `otro`), `responsable`, `trato`, `leadIds[]`, `estado` (`activo`, `archivado`), `notas` |
+| `proyectos` | un proyecto | `clienteId`, `leadId`, `nombre`, `tipo` (`software`, `automatizacion`, `ia`, `web`, `procesos`, `consultoria`, `otro`), `valor`, `estado` (`por_iniciar`, `entender`, `disenar`, `construir`, `probar`, `mejorar`, `cerrado`, `pausado`, `cancelado`), `inicio`, `entregaEstimada`, `produccion` (desde aquí corre la garantía), `garantiaDias`, `cierre`, `hitos[]` (`{id, nombre, fecha, hecho, fechaHecho}`), `enlaces[]` (`{id, titulo, url}`), `caso`, `alcance`, `responsable`, `notas` |
+| `cobros` | un cobro | `clienteId`, `proyectoId`, `mantencionId`, `solicitudId`, `tipo` (`anticipo`, `hito`, `cierre`, `mensualidad`, `evolutivo`, `otro`), `concepto`, `monto`, `fecha` (cuándo facturar), `estado` (`por_facturar`, `facturado`, `pagado`, `anulado`), `factura`, `fechaFactura`, `vence`, `fechaPago`, `notas`, `generado`, `ultimoRecordatorio`. Las mensualidades usan el id `cob-m-<id de la mantención>-<AAAA-MM>` |
+| `mantenciones` | un plan mensual | `clienteId`, `proyectoId`, `plan`, `monto` (al mes), `incluye`, `inicio`, `diaCobro` (1-28), `estado` (`activa`, `pausada`, `terminada`), `fin`, `notas` |
+| `solicitudes` | un pedido de un cliente | `clienteId`, `proyectoId`, `titulo`, `descripcion`, `canal` (`correo`, `whatsapp`, `llamada`, `reunion`, `otro`), `tipo` (`error`, `cambio`, `consulta`, `acceso`, `otro`), `cobertura` (`garantia`, `mantencion`, `evolutivo`, `por_definir`), `prioridad` (`alta`, `media`, `baja`), `estado` (`nueva`, `en_curso`, `esperando_cliente`, `resuelta`, `descartada`), `responsable`, `horasEstimadas`, `horasReales`, `cotizacion` (`{monto, estado, cobroId}`, con `estado` = `por_enviar`, `enviada`, `aprobada` o `rechazada`), `resolucion`, `analisis`, `resuelta` (ISO) |
+| `actividades` | un contacto o cambio | `leadId` o `clienteId` (más `proyectoId`, `cobroId`, `solicitudId`), `tipo` (`llamada`, `whatsapp`, `correo`, `reunion`, `nota`, `etapa`, `cliente`, `proyecto`, `cobro`, `solicitud`), `fecha` (ISO), `autor`, `resultado`, `linea`, `duracion`, `resumen`, `transcripcion`, `grabacionAvisada`, `analisis`, `acta` (en reuniones con cliente: `{resumen, acuerdos[], pendientesZH[], pendientesCliente[], solicitudes[], proximaReunion}`), `accion` (en cobros y solicitudes), `de`, `a`, `borradorId` |
+| `borradores` | un correo o WhatsApp | `leadId`, o `clienteId` con `contactoId`, `proyectoId`, `cobroId` y `solicitudId`; `canal` (`correo`, `whatsapp`), `estado` (`por_revisar`, `listo`, `enviado`, `descartado`), `objetivo` (a clientes: `avance`, `entrega`, `cobro`, `solicitud`, `reunion`, `feedback`, `mantencion`, `libre`), `instrucciones`, `firma` (id de usuario), `generadoPor`; correo: `plantilla` (`carta`, `destacado`), `asunto`, `preheader`, `etiqueta`, `titular`, `saludo`, `parrafos[]`, `puntos[]`, `cta {texto, url}`, `cierre`, `posdata`; WhatsApp: `texto` |
 | `equipo` | uno por usuario (id `u_…`) | `nombre`, `cargo`, `telefono`, `correo` (la firma) |
-| `config` | `general` | `whatsappNegocios`, `agendaUrl`, `gmailCuenta`, `abrirWhatsapp` (`app`, `web`) |
+| `config` | `general` | `whatsappNegocios`, `agendaUrl`, `gmailCuenta`, `abrirWhatsapp` (`app`, `web`), `garantiaDias` (60 si no está), `plazoPago` (30 si no está) |
 
-Ajustes → Datos exporta los leads en CSV (separado por `;`, abre bien en Excel) y un respaldo
-completo en JSON.
+Borrar un cliente borra sus proyectos, cobros, mantenciones, solicitudes, borradores e historial
+(sus leads quedan, sin el enlace). Borrar un proyecto borra sus cobros pendientes; lo pagado, las
+mensualidades, la mantención y las solicitudes quedan en el cliente.
+
+Ajustes → Datos exporta los leads y los cobros en CSV (separado por `;`, abre bien en Excel) y un
+respaldo completo en JSON con todas las colecciones.
 
 ## Trabajar con Claude desde una conversación
 
 En una sesión de Claude Code en este repositorio, la skill `.claude/skills/zh-crm` explica cómo
-leer y escribir el CRM con la herramienta `ArtifactData`: cargar leads desde una lista o planilla,
-registrar una llamada con su análisis, dejar un correo o un WhatsApp en «Borradores por revisar»
-o responder qué hay que hacer hoy. Claude nunca envía nada: los borradores siempre quedan para
-que un socio los revise.
+leer y escribir el CRM con la herramienta `ArtifactData`: cargar leads, registrar una llamada con
+su análisis, dejar un correo o un WhatsApp en «Borradores por revisar», responder qué hay que
+hacer hoy, convertir un lead ganado en cliente, registrar solicitudes, facturas y pagos, o armar
+el acta de una reunión. Claude nunca envía nada: los borradores siempre quedan para que un socio
+los revise.
 
 ## Desarrollo
 
 ```bash
-python3 crm/dev/build_preview.py                 # arma crm/dev/preview.html con un window.claude simulado
-NODE_PATH=$(npm root -g) node crm/dev/smoke.cjs  # prueba de humo con Playwright (capturas en crm/dev/shots)
+python3 crm/dev/build_preview.py                    # arma crm/dev/preview.html con un window.claude simulado
+NODE_PATH=$(npm root -g) node crm/dev/smoke.cjs     # leads, llamadas y borradores (capturas en crm/dev/shots)
+NODE_PATH=$(npm root -g) node crm/dev/clientes.cjs  # etapa con clientes: lead ganado, proyecto, cobros, soporte, acta
 ```
 
 `crm/dev/mock-claude.js` imita `window.claude` (base de datos en memoria, Claude con respuestas
 fijas, usuario y descargas). Para probar sin red, `VENDOR_DIR` apunta a una carpeta con
-`preact.umd.min.js`, `hooks.umd.min.js` y `htm.umd.min.js` de cdnjs.
+`preact.umd.min.js`, `hooks.umd.min.js` y `htm.umd.min.js` de cdnjs. Las pruebas usan datos
+inventados.
 
 Para publicar cambios se usa la herramienta Artifact de Claude con `file_path` = `crm/index.html`
 y `url` = la del CRM (desde otra conversación, sin `url` se crearía un artifact nuevo). Las
@@ -116,11 +193,12 @@ republicar sin pasar `capabilities` se conservan.
 
 ## Próximos pasos posibles
 
+- **Llamadas y WhatsApp desde el CRM (en pausa):** se está evaluando una central en la nube con
+  número +56 9 y transcripción (Zadarma) o un teléfono Android que grabe las llamadas, y WhatsApp
+  por la API de Meta; ver `docs/crm-telefonia-whatsapp.md`.
 - **Enviar desde el CRM con el dominio de ZH:** completar la conexión del conector de Resend en
   claude.ai (ya está instalado, falta autorizarlo) y agregar un botón «Enviar» que use ese
   conector, sin claves en la página.
 - **Leads de la web automáticos:** hoy el aviso del formulario y de la agenda llega por correo y
   se pega en «Importar» (Claude lo ordena). Para que entren solos hay que guardar cada envío de
   `api/contact.js` y `api/agenda.js` en un lugar que el CRM pueda leer.
-- **Llamadas con transcripción automática:** central telefónica en la nube o Twilio; ver
-  `docs/crm-telefonia-whatsapp.md`.

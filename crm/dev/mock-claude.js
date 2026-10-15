@@ -130,6 +130,23 @@
 
   const plus = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); };
   function answer(p) {
+    if (p.includes("Clasifica la solicitud de un cliente")) return {
+      cobertura: "garantia", motivo: "Es un error del informe entregado y el proyecto sigue en garantía.", tipo: "error", prioridad: "alta", titulo: "El informe mensual no carga",
+      resumen: "El informe mensual queda en blanco desde ayer.", pasos: ["Revisar el registro de errores del informe", "Corregir y avisar al cliente"], preguntas: ["¿Desde qué navegador lo abre?"],
+      respuesta: "Hola Marcela, gracias por avisar. Es un error del sistema y está cubierto por la garantía, así que lo corregimos sin costo. Te escribo apenas quede listo, hoy mismo.",
+    };
+    if (p.includes("Ordena las notas de una reunión")) return {
+      resumen: "Revisamos el avance del diseño. El cliente aprobó las pantallas principales.", acuerdos: ["Diseño aprobado"], pendientesZH: ["Enviar el calendario de pruebas"], pendientesCliente: ["Mandar el acceso al ERP"],
+      solicitudes: [{ titulo: "Agregar exportación a Excel", descripcion: "Pidieron exportar el reporte de ventas a Excel.", cobertura: "evolutivo" }], proximaReunion: plus(7),
+    };
+    if (p.includes("CLIENTE actual de ZH")) {
+      if (p.includes("Escribe un mensaje de WhatsApp")) return { texto: "Hola Marcela, te cuento que el diseño quedó aprobado y esta semana partimos con la construcción. ¿Nos puedes enviar el acceso al ERP antes del viernes?" };
+      return {
+        asunto: "Avance del proyecto: diseño aprobado", preheader: "Lo que viene y lo que necesitamos de ustedes", etiqueta: "Avance", titular: "El diseño quedó aprobado",
+        saludo: "Hola Marcela,", parrafos: ["Te cuento en qué va el proyecto: **el diseño quedó aprobado** y esta semana partimos con la construcción.", "Para seguir sin atrasos necesitamos el acceso al ERP antes del viernes."],
+        puntos: ["Diseño aprobado", "Construcción desde esta semana"], cta: null, cierre: "Saludos,", posdata: "",
+      };
+    }
     if (p.includes("Cambios que pide")) {
       if (p.includes("un mensaje de WhatsApp")) return { texto: "Hola Carolina, soy Lorenzo de ZH Development. ¿Te acomoda el jueves a las 11 para una llamada de 30 minutos?" };
       return { asunto: "Retomemos lo de los despachos", preheader: "Te propongo una llamada corta", etiqueta: "Seguimiento", titular: "Ordenemos tus despachos", saludo: "Hola Carolina,", parrafos: ["Versión más corta, como pediste.", "¿Te acomoda el jueves a las 11?"], puntos: [], cta: { texto: "Agendar llamada", url: "https://zhdevelopment.cl/#agendar" }, cierre: "Saludos,", posdata: "" };
