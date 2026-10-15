@@ -1,6 +1,6 @@
 # Oportunidad: VinoPrint
 
-Actualizado: 2026-10-15. Primera llamada hecha por Nik el 15 de octubre.
+Actualizado: 2026-10-15. Primera llamada hecha por Lorenzo el 15 de octubre.
 
 ## Lo que dijo César Aldana
 
@@ -66,4 +66,4 @@ Con las respuestas sale la propuesta escrita: alcance, plazo y precio cerrado.
 
 ## Siguiente paso
 
-Nik manda hoy la invitación a cesar.aldana@vinoprint.cl y un WhatsApp con dos horarios. Mensajes en `seguimiento.md`.
+Lorenzo lo llama el viernes 16 a las 10:00 para proponer el diagnóstico ese mismo día, y manda la invitación a cesar.aldana@vinoprint.cl durante la llamada. Guion en `seguimiento.md`.
