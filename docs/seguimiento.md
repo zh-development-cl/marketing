@@ -7,7 +7,7 @@ Actualizado: 2026-10-14. Las fechas suponen que las llamadas fueron el miércole
 | Empresa | Contacto | Resultado | Próximo paso | Cuándo | Quién |
 |---------|----------|-----------|--------------|--------|-------|
 | Lubri Express | Alex Núñez | Ya trabajan con un equipo de Valdivia. Ofreció referir. | WhatsApp pidiendo referidos | Hoy | Bozzo |
-| VinoPrint | César Aldana | Pidió que lo llamen. | Llamar | Jue 15 oct, 10:00 | Nik |
+| VinoPrint | César Aldana | Llamada hecha el 15. Usa Twist Print, solo cotizaciones, paga mucho, quiere algo propio. Dio correo. | Agendar diagnóstico por Meet; ver `oportunidad-vinoprint.md` | Vie 16 o próxima semana | Nik |
 | Logística Integral | Pablo Salazar | Pidió que lo llamen. | Llamar | Jue 15 oct, 10:20 | Nik |
 | Gimeco | Felipe Contreras | Hablar en diciembre. | WhatsApp corto hoy; llamar en diciembre | Mar 1 dic | Nik |
 | Flosam | Julio Gutiérrez | Aceptó reunión. No dio su correo. | WhatsApp hoy pidiendo el correo; luego invitación de Meet | Vie 16 oct, 12:00 | Bozzo |
@@ -125,9 +125,28 @@ Y de ahí a las partes 5, 6 y 7 del guion de esa empresa, y a pedir los 20 minut
 
 Guion en `guiones-llamadas-2.md`. Pitch: el pedido recurrente entra solo, la cotización sale de la lista en minutos, fichas y certificados viajan con cada despacho. Pregunta de seguimiento: cuántas cotizaciones salen a la semana.
 
-### VinoPrint, jueves 15 a las 10:00 (Nik)
+### VinoPrint: agendar el diagnóstico (Nik)
 
-Todavía no sabemos qué hacen. Primera pregunta de la llamada: "Antes que nada, ¿a qué se dedican exactamente en VinoPrint?". Según la respuesta: si imprimen etiquetas o cajas, el pitch es cotizador por tipo de trabajo y aprobación del arte desde un link. Y en algún momento, el aviso de que el sitio muestra la página del hosting.
+Resumen y propuesta en `oportunidad-vinoprint.md`. Hoy, invitación de Meet a cesar.aldana@vinoprint.cl y este WhatsApp:
+
+> Hola César! Nik acá, de ZH Development, hablamos hoy en la mañana
+>
+> Para el diagnóstico de lo de las cotizaciones, ¿te acomoda el viernes 17 a las 11 o el martes 21 a las 16? Son 30 min por Meet. La idea es que me muestres cómo cotizas hoy en Twist, con un trabajo real, y de ahí te digo qué tendría un cotizador propio y cuánto costaría. Te mando la invitación al correo que me diste
+
+**Correo que acompaña la invitación:**
+
+> **Para:** cesar.aldana@vinoprint.cl
+> **Asunto:** Diagnóstico: cotizador propio para VinoPrint
+>
+> Hola César:
+>
+> Gracias por la conversación de hoy. Como me contabas, de Twist Print usan solo las cotizaciones y están pagando por todo lo demás. Lo que haríamos es un cotizador propio, hecho como cotizas tú: material, medidas, cantidad, tintas y acabados, y que entregue la cotización en PDF con tu marca y un link para que el cliente la acepte. A nombre de VinoPrint y sin suscripción.
+>
+> Para armarte una propuesta con alcance, plazo y precio cerrado necesito verte cotizar un trabajo real en Twist, 30 minutos por Meet. La invitación va con este correo; si el horario no te sirve, me dices y lo movemos.
+>
+> Saludos,
+> Nik
+> ZH Development · zhdevelopment.cl · [celular]
 
 ### Logística Integral, jueves 15 a las 10:20 (Nik)
 

@@ -10,6 +10,7 @@ Material de marketing de ZH Development: videos para Instagram, brand kit y guio
 - `docs/guiones-llamadas-2.md`: guion de 7 partes de esas 30 empresas.
 - `docs/orden-de-llamadas.md`: las 40 ordenadas por probabilidad de cierre e importancia.
 - `docs/seguimiento.md`: estado de cada contacto, próximos pasos y mensajes pendientes.
+- `docs/oportunidad-vinoprint.md`: qué usa VinoPrint (Twist Print), qué ofrecer y qué preguntar en el diagnóstico.
 - `docs/dialogo-ejemplo-ventas.md`: una llamada completa de ejemplo.
 - `brand/`: logo y assets de marca.
 
