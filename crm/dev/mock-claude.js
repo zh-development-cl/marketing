@@ -1,4 +1,5 @@
-/* Imita window.claude (db, user, sample, downloads) para probar el CRM fuera de claude.ai.
+/* Imita window.claude (db, user, sample, downloads) para probar el CRM fuera de claude.ai, y el
+   micrófono con el reconocimiento de voz del navegador para «Transcribir en vivo».
    Solo para desarrollo: build_preview.py lo inyecta antes de la página en crm/dev/preview.html.
    - db: almacén en memoria con la misma forma de la API (doc/collection, where/orderBy/limit,
      get/set/update/delete, onSnapshot). Rechaza valores undefined como lo haría el JSON real.
@@ -191,6 +192,68 @@
 
   const downloads = Object.freeze({ save: async ({ filename, data }) => { window.__downloads.push({ filename, size: typeof data === "string" ? data.length : 0, head: typeof data === "string" ? data.slice(0, 400) : "" }); return { status: "saved" }; } });
   const permissions = Object.freeze({ state: async () => "granted", request: async () => ({}), manage: async () => {} });
+
+  /* Micrófono y reconocimiento de voz simulados para «Transcribir en vivo». Con
+     window.__MOCK_MIC = { modo: "ok", frases: [...], cortar: true } el micrófono entrega un tono y
+     el reconocimiento dicta las frases (con «cortar», termina la sesión como Chrome tras un
+     silencio, para probar que se retoma). Otros modos: "bloqueado" (claude.ai no deja usar el
+     micrófono), "sin_micro" y "sin_soporte" (navegador sin reconocimiento de voz). */
+  const mic = window.__MOCK_MIC;
+  if (mic) {
+    window.__srStarts = 0;
+    if (mic.modo === "sin_soporte") {
+      window.SpeechRecognition = undefined;
+      window.webkitSpeechRecognition = undefined;
+    } else {
+      if (!navigator.mediaDevices) Object.defineProperty(navigator, "mediaDevices", { value: {}, configurable: true });
+      navigator.mediaDevices.getUserMedia = async () => {
+        await tick(60);
+        if (mic.modo === "bloqueado") throw new DOMException("Permission denied by permissions policy", "NotAllowedError");
+        if (mic.modo === "sin_micro") throw new DOMException("Requested device not found", "NotFoundError");
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const dst = ctx.createMediaStreamDestination();
+        osc.connect(dst);
+        osc.start();
+        return dst.stream;
+      };
+      let dictadas = false;
+      class FakeSR {
+        constructor() { this.lang = ""; this.continuous = false; this.interimResults = false; this.onstart = this.onresult = this.onerror = this.onend = null; this._t = []; this._on = false; this._res = []; }
+        _at(ms, fn) { this._t.push(setTimeout(fn, ms)); }
+        start() {
+          if (this._on) throw new DOMException("ya iniciado", "InvalidStateError");
+          this._on = true;
+          window.__srStarts += 1;
+          window.__srLang = this.lang;
+          window.__srActual = this;
+          this._at(40, () => this.onstart && this.onstart({}));
+          if (dictadas) return;
+          dictadas = true;
+          const frases = mic.frases || [];
+          this.dictar(frases, 120);
+          if (mic.cortar) this._at(260 + frases.length * 160, () => { this.onerror && this.onerror({ error: "no-speech" }); this._end(); });
+        }
+        /* Cada frase llega primero a medias y después como resultado final, como en Chrome. */
+        dictar(frases, desde) {
+          const t0 = desde || 60;
+          const i0 = this._res.length;
+          frases.forEach((f, k) => {
+            const i = i0 + k;
+            this._res[i] = null;
+            this._at(t0 + k * 160, () => { this._res[i] = { 0: { transcript: f.split(" ").slice(0, 2).join(" ") }, isFinal: false, length: 1 }; this.onresult && this.onresult({ resultIndex: i, results: this._res.slice(0, i + 1) }); });
+            this._at(t0 + 80 + k * 160, () => { this._res[i] = { 0: { transcript: " " + f }, isFinal: true, length: 1 }; this.onresult && this.onresult({ resultIndex: i, results: this._res.slice(0, i + 1) }); });
+          });
+        }
+        _end() { if (!this._on) return; this._on = false; this._t.forEach(clearTimeout); this._t = []; if (this.onend) this.onend({}); }
+        stop() { this._t.push(setTimeout(() => this._end(), 30)); }
+        abort() { this._end(); }
+      }
+      window.__srDictar = (frases) => { const r = window.__srActual; if (r && r._on) r.dictar(frases); };
+      window.SpeechRecognition = FakeSR;
+      window.webkitSpeechRecognition = FakeSR;
+    }
+  }
 
   const caps = { db, user, sample, downloads, permissions };
   const memo = {};

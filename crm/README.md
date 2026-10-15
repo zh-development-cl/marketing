@@ -134,9 +134,27 @@ negocios**. Ver `docs/crm-telefonia-whatsapp.md`.
 
 ## Llamadas y transcripción
 
-El CRM no graba llamadas. Lo práctico es dictar las notas justo al cortar (micrófono del teclado
-del teléfono) y dejar que Claude las ordene; si hay una transcripción, se pega o se sube en
-«Registrar llamada». Las opciones para transcribir sin aviso, sus costos y lo legal están en
+Ningún celular deja que otra app grabe una llamada, así que el CRM la escucha desde el computador:
+
+1. En el computador, abre la ficha del lead → «Registrar llamada» → **«Transcribir en vivo»** y
+   permite el micrófono.
+2. Llama desde el celular en altavoz, con el celular junto al computador.
+3. Al cortar, «Detener». El texto queda en «Transcripción», una línea por frase, y «Analizar con
+   Claude» lo ordena (Claude sabe que no separa quién habla).
+
+Funciona en Chrome o Edge, que pasan la voz a texto con su servicio de voz (Google o Microsoft);
+el audio no se guarda, solo el texto, y por defecto tampoco la transcripción completa: quedan las
+notas y el análisis. Si Chrome corta la escucha tras un silencio, se retoma sola. Lo que se va
+transcribiendo queda en el navegador hasta guardar la llamada, por si se cierra la ficha. Lo mismo
+sirve para las reuniones con leads («Otro registro» → Reunión) y con clientes («Registrar» →
+Reunión o Llamada).
+
+Si claude.ai o el navegador no dejan usar el micrófono, el CRM lo dice y muestra el plan B: la
+escritura por voz de Google Docs, pegando el texto al final. Cada intento deja su resultado en
+`diagnostico/microfono-<usuario>` de la base, para revisarlo sin capturas de pantalla.
+
+También se puede dictar las notas justo al cortar (micrófono del teclado del teléfono) o pegar una
+transcripción hecha en otra herramienta. Las demás opciones, sus costos y lo legal están en
 `docs/crm-telefonia-whatsapp.md`.
 
 ## Datos
@@ -155,6 +173,7 @@ calendario `AAAA-MM-DD` en hora de Chile; marcas de tiempo en ISO.
 | `actividades` | un contacto o cambio | `leadId` o `clienteId` (más `proyectoId`, `cobroId`, `solicitudId`), `tipo` (`llamada`, `whatsapp`, `correo`, `reunion`, `nota`, `etapa`, `cliente`, `proyecto`, `cobro`, `solicitud`), `fecha` (ISO), `autor`, `resultado`, `linea`, `duracion`, `resumen`, `transcripcion`, `grabacionAvisada`, `analisis`, `acta` (en reuniones con cliente: `{resumen, acuerdos[], pendientesZH[], pendientesCliente[], solicitudes[], proximaReunion}`), `accion` (en cobros y solicitudes), `de`, `a`, `borradorId` |
 | `borradores` | un correo o WhatsApp | `leadId`, o `clienteId` con `contactoId`, `proyectoId`, `cobroId` y `solicitudId`; `canal` (`correo`, `whatsapp`), `estado` (`por_revisar`, `listo`, `enviado`, `descartado`), `objetivo` (a clientes: `avance`, `entrega`, `cobro`, `solicitud`, `reunion`, `feedback`, `mantencion`, `libre`), `instrucciones`, `firma` (id de usuario), `generadoPor`; correo: `plantilla` (`carta`, `destacado`), `asunto`, `preheader`, `etiqueta`, `titular`, `saludo`, `parrafos[]`, `puntos[]`, `cta {texto, url}`, `cierre`, `posdata`; WhatsApp: `texto` |
 | `equipo` | uno por usuario (id `u_…`) | `nombre`, `cargo`, `telefono`, `correo` (la firma) |
+| `diagnostico` | `microfono-<id de usuario>` | último resultado de «Transcribir en vivo»: `ok`, `paso`, `tipo`, `error`, `politica`, `enMarco`, `navegador`, `fecha` |
 | `config` | `general` | `whatsappNegocios`, `agendaUrl`, `gmailCuenta`, `abrirWhatsapp` (`app`, `web`), `garantiaDias` (60 si no está), `plazoPago` (30 si no está) |
 
 Borrar un cliente borra sus proyectos, cobros, mantenciones, solicitudes, borradores e historial
@@ -179,10 +198,11 @@ los revise.
 python3 crm/dev/build_preview.py                    # arma crm/dev/preview.html con un window.claude simulado
 NODE_PATH=$(npm root -g) node crm/dev/smoke.cjs     # leads, llamadas y borradores (capturas en crm/dev/shots)
 NODE_PATH=$(npm root -g) node crm/dev/clientes.cjs  # etapa con clientes: lead ganado, proyecto, cobros, soporte, acta
+NODE_PATH=$(npm root -g) node crm/dev/microfono.cjs # transcribir en vivo, con micrófono simulado
 ```
 
 `crm/dev/mock-claude.js` imita `window.claude` (base de datos en memoria, Claude con respuestas
-fijas, usuario y descargas). Para probar sin red, `VENDOR_DIR` apunta a una carpeta con
+fijas, usuario y descargas) y, con `window.__MOCK_MIC`, el micrófono y el reconocimiento de voz. Para probar sin red, `VENDOR_DIR` apunta a una carpeta con
 `preact.umd.min.js`, `hooks.umd.min.js` y `htm.umd.min.js` de cdnjs. Las pruebas usan datos
 inventados.
 

@@ -490,6 +490,17 @@ details.data .grid-2 { margin-top: 14px; }
   .irow-side { grid-column: 2; justify-content: flex-start; }
 }
 @media (max-width: 600px) { .summary .stat.zero { display: none; } }
+.live { display: grid; gap: 8px; }
+.live-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+.live.on { padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--r-m); background: var(--surface-2); }
+.live-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.live-head .btn { margin-left: auto; }
+.live .rec { width: 10px; height: 10px; border-radius: 50%; background: var(--bad); animation: pulse 1.1s ease-in-out infinite; }
+.live-time { font: 500 13px/1 var(--font-mono); color: var(--fg-3); font-variant-numeric: tabular-nums; }
+.live-meter { flex: 1 1 60px; max-width: 140px; height: 6px; border-radius: 3px; background: var(--sunken); overflow: hidden; }
+.live-meter span { display: block; height: 100%; background: var(--ok); transform: scaleX(0); transform-origin: left center; transition: transform 0.12s linear; }
+.live-text { margin: 0; color: var(--fg-3); font-style: italic; overflow-wrap: anywhere; }
+.live-pasos { margin: 4px 0 0; padding-left: 18px; font-size: 13px; }
 table.leads td.amount-cell { text-align: right; }
 table.leads th.r { text-align: right; }
 </style>
@@ -768,7 +779,11 @@ function gmailLink(to, subject, cfg) {
 const ls = {
   get(k, d) { try { const v = localStorage.getItem("zhcrm:" + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
   set(k, v) { try { localStorage.setItem("zhcrm:" + k, JSON.stringify(v)); } catch (e) { /* sin almacenamiento local */ } },
+  del(k) { try { localStorage.removeItem("zhcrm:" + k); } catch (e) { /* sin almacenamiento local */ } },
 };
+/* Lo escrito o transcrito en un registro que todavía no se guarda queda en este navegador por dos
+   días, para no perderlo si se cierra la ficha a mitad de una llamada. */
+const borradorLocal = (k) => { const d = ls.get(k, null); return d && Date.now() - (d.t || 0) < 2 * 864e5 ? d : null; };
 
 /* Copiar: el portapapeles moderno dentro del clic y, si lo rechaza, selección + execCommand. */
 function execCopy(make) {
@@ -993,7 +1008,7 @@ function promptRevision(o) {
   return `${ZH_CONTEXTO}\n\n${ZH_TONO}\n\nFecha de hoy: ${todayKey()} (hora de Chile).\n\n${o.contexto || leadContexto(o.lead, o.hist)}\n\nEste es el borrador actual de ${o.canal === "whatsapp" ? "un mensaje de WhatsApp" : "un correo"} (JSON):\n${JSON.stringify(actual, null, 1)}\n\nCambios que pide quien escribe: ${o.pedido}\n\nAplica los cambios y conserva lo demás. Responde solo con el borrador completo en el mismo formato JSON.`;
 }
 function promptLlamada(o) {
-  return `${ZH_CONTEXTO}\n\nEres el asistente comercial de ZH. Analiza esta llamada con un lead y deja lo necesario para el seguimiento. Usa solo lo que está en las notas o en la transcripción: no inventes. Fecha de hoy: ${todayKey()} (hora de Chile).\n\n${leadContexto(o.lead, o.hist)}\n\nLLAMADA\nResultado: ${resultadoLabel(o.resultado) || "sin registrar"}\nNotas de quien llamó: ${o.notas || "(sin notas)"}\nTranscripción:\n${o.transcripcion ? clip(o.transcripcion, 90000) : "(sin transcripción)"}\n\nResponde solo con JSON con esta forma:\n{"resumen": "2 o 3 frases", "puntos": ["lo más importante que se dijo"], "necesidades": ["qué necesita o qué le duele, con sus palabras si es posible"], "objeciones": ["dudas o reparos"], "compromisos": ["lo que prometimos hacer nosotros"], "proximosPasos": ["acciones concretas"], "interes": "alto | medio | bajo | sin_datos", "etapaSugerida": "nuevo | contactado | reunion | propuesta | negociacion | ganado | perdido | pausa", "proxima": {"tipo": "llamar | whatsapp | correo | reunion | otro", "fecha": "AAAA-MM-DD", "nota": "qué hacer"}, "datos": {"cargo": "", "empresa": "", "correo": "", "necesidad": ""}}\nEn "datos" pon solo lo que se dijo explícitamente; deja vacío lo demás. Si no hay una próxima acción clara, usa null en "proxima".`;
+  return `${ZH_CONTEXTO}\n\nEres el asistente comercial de ZH. Analiza esta llamada con un lead y deja lo necesario para el seguimiento. Usa solo lo que está en las notas o en la transcripción: no inventes. Fecha de hoy: ${todayKey()} (hora de Chile).\n\n${leadContexto(o.lead, o.hist)}\n\nLLAMADA\nResultado: ${resultadoLabel(o.resultado) || "sin registrar"}\nNotas de quien llamó: ${o.notas || "(sin notas)"}\nTranscripción${o.enVivo ? " (hecha en vivo con el micrófono del computador y el celular en altavoz: no separa quién habla y puede traer palabras mal reconocidas; deduce por el contexto qué dijo el lead y qué dijo quien llamó, y no uses lo que no se entienda)" : ""}:\n${o.transcripcion ? clip(o.transcripcion, 90000) : "(sin transcripción)"}\n\nResponde solo con JSON con esta forma:\n{"resumen": "2 o 3 frases", "puntos": ["lo más importante que se dijo"], "necesidades": ["qué necesita o qué le duele, con sus palabras si es posible"], "objeciones": ["dudas o reparos"], "compromisos": ["lo que prometimos hacer nosotros"], "proximosPasos": ["acciones concretas"], "interes": "alto | medio | bajo | sin_datos", "etapaSugerida": "nuevo | contactado | reunion | propuesta | negociacion | ganado | perdido | pausa", "proxima": {"tipo": "llamar | whatsapp | correo | reunion | otro", "fecha": "AAAA-MM-DD", "nota": "qué hacer"}, "datos": {"cargo": "", "empresa": "", "correo": "", "necesidad": ""}}\nEn "datos" pon solo lo que se dijo explícitamente; deja vacío lo demás. Si no hay una próxima acción clara, usa null en "proxima".`;
 }
 function promptImportar(texto) {
   return `Extrae los contactos comerciales (leads) del texto de abajo. Puede ser una lista, una planilla pegada, correos o mensajes (por ejemplo, avisos del formulario o de la agenda de zhdevelopment.cl). No inventes datos: deja vacío lo que no aparezca. Copia los teléfonos tal como aparecen. "origen" solo si se deduce con claridad: web, agenda, instagram, linkedin, referido, evento, prospeccion u otro. "necesidad": qué pide o qué problema tiene, en una frase, solo si aparece.\nResponde solo con JSON: {"leads": [{"nombre": "", "empresa": "", "cargo": "", "telefono": "", "correo": "", "rubro": "", "ciudad": "", "origen": "", "necesidad": "", "notas": ""}]}\n\nTEXTO:\n${clip(texto, 100000)}`;
@@ -1053,7 +1068,7 @@ function promptSolicitud(o) {
 }
 
 function promptActa(o) {
-  return `${ZH_CONTEXTO}\n\nOrdena las notas de una reunión con un cliente de ZH en un acta breve. Usa solo lo que está en las notas: no inventes acuerdos, fechas ni montos.\nFecha de hoy: ${todayKey()} (hora de Chile).\n\n${clienteContexto(o.cliente, o)}\n\nNOTAS DE LA REUNIÓN\n${clip(o.notas, 20000)}\n\nResponde solo con JSON:\n{"resumen": "2 o 3 frases", "acuerdos": [""], "pendientesZH": ["lo que quedó en hacer ZH"], "pendientesCliente": ["lo que quedó en hacer el cliente"], "solicitudes": [{"titulo": "", "descripcion": "", "cobertura": "garantia | mantencion | evolutivo | por_definir"}], "proximaReunion": "AAAA-MM-DD o vacío"}\nEn "solicitudes" pon solo pedidos concretos del cliente que haya que registrar como solicitud (un error, un cambio, un acceso); si no hay, deja [].`;
+  return `${ZH_CONTEXTO}\n\nOrdena las notas de una reunión con un cliente de ZH en un acta breve. Usa solo lo que está en las notas: no inventes acuerdos, fechas ni montos.\nFecha de hoy: ${todayKey()} (hora de Chile).\n\n${clienteContexto(o.cliente, o)}\n\nNOTAS DE LA REUNIÓN${o.enVivo ? " (incluyen una transcripción en vivo con el micrófono del computador: no separa quién habla y puede traer palabras mal reconocidas; deduce por el contexto qué dijo cada uno)" : ""}\n${clip(o.notas, 20000)}\n\nResponde solo con JSON:\n{"resumen": "2 o 3 frases", "acuerdos": [""], "pendientesZH": ["lo que quedó en hacer ZH"], "pendientesCliente": ["lo que quedó en hacer el cliente"], "solicitudes": [{"titulo": "", "descripcion": "", "cobertura": "garantia | mantencion | evolutivo | por_definir"}], "proximaReunion": "AAAA-MM-DD o vacío"}\nEn "solicitudes" pon solo pedidos concretos del cliente que haya que registrar como solicitud (un error, un cambio, un acceso); si no hay, deja [].`;
 }
 
 const strArr = (a, n) => (Array.isArray(a) ? a.map((x) => String(x == null ? "" : x).trim()).filter(Boolean).slice(0, n || 12) : []);
@@ -1222,6 +1237,8 @@ function makeApi(db, meRef) {
     deleteDraft: (id) => run("borradores/" + id, () => retry(() => db.doc("borradores/" + id).delete())),
     setConfig: (data) => run("config/general", () => retry(() => db.doc("config/general").set(clean(data)))),
     setEquipo: (uid, data) => run("equipo/" + uid, () => retry(() => db.doc("equipo/" + uid).set(clean(data)))),
+    /* Un documento por persona con el último resultado de «Transcribir en vivo». */
+    diagMicrofono: (data) => { const p = "diagnostico/microfono-" + who(); return run(p, () => retry(() => db.doc(p).set(clean({ ...data, fecha: nowISO() })))); },
   };
 }
 
@@ -1262,6 +1279,8 @@ const ICONS = {
   link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
   shield: '<path d="M12 3 5 6v5c0 4.5 3 8.3 7 10 4-1.7 7-5.5 7-10V6z"/>',
   more: '<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>',
+  mic: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M9 21h6"/>',
+  stop: '<rect x="6.5" y="6.5" width="11" height="11" rx="2"/>',
 };
 function Icon({ name, size }) {
   return html`<svg viewBox="0 0 24 24" width=${size || 16} height=${size || 16} fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" dangerouslySetInnerHTML=${{ __html: ICONS[name] || "" }}></svg>`;
@@ -2037,14 +2056,222 @@ function cleanTranscript(raw) {
     .trim();
 }
 
+/* ===================================================================== transcripción en vivo */
+
+/* «Transcribir en vivo»: con el celular en altavoz junto al computador, el CRM escucha con el
+   micrófono del computador y el reconocimiento de voz del navegador lo pasa a texto (Chrome y Edge
+   usan el servicio de voz de Google o de Microsoft). El audio no se guarda: solo el texto. Si
+   claude.ai o el navegador no dejan usar el micrófono, muestra el plan B con Google Docs. */
+const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition || null;
+const MIC_FALLAS = {
+  politica: "claude.ai no deja que el CRM use el micrófono.",
+  denegado: "El navegador no dio permiso para usar el micrófono. Permítelo desde el ícono junto a la dirección de la página y vuelve a intentar.",
+  sin_micro: "No se encontró un micrófono en este equipo.",
+  ocupado: "Otra aplicación está usando el micrófono. Ciérrala y vuelve a intentar.",
+  sin_soporte: "Este navegador no transcribe en vivo. Abre el CRM en Google Chrome o Microsoft Edge.",
+  servicio: "Este navegador no pudo usar el servicio de voz. Abre el CRM en Google Chrome o Microsoft Edge, con internet.",
+  red: "Se cortó la conexión con el servicio de voz. Lo transcrito hasta ahora quedó en el texto.",
+};
+const MIC_PLAN_B = new Set(["politica", "sin_soporte", "servicio"]);
+const MIC_PASOS_B = ["Abre un documento nuevo de Google Docs en otra pestaña (docs.new).", "Herramientas → Escritura por voz; elige «Español (Chile)» y toca el micrófono.", "Al cortar, copia el texto y pégalo aquí."];
+const politicaMic = () => { try { const p = document.permissionsPolicy || document.featurePolicy; return p && p.allowsFeature ? p.allowsFeature("microphone") : null; } catch (e) { return null; } };
+const mmss = (s) => `${Math.floor(s / 60)}:${pad2(s % 60)}`;
+const pantallaTactil = () => { try { return matchMedia("(pointer: coarse)").matches; } catch (e) { return false; } };
+
+function LiveTranscriber({ onText, onStart, onStop }) {
+  const { api } = useCtx();
+  const [fase, setFase] = useState("listo");
+  const [interim, setInterim] = useState("");
+  const [falla, setFalla] = useState("");
+  const [seg, setSeg] = useState(0);
+  const st = useRef(null);
+  const barra = useRef(null);
+  const avisado = useRef({});
+  const cb = useRef(null);
+  cb.current = { onText, onStart, onStop };
+
+  /* Deja anotado en la base si el micrófono funcionó, para revisarlo sin pedir capturas. */
+  const diag = (d) => {
+    if (!api || !api.diagMicrofono) return;
+    let enMarco = true;
+    try { enMarco = window.top !== window; } catch (e) { /* marco de otro origen */ }
+    api.diagMicrofono({ ...d, politica: politicaMic(), enMarco, navegador: clip(navigator.userAgent || "", 220) }).catch(() => {});
+  };
+  const soltar = (s) => {
+    clearInterval(s.reloj); clearInterval(s.medidor); clearTimeout(s.reinicio); clearTimeout(s.corte);
+    if (s.stream) s.stream.getTracks().forEach((t) => t.stop());
+    if (s.audio) s.audio.close().catch(() => {});
+    if (s.lock) s.lock.release().catch(() => {});
+  };
+  useEffect(() => () => {
+    const s = st.current;
+    st.current = null;
+    if (!s) return;
+    s.quiere = false;
+    try { if (s.rec) s.rec.abort(); } catch (e) { /* ya terminó */ }
+    soltar(s);
+  }, []);
+
+  const cerrar = (s, motivo) => {
+    if (st.current !== s) return;
+    st.current = null;
+    if (s.pendiente && cb.current.onText) cb.current.onText(cap(s.pendiente));
+    soltar(s);
+    setInterim("");
+    setFase("listo");
+    setFalla(motivo || "");
+    if (s.t0 && cb.current.onStop) cb.current.onStop(Math.round((Date.now() - s.t0) / 1000));
+  };
+  const sesion = (s) => {
+    const r = new SpeechRec();
+    r.lang = s.lang;
+    r.continuous = true;
+    r.interimResults = true;
+    r.maxAlternatives = 1;
+    r.onstart = () => {
+      if (st.current !== s) return;
+      setFase((f) => (f === "iniciando" ? "escuchando" : f));
+      if (!avisado.current.escuchando) { avisado.current.escuchando = true; diag({ ok: true, paso: "escuchando" }); }
+    };
+    r.onresult = (e) => {
+      if (st.current !== s) return;
+      let parcial = "";
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        const res = e.results[i];
+        const t = String((res[0] && res[0].transcript) || "").trim();
+        if (!t) continue;
+        if (res.isFinal) {
+          s.fallasRed = 0;
+          s.conTexto = true;
+          if (cb.current.onText) cb.current.onText(cap(t));
+          if (!avisado.current.texto) { avisado.current.texto = true; diag({ ok: true, paso: "texto" }); }
+        } else parcial += (parcial ? " " : "") + t;
+      }
+      s.pendiente = parcial;
+      setInterim(parcial);
+    };
+    r.onerror = (e) => {
+      if (st.current !== s) return;
+      const c = (e && e.error) || "";
+      if (c === "no-speech" || c === "aborted") return;
+      if (c === "network") { s.fallasRed += 1; return; }
+      if (c === "language-not-supported" && s.lang !== "es-ES") { s.lang = "es-ES"; return; }
+      const tipo = c === "not-allowed" ? (politicaMic() === false ? "politica" : "denegado") : c === "audio-capture" ? "sin_micro" : "servicio";
+      s.quiere = false;
+      s.falla = tipo;
+      diag({ ok: false, paso: "reconocimiento", error: c, tipo });
+    };
+    r.onend = () => {
+      if (st.current !== s) return;
+      if (!s.quiere) { cerrar(s, s.falla); return; }
+      /* Chrome corta la sesión tras un silencio largo o un problema de red: se retoma sola. */
+      if (s.fallasRed >= 4) {
+        const tipo = s.conTexto ? "red" : "servicio";
+        diag({ ok: false, paso: "red", error: "network", tipo });
+        cerrar(s, tipo);
+        return;
+      }
+      const espera = s.fallasRed ? Math.min(4000, 500 * 2 ** s.fallasRed) : 250;
+      s.reinicio = setTimeout(() => { if (st.current === s && s.quiere) arrancar(s); }, espera);
+    };
+    return r;
+  };
+  const arrancar = (s) => {
+    try { s.rec = sesion(s); s.rec.start(); } catch (e) {
+      s.quiere = false;
+      diag({ ok: false, paso: "inicio", error: String((e && (e.name || e.message)) || e), tipo: "servicio" });
+      cerrar(s, "servicio");
+    }
+  };
+  const empezar = async () => {
+    if (st.current) return;
+    setFalla("");
+    if (!SpeechRec) { setFalla("sin_soporte"); diag({ ok: false, paso: "soporte", tipo: "sin_soporte" }); return; }
+    if (politicaMic() === false || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { setFalla("politica"); diag({ ok: false, paso: "politica", tipo: "politica" }); return; }
+    const s = { quiere: true, lang: "es-CL", fallasRed: 0, conTexto: false, pendiente: "", falla: "" };
+    st.current = s;
+    setFase("iniciando");
+    setSeg(0);
+    /* El medidor se crea con el clic: después de esperar el permiso el navegador podría no dejarlo andar. */
+    const AC = window.AudioContext || window.webkitAudioContext;
+    try { if (AC) s.audio = new AC(); } catch (e) { s.audio = null; }
+    try {
+      s.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch (e) {
+      const n = (e && e.name) || "";
+      const tipo = n === "NotFoundError" || n === "OverconstrainedError" ? "sin_micro"
+        : n === "NotReadableError" || n === "AbortError" ? "ocupado"
+        : n === "SecurityError" || politicaMic() === false || /polic/i.test((e && e.message) || "") ? "politica" : "denegado";
+      diag({ ok: false, paso: "microfono", error: n, mensaje: clip((e && e.message) || "", 160), tipo });
+      s.quiere = false;
+      cerrar(s, tipo);
+      return;
+    }
+    if (st.current !== s) { soltar(s); return; }
+    if (s.audio) {
+      try {
+        const an = s.audio.createAnalyser();
+        an.fftSize = 512;
+        s.audio.createMediaStreamSource(s.stream).connect(an);
+        const buf = new Uint8Array(an.fftSize);
+        s.medidor = setInterval(() => {
+          an.getByteTimeDomainData(buf);
+          let sum = 0;
+          for (let i = 0; i < buf.length; i++) { const x = (buf[i] - 128) / 128; sum += x * x; }
+          if (barra.current) barra.current.style.transform = `scaleX(${Math.min(1, Math.sqrt(sum / buf.length) * 5).toFixed(2)})`;
+        }, 120);
+        if (s.audio.state === "suspended") s.audio.resume().catch(() => {});
+      } catch (e) { /* sin medidor */ }
+    }
+    try { if (navigator.wakeLock) s.lock = await navigator.wakeLock.request("screen"); } catch (e) { s.lock = null; }
+    if (st.current !== s) { soltar(s); return; }
+    s.t0 = Date.now();
+    s.reloj = setInterval(() => setSeg(Math.round((Date.now() - s.t0) / 1000)), 1000);
+    if (cb.current.onStart) cb.current.onStart();
+    arrancar(s);
+  };
+  const detener = () => {
+    const s = st.current;
+    if (!s) return;
+    s.quiere = false;
+    if (!s.rec) { cerrar(s, ""); return; }
+    setFase("cerrando");
+    try { s.rec.stop(); } catch (e) { cerrar(s, ""); return; }
+    /* Si el navegador no avisa que terminó, se cierra igual con lo que haya. */
+    s.corte = setTimeout(() => { try { s.rec.abort(); } catch (e) { /* ya terminó */ } cerrar(s, ""); }, 2500);
+  };
+
+  if (fase === "listo") {
+    return html`<div class="live">
+      ${falla ? html`<div class=${cx("note", MIC_PLAN_B.has(falla) ? "warn" : "bad")} role="alert"><${Icon} name="info" /><div><b>${MIC_FALLAS[falla]}</b>${MIC_PLAN_B.has(falla) ? html`<span style="display:block;margin-top:4px">Mientras tanto, con la escritura por voz de Google Docs:</span><ol class="live-pasos">${MIC_PASOS_B.map((x) => html`<li>${x}</li>`)}</ol>` : null}</div></div>` : null}
+      <div class="live-row">
+        <button type="button" class="btn small" onClick=${empezar}><${Icon} name="mic" />Transcribir en vivo</button>
+        <span class="small muted">${pantallaTactil() ? "Ábrelo en el computador o en otro equipo: si llamas desde este mismo celular, la llamada ocupa el micrófono." : "Con el celular en altavoz junto al computador, el CRM escucha la llamada y la pasa a texto. Funciona en Chrome o Edge."}</span>
+      </div>
+    </div>`;
+  }
+  return html`<div class="live on">
+    <div class="live-head">
+      <i class="rec" aria-hidden="true"></i>
+      <b role="status">${fase === "iniciando" ? "Pidiendo el micrófono…" : fase === "cerrando" ? "Terminando…" : "Escuchando"}</b>
+      <span class="live-time">${mmss(seg)}</span>
+      <span class="live-meter" aria-hidden="true"><span ref=${barra}></span></span>
+      <button type="button" class="btn small" onClick=${detener} disabled=${fase === "cerrando"}><${Icon} name="stop" />Detener</button>
+    </div>
+    ${interim ? html`<p class="live-text">${interim}</p>` : html`<p class="small muted" style="margin:0">${fase === "iniciando" ? "Si el navegador pregunta, permite usar el micrófono." : "Pon el celular en altavoz cerca del computador. No cierres esta pestaña: el audio no se guarda, solo el texto."}</p>`}
+  </div>`;
+}
+
 function CallLogger({ lead, hist, onDone }) {
   const { api, toast, sampleState, setSampleState, cfg, canWrite } = useCtx();
+  const llave = "llamada:" + lead.id;
+  const [previo] = useState(() => borradorLocal(llave));
   const [resultado, setResultado] = useState("");
   const [linea, setLinea] = useState(() => ls.get("linea", "negocios"));
-  const [duracion, setDuracion] = useState("");
-  const [notas, setNotas] = useState("");
-  const [trans, setTrans] = useState("");
-  const [showTrans, setShowTrans] = useState(false);
+  const [duracion, setDuracion] = useState(() => (previo && previo.duracion) || "");
+  const [notas, setNotas] = useState(() => (previo && previo.notas) || "");
+  const [trans, setTrans] = useState(() => (previo && previo.trans) || "");
+  const [showTrans, setShowTrans] = useState(() => !!(previo && previo.trans));
   const [an, setAn] = useState(null);
   const [busy, setBusy] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -2054,8 +2281,11 @@ function CallLogger({ lead, hist, onDone }) {
   const [retry, setRetry] = useState(true);
   const [toContactado, setToContactado] = useState(true);
   const [guardarTrans, setGuardarTrans] = useState(() => ls.get("guardarTrans", false));
+  const [enVivo, setEnVivo] = useState(() => !!(previo && previo.enVivo));
   const ctl = useRef(null);
   useEffect(() => ls.set("linea", linea), [linea]);
+  useEffect(() => { if (notas.trim() || trans.trim()) ls.set(llave, { notas, trans, duracion, enVivo, t: Date.now() }); else ls.del(llave); }, [notas, trans, duracion, enVivo]);
+  const cancelar = () => { ls.del(llave); onDone(); };
   useEffect(() => ls.set("guardarTrans", guardarTrans), [guardarTrans]);
   useEffect(() => () => { if (ctl.current) ctl.current.abort(); }, []);
 
@@ -2077,7 +2307,7 @@ function CallLogger({ lead, hist, onDone }) {
     ctl.current = new AbortController();
     setBusy(true);
     try {
-      const r = await sampleState.fn.json(promptLlamada({ lead, hist, resultado, notas, transcripcion: trans }), { modelTier: "default", cache: false, signal: ctl.current.signal });
+      const r = await sampleState.fn.json(promptLlamada({ lead, hist, resultado, notas, transcripcion: trans, enVivo }), { modelTier: "default", cache: false, signal: ctl.current.signal });
       const s = sanitizeAnalisis(r);
       setAn(s);
       setUseStage(!!s.etapaSugerida && s.etapaSugerida !== lead.etapa);
@@ -2107,6 +2337,7 @@ function CallLogger({ lead, hist, onDone }) {
       else if (sinResp && retry) patch.proxima = { tipo: (lead.intentos || 0) >= 1 ? "whatsapp" : "llamar", fecha: addBusinessDays(t, 1), hora: "", nota: (lead.intentos || 0) >= 1 ? "No contesta: escribir por WhatsApp" : "Volver a llamar" };
       if (an && useData) for (const [k, v] of nuevosDatos) patch[k] = k === "correo" ? v.toLowerCase() : v;
       await api.updateLead(lead.id, patch);
+      ls.del(llave);
       toast("Llamada registrada.");
       onDone();
     } catch (e) { toast(dbErrorText(e), "bad"); } finally { setSaving(false); }
@@ -2118,6 +2349,8 @@ function CallLogger({ lead, hist, onDone }) {
       <a class="btn small" href=${"tel:" + lead.telefono}><${Icon} name="phone" />Llamar</a>
       <span class="small muted" style="flex-basis:100%">${cfg.whatsappNegocios ? `Llama desde la línea de negocios (${fmtPhone(normPhone(cfg.whatsappNegocios))}).` : "Llama desde la línea de negocios."} Si el botón no abre el teléfono, marca el número a mano.</span>
     </div>` : null}
+    ${previo ? html`<div class="note"><${Icon} name="info" /><div>Recuperé lo que quedó sin guardar de esta llamada.</div></div>` : null}
+    <${LiveTranscriber} onStart=${() => setShowTrans(true)} onText=${(x) => { setEnVivo(true); setTrans((t) => (t.trim() ? t.replace(/\s+$/, "") + "\n" : "") + x); }} onStop=${(segundos) => { if (segundos >= 30) setDuracion((d) => d || String(Math.max(1, Math.round(segundos / 60)))); }} />
     <div class="field"><span>Resultado</span><${Chips} label="Resultado" value=${resultado} onChange=${setResultado} options=${RESULTADOS} /></div>
     <div class="grid-2">
       <div class="field"><span>Línea</span><${Seg} label="Línea" value=${linea} onChange=${setLinea} options=${[["negocios", "Negocios"], ["personal", "Personal"]]} /></div>
@@ -2145,7 +2378,7 @@ function CallLogger({ lead, hist, onDone }) {
     ${!(an && an.proxima) && sinResp ? html`<label class="check"><input type="checkbox" checked=${retry} onChange=${(e) => setRetry(e.currentTarget.checked)} />${(lead.intentos || 0) >= 1 ? "Programar un WhatsApp para mañana" : "Volver a llamar mañana"} (${dayLabel(addBusinessDays(t, 1))})</label>` : null}
     <div class="actions">
       <button class="btn primary" onClick=${guardar} disabled=${saving || !canWrite}>${saving ? "Guardando…" : "Guardar llamada"}</button>
-      <button class="btn ghost" onClick=${onDone}>Cancelar</button>
+      <button class="btn ghost" onClick=${cancelar}>Cancelar</button>
     </div>
   </div>`;
 }
@@ -2210,6 +2443,7 @@ function OtherLogger({ lead, onDone }) {
   const { api, toast, canWrite } = useCtx();
   const [tipo, setTipo] = useState("nota");
   const [texto, setTexto] = useState("");
+  const sumar = (x) => setTexto((t) => (t.trim() ? t.replace(/\s+$/, "") + "\n" : "") + x);
   const [saving, setSaving] = useState(false);
   const guardar = async () => {
     if (!texto.trim()) { toast("Escribe qué pasó.", "bad"); return; }
@@ -2227,6 +2461,7 @@ function OtherLogger({ lead, onDone }) {
   };
   return html`<div class="work-body">
     <div class="field"><span>Tipo</span><${Chips} label="Tipo" value=${tipo} onChange=${setTipo} options=${REGISTROS} /></div>
+    ${tipo === "reunion" ? html`<${LiveTranscriber} onText=${sumar} />` : null}
     <label class="field" for="o-texto"><span>${tipo === "nota" ? "Nota" : "Qué pasó"}</span><textarea id="o-texto" class="textarea" rows="4" value=${texto} onInput=${(e) => setTexto(e.currentTarget.value)} placeholder=${tipo === "whatsapp" ? "Pega el mensaje que mandaste o lo que respondió" : tipo === "reunion" ? "Resumen de la reunión y acuerdos" : ""}></textarea></label>
     <div class="actions"><button class="btn primary" onClick=${guardar} disabled=${saving || !canWrite}>Guardar</button><button class="btn ghost" onClick=${onDone}>Cancelar</button></div>
   </div>`;
@@ -2448,7 +2683,7 @@ async function generarMensualidades(api, mantenciones, ids, mk) {
 function ClientesView() {
   const { clientes, proyectos, cobros, mantenciones, solicitudes, clientesById, openCliente, openModal, cfg, nameOf, canWrite } = useCtx();
   const [q, setQ] = useState(() => ls.get("qCli", ""));
-  const [f, setF] = useState(() => ls.get("fCli", "activos"));
+  const [f, setF] = useState(() => ls.get("fCli", "todos"));
   useEffect(() => { ls.set("qCli", q); ls.set("fCli", f); }, [q, f]);
   const rows = useMemo(() => {
     const d = { proyectos, cobros, mantenciones, solicitudes, clientesById };
@@ -2469,7 +2704,7 @@ function ClientesView() {
     </header>
     <div class="toolbar">
       <label class="search"><span class="sr">Buscar clientes</span><${Icon} name="search" /><input id="buscar-cli" class="input" type="search" placeholder="Buscar por nombre, razón social, RUT o contacto" value=${q} onInput=${(e) => setQ(e.currentTarget.value)} /></label>
-      <${Seg} label="Filtro" value=${f} onChange=${setF} options=${[["activos", "Con servicio activo"], ["todos", "Todos"], ["archivados", "Archivados"]]} />
+      <${Seg} label="Filtro" value=${f} onChange=${setF} options=${[["todos", "Todos"], ["activos", "Con servicio activo"], ["archivados", "Archivados"]]} />
     </div>
     <section class="panel">
       ${!rows.length ? html`<div class="panel-body" style="padding-top:16px"><p class="empty">${clientes.length ? "Ningún cliente coincide con estos filtros." : "Todavía no hay clientes. Marca un lead como «Ganado» o agrega uno con «Nuevo cliente»."}</p></div>` : html`
@@ -2614,21 +2849,25 @@ const REGISTROS_CLIENTE = [["reunion", "Reunión"], ["llamada", "Llamada"], ["no
 function ClientLogger({ cliente, hist, onDone }) {
   const { api, toast, sampleState, setSampleState, canWrite, proyectos, mantenciones, cfg, me } = useCtx();
   const ps = proyectos.filter((p) => p.clienteId === cliente.id);
-  const [tipo, setTipo] = useState("reunion");
-  const [texto, setTexto] = useState("");
+  const llave = "registro:" + cliente.id;
+  const [previo] = useState(() => borradorLocal(llave));
+  const [tipo, setTipo] = useState(() => (previo && previo.tipo) || "reunion");
+  const [texto, setTexto] = useState(() => (previo && previo.texto) || "");
   const [proyectoId, setProyectoId] = useState((ps.find((p) => PROYECTO_VIVO.has(p.estado)) || {}).id || "");
   const [acta, setActa] = useState(null);
+  const [enVivo, setEnVivo] = useState(() => !!(previo && previo.enVivo));
   const [crearSol, setCrearSol] = useState({});
   const [busy, setBusy] = useState(false);
   const [saving, setSaving] = useState(false);
   const ctl = useRef(null);
   useEffect(() => () => { if (ctl.current) ctl.current.abort(); }, []);
+  useEffect(() => { if (texto.trim()) ls.set(llave, { tipo, texto, enVivo, t: Date.now() }); else ls.del(llave); }, [tipo, texto, enVivo]);
   const ordenar = async () => {
     if (!sampleState.fn || !texto.trim()) return;
     ctl.current = new AbortController();
     setBusy(true);
     try {
-      const r = await sampleState.fn.json(promptActa({ cliente, notas: texto, proyecto: ps.find((p) => p.id === proyectoId) || null, mantenciones: mantenciones.filter((m) => m.clienteId === cliente.id), hist, cfg }), { modelTier: "default", cache: false, signal: ctl.current.signal });
+      const r = await sampleState.fn.json(promptActa({ cliente, notas: texto, enVivo, proyecto: ps.find((p) => p.id === proyectoId) || null, mantenciones: mantenciones.filter((m) => m.clienteId === cliente.id), hist, cfg }), { modelTier: "default", cache: false, signal: ctl.current.signal });
       const a = sanitizeActa(r);
       setActa(a);
       setCrearSol(Object.fromEntries(a.solicitudes.map((_, i) => [i, true])));
@@ -2650,19 +2889,22 @@ function ClientLogger({ cliente, hist, onDone }) {
           n += 1;
         }
       }
+      ls.del(llave);
       toast(n ? `Registrado. ${n} ${n === 1 ? "solicitud creada" : "solicitudes creadas"} en Soporte.` : "Registrado en el historial.");
       onDone();
     } catch (e) { toast(dbErrorText(e), "bad"); } finally { setSaving(false); }
   };
   return html`<div class="work-body">
+    ${previo ? html`<div class="note"><${Icon} name="info" /><div>Recuperé lo que quedó sin guardar de este registro.</div></div>` : null}
     <div class="field"><span>Tipo</span><${Chips} label="Tipo" value=${tipo} onChange=${(v) => { setTipo(v); if (v !== "reunion") setActa(null); }} options=${REGISTROS_CLIENTE} /></div>
     ${ps.length ? html`<label class="field" for="cl-pro"><span>Proyecto</span><select id="cl-pro" class="select" value=${proyectoId} onChange=${(e) => setProyectoId(e.currentTarget.value)}><option value="">Sin proyecto</option>${ps.map((p) => html`<option value=${p.id}>${p.nombre || "Proyecto"}</option>`)}</select></label>` : null}
+    ${tipo === "reunion" || tipo === "llamada" ? html`<${LiveTranscriber} onText=${(x) => { setEnVivo(true); setTexto((t) => (t.trim() ? t.replace(/\s+$/, "") + "\n" : "") + x); }} />` : null}
     <label class="field" for="cl-texto"><span>${tipo === "reunion" ? "Notas de la reunión" : tipo === "nota" ? "Nota" : "Qué pasó"}</span><textarea id="cl-texto" class="textarea" rows="5" value=${texto} onInput=${(e) => setTexto(e.currentTarget.value)} placeholder=${tipo === "reunion" ? "Lo que se habló, en desorden: acuerdos, pedidos, fechas, quién hace qué" : ""}></textarea>
       ${tipo === "reunion" ? html`<small class="hint">«Ordenar en acta» saca los acuerdos, lo pendiente de cada lado y las solicitudes que hay que registrar.</small>` : null}</label>
     ${tipo === "reunion" && sampleState.fn ? html`<div class="actions">${busy ? html`<${Thinking} text="Claude está ordenando el acta…" /><button class="btn small ghost" onClick=${() => ctl.current && ctl.current.abort()}>Detener</button>` : html`<button class="btn small claude" onClick=${ordenar} disabled=${!texto.trim()}><${Icon} name="spark" />Ordenar en acta con Claude</button>`}</div>` : null}
     ${acta ? html`<${ActaView} a=${acta} />
       ${acta.solicitudes.length ? html`<div class="suggest"><p class="eyebrow">Crear en Soporte al guardar</p>${acta.solicitudes.map((s, i) => html`<label class="check" key=${i}><input type="checkbox" checked=${!!crearSol[i]} onChange=${(e) => { const v = e.currentTarget.checked; setCrearSol((x) => ({ ...x, [i]: v })); }} />${s.titulo} · ${coberturaLabel(s.cobertura)}</label>`)}</div>` : null}` : null}
-    <div class="actions"><button class="btn primary" onClick=${guardar} disabled=${saving || !canWrite}>${saving ? "Guardando…" : "Guardar"}</button><button class="btn ghost" onClick=${onDone}>Cancelar</button></div>
+    <div class="actions"><button class="btn primary" onClick=${guardar} disabled=${saving || !canWrite}>${saving ? "Guardando…" : "Guardar"}</button><button class="btn ghost" onClick=${() => { ls.del(llave); onDone(); }}>Cancelar</button></div>
   </div>`;
 }
 
@@ -3845,7 +4087,7 @@ function AjustesView() {
             <li>«¿A quién tengo que llamar hoy?» o «¿qué leads llevan más de una semana sin contacto?»</li>
             <li>«¿Qué le debemos a cada cliente y qué facturas están vencidas?» o «registra esta solicitud del cliente y clasifícala».</li>
           </ul>
-          <p>Las llamadas se graban fuera del CRM (por ejemplo, con la grabación de llamadas del iPhone) y la transcripción se pega en «Registrar llamada». La guía completa está en <span class="mono">docs/crm-telefonia-whatsapp.md</span> del repositorio marketing.</p>
+          <p>Para transcribir una llamada, abre «Registrar llamada» en el computador, toca «Transcribir en vivo» y habla con el celular en altavoz al lado: el CRM escucha y lo pasa a texto (en Chrome o Edge). También se puede pegar o subir una transcripción hecha en otra herramienta. La guía completa está en <span class="mono">docs/crm-telefonia-whatsapp.md</span> del repositorio marketing.</p>
         </div></section>
     </div>
   </div>`;

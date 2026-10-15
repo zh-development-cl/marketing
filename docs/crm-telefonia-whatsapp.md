@@ -8,7 +8,7 @@ confirmar**. La parte legal resume lo que dicen las fuentes; no es asesoría leg
 | Tema | Qué hacer ahora | Si después quieren que sea automático |
 |---|---|---|
 | WhatsApp | Poner el número de negocios en la app **WhatsApp Business** (gratis) y abrirla en el computador con WhatsApp Web; el CRM abre cada chat con el texto listo. | WhatsApp Business Platform (API) en **coexistencia** con la app, a través de un proveedor, y un servidor chico que registre cada mensaje en el CRM. |
-| Notas de las llamadas | Dictar las notas en el CRM justo al cortar (micrófono del teclado del teléfono); Claude las ordena. No se graba la voz del cliente. | Una línea en la nube que grabe y transcriba sola, con un número nuevo. El iPhone no sirve para esto: siempre avisa a las dos personas. |
+| Notas de las llamadas | Transcribir en vivo desde el computador, con el celular en altavoz al lado (gratis y sin aviso), o dictar las notas justo al cortar (micrófono del teclado del teléfono). Claude las ordena. | Una línea en la nube que grabe y transcriba sola, con un número nuevo. El iPhone no sirve para esto: siempre avisa a las dos personas. |
 | Legal | Según la jurisprudencia citada, grabar sin avisar una llamada en la que uno participa no es el delito del 161-A. Desde el 1-12-2026 (Ley 21.719) hay que mencionarlo en la política de privacidad y guardar lo mínimo. | Lo mismo, según lo que haga el proveedor que se use. |
 
 ## 1. WhatsApp Business con el número de negocios
@@ -73,6 +73,22 @@ aviso de grabación al empezar.
 
 No se graba la voz del cliente, así que no hay nada que avisar ni audio que guardar. No cuesta nada
 y funciona desde hoy.
+
+### Transcribir en vivo desde el computador
+
+Ninguna app del celular puede grabar una llamada (Apple y Google lo bloquean; solo la app
+Teléfono del iPhone graba, y avisa a las dos personas). Lo que sí funciona sin comprar nada:
+
+1. En el computador, en Chrome o Edge, «Registrar llamada» → «Transcribir en vivo».
+2. Llamas desde el celular en altavoz, junto al computador. El CRM escucha y lo pasa a texto en
+   español de Chile.
+3. Al cortar, «Detener» y «Analizar con Claude».
+
+No suena ningún aviso y no cuesta nada. El audio no se guarda: el navegador lo manda a su servicio
+de voz (Google en Chrome, Microsoft en Edge) y vuelve solo el texto. La calidad es menor que una
+grabación directa y no separa quién habla, así que conviene un lugar tranquilo. Si claude.ai no
+deja usar el micrófono, el plan B es la escritura por voz de Google Docs (Herramientas → Escritura
+por voz), pegando el texto en el CRM.
 
 ### Transcribir la conversación completa sin aviso
 

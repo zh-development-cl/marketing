@@ -69,7 +69,9 @@ hacer y el teléfono formateado (`+56 9 1234 5678`). Suma lo de clientes (ver m�
 1. Lee el lead y sus `actividades` (`where leadId == id`).
 2. Analiza solo lo dicho: `resumen` (2-3 frases), `puntos`, `necesidades`, `objeciones`,
    `compromisos`, `proximosPasos`, `interes` (`alto`, `medio`, `bajo`, `sin_datos`),
-   `etapaSugerida` y `proxima`.
+   `etapaSugerida` y `proxima`. Una transcripción de «Transcribir en vivo» (el micrófono del
+   computador con el celular en altavoz) no separa quién habla y trae errores: deduce por el
+   contexto qué dijo cada uno y no uses lo que no se entienda.
 3. `set` en `actividades`: `{leadId, tipo: "llamada", fecha, autor: "claude", resultado, linea,
    duracion, resumen, transcripcion, analisis}`. Guarda `transcripcion` solo si el usuario pide
    conservarla; si no, `null` (quedan las notas y el análisis).
