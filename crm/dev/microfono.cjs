@@ -61,13 +61,15 @@ const FRASES = ["hola andrea te llamo de zh por lo del inventario", "la verdad l
   const abrirLlamada = async (page) => {
     await page.locator(".side .nav button", { hasText: /^Leads/ }).click();
     await page.locator("table.leads tbody tr", { hasText: "Andrea Fuentes" }).click();
-    await page.locator("#lead-title", { hasText: "Andrea Fuentes" }).waitFor();
+    await page.locator("#lead-title", { hasText: "Ferretería Andes" }).waitFor();
     await page.locator(".work-tabs button", { hasText: "Registrar llamada" }).click();
   };
 
   /* ---------------- llamada transcrita en vivo ---------------- */
   const page = await open({ name: "micrófono", seed: SEED, mic: { modo: "ok", frases: FRASES, cortar: true } });
   await abrirLlamada(page);
+  /* Aquí se prueba revisar antes de guardar; lo automático se prueba en tareas.cjs. */
+  await page.locator(".work .switch input").uncheck();
   await page.getByRole("button", { name: "Transcribir en vivo" }).click();
   await page.locator(".live.on", { hasText: "Escuchando" }).waitFor();
   await page.locator(".live-text").first().waitFor();
@@ -121,13 +123,14 @@ const FRASES = ["hola andrea te llamo de zh por lo del inventario", "la verdad l
   ok(await page.locator(".work .crit", { hasText: "Objeciones" }).locator("i.on").count() === 2, "cada criterio muestra su nota");
   ok(await page.locator(".work .analysis", { hasText: "Tareas de ZH" }).locator("li", { hasText: "Enviar la propuesta por correo" }).isVisible(), "lista las tareas de ZH");
   ok(await page.locator(".work .analysis", { hasText: "Tareas del lead" }).locator("li", { hasText: "Mandar la planilla de inventario" }).isVisible(), "y las del lead");
-  const chk = page.locator(".work .suggest label", { hasText: "Dejar redactado el correo: Enviar la propuesta por correo" }).locator("input");
-  ok(await chk.isChecked(), "propone dejar redactado el correo acordado");
-  ok((await page.locator(".work .suggest label", { hasText: "Dejar redactado" }).count()) === 1, "solo para los correos y WhatsApp de ZH");
+  ok(await page.locator(".work .suggest label", { hasText: "Tarea: Enviar la propuesta por correo" }).locator("input").isChecked(), "propone crear las tareas de ZH");
+  ok((await page.locator(".work .suggest label", { hasText: "Tarea: Mandar la planilla" }).count()) === 0, "lo que quedó en hacer el lead no se vuelve tarea de ZH");
+  ok(await page.locator(".work .suggest label", { hasText: "Agendar la reunión" }).locator("input").isChecked(), "y agendar la reunión acordada");
+  ok(await page.locator(".work .suggest label", { hasText: "Que Claude deje redactados" }).locator("input").isChecked(), "y dejar redactado el correo acordado");
   await page.locator(".work .eval").scrollIntoViewIfNeeded();
   await shot(page, "m04-evaluacion.png");
   await page.getByRole("button", { name: "Guardar llamada" }).click();
-  await toast(page, "Llamada registrada.");
+  await page.locator(".done-card").waitFor();
   await toast(page, "Quedó redactado 1 borrador");
   await page.waitForTimeout(250);
   ok((await page.evaluate(() => localStorage.getItem("zhcrm:llamada:lead-mic"))) === null, "al guardar la llamada se borra lo recuperable");
@@ -138,9 +141,14 @@ const FRASES = ["hola andrea te llamo de zh por lo del inventario", "la verdad l
   ok(llamada && llamada[1].transcripcion === null && llamada[1].analisis, "por defecto se guardan las notas y el análisis, sin la transcripción completa");
   ok(llamada && llamada[1].analisis.evaluacion && llamada[1].analisis.evaluacion.puntaje === 67 && llamada[1].analisis.tareas.length === 3, "la llamada guarda el puntaje y las tareas");
   const borr = Object.entries(dump).filter(([k]) => k.startsWith("borradores/")).map(([, v]) => v);
-  ok(borr.length === 1 && borr[0].leadId === "lead-mic" && borr[0].canal === "correo" && borr[0].objetivo === "propuesta" && borr[0].generadoPor === "claude" && borr[0].estado === "por_revisar", "el correo acordado queda redactado por Claude en «Borradores por revisar»");
-  ok(borr[0] && borr[0].instrucciones.includes("Enviar la propuesta por correo") && borr[0].instrucciones.includes("Mandar la planilla de inventario"), "el borrador sabe lo que quedó en hacer cada uno");
-  const pBorr = (await page.evaluate(() => window.__mockPrompts)).filter((x) => x.includes("Quedó acordado en la llamada de hoy")).pop();
+  ok(borr.length === 1 && borr[0].leadId === "lead-mic" && borr[0].canal === "correo" && borr[0].generadoPor === "claude" && borr[0].estado === "por_revisar", "el correo acordado queda redactado por Claude en «Borradores por revisar»");
+  ok(borr[0] && borr[0].instrucciones.includes("Mandar por correo el resumen de la llamada") && borr[0].instrucciones.includes("Mandar la planilla de inventario"), "el borrador sabe lo que quedó en hacer cada uno");
+  const tareas = Object.entries(dump).filter(([k]) => k.startsWith("tareas/")).map(([id, v]) => ({ id: id.split("/")[1], ...v }));
+  const tCorreo = tareas.find((x) => x.tipo === "correo");
+  ok(tCorreo && tCorreo.borradorId && borr[0].tareaId === tCorreo.id, "el borrador queda unido a su tarea");
+  ok(tareas.some((x) => x.tipo === "propuesta" && x.titulo === "Enviar la propuesta por correo" && x.estado === "pendiente"), "la propuesta queda como tarea");
+  ok(tareas.some((x) => x.tipo === "reunion" && x.hora === "11:00") && dump["leads/lead-mic"].etapa === "reunion_agendada", "con la reunión acordada el lead pasa a «Reunión agendada»");
+  const pBorr = (await page.evaluate(() => window.__mockPrompts)).filter((x) => x.includes("Quedó acordado en la conversación de hoy")).pop();
   ok(pBorr && pBorr.includes("Análisis: Carolina coordina"), "Claude redacta con la llamada recién guardada en el historial");
   await page.keyboard.press("Escape");
   await page.locator(".scrim").first().waitFor({ state: "detached" });

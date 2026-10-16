@@ -45,6 +45,7 @@ const ok = (cond, msg) => { if (!cond) errors.push("falló: " + msg); else notes
     return page;
   }
   const shot = (page, name) => page.screenshot({ path: path.join(OUT, name), fullPage: false });
+  const visto = (loc) => loc.first().waitFor({ timeout: 4000 }).then(() => true, () => false);
   const toast = (page, text) => page.locator(".toast", { hasText: text }).first().waitFor({ timeout: 8000 });
   const noOverflow = async (page, label) => {
     const r = await page.evaluate(() => ({ sw: document.documentElement.scrollWidth, w: window.innerWidth }));
@@ -76,10 +77,15 @@ const ok = (cond, msg) => { if (!cond) errors.push("falló: " + msg); else notes
   await page.fill("#nl-correo", "carolina@andes.cl");
   await page.fill("#nl-nec", "Ordenar los despachos entre tres bodegas");
   await page.getByRole("button", { name: "Agregar lead" }).click();
-  await page.locator("#lead-title", { hasText: "Carolina Pérez" }).waitFor();
+  await page.locator("#lead-title", { hasText: "Transportes Andes" }).waitFor();
+  ok((await page.locator(".drawer-title p").innerText()).includes("Carolina Pérez"), "la ficha muestra la empresa y debajo la persona");
+  ok(await visto(page.locator(".tareas-box .task", { hasText: "Primera llamada" })), "la primera acción del lead nuevo queda como tarea");
   await shot(page, "02-ficha.png");
 
   await page.locator(".work-tabs button", { hasText: "Registrar llamada" }).click();
+  /* Sin «Automático»: se revisa el análisis antes de guardar. */
+  ok(await page.locator(".work .switch input").isChecked(), "«Automático» viene prendido");
+  await page.locator(".work .switch input").uncheck();
   await page.getByRole("button", { name: "Contestó", exact: true }).click();
   await page.fill("#c-notas", "Coordina despachos con planillas y WhatsApp. Quiere ver el estado de cada pedido.");
   await page.fill("#c-dur", "12");
@@ -87,14 +93,19 @@ const ok = (cond, msg) => { if (!cond) errors.push("falló: " + msg); else notes
   await page.fill("#c-trans", "Carolina: Hoy los despachos los vemos en una planilla y por WhatsApp.\nLorenzo: ¿Cuántas bodegas tienen?\nCarolina: Tres.");
   await page.getByRole("button", { name: "Analizar con Claude" }).click();
   await page.locator(".work .analysis").waitFor();
+  ok(await page.locator(".work .suggest .check", { hasText: "Agendar la reunión" }).locator("input").isChecked(), "propone agendar la reunión que quedó acordada");
+  ok(await page.locator(".work .suggest .check", { hasText: "Tarea: Mandar por WhatsApp el enlace" }).locator("input").isChecked(), "y las tareas de ZH");
   await shot(page, "03-analisis.png");
   await page.getByRole("button", { name: "Guardar llamada" }).click();
-  await toast(page, "Llamada registrada.");
-  await page.waitForTimeout(200);
-  ok((await page.inputValue("#lead-etapa")) === "reunion", "la etapa sugerida por Claude se aplica (Reunión)");
-  ok(await page.locator(".drawer .tag", { hasText: "Reunión" }).first().isVisible(), "la próxima acción sugerida queda programada");
+  await page.locator(".done-card").waitFor();
+  ok((await page.inputValue("#lead-etapa")) === "reunion_agendada", "con la reunión acordada, el lead pasa a «Reunión agendada»");
+  ok(await page.locator(".done-card", { hasText: "Reunión agendada" }).isVisible() && await page.locator(".done-card", { hasText: "Tarea nueva: Llamada de descubrimiento" }).isVisible(), "el resumen cuenta qué cambió y qué tareas salieron");
+  ok(await visto(page.locator(".tareas-box .task", { hasText: "Llamada de descubrimiento" }).locator(".task-meta", { hasText: "11:00" })), "la reunión queda como tarea con día y hora");
+  ok((await page.locator(".tareas-box > .tasks > .task", { hasText: "Primera llamada" }).count()) === 0 && (await page.locator(".tareas-box details.hechas .task", { hasText: "Primera llamada" }).count()) === 1, "la llamada cumple la tarea de llamar (queda en «Hechas»)");
+  await toast(page, "Quedó redactado 1 borrador");
+  ok(await visto(page.locator(".tareas-box .task", { hasText: "Mandar por WhatsApp el enlace" }).getByRole("button", { name: "Revisar y enviar" })), "el WhatsApp acordado queda redactado y unido a su tarea");
 
-  await page.locator(".work-tabs button", { hasText: "Redactar con Claude" }).click();
+  await page.locator(".work-tabs button", { hasText: "Redactar" }).click();
   await page.locator(".work .seg button", { hasText: "Correo" }).click();
   await page.locator(".work-body .btn.claude", { hasText: "Redactar con Claude" }).click();
   await page.locator("#draft-title", { hasText: "Correo para Carolina Pérez" }).waitFor();
@@ -114,7 +125,7 @@ const ok = (cond, msg) => { if (!cond) errors.push("falló: " + msg); else notes
   await page.getByRole("button", { name: "Sí, registrar envío" }).click();
   await toast(page, "Marcado como enviado");
 
-  await page.locator(".work-tabs button", { hasText: "Redactar con Claude" }).click();
+  await page.locator(".work-tabs button", { hasText: "Redactar" }).click();
   await page.locator(".work-body .btn.claude", { hasText: "Redactar con Claude" }).click();
   await page.locator("#draft-title", { hasText: "WhatsApp para Carolina Pérez" }).waitFor();
   const wa = await page.locator("a", { hasText: "Abrir en WhatsApp" }).getAttribute("href");
@@ -145,12 +156,12 @@ const ok = (cond, msg) => { if (!cond) errors.push("falló: " + msg); else notes
   await page.fill("#buscar", "");
 
   await page.locator("table.leads tbody tr", { hasText: "Matías Rojas" }).click();
-  await page.locator("#lead-title", { hasText: "Matías Rojas" }).waitFor();
+  await page.locator("#lead-title", { hasText: "Ferretería Sur" }).waitFor();
   await page.locator("details.data summary").click();
   await page.check("#l-nocontactar");
   await toast(page, "Marcado como no contactar.");
   ok(await page.locator(".drawer .note.bad", { hasText: "Pidió no ser contactado" }).isVisible(), "la ficha avisa que no hay que contactarlo");
-  ok((await page.locator(".work-tabs button", { hasText: "Redactar con Claude" }).count()) === 0, "sin redactar ni llamar para quien pidió no ser contactado");
+  ok((await page.locator(".work-tabs button", { hasText: "Redactar" }).count()) === 0, "sin redactar ni llamar para quien pidió no ser contactado");
   await page.keyboard.press("Escape");
 
   await page.locator(".side .nav button", { hasText: /^Embudo de leads/ }).click();
@@ -159,11 +170,12 @@ const ok = (cond, msg) => { if (!cond) errors.push("falló: " + msg); else notes
   await page.locator(".side .nav button", { hasText: /^Borradores/ }).click();
   await page.locator(".side .nav button", { hasText: /^Borradores/ }).click();
   await page.locator(".seg button", { hasText: "Todos" }).click();
-  ok((await page.locator(".ditem").count()) === 2, "Borradores lista el correo y el WhatsApp");
+  ok((await page.locator(".ditem").count()) === 3, "Borradores lista el correo, el WhatsApp y el WhatsApp acordado en la llamada");
   await shot(page, "09-borradores.png");
   await page.locator(".side .nav button", { hasText: /^Hoy/ }).click();
   await page.waitForTimeout(150);
-  ok((await page.locator(".panel", { hasText: "Nuevos por contactar" }).locator(".lrow").count()) === 1, "quien pidió no ser contactado sale de Hoy");
+  ok((await page.locator(".panel", { has: page.locator("h2", { hasText: /^Por contactar$/ }) }).locator(".lrow").count()) === 1, "quien pidió no ser contactado sale de Hoy");
+  ok(await page.locator(".panel", { has: page.locator("h2", { hasText: /^Tareas$/ }) }).locator(".task", { hasText: "Mandar por WhatsApp el enlace" }).isVisible(), "Hoy lista las tareas del día");
   await shot(page, "10-hoy.png");
   await noOverflow(page, "escritorio");
 
@@ -177,9 +189,11 @@ const ok = (cond, msg) => { if (!cond) errors.push("falló: " + msg); else notes
   const dump = await page.evaluate(() => Object.fromEntries(window.__mockStore));
   const count = (pre) => Object.keys(dump).filter((k) => k.startsWith(pre + "/")).length;
   ok(count("leads") === 3, "3 leads en la base");
-  ok(count("borradores") === 2, "2 borradores en la base");
+  ok(count("borradores") === 3, "3 borradores en la base");
   ok(count("actividades") >= 3, `actividades registradas (${count("actividades")})`);
   const lead = Object.values(dump).find((d) => d.nombre === "Carolina Pérez");
+  const lead0 = Object.entries(dump).find(([, d]) => d.nombre === "Carolina Pérez")[0].split("/")[1];
+  ok(Object.values(dump).some((d) => d.tipo === "reunion" && d.estado === "pendiente" && d.hora === "11:00" && d.leadId === lead0), "la reunión queda en la base como tarea con hora");
   ok(lead && lead.telefono === "+56912345678" && lead.cargo === "Jefa de operaciones", "el lead guarda teléfono E.164 y el cargo detectado en la llamada");
   const llamada = Object.values(dump).find((d) => d.tipo === "llamada");
   ok(llamada && llamada.transcripcion === null && llamada.analisis && llamada.analisis.resumen, "por defecto la llamada guarda notas y análisis, sin la transcripción completa");

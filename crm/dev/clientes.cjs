@@ -93,7 +93,7 @@ const SEED = {
   /* ---------------- lead ganado → cliente ---------------- */
   await side(page, "Leads");
   await page.locator("table.leads tbody tr", { hasText: "Marcela Díaz" }).click();
-  await page.locator("#lead-title", { hasText: "Marcela Díaz" }).waitFor();
+  await page.locator("#lead-title", { hasText: "Logística Sur" }).waitFor();
   await page.selectOption("#lead-etapa", "ganado");
   await page.locator("#won-title").waitFor();
   ok((await page.inputValue("#w-nom")) === "Logística Sur", "el cliente nuevo toma el nombre de la empresa");

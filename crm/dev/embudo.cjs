@@ -96,14 +96,14 @@ const SEED = {
   };
 
   const page = await open({ name: "escritorio", seed: SEED });
-  const hoyPanel = page.locator(".panel", { hasText: "Para hoy" });
-  ok(await hoyPanel.locator(".lrow", { hasText: "Ana Ruiz" }).isVisible(), "un lead en pausa con fecha para retomarlo aparece en «Para hoy»");
-  ok((await page.locator(".panel", { hasText: "Sin próxima acción" }).locator(".lrow", { hasText: "Ana Ruiz" }).count()) === 0, "y no cuenta como abierto sin próxima acción");
+  const hoyPanel = page.locator(".panel", { has: page.locator("h2", { hasText: /^Tareas$/ }) });
+  ok(await hoyPanel.locator(".task", { hasText: "Vivero Sur" }).isVisible(), "un lead en pausa con fecha para retomarlo aparece en las tareas de hoy");
+  ok((await page.locator(".panel", { has: page.locator("h2", { hasText: /^Sin tarea$/ }) }).locator(".lrow", { hasText: "Ana Ruiz" }).count()) === 0, "y no cuenta como abierto sin tarea");
   await page.locator(".toolbar .seg button", { hasText: "Nicolás" }).click();
-  ok(await hoyPanel.locator(".lrow", { hasText: "Tomás Vera" }).isVisible() && (await hoyPanel.locator(".lrow", { hasText: "Ana Ruiz" }).count()) === 0, "en Hoy cada socio puede ver solo lo suyo");
-  ok(await hoyPanel.locator(".lrow", { hasText: "Tomás Vera" }).locator(".avatar.r2").isVisible(), "con la inicial de quién lo lleva");
+  ok(await hoyPanel.locator(".task", { hasText: "Viña Cerro" }).isVisible() && (await hoyPanel.locator(".task", { hasText: "Vivero Sur" }).count()) === 0, "en Hoy cada socio puede ver solo lo suyo");
+  ok(await hoyPanel.locator(".task", { hasText: "Viña Cerro" }).locator(".task-meta", { hasText: "Nicolás" }).isVisible(), "con quién la lleva");
   await page.locator(".toolbar .seg button", { hasText: "Todo el equipo" }).click();
-  ok(await hoyPanel.locator(".lrow", { hasText: "Ana Ruiz" }).isVisible(), "y volver a ver todo el equipo");
+  ok(await hoyPanel.locator(".task", { hasText: "Vivero Sur" }).isVisible(), "y volver a ver todo el equipo");
   /* ---------------- tabla ↔ tablero ---------------- */
   await page.locator(".side .nav button", { hasText: /^Leads/ }).click();
   await page.locator("h1", { hasText: "Leads" }).waitFor();
@@ -118,10 +118,13 @@ const SEED = {
   /* ---------------- totales y tarjetas ---------------- */
   const eyebrow = await page.locator(".page-head .eyebrow").textContent();
   ok(eyebrow.includes("6 abiertos") && eyebrow.includes("$18.000.000 en juego") && eyebrow.includes("$9.050.000 ponderado"), "la cabecera suma lo que está en juego y lo ponderado por etapa");
-  ok((await col(page, "propuesta").locator(".col-sum").innerText()).includes("$10.000.000 · $5.000.000 ponderado (50 %)"), "cada etapa muestra su total y su ponderado");
-  ok((await page.locator(".board .col").count()) === 6 && (await page.locator(".board .col").last().getAttribute("data-col")) === "ganado", "por defecto se ven las 5 etapas abiertas y «Ganado» al final");
+  ok((await col(page, "propuesta").locator(".col-sum").innerText()).includes("$10.000.000 · $5.000.000 ponderado"), "cada etapa muestra su total y su ponderado");
+  ok((await page.locator(".board .col").count()) === 7 && (await page.locator(".board .col").last().getAttribute("data-col")) === "ganado", "por defecto se ven las 6 etapas abiertas y «Ganado» al final");
+  ok((await page.locator(".board .col-title").allInnerTexts()).join("|") === "Por contactar|Contactado|Reunión agendada|Reunión concretada|Propuesta enviada|Negociación|Ganado", "con «Reunión agendada» y «Reunión concretada» como etapas");
   ok(await card(page, "Pedro León").locator(".tag", { hasText: /Cliente.+En desarrollo/ }).isVisible(), "la tarjeta ganada dice a qué cliente pasó y en qué etapa va");
-  ok(await card(page, "Paula Rojas").locator(".tag", { hasText: "Sin próxima acción" }).isVisible(), "la tarjeta avisa cuando no hay próxima acción");
+  ok(await card(page, "Paula Rojas").locator(".knext.vacio", { hasText: "Sin tarea" }).isVisible(), "la tarjeta avisa cuando no hay una tarea pendiente");
+  ok((await card(page, "Paula Rojas").locator(".kcard-titulo").innerText()) === "Panadería Sol", "la tarjeta muestra primero la empresa");
+  ok(await card(page, "Tomás Vera").locator(".knext.today", { hasText: "Confirmar reunión" }).isVisible(), "y su próxima tarea, en azul si es para hoy");
   ok(await card(page, "Paula Rojas").locator(".prio").isVisible(), "y marca la prioridad alta");
   ok((await card(page, "Tomás Vera").locator(".kcard-act").innerText()).includes("Llamada"), "muestra la última actividad");
   ok((await ini(card(page, "Tomás Vera").locator(".avatar"))) === "N" && (await ini(card(page, "Isabel Mora").locator(".avatar"))) === "L", "y la inicial del responsable");
@@ -131,7 +134,7 @@ const SEED = {
 
   /* ---------------- arrastrar con el mouse ---------------- */
   await arrastrar(page, card(page, "Paula Rojas"), col(page, "contactado"));
-  await toast(page, "Paula Rojas: Contactado.");
+  await toast(page, "Panadería Sol: Contactado.");
   let dump = await store(page);
   ok(dump["leads/lead-a"].etapa === "contactado", "arrastrar con el mouse cambia la etapa");
   ok(Object.values(dump).some((v) => v.leadId === "lead-a" && v.tipo === "etapa" && v.de === "nuevo" && v.a === "contactado"), "y deja el cambio en el historial");
@@ -191,16 +194,26 @@ const SEED = {
     ev("pointerup", x, y);
     return fantasma;
   }, { nombre, hasta, espera });
-  ok((await toque("Tomás Vera", "reunion", 0)) === false, "deslizar rápido con el dedo es scroll, no arrastre");
+  ok((await toque("Tomás Vera", "reunion_agendada", 0)) === false, "deslizar rápido con el dedo es scroll, no arrastre");
   await page.waitForTimeout(400);
   ok((await store(page))["leads/lead-b"].etapa === "contactado" && (await page.locator(".kghost").count()) === 0, "y no mueve nada");
-  ok((await toque("Tomás Vera", "reunion", 420)) === true, "mantener apretado con el dedo empieza el arrastre");
-  await toast(page, "Tomás Vera: Reunión.");
-  ok((await store(page))["leads/lead-b"].etapa === "reunion", "y al soltar cambia la etapa");
+  ok((await toque("Tomás Vera", "reunion_agendada", 420)) === true, "mantener apretado con el dedo empieza el arrastre");
+  await page.locator("#agendar-title").waitFor();
+  ok(true, "soltar en «Reunión agendada» pide el día y la hora de la reunión");
+  await page.fill("#ag-fecha", addDays(T, 3));
+  await page.fill("#ag-hora", "10:30");
+  const gcal = await page.locator(".cal-box a", { hasText: "Agregar a Google Calendar" }).getAttribute("href");
+  const f3 = addDays(T, 3).replace(/-/g, "");
+  ok(gcal.startsWith("https://calendar.google.com/calendar/render?action=TEMPLATE") && gcal.includes(`dates=${f3}T103000%2F${f3}T110000`) && gcal.includes("ctz=America%2FSantiago"), "con el evento de Google Calendar ya lleno (día, hora y zona de Chile)");
+  await page.locator(".modal .btn.primary", { hasText: "Agendar reunión" }).click();
+  await toast(page, "Viña Cerro: reunión");
+  dump = await store(page);
+  ok(dump["leads/lead-b"].etapa === "reunion_agendada", "al guardar, el lead queda en «Reunión agendada»");
+  ok(Object.values(dump).some((v) => v.leadId === "lead-b" && v.tipo === "reunion" && v.fecha === addDays(T, 3) && v.hora === "10:30" && v.estado === "pendiente"), "y la reunión queda como tarea con día y hora");
 
   /* ---------------- clic y acciones rápidas ---------------- */
   await card(page, "Isabel Mora").locator(".kcard-top").click();
-  await page.locator("#lead-title", { hasText: "Isabel Mora" }).waitFor();
+  await page.locator("#lead-title", { hasText: "Clínica Mar" }).waitFor();
   ok(true, "un clic abre la ficha del lead");
   const pitch = await page.locator(".pitch").innerText();
   ok(pitch.includes("Agendan las horas por teléfono") && pitch.includes("Agenda en línea con recordatorio"), "la ficha muestra el dolor y cómo ayudamos");
@@ -216,7 +229,7 @@ const SEED = {
   await page.keyboard.press("Escape");
   await page.locator(".scrim").first().waitFor({ state: "detached" });
   await card(page, "Luis Soto").locator('.kact[title="Registrar llamada"]').click();
-  await page.locator("#lead-title", { hasText: "Luis Soto" }).waitFor();
+  await page.locator("#lead-title", { hasText: "Imprenta Norte" }).waitFor();
   ok((await page.locator(".work-tabs button[aria-pressed=true]").innerText()).includes("Registrar llamada"), "el teléfono de la tarjeta abre «Registrar llamada»");
   await page.keyboard.press("Escape");
   await page.locator(".scrim").first().waitFor({ state: "detached" });
@@ -233,14 +246,14 @@ const SEED = {
   ok((await page.locator("#emb-resp option").allInnerTexts()).join("|") === "Todos los responsables|Lorenzo|Nicolás|Sin responsable", "los responsables son solo Lorenzo y Nicolás");
   await page.selectOption("#emb-resp", "");
   await page.selectOption("#emb-orden", "valor");
-  let orden = await col(page, "propuesta").locator(".kcard.lead b").allInnerTexts();
-  ok(orden[0] === "Isabel Mora" && orden[1] === "Luis Soto", "ordena por valor");
+  let orden = await col(page, "propuesta").locator(".kcard.lead .kcard-titulo").allInnerTexts();
+  ok(orden[0] === "Clínica Mar" && orden[1] === "Imprenta Norte", "ordena por valor");
   await page.selectOption("#emb-orden", "creado");
-  orden = await col(page, "propuesta").locator(".kcard.lead b").allInnerTexts();
-  ok(orden[0] === "Luis Soto", "y por los más nuevos");
+  orden = await col(page, "propuesta").locator(".kcard.lead .kcard-titulo").allInnerTexts();
+  ok(orden[0] === "Imprenta Norte", "y por los más nuevos");
   /* ---------------- responsable desde la tarjeta ---------------- */
   await card(page, "Paula Rojas").locator(".avatar select").selectOption(NI);
-  await toast(page, "Paula Rojas: lo lleva Nicolás.");
+  await toast(page, "Panadería Sol: lo lleva Nicolás.");
   ok((await store(page))["leads/lead-a"].responsable === NI, "el responsable se cambia tocando la inicial de la tarjeta");
   ok((await ini(card(page, "Paula Rojas").locator(".avatar"))) === "N" && (await page.locator("#lead-title").count()) === 0, "la tarjeta muestra la nueva inicial, sin abrir la ficha");
 
@@ -254,10 +267,12 @@ const SEED = {
   await page.locator(".modal .chip", { hasText: "Mañana" }).click();
   await shot(page, "e04-no-contesto.png");
   await page.locator(".modal .btn.primary", { hasText: "Guardar" }).click();
-  await toast(page, "Luis Soto: volver a llamar");
+  await toast(page, "Imprenta Norte: volver a llamar");
+  await page.waitForFunction(() => { const l = window.__mockStore.get("leads/lead-f"); return l.proxima && l.proxima.tareaId; }, null, { timeout: 5000 });
   dump = await store(page);
   const lf = dump["leads/lead-f"];
-  ok(lf.intentos === 1 && lf.proxima.tipo === "llamar" && lf.proxima.fecha === habil(T, 1) && lf.proxima.nota.includes("1 intento sin respuesta"), "queda el intento y cuándo volver a llamar");
+  ok(lf.intentos === 1 && lf.proxima.tipo === "llamar" && lf.proxima.fecha === habil(T, 1) && lf.proxima.nota.includes("1 intento sin respuesta"), "queda el intento y cuándo volver a llamar (la «próxima acción» del lead sigue a su tarea)");
+  ok(Object.values(dump).some((v) => v.leadId === "lead-f" && v.tipo === "llamar" && v.estado === "pendiente" && v.fecha === habil(T, 1) && v.origen === "no_contesto"), "como una tarea de volver a llamar");
   ok(lf.etapa === "propuesta" && !!lf.ultimoIntento, "sin cambiar la etapa");
   ok(Object.values(dump).some((v) => v.leadId === "lead-f" && v.tipo === "llamada" && v.resultado === "no_contesto"), "la llamada sin respuesta queda en el historial");
   ok(await card(page, "Luis Soto").locator(".tag", { hasText: "1 sin respuesta" }).isVisible(), "y la tarjeta cuenta las veces que no contestó");
@@ -265,15 +280,15 @@ const SEED = {
   await page.locator(".modal", { hasText: "No contestó: Jorge Paz" }).waitFor();
   ok(await page.locator(".modal .note", { hasText: "Lleva 3 intentos" }).isVisible(), "al tercer intento ofrece cerrarlo");
   await page.locator(".modal button", { hasText: "Perdido · No responde" }).click();
-  await toast(page, "Jorge Paz: perdido · No responde.");
+  await toast(page, "Fletes Paz: perdido · No responde.");
   dump = await store(page);
   const li = dump["leads/lead-i"];
   ok(li.etapa === "perdido" && li.motivoPerdida === "No responde" && li.proxima === null && li.intentos === 3, "y lo pasa a Perdido con el motivo «No responde»");
   ok(Object.values(dump).some((v) => v.leadId === "lead-i" && v.tipo === "etapa" && v.a === "perdido"), "con el cambio de etapa en el historial");
 
   await page.check("#ver-cerrados");
-  ok((await page.locator(".board .col").count()) === 8 && await col(page, "perdido").locator(".kcard.lead", { hasText: "Rosa Pinto" }).isVisible(), "se pueden ver los ganados, perdidos y en pausa");
-  ok(await col(page, "pausa").locator(".kcard.lead", { hasText: "Ana Ruiz" }).locator(".tag", { hasText: "Llamar" }).isVisible(), "la tarjeta en pausa muestra cuándo retomarlo");
+  ok((await page.locator(".board .col").count()) === 9 && await col(page, "perdido").locator(".kcard.lead", { hasText: "Rosa Pinto" }).isVisible(), "se pueden ver los ganados, perdidos y en pausa");
+  ok(await col(page, "pausa").locator(".kcard.lead", { hasText: "Ana Ruiz" }).locator(".knext", { hasText: "Retomar" }).isVisible(), "la tarjeta en pausa muestra cuándo retomarlo");
   ok(await card(page, "Rosa Pinto").locator(".tag", { hasText: "No es el momento" }).isVisible(), "un perdido muestra su motivo, también uno antiguo");
   const resumen = await col(page, "perdido").locator(".col-sum.motivos").innerText();
   ok(resumen.includes("1 sin motivo") && resumen.includes("1 no responde"), "la columna Perdido cuenta cuántos hay por motivo");
@@ -284,7 +299,7 @@ const SEED = {
   await page.locator(".modal .chip", { hasText: "Está con la competencia" }).click();
   await page.fill("#lost-det", "Trabaja con un proveedor de Iquique");
   await page.locator(".modal .btn.primary").click();
-  await toast(page, "Marta Gil: perdido · Está con la competencia.");
+  await toast(page, "Textil Norte: perdido · Está con la competencia.");
   dump = await store(page);
   ok(dump["leads/lead-h"].motivoPerdida === "Está con la competencia" && dump["leads/lead-h"].motivoDetalle === "Trabaja con un proveedor de Iquique" && dump["leads/lead-h"].etapa === "perdido", "el motivo se pone desde la tarjeta del perdido");
   ok(Object.values(dump).some((v) => v.leadId === "lead-h" && v.tipo === "nota" && String(v.resumen).startsWith("Motivo de pérdida: Está con la competencia")), "y queda anotado en el historial");

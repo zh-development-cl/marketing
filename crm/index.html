@@ -45,6 +45,20 @@
   --r-s: 8px;
   --r-m: 12px;
   --r-l: 16px;
+  /* Embudo: fondo de las columnas, sombra de las tarjetas y un azul por etapa (más intenso cuanto
+     más cerca del cierre). */
+  --col-bg: #EBEEF4;
+  --card-shadow: 0 1px 2px rgba(11, 15, 23, 0.05);
+  --card-shadow-hover: 0 2px 6px rgba(11, 15, 23, 0.07), 0 10px 24px rgba(11, 15, 23, 0.08);
+  --st-nuevo: #98A2B3;
+  --st-contactado: #8AA9F2;
+  --st-reunion_agendada: #6690EE;
+  --st-reunion_concretada: #4576EA;
+  --st-propuesta: #245CE4;
+  --st-negociacion: #1A45B0;
+  --st-ganado: #17784A;
+  --st-perdido: #B3261E;
+  --st-pausa: #5D6777;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -55,6 +69,9 @@
     --ok: #63D394; --ok-soft: rgba(99, 211, 148, 0.13); --warn: #F2B85B; --warn-soft: rgba(242, 184, 91, 0.13);
     --bad: #FF8F86; --bad-soft: rgba(255, 143, 134, 0.13); --bubble: #13284A;
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 16px 40px rgba(0, 0, 0, 0.55); --scrim: rgba(0, 0, 0, 0.62);
+    --col-bg: #0A0D14; --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.45); --card-shadow-hover: 0 6px 18px rgba(0, 0, 0, 0.5);
+    --st-nuevo: #667085; --st-contactado: #4F6FB8; --st-reunion_agendada: #6489E8; --st-reunion_concretada: #7C9EF4; --st-propuesta: #98B4FF; --st-negociacion: #BFD0FF;
+    --st-ganado: #63D394; --st-perdido: #FF8F86; --st-pausa: #8591A6;
     color-scheme: dark;
   }
 }
@@ -66,6 +83,9 @@
   --ok: #63D394; --ok-soft: rgba(99, 211, 148, 0.13); --warn: #F2B85B; --warn-soft: rgba(242, 184, 91, 0.13);
   --bad: #FF8F86; --bad-soft: rgba(255, 143, 134, 0.13); --bubble: #13284A;
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 16px 40px rgba(0, 0, 0, 0.55); --scrim: rgba(0, 0, 0, 0.62);
+  --col-bg: #0A0D14; --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.45); --card-shadow-hover: 0 6px 18px rgba(0, 0, 0, 0.5);
+  --st-nuevo: #667085; --st-contactado: #4F6FB8; --st-reunion_agendada: #6489E8; --st-reunion_concretada: #7C9EF4; --st-propuesta: #98B4FF; --st-negociacion: #BFD0FF;
+  --st-ganado: #63D394; --st-perdido: #FF8F86; --st-pausa: #8591A6;
   color-scheme: dark;
 }
 
@@ -110,6 +130,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing:
 .brand svg { width: 30px; height: 30px; flex: none; }
 .brand b { font: 600 16px/1 var(--font-display); letter-spacing: -0.01em; }
 .brand span { font: 500 11px/1 var(--font-mono); letter-spacing: 0.16em; color: var(--side-fg-2); text-transform: uppercase; }
+.brand-txt { display: grid; gap: 5px; min-width: 0; }
 .nav { display: grid; gap: 2px; }
 .nav button {
   display: flex; align-items: center; gap: 12px; width: 100%; padding: 9px 10px; border: 0; border-radius: 10px;
@@ -182,7 +203,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing:
 
 .page-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 14px 20px; }
 .page-head > div:first-child { display: grid; gap: 6px; min-width: 0; }
-.page-head h1 { font-size: clamp(28px, 2.2vw + 18px, 36px); line-height: 1.1; }
+.page-head h1 { font-size: clamp(27px, 1.6vw + 18px, 34px); line-height: 1.1; }
 .page-head .lede { color: var(--fg-2); max-width: 46rem; }
 .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 
@@ -202,7 +223,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing:
 .meter.bad b { background: transparent; box-shadow: inset 0 0 0 1px var(--bad); }
 .meter.muted b.on { background: var(--fg-3); }
 
-.tag { display: inline-flex; align-items: center; gap: 6px; padding: 5px 8px; border-radius: 6px; background: var(--sunken); color: var(--fg-2); font: 500 11px/1 var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; }
+.tag { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 999px; background: var(--sunken); color: var(--fg-2); font: 500 12px/1.35 var(--font-text); letter-spacing: 0; white-space: nowrap; }
 .tag.late { background: var(--bad-soft); color: var(--bad); }
 .tag.today { background: var(--accent-soft); color: var(--accent); }
 .tag.ok { background: var(--ok-soft); color: var(--ok); }
@@ -315,7 +336,7 @@ table.leads tbody tr:last-child td { border-bottom: 0; }
 .kcard:active { cursor: grabbing; }
 .kcard b { font-size: 14.5px; font-weight: 600; }
 .kcard span { font-size: 13px; color: var(--fg-3); }
-.kcard .tag { font-size: 11px; }
+.kcard .tag { font-size: 11.5px; padding: 2px 8px; }
 .kcard { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 .kcard.dragging { opacity: 0.35; }
 .kghost { position: fixed; left: 0; top: 0; z-index: 90; margin: 0; pointer-events: none; box-shadow: var(--shadow); opacity: 0.96; cursor: grabbing; }
@@ -476,6 +497,7 @@ details.data .grid-2 { margin-top: 14px; }
 .toast { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px 12px 16px; border-radius: 12px; background: var(--fg); color: var(--surface); box-shadow: var(--shadow); font-size: 14px; }
 .toast.bad { background: var(--bad); color: #FFFFFF; }
 .toast button { all: unset; cursor: pointer; font-weight: 600; text-decoration: underline; }
+.toast-acts { display: inline-flex; gap: 14px; flex: none; }
 @media (max-width: 900px) { .toasts { bottom: calc(86px + env(safe-area-inset-bottom, 0px)); } .toasts.raised { bottom: calc(96px + env(safe-area-inset-bottom, 0px)); } }
 
 .import-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
@@ -595,6 +617,110 @@ details.data .grid-2 { margin-top: 14px; }
 @container (max-width: 560px) { .crit { grid-template-columns: minmax(0, 1fr) auto; } .crit-note { grid-column: 1 / -1; } }
 table.leads td.amount-cell { text-align: right; }
 table.leads th.r { text-align: right; }
+/* ---------- menú lateral: completo o solo íconos ---------- */
+.side-toggle { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 10px; border: 0; border-radius: 10px; background: transparent; color: var(--side-fg-2); font-size: 13.5px; font-weight: 500; text-align: left; }
+.side-toggle:hover { background: var(--side-tint); color: var(--side-fg); }
+.side-toggle svg { width: 18px; height: 18px; flex: none; }
+.nav .lbl-c { display: none; }
+.me span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (min-width: 901px) {
+  .app.mini { grid-template-columns: 78px minmax(0, 1fr); }
+  .app.mini .side { padding: 16px 8px 14px; gap: 14px; }
+  .app.mini .brand { justify-content: center; padding: 0; }
+  .app.mini .brand-txt { display: none; }
+  .app.mini .nav-group { height: 1px; margin: 7px 12px; padding: 0; overflow: hidden; font-size: 0; background: var(--side-line); opacity: 1; }
+  .app.mini .nav button { position: relative; flex-direction: column; justify-content: center; gap: 4px; padding: 8px 2px 7px; font-size: 10.5px; line-height: 1.15; text-align: center; }
+  .app.mini .nav .lbl { display: none; }
+  .app.mini .nav .lbl-c { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .app.mini .nav .count { position: absolute; top: 3px; right: 7px; margin: 0; padding: 2px 5px; border-radius: 999px; background: var(--side-tint); font-size: 10px; }
+  .app.mini .side-foot { padding: 0; justify-items: center; }
+  .app.mini .side-foot .btn.primary { width: 44px; height: 44px; padding: 0; border-radius: 50%; }
+  .app.mini .side-foot .btn.primary span, .app.mini .me span, .app.mini .side-toggle span, .app.mini .side-foot p { display: none; }
+  .app.mini .side-toggle { justify-content: center; padding: 8px; }
+}
+
+/* ---------- embudo: columnas y tarjetas ---------- */
+.main-inner.ancho { max-width: 1720px; }
+.board.embudo { grid-auto-columns: minmax(166px, 1fr); gap: 8px; }
+.board > .col { background: var(--col-bg); padding: 6px; border-radius: 14px; gap: 6px; }
+.col-head { padding: 6px 6px 2px; }
+.col-title { display: inline-flex; align-items: center; gap: 7px; min-width: 0; font: 600 13px/1.25 var(--font-text); color: var(--fg); }
+.col-title i { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--dot, var(--accent)); }
+.col-head .count { flex: none; min-width: 22px; padding: 3px 7px; border-radius: 999px; background: var(--surface); color: var(--fg-3); font: 600 11.5px/1 var(--font-text); text-align: center; }
+.col-sum { margin: 0 6px 2px; font-size: 12px; }
+.kcard { border-radius: 10px; box-shadow: var(--card-shadow); transition: box-shadow 0.15s ease, border-color 0.15s ease; }
+.kcard:hover { border-color: var(--line-2); box-shadow: var(--card-shadow-hover); }
+.kcard.lead { gap: 6px; padding: 10px 10px 8px; }
+.kcard .kcard-titulo { font: 600 14px/1.3 var(--font-text); overflow-wrap: anywhere; }
+.kcard .kcard-sub { font-size: 12.5px; line-height: 1.35; }
+.kcard .kcard-act { display: flex; align-items: center; gap: 5px; min-width: 0; font-size: 11.5px; color: var(--fg-3); }
+.kcard .kcard-act span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11.5px; }
+.kcard-foot { padding-top: 7px; }
+.knext { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 7px; align-items: start; padding: 7px 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-2); color: var(--fg-2); }
+.knext.late { border-color: transparent; background: var(--bad-soft); color: var(--bad); }
+.knext.today { border-color: transparent; background: var(--accent-soft); color: var(--accent); }
+.knext.ask { border-color: transparent; background: var(--warn-soft); color: var(--warn); }
+.knext.vacio { display: block; padding: 6px 8px; border-style: dashed; background: transparent; color: var(--fg-3); font-size: 12.5px; }
+.knext.vacio .linkbtn { font-size: 12.5px; }
+.knext-txt { display: grid; gap: 1px; min-width: 0; }
+.kcard .knext-txt b { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; font-size: 12.5px; font-weight: 600; line-height: 1.3; color: inherit; }
+.kcard .knext-txt span { font-size: 11.5px; color: inherit; opacity: 0.85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ---------- tareas ---------- */
+.tick { flex: none; display: inline-grid; place-items: center; width: 18px; height: 18px; margin-top: 1px; padding: 0; border: 1.5px solid currentColor; border-radius: 50%; background: var(--surface); color: var(--fg-3); cursor: pointer; }
+.tick svg { opacity: 0; transition: opacity 0.12s ease; }
+.tick:hover:not([disabled]), .tick:focus-visible { border-color: var(--ok); color: var(--ok); }
+.tick:hover:not([disabled]) svg, .tick:focus-visible svg { opacity: 1; }
+.tick.on { border-color: var(--ok); background: var(--ok); color: #FFFFFF; }
+.tick.on svg { opacity: 1; }
+.tick[disabled] { cursor: default; }
+.knext .tick { color: inherit; }
+.sec-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.sec-head h3 { font-size: 15px; }
+.sec-head .count { padding: 3px 7px; border-radius: 999px; background: var(--sunken); color: var(--fg-3); font: 600 11.5px/1 var(--font-text); }
+.tareas-box { display: grid; gap: 6px; padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--r-l); background: var(--surface); }
+.tasks { display: grid; }
+.task { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 4px 10px; align-items: start; padding: 10px 0; border-top: 1px solid var(--line); }
+.task:first-child { border-top: 0; }
+.task .tick { width: 20px; height: 20px; }
+.task-main { display: grid; gap: 2px; min-width: 0; }
+.task-title { display: flex; align-items: flex-start; gap: 7px; min-width: 0; font-size: 14.5px; font-weight: 600; line-height: 1.35; }
+.task-title svg { flex: none; margin-top: 2px; color: var(--fg-3); }
+.task-title button { all: unset; cursor: pointer; overflow-wrap: anywhere; }
+.task-title button:hover { text-decoration: underline; }
+.task-title span { overflow-wrap: anywhere; }
+.task-meta { font-size: 13px; color: var(--fg-3); overflow-wrap: anywhere; }
+.task-meta .late { color: var(--bad); font-weight: 600; }
+.task-meta .today { color: var(--accent); font-weight: 600; }
+.task-meta .ask { color: var(--warn); font-weight: 600; }
+.task-meta button { all: unset; cursor: pointer; color: var(--fg-2); font-weight: 600; }
+.task-meta button:hover { text-decoration: underline; }
+.task-nota { margin: 2px 0 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; font-size: 13px; color: var(--fg-2); white-space: pre-wrap; overflow-wrap: anywhere; }
+.task-side { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 6px; }
+.task.done .task-title, .task.gone .task-title { color: var(--fg-3); font-weight: 500; text-decoration: line-through; }
+.task.gone .tick { border-style: dashed; }
+@container (max-width: 520px) { .task { grid-template-columns: 22px minmax(0, 1fr); } .task-side { grid-column: 2; justify-content: flex-start; } }
+.task-group { display: flex; align-items: center; gap: 6px; margin: 14px 0 0; font: 600 12.5px/1.2 var(--font-text); color: var(--fg-3); }
+.task-group:first-child { margin-top: 2px; }
+.task-group.late { color: var(--bad); }
+.task-form { display: grid; gap: 12px; margin: 4px 0 8px; padding: 12px; border: 1px solid var(--line); border-radius: var(--r-m); background: var(--surface-2); }
+details.hechas summary { cursor: pointer; font-size: 13px; font-weight: 500; color: var(--fg-3); }
+details.hechas[open] summary { margin-bottom: 4px; }
+.btn.small.on { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+.cal-box { display: grid; gap: 6px; justify-items: start; padding: 12px; border-radius: var(--r-m); background: var(--surface-2); border: 1px solid var(--line); }
+
+/* ---------- registrar: automático, progreso y resumen ---------- */
+.switch { display: inline-flex; align-items: center; gap: 10px; font-size: 13.5px; color: var(--fg-2); cursor: pointer; }
+.switch input { appearance: none; -webkit-appearance: none; position: relative; flex: none; width: 34px; height: 20px; margin: 0; border-radius: 999px; background: var(--line-2); cursor: pointer; transition: background 0.15s ease; }
+.switch input::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #FFFFFF; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25); transition: transform 0.15s ease; }
+.switch input:checked { background: var(--btn); }
+.switch input:checked::after { transform: translateX(14px); }
+.switch input:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.progreso { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; padding: 12px 14px; border-radius: var(--r-m); background: var(--accent-soft); }
+.done-card { display: grid; gap: 8px; padding: 14px 16px; border-radius: var(--r-m); background: var(--ok-soft); color: var(--fg); }
+.done-card h4 { margin: 0; display: flex; align-items: center; gap: 8px; font: 600 14.5px/1.3 var(--font-text); color: var(--ok); }
+.done-card ul { margin: 0; padding-left: 18px; display: grid; gap: 3px; font-size: 13.5px; }
+.done-card p { font-size: 13.5px; }
 </style>
 
 <div id="app" class="boot">
@@ -634,7 +760,8 @@ const ICON_DATA = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAYAAAA
 const ETAPAS = [
   { id: "nuevo", label: "Por contactar", tone: "accent", open: true },
   { id: "contactado", label: "Contactado", tone: "accent", open: true },
-  { id: "reunion", label: "Reunión", tone: "accent", open: true },
+  { id: "reunion_agendada", label: "Reunión agendada", tone: "accent", open: true },
+  { id: "reunion_concretada", label: "Reunión concretada", tone: "accent", open: true },
   { id: "propuesta", label: "Propuesta enviada", tone: "accent", open: true },
   { id: "negociacion", label: "Negociación", tone: "accent", open: true },
   { id: "ganado", label: "Ganado", tone: "ok", open: false },
@@ -642,19 +769,48 @@ const ETAPAS = [
   { id: "pausa", label: "En pausa", tone: "muted", open: false },
 ];
 const ETAPA = Object.fromEntries(ETAPAS.map((e) => [e.id, e]));
+/* Antes había una sola etapa «Reunión»: lo que quede guardado así se lee como «Reunión agendada». */
+const ETAPA_ANTIGUA = { reunion: "reunion_agendada" };
+const etapaId = (id) => (ETAPA[id] ? id : ETAPA_ANTIGUA[id] || "nuevo");
+const etapaDe = (l) => etapaId(l && l.etapa);
 /* Probabilidad de cierre por etapa, para el valor ponderado del embudo. */
-const PROB_ETAPA = { nuevo: 0.05, contactado: 0.1, reunion: 0.25, propuesta: 0.5, negociacion: 0.75, ganado: 1, perdido: 0, pausa: 0 };
-const ORDEN_EMBUDO = [["proxima", "Por próxima acción"], ["actividad", "Por última actividad"], ["valor", "Por valor"], ["creado", "Más nuevos primero"]];
+const PROB_ETAPA = { nuevo: 0.05, contactado: 0.1, reunion_agendada: 0.2, reunion_concretada: 0.35, propuesta: 0.5, negociacion: 0.75, ganado: 1, perdido: 0, pausa: 0 };
+const ORDEN_EMBUDO = [["proxima", "Por próxima tarea"], ["actividad", "Por última actividad"], ["valor", "Por valor"], ["creado", "Más nuevos primero"]];
 const CERRADAS = ["ganado", "perdido", "pausa"];
 const SOLTAR_EN = { ganado: "Soltar para marcar como ganado", perdido: "Soltar para marcar como perdido", pausa: "Soltar para dejar en pausa" };
-const RUTA = ["nuevo", "contactado", "reunion", "propuesta", "negociacion"];
-const isOpen = (l) => (ETAPA[l.etapa] || ETAPA.nuevo).open;
+const RUTA = ["nuevo", "contactado", "reunion_agendada", "reunion_concretada", "propuesta", "negociacion"];
+const isOpen = (l) => ETAPA[etapaDe(l)].open;
 const contactable = (l) => isOpen(l) && !l.noContactar;
 /* Un lead en pausa con fecha para retomarlo vuelve a «Hoy» ese día. */
-const retomable = (l) => !l.noContactar && (isOpen(l) || l.etapa === "pausa");
+const retomable = (l) => !l.noContactar && (isOpen(l) || etapaDe(l) === "pausa");
+/* Si pasar a la etapa «a» es avanzar: más adelante en el embudo, o retomar un lead perdido o en
+   pausa. Lo automático nunca retrocede ni saca a un lead de «Ganado». */
+const avanza = (l, a) => {
+  const de = etapaDe(l);
+  if (de === a || de === "ganado" || !ETAPA[a]) return false;
+  if (de === "perdido" || de === "pausa") return RUTA.includes(a);
+  return RUTA.indexOf(a) > RUTA.indexOf(de);
+};
 
 const ORIGENES = [["web", "Formulario web"], ["agenda", "Agenda web"], ["instagram", "Instagram"], ["linkedin", "LinkedIn"], ["referido", "Referido"], ["evento", "Evento"], ["prospeccion", "Prospección"], ["otro", "Otro"]];
-const ACCIONES = [["llamar", "Llamar"], ["whatsapp", "WhatsApp"], ["correo", "Correo"], ["reunion", "Reunión"], ["otro", "Otra tarea"]];
+/* Tareas: lo que hay que hacer con cada lead, con día y hora. Completar algunas mueve el lead de
+   etapa: «Agendar reunión» lo pasa a «Reunión agendada», la reunión hecha a «Reunión concretada» y
+   «Enviar propuesta» a «Propuesta enviada». La primera pendiente se copia en el lead como «proxima». */
+const TIPOS_TAREA = [
+  ["llamar", "Llamar", "phone"],
+  ["whatsapp", "WhatsApp", "chat"],
+  ["correo", "Correo", "mail"],
+  ["agendar", "Agendar reunión", "cal"],
+  ["reunion", "Reunión", "meet"],
+  ["propuesta", "Enviar propuesta", "doc"],
+  ["otro", "Otra tarea", "check"],
+];
+const TIPO_TAREA = Object.fromEntries(TIPOS_TAREA.map((x) => [x[0], x]));
+const tipoTarea = (v) => (TIPO_TAREA[v] ? v : v === "llamada" ? "llamar" : "otro");
+const ACCIONES = TIPOS_TAREA.map(([v, l]) => [v, l]);
+/* Las tareas de mensaje quedan con un borrador de Claude para revisar y enviar. */
+const TAREA_MENSAJE = new Set(["correo", "whatsapp"]);
+const DURACION_REUNION = 30;
 const RESULTADOS = [["contesto", "Contestó"], ["no_contesto", "No contestó"], ["buzon", "Buzón de voz"], ["ocupado", "Ocupado"], ["volver", "Pidió que llamemos después"], ["equivocado", "Número equivocado"]];
 const SIN_RESPUESTA = new Set(["no_contesto", "buzon", "ocupado"]);
 const OBJETIVOS = [
@@ -662,6 +818,7 @@ const OBJETIVOS = [
   ["seguimiento", "Seguimiento de llamada", "retomar lo conversado en el último contacto y confirmar el siguiente paso"],
   ["agendar", "Agendar reunión", "proponer una llamada de descubrimiento de 30 minutos por Google Meet y facilitar que la agende"],
   ["propuesta", "Enviar propuesta", "acompañar el envío de la propuesta: qué resuelve a grandes rasgos y cómo seguimos (sin cifras, salvo que vengan en las instrucciones)"],
+  ["confirmar", "Confirmar reunión", "confirmar la reunión que acabamos de agendar: día, hora, por dónde nos conectamos y qué vamos a ver, en pocas palabras"],
   ["recordatorio", "Recordatorio", "recordar con amabilidad una reunión o un compromiso pendiente"],
   ["reactivar", "Reactivar", "retomar el contacto con alguien que dejó de responder, sin presionar"],
   ["gracias", "Agradecer", "agradecer la reunión o la conversación y dejar claros los próximos pasos"],
@@ -670,8 +827,6 @@ const OBJETIVOS = [
 const PRIORIDADES = [["alta", "Alta"], ["media", "Media"], ["baja", "Baja"]];
 /* Apoyo en vivo: el modelo rápido responde en uno o dos segundos. */
 const HAIKU = "claude-haiku-5-5";
-const TIPOS_TAREA = ["correo", "whatsapp", "propuesta", "llamada", "reunion", "otro"];
-const TAREA_MENSAJE = new Set(["correo", "whatsapp", "propuesta"]);
 /* Criterios con que Claude evalúa a quien llamó (nota de 1 a 5 cada uno). */
 const CRITERIOS = [
   ["apertura", "Apertura", "se presentó, dijo para qué llamaba y preguntó si era buen momento"],
@@ -699,13 +854,13 @@ const respDeNombre = (n) => { const w = fold(n).split(/[^a-z]+/); const r = RESP
 const RELLAMAR = [["luego", "Más tarde"], ["manana", "Mañana"], ["2d", "En 2 días"], ["semana", "En una semana"]];
 const SIN_RESPUESTA_OPC = [["no_contesto", "No contestó"], ["buzon", "Buzón de voz"], ["ocupado", "Ocupado"]];
 const CONTACTOS = new Set(["llamada", "whatsapp", "correo", "reunion"]);
-const REGISTROS = [["nota", "Nota"], ["whatsapp", "WhatsApp"], ["correo", "Correo"], ["reunion", "Reunión"]];
+const REGISTROS = [["nota", "Nota"], ["whatsapp", "WhatsApp enviado"], ["correo", "Correo enviado"]];
 
 const pick = (list, id, fallback) => { const f = list.find((x) => x[0] === id); return f ? f[1] : (fallback !== undefined ? fallback : id || ""); };
 const origenLabel = (id) => (id ? pick(ORIGENES, id) : "");
 const accionLabel = (id) => pick(ACCIONES, id, "Tarea");
 const resultadoLabel = (id) => pick(RESULTADOS, id, "");
-const etapaLabel = (id) => (ETAPA[id] || ETAPA.nuevo).label;
+const etapaLabel = (id) => ETAPA[etapaId(id)].label;
 
 /* ---------- etapa con clientes
    Alineado con propuestaszh: las etapas del proyecto son las de la metodología de ZH (P-014);
@@ -797,6 +952,38 @@ const nowISO = () => new Date().toISOString();
 const fmtHM = new Intl.DateTimeFormat("en-GB", { timeZone: TZ, hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
 /* «el lunes 19» / «mañana» / «hoy», para los avisos. */
 const cuandoTexto = (key) => { const d = diffDays(todayKey(), key); return d === 0 ? "hoy" : d === 1 ? "mañana" : "el " + noDots(fmtShort.format(keyDate(key))); };
+const ahoraHM = () => fmtHM.format(new Date());
+const isHora = (s) => /^([01]\d|2[0-3]):[0-5]\d$/.test(String(s || ""));
+const sumarMin = (hm, n) => { const [h, m] = String(hm).split(":").map(Number); const x = Math.min(23 * 60 + 59, h * 60 + m + n); return `${String(Math.floor(x / 60)).padStart(2, "0")}:${String(x % 60).padStart(2, "0")}`; };
+
+/* ---------- tareas */
+const tareaPendiente = (t) => !!t && (t.estado || "pendiente") === "pendiente";
+const tareaClave = (t) => `${t.fecha || "9999-12-31"} ${t.hora || "99:99"}`;
+const tareaOrden = (a, b) => tareaClave(a).localeCompare(tareaClave(b)) || String(a.creado || "").localeCompare(String(b.creado || ""));
+const tareaVencida = (t) => !!t.fecha && (t.fecha < todayKey() || (t.fecha === todayKey() && isHora(t.hora) && ahoraHM() > t.hora));
+/* La reunión ya pasó (o es hoy sin hora): hay que contar si se hizo. */
+const reunionPasada = (t) => tareaPendiente(t) && tipoTarea(t.tipo) === "reunion" && !!t.fecha && (t.fecha < todayKey() || (t.fecha === todayKey() && (!isHora(t.hora) || ahoraHM() >= sumarMin(t.hora, Number(t.duracion) || DURACION_REUNION))));
+/* Cuándo toca, en palabras: «atrasada 2 d», «hoy 10:00», «mañana», «vie 23 oct 11:00». */
+function cuandoTarea(t) {
+  if (!t || !t.fecha) return { txt: "sin fecha", tono: "" };
+  const d = diffDays(todayKey(), t.fecha);
+  const h = isHora(t.hora) ? " " + t.hora : "";
+  if (reunionPasada(t)) return { txt: (d === 0 ? "hoy" : d === -1 ? "ayer" : `hace ${-d} d`) + h + " · ¿se hizo?", tono: "ask" };
+  if (d < 0) return { txt: `atrasada ${-d} d`, tono: "late" };
+  if (d === 0) return { txt: "hoy" + h, tono: tareaVencida(t) && tipoTarea(t.tipo) !== "reunion" ? "late" : "today" };
+  if (d === 1) return { txt: "mañana" + h, tono: "" };
+  return { txt: noDots(fmtShort.format(keyDate(t.fecha))) + h, tono: "" };
+}
+/* Día por defecto de una tarea que no trae fecha. */
+const fechaPorDefecto = (tipo) => { const t = todayKey(); const x = tipoTarea(tipo); return x === "propuesta" ? addBusinessDays(t, 2) : x === "llamar" || x === "otro" ? addBusinessDays(t, 1) : t; };
+/* Lo que se copia en el lead como «proxima» (la tabla, el CSV y Claude lo leen de ahí). */
+const proximaDe = (t) => (t ? { tipo: tipoTarea(t.tipo), fecha: t.fecha || "", hora: isHora(t.hora) ? t.hora : "", nota: String(t.titulo || "").trim(), tareaId: t.id || null } : null);
+const claveProxima = (p) => (p ? [p.tipo || "", p.fecha || "", p.hora || "", String(p.nota || "").trim(), p.tareaId || ""].join("|") : "");
+/* Una «proxima» escrita sin tarea (datos antiguos o escrita por fuera) se muestra como tarea. */
+const tareaDeProxima = (l) => (l && l.proxima && l.proxima.fecha && !l.proxima.tareaId ? {
+  id: "", virtual: true, leadId: l.id, tipo: tipoTarea(l.proxima.tipo), titulo: clip(String(l.proxima.nota || "").trim(), 140) || accionLabel(tipoTarea(l.proxima.tipo)),
+  nota: String(l.proxima.nota || "").length > 140 ? l.proxima.nota : "", fecha: l.proxima.fecha, hora: isHora(l.proxima.hora) ? l.proxima.hora : "", responsable: l.responsable || null, estado: "pendiente",
+} : null);
 
 function dayLabel(key) {
   if (!key) return "";
@@ -832,6 +1019,9 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const clp = new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP", maximumFractionDigits: 0 });
 const leadName = (l) => (l && (l.nombre || l.empresa)) || "Sin nombre";
 const leadSub = (l) => (l.nombre && l.empresa ? [l.empresa, l.cargo].filter(Boolean).join(" · ") : l.cargo || origenLabel(l.origen) || "");
+/* En el embudo y en las tareas manda la empresa; la persona va debajo. */
+const leadTitulo = (l) => (l && (l.empresa || l.nombre)) || "Sin nombre";
+const leadPersona = (l) => (l.empresa ? [l.nombre, l.cargo].filter(Boolean).join(" · ") : l.cargo || origenLabel(l.origen) || "");
 
 /* ---------- dinero, clientes, garantías y cobros ---------- */
 const IVA = 0.19;
@@ -917,6 +1107,23 @@ function gmailLink(to, subject, cfg) {
   if (to) p.set("to", to);
   if (subject) p.set("su", subject);
   return "https://mail.google.com/mail/?" + p.toString();
+}
+
+/* Evento de Google Calendar ya lleno, para guardarlo con un clic (y que Google mande la
+   invitación al lead). Se abre en la cuenta de Google de ZH si está en Ajustes. */
+function gcalLink({ titulo, fecha, hora, duracion, detalle, invitados }, cfg) {
+  if (!isKey(fecha)) return null;
+  const f = fecha.replace(/-/g, "");
+  const dates = isHora(hora) ? `${f}T${hora.replace(":", "")}00/${f}T${sumarMin(hora, Number(duracion) || DURACION_REUNION).replace(":", "")}00` : `${f}/${addDays(fecha, 1).replace(/-/g, "")}`;
+  const p = new URLSearchParams();
+  p.set("action", "TEMPLATE");
+  p.set("text", titulo || "Reunión con ZH Development");
+  p.set("dates", dates);
+  p.set("ctz", TZ);
+  if (detalle) p.set("details", detalle);
+  if (invitados) p.set("add", invitados);
+  if (cfg && cfg.gmailCuenta) p.set("authuser", cfg.gmailCuenta);
+  return "https://calendar.google.com/calendar/render?" + p.toString();
 }
 
 const ls = {
@@ -1153,8 +1360,14 @@ function promptRevision(o) {
   };
   return `${ZH_CONTEXTO}\n\n${ZH_TONO}\n\nFecha de hoy: ${todayKey()} (hora de Chile).\n\n${o.contexto || leadContexto(o.lead, o.hist)}\n\nEste es el borrador actual de ${o.canal === "whatsapp" ? "un mensaje de WhatsApp" : "un correo"} (JSON):\n${JSON.stringify(actual, null, 1)}\n\nCambios que pide quien escribe: ${o.pedido}\n\nAplica los cambios y conserva lo demás. Responde solo con el borrador completo en el mismo formato JSON.`;
 }
+const ETAPAS_PROMPT = `"nuevo" (por contactar), "contactado", "reunion_agendada" (quedó una reunión con día), "reunion_concretada" (ya se hizo la reunión), "propuesta" (se le envió la propuesta), "negociacion", "ganado", "perdido" o "pausa"`;
+/* Análisis de una llamada o de una reunión con un lead: resumen, tareas acordadas, la reunión si
+   quedó agendada, la etapa y la evaluación de quien habló por ZH. */
 function promptLlamada(o) {
-  return `${ZH_CONTEXTO}\n\nEres el asistente comercial de ZH. Analiza esta llamada con un lead y deja lo necesario para el seguimiento. Usa solo lo que está en las notas o en la transcripción: no inventes. Fecha de hoy: ${todayKey()} (hora de Chile).\n\n${leadContexto(o.lead, o.hist)}\n\nLLAMADA\nResultado: ${resultadoLabel(o.resultado) || "sin registrar"}\nNotas de quien llamó: ${o.notas || "(sin notas)"}\nTranscripción${o.enVivo ? " (hecha en vivo con el micrófono del computador y el celular en altavoz: no separa quién habla y puede traer palabras mal reconocidas; deduce por el contexto qué dijo el lead y qué dijo quien llamó, y no uses lo que no se entienda)" : ""}:\n${o.transcripcion ? clip(o.transcripcion, 90000) : "(sin transcripción)"}\n\nResponde solo con JSON con esta forma:\n{"resumen": "2 o 3 frases", "puntos": ["lo más importante que se dijo"], "necesidades": ["qué necesita o qué le duele, con sus palabras si es posible"], "objeciones": ["dudas o reparos"], "compromisos": ["lo que prometimos hacer nosotros"], "proximosPasos": ["acciones concretas"], "interes": "alto | medio | bajo | sin_datos", "etapaSugerida": "nuevo | contactado | reunion | propuesta | negociacion | ganado | perdido | pausa", "proxima": {"tipo": "llamar | whatsapp | correo | reunion | otro", "fecha": "AAAA-MM-DD", "nota": "qué hacer"}, "datos": {"cargo": "", "empresa": "", "correo": "", "necesidad": ""}, "tareas": [{"quien": "zh | lead", "que": "acción concreta", "tipo": "correo | whatsapp | propuesta | llamada | reunion | otro", "fecha": "AAAA-MM-DD o vacío"}], "evaluacion": {"criterios": {${CRITERIOS.map((c) => `"${c[0]}": {"nota": "1 a 5, o null", "comentario": "por qué, en una frase"}`).join(", ")}}, "bien": ["lo que hizo bien"], "mejorar": ["consejo para la próxima"]}}\nEn "datos" pon solo lo que se dijo explícitamente; deja vacío lo demás. Si no hay una próxima acción clara, usa null en "proxima".\nEn "tareas" van solo los compromisos que quedaron acordados en la llamada, con quién los hace: "zh" es quien llamó y "lead" es el lead. Pon "fecha" solo si se dijo o se deduce con claridad ("el viernes" es la fecha de ese viernes). "proxima" es la primera tarea de ZH.\nEn "evaluacion" evalúa a quien llamó por ZH, solo si hay transcripción; con solo notas, usa null. Nota de 1 a 5 por criterio, o null si no se puede juzgar: ${CRITERIOS.map((c) => `${c[0]} (${c[2]})`).join("; ")}. "bien": hasta 3 cosas concretas que hizo bien. "mejorar": hasta 3 consejos concretos para la próxima llamada, con una frase de ejemplo cuando sirva. Sé justo: si la transcripción no separa voces, deduce por el contexto quién habla y no castigues lo que no se puede saber.`;
+  const enReunion = o.modo === "reunion";
+  const t = todayKey();
+  const quien = enReunion ? "estuvo por ZH en la reunión" : "llamó";
+  return `${ZH_CONTEXTO}\n\nEres el asistente comercial de ZH. Analiza ${enReunion ? "esta reunión con un lead (por Google Meet o en persona)" : "esta llamada con un lead"} y deja lo necesario para el seguimiento: las tareas que quedaron, la reunión si se agendó y la etapa. Usa solo lo que está en las notas o en la transcripción: no inventes. Hoy es ${fmtLong.format(keyDate(t))} (${t}) y son las ${ahoraHM()} en Chile.\n\n${leadContexto(o.lead, o.hist)}\n\n${enReunion ? "REUNIÓN" : `LLAMADA\nResultado: ${resultadoLabel(o.resultado) || "sin registrar"}`}\nNotas de quien ${quien}: ${o.notas || "(sin notas)"}\nTranscripción${o.enVivo ? " (hecha en vivo con el micrófono del computador: no separa quién habla y puede traer palabras mal reconocidas; deduce por el contexto qué dijo el lead y qué dijo ZH, y no uses lo que no se entienda)" : ""}:\n${o.transcripcion ? clip(o.transcripcion, 90000) : "(sin transcripción)"}\n\nResponde solo con JSON con esta forma:\n{"resumen": "2 o 3 frases", "puntos": ["lo más importante que se dijo"], "necesidades": ["qué necesita o qué le duele, con sus palabras si es posible"], "objeciones": ["dudas o reparos"], "compromisos": ["lo que prometimos hacer nosotros"], "proximosPasos": ["acciones concretas"], "interes": "alto | medio | bajo | sin_datos", "etapaSugerida": "una etapa", "reunion": {"fecha": "AAAA-MM-DD", "hora": "HH:MM", "duracion": 30, "titulo": "para qué es la reunión, en pocas palabras"}, "tareas": [{"quien": "zh | lead", "que": "acción concreta, empezando con un verbo", "tipo": "llamar | whatsapp | correo | agendar | propuesta | otro", "fecha": "AAAA-MM-DD o vacío", "hora": "HH:MM o vacío"}], "datos": {"cargo": "", "empresa": "", "correo": "", "necesidad": ""}, "evaluacion": {"criterios": {${CRITERIOS.map((c) => `"${c[0]}": {"nota": "1 a 5, o null", "comentario": "por qué, en una frase"}`).join(", ")}}, "bien": ["lo que hizo bien"], "mejorar": ["consejo para la próxima"]}}\nReglas:\n- "reunion": solo si quedó acordada una ${enReunion ? "próxima " : ""}reunión con día (y hora, si se dijo); si no, null. Si quedaron en reunirse pero sin día, usa null y agrega una tarea de tipo "agendar". La reunión no se repite en "tareas".\n- "tareas": solo lo que quedó acordado, con quién lo hace: "zh" es ZH (quien ${quien}) y "lead" es el lead. Tipos: "llamar" (volver a llamarlo), "whatsapp" o "correo" (mandarle un mensaje: un resumen, información, la invitación), "agendar" (coordinar el día y la hora de una reunión), "propuesta" (preparar y enviar la propuesta) u "otro". Pon "fecha" y "hora" solo si se dijeron o se deducen con claridad ("el viernes" es la fecha de ese viernes); si no, déjalas vacías.\n- "etapaSugerida": ${ETAPAS_PROMPT}. ${enReunion ? 'Después de una reunión que se hizo, lo normal es "reunion_concretada".' : 'Si quedó una reunión con día, "reunion_agendada"; si contestó y no quedó una reunión, "contactado".'} Usa "perdido" solo si dijo claramente que no le interesa, y "pausa" si pidió retomarlo más adelante.\n- "datos": solo lo que se dijo explícitamente; deja vacío lo demás.\n- "evaluacion": evalúa a quien ${quien}, solo si hay transcripción; con solo notas, usa null. Nota de 1 a 5 por criterio, o null si no se puede juzgar: ${CRITERIOS.map((c) => `${c[0]} (${c[2]})`).join("; ")}. "bien": hasta 3 cosas concretas que hizo bien. "mejorar": hasta 3 consejos concretos para la próxima ${enReunion ? "reunión" : "llamada"}, con una frase de ejemplo cuando sirva. Sé justo: si la transcripción no separa voces, deduce por el contexto quién habla y no castigues lo que no se puede saber.`;
 }
 function promptImportar(texto) {
   return `Extrae los contactos comerciales (leads) del texto de abajo. Puede ser una lista, una planilla pegada, correos o mensajes (por ejemplo, avisos del formulario o de la agenda de zhdevelopment.cl). No inventes datos: deja vacío lo que no aparezca. Copia los teléfonos tal como aparecen. "origen" solo si se deduce con claridad: web, agenda, instagram, linkedin, referido, evento, prospeccion u otro. "necesidad": qué pide o qué problema tiene, en una frase, solo si aparece.\nResponde solo con JSON: {"leads": [{"nombre": "", "empresa": "", "cargo": "", "telefono": "", "correo": "", "rubro": "", "ciudad": "", "origen": "", "necesidad": "", "notas": ""}]}\n\nTEXTO:\n${clip(texto, 100000)}`;
@@ -1261,25 +1474,36 @@ function sanitizeEvaluacion(e) {
   /* El puntaje lo calcula la página (promedio de las notas × 20) para que sea comparable entre llamadas. */
   return { puntaje: Math.round((sum(notas) / notas.length) * 20), criterios, bien: strArr(e.bien, 3), mejorar: strArr(e.mejorar, 3) };
 }
+function sanitizeReunion(x) {
+  return x && typeof x === "object" && isKey(x.fecha) ? {
+    fecha: x.fecha, hora: isHora(x.hora) ? x.hora : "", duracion: Math.min(240, Math.max(15, Math.round(Number(x.duracion)) || DURACION_REUNION)), titulo: clip(String(x.titulo || "").trim(), 120),
+  } : null;
+}
 function sanitizeAnalisis(r) {
   const o = r && typeof r === "object" ? r : {};
-  const p = o.proxima && typeof o.proxima === "object" && isKey(o.proxima.fecha) ? {
-    tipo: ACCIONES.some((x) => x[0] === o.proxima.tipo) ? o.proxima.tipo : "llamar", fecha: o.proxima.fecha, nota: String(o.proxima.nota || "").trim(),
-  } : null;
   const d = o.datos && typeof o.datos === "object" ? o.datos : {};
+  let reunion = sanitizeReunion(o.reunion);
+  const tareas = [];
+  for (const x of (Array.isArray(o.tareas) ? o.tareas : []).filter((y) => y && String(y.que || "").trim()).slice(0, 8)) {
+    const que = clip(String(x.que).trim(), 200);
+    const quien = x.quien === "lead" ? "lead" : "zh";
+    let tipo = tipoTarea(x.tipo);
+    /* Una reunión con día que llega como tarea es la reunión agendada; sin día, hay que agendarla. */
+    if (tipo === "reunion") {
+      if (!reunion && quien === "zh" && isKey(x.fecha)) { reunion = sanitizeReunion({ ...x, titulo: que }); continue; }
+      tipo = "agendar";
+    }
+    tareas.push({ quien, que, tipo, fecha: isKey(x.fecha) ? x.fecha : "", hora: isHora(x.hora) ? x.hora : "" });
+  }
   return {
     resumen: String(o.resumen || "").trim(), puntos: strArr(o.puntos), necesidades: strArr(o.necesidades), objeciones: strArr(o.objeciones),
     compromisos: strArr(o.compromisos), proximosPasos: strArr(o.proximosPasos),
     interes: ["alto", "medio", "bajo", "sin_datos"].includes(o.interes) ? o.interes : "sin_datos",
-    etapaSugerida: ETAPA[o.etapaSugerida] ? o.etapaSugerida : "", proxima: p,
+    etapaSugerida: ETAPA[o.etapaSugerida] ? o.etapaSugerida : ETAPA_ANTIGUA[o.etapaSugerida] || "", reunion,
     datos: { cargo: String(d.cargo || "").trim(), empresa: String(d.empresa || "").trim(), correo: String(d.correo || "").trim(), necesidad: String(d.necesidad || "").trim() },
-    tareas: (Array.isArray(o.tareas) ? o.tareas : []).filter((x) => x && String(x.que || "").trim()).slice(0, 8).map((x) => ({
-      quien: x.quien === "lead" ? "lead" : "zh", que: clip(String(x.que).trim(), 200), tipo: TIPOS_TAREA.includes(x.tipo) ? x.tipo : "otro", fecha: isKey(x.fecha) ? x.fecha : "",
-    })),
-    evaluacion: sanitizeEvaluacion(o.evaluacion),
+    tareas, evaluacion: sanitizeEvaluacion(o.evaluacion),
   };
 }
-
 /* Apoyo en vivo: con lo último que se dijo, qué responderle al lead ahora. */
 const ZH_CORTO = "ZH Development hace software a medida, automatización e integración de sistemas e IA aplicada para empresas chilenas. Parte con una llamada de descubrimiento de 30 minutos y después manda una propuesta escrita con alcance, plazo y precio.";
 function promptAyudaVivo(o) {
@@ -1394,6 +1618,9 @@ function makeApi(db, meRef) {
     updateSolicitud: update("solicitudes"),
     deleteSolicitud: remove("solicitudes"),
     updateAct: update("actividades"),
+    createTarea: create("tareas", "tar"),
+    updateTarea: update("tareas"),
+    deleteTarea: remove("tareas"),
     async createLead(data) {
       const id = newId("lead");
       const now = nowISO();
@@ -1406,6 +1633,8 @@ function makeApi(db, meRef) {
       for (const d of acts.docs) await retry(() => db.doc("actividades/" + d.id).delete());
       const drs = await db.collection("borradores").where("leadId", "==", id).get();
       for (const d of drs.docs) await retry(() => db.doc("borradores/" + d.id).delete());
+      const trs = await db.collection("tareas").where("leadId", "==", id).get();
+      for (const d of trs.docs) await retry(() => db.doc("tareas/" + d.id).delete());
       await run("leads/" + id, () => retry(() => db.doc("leads/" + id).delete()));
     },
     async addAct(data) {
@@ -1469,6 +1698,8 @@ const ICONS = {
   more: '<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>',
   mic: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M9 21h6"/>',
   stop: '<rect x="6.5" y="6.5" width="11" height="11" rx="2"/>',
+  chevL: '<path d="m15 6-6 6 6 6"/>',
+  chevR: '<path d="m9 6 6 6-6 6"/>',
 };
 function Icon({ name, size }) {
   return html`<svg viewBox="0 0 24 24" width=${size || 16} height=${size || 16} fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" dangerouslySetInnerHTML=${{ __html: ICONS[name] || "" }}></svg>`;
@@ -1482,23 +1713,23 @@ const Ctx = createContext(null);
 const useCtx = () => useContext(Ctx);
 
 function StagePill({ etapa }) {
-  const e = ETAPA[etapa] || ETAPA.nuevo;
+  const e = ETAPA[etapaId(etapa)];
   return html`<span class=${"stage " + e.tone}><i></i>${e.label}</span>`;
 }
-function Meter({ etapa }) {
+function Meter({ etapa: etapa0 }) {
+  const etapa = etapaId(etapa0);
   const idx = RUTA.indexOf(etapa);
   const won = etapa === "ganado";
   const cls = won ? "meter ok" : etapa === "perdido" ? "meter bad" : etapa === "pausa" ? "meter muted" : "meter";
   const title = won ? "Ganado" : idx >= 0 ? `Etapa ${idx + 1} de ${RUTA.length}` : etapaLabel(etapa);
   return html`<span class=${cls} title=${title} role="img" aria-label=${title}>${RUTA.map((_, i) => html`<b class=${won || (idx >= 0 && i <= idx) ? "on" : ""}></b>`)}</span>`;
 }
-function NextTag({ proxima }) {
-  if (!proxima || !proxima.fecha) return html`<span class="tag">Sin próxima acción</span>`;
-  const d = diffDays(todayKey(), proxima.fecha);
-  const cls = d < 0 ? "tag late" : d === 0 ? "tag today" : "tag";
-  /* La fecha va sin cortes de línea («sáb, 17 oct» no se parte en una tarjeta angosta). */
-  const when = (d < 0 ? `atrasada ${-d} d` : dayLabel(proxima.fecha)).replace(/ /g, "\u00a0");
-  return html`<span class=${cls}>${accionLabel(proxima.tipo)} · ${when}</span>`;
+/* La próxima tarea en una etiqueta: «Llamar · mañana», «Reunión · hoy 12:00», «Correo · atrasada 2 d». */
+function SigTag({ t }) {
+  if (!t) return html`<span class="tag warn">Sin tarea</span>`;
+  const c = cuandoTarea(t);
+  if (c.tono === "ask") return html`<span class="tag warn">¿Se hizo la reunión?</span>`;
+  return html`<span class=${cx("tag", c.tono)}>${accionLabel(tipoTarea(t.tipo))} · ${c.txt.replace(/ /g, " ")}</span>`;
 }
 function Thinking({ text }) {
   return html`<span class="thinking" role="status"><i></i>${text || "Claude está escribiendo…"}</span>`;
@@ -1610,7 +1841,7 @@ function Feed({ items, showLead, limit }) {
     return html`<div class="feed-item" key=${a.id}>
       <span class=${cx("feed-ico", a.autor === "claude" && "claude")}><${Icon} name=${ACT_ICON[a.tipo] || "note"} /></span>
       <div style="min-width:0">
-        <p class="feed-title">${showLead && lead ? html`<button onClick=${() => openLead(lead.id)}>${leadName(lead)}</button> · ` : showLead && cli ? html`<button onClick=${() => openCliente(cli.id)}>${clienteName(cli)}</button> · ` : null}${actTitulo(a)}</p>
+        <p class="feed-title">${showLead && lead ? html`<button onClick=${() => openLead(lead.id)}>${leadTitulo(lead)}</button> · ` : showLead && cli ? html`<button onClick=${() => openCliente(cli.id)}>${clienteName(cli)}</button> · ` : null}${actTitulo(a)}</p>
         <p class="feed-meta">${ago(a.fecha)}${a.autor ? " · " + nameOf(a.autor) : ""}${a.linea ? " · línea " + a.linea : ""}</p>
         ${a.resumen ? html`<p class="feed-text">${showLead ? clip(a.resumen.replace(/\s+/g, " "), 160) : clip(a.resumen, 2000)}</p>` : null}
         ${a.acta && !showLead ? html`<details style="margin-top:6px"><summary class="small" style="cursor:pointer;color:var(--accent)">Acta de la reunión</summary><${ActaView} a=${a.acta} /></details>` : null}
@@ -1627,6 +1858,7 @@ function AnalysisView({ a }) {
   const lista = (t, arr) => (arr.length ? html`<div><h4>${t}</h4><ul>${arr.map((x) => html`<li>${x.que}${x.fecha ? html` <span class="muted">· ${dayLabel(x.fecha).toLowerCase()}</span>` : null}</li>`)}</ul></div>` : null);
   return html`<div class="analysis" style="margin-top:8px">
     ${a.resumen ? html`<div><h4>Resumen</h4><p>${a.resumen}</p></div>` : null}
+    ${a.reunion ? html`<div><h4>Reunión agendada</h4><p>${dayLabel(a.reunion.fecha)}${a.reunion.hora ? " a las " + a.reunion.hora : ""}${a.reunion.titulo ? " · " + a.reunion.titulo : ""}</p></div>` : null}
     <div class="grid-2">${block("Lo importante", a.puntos)}${block("Necesidades", a.necesidades)}${block("Objeciones", a.objeciones)}${tareas.length ? html`${lista("Tareas de ZH", tareas.filter((x) => x.quien === "zh"))}${lista("Tareas del lead", tareas.filter((x) => x.quien === "lead"))}` : html`${block("Lo que prometimos", a.compromisos)}${block("Próximos pasos", a.proximosPasos)}`}</div>
     ${a.evaluacion ? html`<${EvalView} e=${a.evaluacion} />` : null}
   </div>`;
@@ -1651,18 +1883,19 @@ function EvalView({ e }) {
 /* ===================================================================== fila de lead */
 
 function LeadRow({ lead, mode }) {
-  const { openLead, cfg, nameOf } = useCtx();
+  const { openLead, cfg, nameOf, siguienteDe } = useCtx();
   const wa = lead.telefono ? waLink(lead.telefono, "", cfg) : null;
+  const sig = mode === "next" ? siguienteDe(lead) : null;
   return html`<div class="lrow">
     <button class="lrow-main" onClick=${() => openLead(lead.id)}>
-      <span class="lrow-name">${leadName(lead)}</span>
-      ${leadSub(lead) ? html`<span class="lrow-sub">${leadSub(lead)}</span>` : null}
-      ${mode === "next" && lead.proxima && lead.proxima.nota ? html`<span class="lrow-note">${lead.proxima.nota}</span>` : null}
+      <span class="lrow-name">${leadTitulo(lead)}</span>
+      ${leadPersona(lead) ? html`<span class="lrow-sub">${leadPersona(lead)}</span>` : null}
+      ${sig && sig.titulo ? html`<span class="lrow-note">${sig.titulo}</span>` : null}
       ${mode === "new" && lead.necesidad ? html`<span class="lrow-note">${clip(lead.necesidad, 140)}</span>` : null}
     </button>
     <div class="lrow-side">
       ${lead.responsable ? html`<span class=${cx("avatar", respTono(lead.responsable))} title=${"Lo lleva " + nameOf(lead.responsable)}>${iniciales(nameOf(lead.responsable)) || "·"}</span>` : null}
-      ${lead.noContactar ? html`<span class="tag late">No contactar</span>` : mode === "next" ? html`<${NextTag} proxima=${lead.proxima} />` : mode === "stale" ? html`<span class="tag">${lead.ultimoContacto ? "Último contacto " + ago(lead.ultimoContacto) : "Sin contacto"}</span>` : html`<span class="tag">${origenLabel(lead.origen) || "Nuevo"} · ${ago(lead.creado)}</span>`}
+      ${lead.noContactar ? html`<span class="tag late">No contactar</span>` : mode === "next" ? html`<${SigTag} t=${sig} />` : mode === "stale" ? html`<span class="tag">${lead.ultimoContacto ? "Último contacto " + ago(lead.ultimoContacto) : "Sin contacto"}</span>` : html`<span class="tag">${origenLabel(lead.origen) || "Nuevo"} · ${ago(lead.creado)}</span>`}
       ${lead.noContactar ? null : html`<div class="lrow-actions">
         ${lead.telefono ? html`<button class="btn small icon" title="Llamar y registrar" aria-label=${"Llamar a " + leadName(lead)} onClick=${() => openLead(lead.id, "llamada")}><${Icon} name="phone" /></button>` : null}
         ${wa ? html`<a class="btn small icon" title="Abrir WhatsApp" aria-label=${"WhatsApp a " + leadName(lead)} href=${wa} target="_blank" rel="noopener"><${Icon} name="chat" /></a>` : null}
@@ -1672,40 +1905,187 @@ function LeadRow({ lead, mode }) {
   </div>`;
 }
 
+/* ===================================================================== tareas */
+
+/* Una tarea: el círculo la completa (agendar y la reunión piden un dato antes) y el botón de la
+   derecha hace lo que toca: llamar, revisar el borrador, agendar o contar cómo fue la reunión. */
+function TareaFila({ t, conLead, onEditar }) {
+  const { leadsById, openLead, openDraft, completarTarea, canWrite, cfg, nameOf, drafts } = useCtx();
+  const lead = leadsById[t.leadId] || null;
+  const tipo = tipoTarea(t.tipo);
+  const pend = tareaPendiente(t);
+  const c = pend ? cuandoTarea(t) : { txt: (t.estado === "hecha" ? "Hecha " : "Descartada ") + ago(t.hecha || t.actualizado), tono: "" };
+  const pasada = c.tono === "ask";
+  const borrador = t.borradorId ? drafts.find((d) => d.id === t.borradorId) : null;
+  const wa = lead && lead.telefono && !lead.noContactar ? waLink(lead.telefono, "", cfg) : null;
+  const gcal = tipo === "reunion" && pend && !pasada && lead ? gcalLink({ titulo: `${t.titulo || "Reunión"} · ${leadTitulo(lead)} y ZH Development`, fecha: t.fecha, hora: t.hora, duracion: t.duracion, detalle: "Reunión con ZH Development.\nzhdevelopment.cl", invitados: lead.correo || "" }, cfg) : null;
+  let accion = null;
+  if (pend && lead && canWrite) {
+    if (pasada) accion = html`<button type="button" class="btn small primary" onClick=${() => completarTarea(t)}>¿Se hizo?</button>`;
+    else if (borrador && borrador.estado !== "enviado" && borrador.estado !== "descartado") accion = html`<button type="button" class="btn small claude" onClick=${() => openDraft(borrador.id)}><${Icon} name="doc" />Revisar y enviar</button>`;
+    else if (tipo === "llamar" && lead.telefono && !lead.noContactar) accion = html`<button type="button" class="btn small" onClick=${() => openLead(lead.id, "llamada")}><${Icon} name="phone" />Llamar</button>`;
+    else if (tipo === "whatsapp" && wa) accion = html`<a class="btn small" href=${wa} target="_blank" rel="noopener"><${Icon} name="chat" />WhatsApp</a>`;
+    else if (tipo === "correo" && !lead.noContactar) accion = html`<button type="button" class="btn small" onClick=${() => openLead(lead.id, "redactar")}><${Icon} name="spark" />Redactar</button>`;
+    else if (tipo === "agendar") accion = html`<button type="button" class="btn small" onClick=${() => completarTarea(t)}><${Icon} name="cal" />Agendar</button>`;
+    else if (gcal) accion = html`<a class="btn small" href=${gcal} target="_blank" rel="noopener" title="Abre Google Calendar con el evento lleno"><${Icon} name="cal" />Calendario</a>`;
+  }
+  const titulo = t.titulo || accionLabel(tipo);
+  return html`<div class=${cx("task", t.estado === "hecha" && "done", t.estado === "descartada" && "gone")}>
+    <button type="button" class=${cx("tick", t.estado === "hecha" && "on")} disabled=${!pend || !canWrite} title=${pend ? (tipo === "agendar" ? "Agendar la reunión" : tipo === "reunion" ? "¿Se hizo la reunión?" : "Marcar como hecha") : ""} aria-label=${(pend ? "Completar: " : "Hecha: ") + titulo} onClick=${() => completarTarea(t)}><${Icon} name="check" size=${12} /></button>
+    <div class="task-main">
+      <div class="task-title"><${Icon} name=${TIPO_TAREA[tipo][2]} size=${15} />${onEditar && pend ? html`<button type="button" title="Editar la tarea" onClick=${onEditar}>${titulo}</button>` : html`<span>${titulo}</span>`}</div>
+      <div class="task-meta">${conLead && lead ? html`<button type="button" onClick=${() => openLead(lead.id)}>${leadTitulo(lead)}</button> · ` : null}<span class=${c.tono}>${c.txt}</span>${t.responsable ? " · " + nameOf(t.responsable) : ""}${pend && t.origen === "llamada" ? " · acordado en una llamada" : pend && t.origen === "reunion" ? " · acordado en una reunión" : ""}</div>
+      ${t.nota ? html`<p class="task-nota">${t.nota}</p>` : null}
+    </div>
+    ${accion ? html`<div class="task-side">${accion}</div>` : null}
+  </div>`;
+}
+
+const TIPOS_EDITABLES = TIPOS_TAREA.filter((x) => x[0] !== "reunion");
+function TareaEditor({ lead, t, onDone }) {
+  const { api, toast, yo, canWrite } = useCtx();
+  const nueva = !t || !!t.virtual;
+  const esReunion = !!t && tipoTarea(t.tipo) === "reunion";
+  const [tipo, setTipo] = useState(t ? tipoTarea(t.tipo) : "llamar");
+  const [titulo, setTitulo] = useState(t ? t.titulo || "" : "");
+  const [fecha, setFecha] = useState(t && t.fecha ? t.fecha : fechaPorDefecto("llamar"));
+  const [hora, setHora] = useState(t && isHora(t.hora) ? t.hora : "");
+  const [resp, setResp] = useState((t && t.responsable) || lead.responsable || yo || "");
+  const [nota, setNota] = useState((t && t.nota) || "");
+  const [saving, setSaving] = useState(false);
+  const hoy = todayKey();
+  const quick = [["Hoy", hoy], ["Mañana", addDays(hoy, 1)], ["En 3 días hábiles", addBusinessDays(hoy, 3)], ["En una semana", addDays(hoy, 7)]];
+  const guardar = async () => {
+    if (!isKey(fecha)) { toast("Elige el día de la tarea.", "bad"); return; }
+    setSaving(true);
+    try {
+      const data = { tipo, titulo: titulo.trim() || accionLabel(tipo), fecha, hora: isHora(hora) ? hora : "", responsable: resp || null, nota: nota.trim() };
+      if (nueva) await api.createTarea({ leadId: lead.id, ...data, estado: "pendiente", origen: "manual" });
+      else await api.updateTarea(t.id, data);
+      onDone();
+    } catch (e) { toast(dbErrorText(e), "bad"); setSaving(false); }
+  };
+  const descartar = async () => {
+    setSaving(true);
+    try { await api.updateTarea(t.id, { estado: "descartada", hecha: nowISO() }); toast("Tarea descartada."); onDone(); } catch (e) { toast(dbErrorText(e), "bad"); setSaving(false); }
+  };
+  const idp = nueva ? "tn" : "te";
+  return html`<div class="task-form">
+    ${esReunion ? null : html`<div class="field"><span>Tipo</span><${Chips} label="Tipo de tarea" value=${tipo} onChange=${setTipo} options=${TIPOS_EDITABLES.map(([v, l]) => [v, l])} /></div>`}
+    <label class="field" for=${idp + "-titulo"}><span>Qué hay que hacer</span><input id=${idp + "-titulo"} class="input" value=${titulo} placeholder=${accionLabel(tipo)} onInput=${(e) => setTitulo(e.currentTarget.value)} /></label>
+    <div class="grid-3">
+      <label class="field" for=${idp + "-fecha"}><span>Día</span><input id=${idp + "-fecha"} class="input" type="date" value=${fecha} onInput=${(e) => setFecha(e.currentTarget.value)} /></label>
+      <label class="field" for=${idp + "-hora"}><span>Hora (opcional)</span><input id=${idp + "-hora"} class="input" type="time" value=${hora} onInput=${(e) => setHora(e.currentTarget.value)} /></label>
+      <label class="field" for=${idp + "-resp"}><span>Responsable</span><select id=${idp + "-resp"} class="select" value=${resp} onChange=${(e) => setResp(e.currentTarget.value)}><option value="">Sin responsable</option>${RESPONSABLES.map(([v, l]) => html`<option value=${v}>${l}</option>`)}</select></label>
+    </div>
+    <div class="actions">${quick.map(([l, k]) => html`<button type="button" class=${cx("btn small", fecha === k && "on")} onClick=${() => setFecha(k)}>${l}</button>`)}</div>
+    <label class="field" for=${idp + "-nota"}><span>Detalle (opcional)</span><textarea id=${idp + "-nota"} class="textarea" rows="2" value=${nota} onInput=${(e) => setNota(e.currentTarget.value)}></textarea></label>
+    <div class="actions">
+      <button type="button" class="btn primary small" onClick=${guardar} disabled=${saving || !canWrite}>${nueva ? "Agregar tarea" : "Guardar"}</button>
+      <button type="button" class="btn ghost small" onClick=${onDone}>Cancelar</button>
+      ${!nueva ? html`<span style="flex:1"></span><button type="button" class="btn ghost small danger" onClick=${descartar} disabled=${saving || !canWrite}><${Icon} name="trash" />Descartar</button>` : null}
+    </div>
+  </div>`;
+}
+
+/* Las tareas de un lead en su ficha: pendientes arriba (la primera es la «próxima acción») y las
+   hechas o descartadas plegadas abajo. */
+function TareasLead({ lead, abrirNueva }) {
+  const { db, canWrite, openModal } = useCtx();
+  const [todas, setTodas] = useState([]);
+  const [nueva, setNueva] = useState(!!abrirNueva);
+  const [editando, setEditando] = useState("");
+  useEffect(() => {
+    if (!db) return undefined;
+    return db.collection("tareas").where("leadId", "==", lead.id).onSnapshot((s) => setTodas(s.docs.map((x) => ({ id: x.id, ...x.data() }))), () => {});
+  }, [db, lead.id]);
+  useEffect(() => { if (abrirNueva) setNueva(true); }, [abrirNueva]);
+  const pend = todas.filter(tareaPendiente).sort(tareaOrden);
+  const virtual = pend.length ? null : tareaDeProxima(lead);
+  const lista = virtual ? [virtual] : pend;
+  const cerradas = todas.filter((x) => !tareaPendiente(x)).sort((a, b) => String(b.hecha || b.actualizado || "").localeCompare(String(a.hecha || a.actualizado || "")));
+  return html`<section class="tareas-box" aria-label="Tareas">
+    <div class="sec-head">
+      <h3>Tareas</h3>${lista.length ? html`<span class="count">${lista.length}</span>` : null}
+      <span style="flex:1"></span>
+      ${canWrite && !lead.noContactar ? html`<button type="button" class="btn small" onClick=${() => openModal({ type: "agendar", lead })}><${Icon} name="cal" />Agendar reunión</button>` : null}
+      ${canWrite ? html`<button type="button" class="btn small" onClick=${() => { setEditando(""); setNueva(true); }}><${Icon} name="plus" />Tarea</button>` : null}
+    </div>
+    ${nueva ? html`<${TareaEditor} lead=${lead} onDone=${() => setNueva(false)} />` : null}
+    ${lista.length ? html`<div class="tasks">${lista.map((x) => (editando && editando === (x.id || "virtual")
+      ? html`<${TareaEditor} key=${"e" + (x.id || "v")} lead=${lead} t=${x} onDone=${() => setEditando("")} />`
+      : html`<${TareaFila} key=${x.id || "v"} t=${x} onEditar=${canWrite ? () => { setNueva(false); setEditando(x.id || "virtual"); } : null} />`))}</div>`
+      : nueva ? null : html`<p class="empty">${isOpen(lead) ? "Sin tareas pendientes. Agrega la próxima para que el lead no se enfríe." : "Sin tareas pendientes."}</p>`}
+    ${cerradas.length ? html`<details class="hechas"><summary>Hechas y descartadas (${cerradas.length})</summary><div class="tasks">${cerradas.slice(0, 25).map((x) => html`<${TareaFila} key=${x.id} t=${x} />`)}</div></details>` : null}
+  </section>`;
+}
+
+/* La próxima tarea dentro de una tarjeta del embudo, con su círculo para completarla ahí mismo. */
+function SigLinea({ t }) {
+  const { completarTarea, canWrite } = useCtx();
+  const c = cuandoTarea(t);
+  const tipo = tipoTarea(t.tipo);
+  const titulo = t.titulo || accionLabel(tipo);
+  return html`<div class=${cx("knext", c.tono)}>
+    ${canWrite ? html`<button type="button" class="tick" title=${tipo === "agendar" ? "Agendar la reunión" : tipo === "reunion" ? "¿Se hizo la reunión?" : "Marcar como hecha"} aria-label=${"Completar: " + titulo} onClick=${(e) => { e.stopPropagation(); completarTarea(t); }}><${Icon} name="check" size=${11} /></button>` : html`<${Icon} name=${TIPO_TAREA[tipo][2]} size=${14} />`}
+    <span class="knext-txt"><b>${c.tono === "ask" ? "¿Se hizo la reunión?" : titulo}</b><span>${c.tono === "ask" ? c.txt.replace(" · ¿se hizo?", "") : c.txt}</span></span>
+  </div>`;
+}
+
+/* Al guardar una llamada o una reunión: qué quedó hecho, en qué etapa y qué tareas salieron. */
+function ListoCard({ r, lead, onClose }) {
+  const { changeStage, canWrite } = useCtx();
+  return html`<div class="done-card" role="status">
+    <h4><${Icon} name="check" />${r.tipo === "reunion" ? "Reunión guardada" : "Llamada guardada"}${r.conAnalisis ? " con el análisis de Claude" : ""}</h4>
+    <ul>
+      ${r.a ? html`<li>Etapa: ${etapaLabel(r.de)} → <b>${etapaLabel(r.a)}</b></li>` : null}
+      ${r.nuevas.map((x, i) => html`<li key=${i}>Tarea nueva: <b>${x.titulo}</b> · ${cuandoTexto(x.fecha)}${x.hora ? " a las " + x.hora : ""}${TAREA_MENSAJE.has(x.tipo) && r.borradores ? " · Claude la está redactando" : ""}</li>`)}
+      ${r.hechas ? html`<li>${r.hechas === 1 ? "Quedó hecha la tarea que tocaba" : `Quedaron hechas las ${r.hechas} tareas que tocaban`}.</li>` : null}
+      ${!r.nuevas.length && !r.a ? html`<li>No quedaron tareas nuevas.</li>` : null}
+    </ul>
+    ${r.sugerencia && canWrite ? html`<p>Claude sugiere pasarlo a «${etapaLabel(r.sugerencia)}». <button type="button" class="btn small" onClick=${() => { onClose(); changeStage(lead, r.sugerencia); }}>Pasar a ${etapaLabel(r.sugerencia)}</button></p>` : null}
+    <div class="actions"><button type="button" class="btn small ghost" onClick=${onClose}>Cerrar</button></div>
+  </div>`;
+}
+
 /* ===================================================================== vista: hoy */
 
 function HoyView() {
-  const { leads: todos, acts, drafts, openDraft, openModal, nav, equipo, me, clientes, proyectos, cobros, solicitudes, clientesById, cfg } = useCtx();
+  const { leads: todos, acts, drafts, openModal, nav, equipo, me, clientes, proyectos, cobros, solicitudes, clientesById, cfg, tareas, tareasPorLead, siguienteDe, leadsById } = useCtx();
   const [quien, setQuien] = useState(() => { const v = ls.get("respHoy", ""); return respNombre(v) ? v : ""; });
   useEffect(() => ls.set("respHoy", quien), [quien]);
   /* Lo de cada socio, más lo que todavía no tiene responsable. */
-  const leads = quien ? todos.filter((l) => !l.responsable || l.responsable === quien) : todos;
+  const deQuien = (r) => !quien || !r || r === quien;
+  const leads = todos.filter((l) => deQuien(l.responsable));
   const t = todayKey();
   const agenda = agendaClientes({ proyectos, cobros, clientesById }, cfg, 7);
   const agendaHoy = agenda.filter((x) => x.fecha <= t);
   const solAbiertas = solicitudes.filter((s) => SOL_ABIERTA.has(s.estado)).sort(solOrden);
   const vencidos = cobros.filter((x) => pagoVencido(x, cfg));
+  /* Las tareas pendientes, más las «proxima» antiguas que todavía no son tarea. */
+  const virtuales = todos.filter((l) => !(tareasPorLead[l.id] || []).length).map(tareaDeProxima).filter(Boolean);
+  const lista = [...tareas, ...virtuales].filter((x) => { const l = leadsById[x.leadId]; return l && !l.noContactar && deQuien(x.responsable || l.responsable); }).sort(tareaOrden);
+  const atrasadas = lista.filter((x) => x.fecha && x.fecha < t);
+  const deHoy = lista.filter((x) => x.fecha === t);
+  const proximas = lista.filter((x) => x.fecha > t && diffDays(t, x.fecha) <= 7);
   const abiertos = leads.filter(contactable);
-  const byNext = (a, b) => (a.proxima.fecha + (a.proxima.hora || "")).localeCompare(b.proxima.fecha + (b.proxima.hora || ""));
-  const conFecha = leads.filter((l) => retomable(l) && l.proxima && l.proxima.fecha);
-  const pend = conFecha.filter((l) => l.proxima.fecha <= t).sort(byNext);
-  const late = pend.filter((l) => l.proxima.fecha < t).length;
-  const nuevos = abiertos.filter((l) => l.etapa === "nuevo" && !(l.proxima && l.proxima.fecha)).sort((a, b) => String(b.creado).localeCompare(String(a.creado)));
-  const sinPlan = abiertos.filter((l) => l.etapa !== "nuevo" && !(l.proxima && l.proxima.fecha)).sort((a, b) => String(a.ultimoContacto || "").localeCompare(String(b.ultimoContacto || "")));
+  const nuevos = abiertos.filter((l) => etapaDe(l) === "nuevo" && !siguienteDe(l)).sort((a, b) => String(b.creado).localeCompare(String(a.creado)));
+  const sinPlan = abiertos.filter((l) => etapaDe(l) !== "nuevo" && !siguienteDe(l)).sort((a, b) => String(a.ultimoContacto || "").localeCompare(String(b.ultimoContacto || "")));
   const porRevisar = drafts.filter((d) => d.estado === "por_revisar");
   const semana = acts.filter((a) => CONTACTOS.has(a.tipo) && Date.now() - Date.parse(a.fecha) < 7 * 864e5).length;
-  const proximos = conFecha.filter((l) => l.proxima.fecha > t && diffDays(t, l.proxima.fecha) <= 7).sort(byNext);
   const evaluadas = acts.filter((a) => a.tipo === "llamada" && a.autor === me.id && a.analisis && a.analisis.evaluacion && Date.now() - Date.parse(a.fecha) < 30 * 864e5);
   const promedio = evaluadas.length ? Math.round(sum(evaluadas, (a) => a.analisis.evaluacion.puntaje) / evaluadas.length) : null;
+  const paraHoy = atrasadas.length + deHoy.length;
 
   const frase = [];
-  if (pend.length) frase.push(`${pend.length} ${pend.length === 1 ? "pendiente" : "pendientes"} para hoy${late ? ` (${late} ${late === 1 ? "atrasado" : "atrasados"})` : ""}`);
-  if (nuevos.length) frase.push(`${nuevos.length} ${nuevos.length === 1 ? "lead nuevo" : "leads nuevos"} sin contactar`);
+  if (paraHoy) frase.push(`${paraHoy} ${paraHoy === 1 ? "tarea" : "tareas"} para hoy${atrasadas.length ? ` (${atrasadas.length} ${atrasadas.length === 1 ? "atrasada" : "atrasadas"})` : ""}`);
+  if (nuevos.length) frase.push(`${nuevos.length} ${nuevos.length === 1 ? "lead" : "leads"} por contactar`);
   if (agendaHoy.length) frase.push(`${agendaHoy.length} ${agendaHoy.length === 1 ? "pendiente de clientes" : "pendientes de clientes"}`);
   if (solAbiertas.length) frase.push(`${solAbiertas.length} ${solAbiertas.length === 1 ? "solicitud abierta" : "solicitudes abiertas"}`);
   if (porRevisar.length) frase.push(`${porRevisar.length} ${porRevisar.length === 1 ? "borrador" : "borradores"} por revisar`);
-  const lede = todos.length || clientes.length ? (frase.length ? `Tienes ${frase.join(", ").replace(/, ([^,]*)$/, " y $1")}.` : "Nada pendiente para hoy. Buen momento para prospectar o revisar los leads sin próxima acción.") : "";
+  const lede = todos.length || clientes.length ? (frase.length ? `Tienes ${frase.join(", ").replace(/, ([^,]*)$/, " y $1")}.` : "Nada pendiente para hoy. Buen momento para prospectar o revisar los leads sin tarea.") : "";
   const sinFirma = me.id && !(equipo[me.id] && equipo[me.id].nombre);
+  const grupo = (titulo, items, cls) => (items.length ? html`<p class=${cx("task-group", cls)}>${titulo} · ${items.length}</p><div class="tasks">${items.map((x) => html`<${TareaFila} key=${x.id || "v-" + x.leadId} t=${x} conLead />`)}</div>` : null);
 
   return html`<div class="main-inner">
     <header class="page-head">
@@ -1726,12 +2106,12 @@ function HoyView() {
       <ol class="onboard">
         <li><p class="eyebrow">Paso 1</p><h3>Completa tu firma</h3><p>Nombre, cargo y teléfono de negocios. Van al pie de cada correo que redacte Claude.</p><button class="btn small" style="justify-self:start" onClick=${() => nav("ajustes")}>Ir a Ajustes</button></li>
         <li><p class="eyebrow">Paso 2</p><h3>Carga tus leads</h3><p>Uno por uno, desde una planilla CSV o pegando una lista o un correo del formulario: Claude los ordena.</p><button class="btn small" style="justify-self:start" onClick=${() => openModal({ type: "import" })}>Importar leads</button></li>
-        <li><p class="eyebrow">Paso 3</p><h3>Llama y registra</h3><p>Después de cada llamada, anota el resultado o pega la transcripción y Claude deja el resumen y el siguiente paso.</p><button class="btn small" style="justify-self:start" onClick=${() => openModal({ type: "newLead" })}>Agregar un lead</button></li>
+        <li><p class="eyebrow">Paso 3</p><h3>Llama y graba</h3><p>Transcribe la llamada en vivo: al detener, Claude la analiza, crea las tareas y mueve la etapa.</p><button class="btn small" style="justify-self:start" onClick=${() => openModal({ type: "newLead" })}>Agregar un lead</button></li>
       </ol>
     </div></section>` : html`<div class="summary" role="list">
-      <span class=${cx("stat", late && "alert")} role="listitem"><b>${pend.length}</b>para hoy${late ? ` · ${late} atrasados` : ""}</span>
+      <span class=${cx("stat", atrasadas.length && "alert")} role="listitem"><b>${paraHoy}</b>${paraHoy === 1 ? "tarea" : "tareas"} para hoy${atrasadas.length ? ` · ${atrasadas.length} ${atrasadas.length === 1 ? "atrasada" : "atrasadas"}` : ""}</span>
       <span class=${cx("stat", !nuevos.length && "zero")} role="listitem"><b>${nuevos.length}</b>por contactar</span>
-      <span class=${cx("stat", !sinPlan.length && "zero")} role="listitem"><b>${sinPlan.length}</b>sin próxima acción</span>
+      <span class=${cx("stat", !sinPlan.length && "zero")} role="listitem"><b>${sinPlan.length}</b>sin tarea</span>
       <span class=${cx("stat", !porRevisar.length && "zero")} role="listitem"><b>${porRevisar.length}</b>borradores por revisar</span>
       <span class=${cx("stat", !semana && "zero")} role="listitem"><b>${semana}</b>contactos en 7 días</span>
       ${promedio != null ? html`<span class="stat" role="listitem" title="Promedio del puntaje que Claude le dio a tus llamadas de los últimos 30 días"><b>${promedio}</b>tu puntaje en llamadas (${evaluadas.length})</span>` : null}
@@ -1743,13 +2123,15 @@ function HoyView() {
 
     ${todos.length || clientes.length ? html`<div class="cols">
       <div class="stack">
-        <section class="panel"><div class="panel-head"><h2>Para hoy</h2><span class="eyebrow">${pend.length} ${pend.length === 1 ? "lead" : "leads"}</span></div>
-          <div class="panel-body">${pend.length ? html`<div class="lrows">${pend.map((l) => html`<${LeadRow} key=${l.id} lead=${l} mode="next" />`)}</div>` : html`<p class="empty">No hay acciones programadas para hoy.</p>`}</div></section>
-        <section class="panel"><div class="panel-head"><h2>Nuevos por contactar</h2><span class="eyebrow">${nuevos.length}</span></div>
-          <div class="panel-body">${nuevos.length ? html`<div class="lrows">${nuevos.slice(0, 12).map((l) => html`<${LeadRow} key=${l.id} lead=${l} mode="new" />`)}</div>` : html`<p class="empty">Todos los leads nuevos tienen una acción programada.</p>`}
-          ${nuevos.length > 12 ? html`<button class="btn small ghost" onClick=${() => nav("leads")}>Ver los ${nuevos.length}</button>` : null}</div></section>
-        ${proximos.length ? html`<section class="panel"><div class="panel-head"><h2>Próximos 7 días</h2><span class="eyebrow">${proximos.length}</span></div>
-          <div class="panel-body"><div class="lrows">${proximos.slice(0, 10).map((l) => html`<${LeadRow} key=${l.id} lead=${l} mode="next" />`)}</div></div></section>` : null}
+        <section class="panel" aria-label="Tareas"><div class="panel-head"><h2>Tareas</h2><span class="eyebrow">${paraHoy} para hoy</span></div>
+          <div class="panel-body">
+            ${grupo("Atrasadas", atrasadas, "late")}
+            ${deHoy.length ? grupo("Hoy", deHoy, "") : html`<p class="task-group">Hoy</p><p class="empty">${atrasadas.length ? "Nada más para hoy." : "No hay tareas para hoy."}</p>`}
+            ${grupo("Próximos 7 días", proximas.slice(0, 15), "")}
+          </div></section>
+        <section class="panel"><div class="panel-head"><h2>Por contactar</h2><span class="eyebrow">${nuevos.length}</span></div>
+          <div class="panel-body">${nuevos.length ? html`<div class="lrows">${nuevos.slice(0, 12).map((l) => html`<${LeadRow} key=${l.id} lead=${l} mode="new" />`)}</div>` : html`<p class="empty">Todos los leads nuevos tienen una tarea.</p>`}
+          ${nuevos.length > 12 ? html`<button class="btn small ghost" onClick=${() => nav("embudo")}>Ver los ${nuevos.length} en el embudo</button>` : null}</div></section>
       </div>
       <div class="stack">
         ${clientes.length ? html`<section class="panel"><div class="panel-head"><h2>Clientes: próximos 7 días</h2><span class="eyebrow">${agenda.length}</span></div>
@@ -1760,8 +2142,8 @@ function HoyView() {
           ${solAbiertas.length > 6 ? html`<button class="btn small ghost" onClick=${() => nav("soporte")}>Ver las ${solAbiertas.length}</button>` : null}</div></section>` : null}
         <section class="panel"><div class="panel-head"><h2>Borradores por revisar</h2><span class="eyebrow">${porRevisar.length}</span></div>
           <div class="panel-body">${porRevisar.length ? html`<${DraftList} items=${porRevisar.slice(0, 8)} />` : html`<p class="empty">Cuando Claude redacte un correo o un WhatsApp, aparecerá aquí para que lo revises antes de enviarlo.</p>`}</div></section>
-        <section class="panel"><div class="panel-head"><h2>Sin próxima acción</h2><span class="eyebrow">${sinPlan.length}</span></div>
-          <div class="panel-body">${sinPlan.length ? html`<div class="lrows">${sinPlan.slice(0, 8).map((l) => html`<${LeadRow} key=${l.id} lead=${l} mode="stale" />`)}</div>` : html`<p class="empty">Cada lead abierto tiene su siguiente paso.</p>`}</div></section>
+        <section class="panel"><div class="panel-head"><h2>Sin tarea</h2><span class="eyebrow">${sinPlan.length}</span></div>
+          <div class="panel-body">${sinPlan.length ? html`<div class="lrows">${sinPlan.slice(0, 8).map((l) => html`<${LeadRow} key=${l.id} lead=${l} mode="stale" />`)}</div>` : html`<p class="empty">Cada lead abierto tiene su próxima tarea.</p>`}</div></section>
         <section class="panel"><div class="panel-head"><h2>Actividad reciente</h2></div>
           <div class="panel-body"><${Feed} items=${acts} showLead limit=${10} /></div></section>
       </div>
@@ -1772,7 +2154,7 @@ function HoyView() {
 /* ===================================================================== vista: leads */
 
 function LeadsView() {
-  const { leads, openLead, openModal, nameOf, me, cfg, team } = useCtx();
+  const { leads, openLead, openModal, nameOf, me, cfg, team, siguienteDe } = useCtx();
   const [q, setQ] = useState(() => ls.get("q", ""));
   const [etapa, setEtapa] = useState(() => ls.get("fEtapa", "abiertos"));
   const [origen, setOrigen] = useState(() => ls.get("fOrigen", ""));
@@ -1785,7 +2167,7 @@ function LeadsView() {
     const qd = q.replace(/\D/g, "");
     let r = leads.filter((l) => {
       if (etapa === "abiertos" && !isOpen(l)) return false;
-      if (etapa && etapa !== "abiertos" && etapa !== "todos" && l.etapa !== etapa) return false;
+      if (etapa && etapa !== "abiertos" && etapa !== "todos" && etapaDe(l) !== etapa) return false;
       if (origen && l.origen !== origen) return false;
       if (resp === "nadie" && l.responsable) return false;
       if (resp && resp !== "nadie" && l.responsable !== resp) return false;
@@ -1796,13 +2178,13 @@ function LeadsView() {
       }
       return true;
     });
-    const nk = (l) => (l.proxima && l.proxima.fecha ? l.proxima.fecha : "9999");
+    const nk = (l) => { const s = siguienteDe(l); return s ? tareaClave(s) : "9999"; };
     if (orden === "proxima") r.sort((a, b) => nk(a).localeCompare(nk(b)) || String(b.creado).localeCompare(String(a.creado)));
     else if (orden === "contacto") r.sort((a, b) => String(b.ultimoContacto || "").localeCompare(String(a.ultimoContacto || "")));
     else if (orden === "creado") r.sort((a, b) => String(b.creado).localeCompare(String(a.creado)));
     else if (orden === "nombre") r.sort((a, b) => fold(leadName(a)).localeCompare(fold(leadName(b))));
     return r;
-  }, [leads, q, etapa, origen, resp, orden, me.id]);
+  }, [leads, q, etapa, origen, resp, orden, me.id, siguienteDe]);
 
   return html`<div class="main-inner">
     <header class="page-head">
@@ -1826,17 +2208,17 @@ function LeadsView() {
         <option value="">Todo el equipo</option>${team.map((u) => html`<option value=${u}>${nameOf(u)}</option>`)}<option value="nadie">Sin responsable</option>
       </select>
       <select id="f-orden" class="select" aria-label="Orden" value=${orden} onChange=${(e) => setOrden(e.currentTarget.value)}>
-        <option value="proxima">Por próxima acción</option><option value="contacto">Último contacto</option><option value="creado">Más recientes</option><option value="nombre">Nombre</option>
+        <option value="proxima">Por próxima tarea</option><option value="contacto">Último contacto</option><option value="creado">Más recientes</option><option value="nombre">Nombre</option>
       </select>
     </div>
     <section class="panel">
       ${!list.length ? html`<div class="panel-body" style="padding-top:16px"><p class="empty">${leads.length ? "Ningún lead coincide con estos filtros." : "Todavía no hay leads. Agrega el primero o importa una lista."}</p></div>` : html`
       <div class="only-wide table-wrap"><table class="leads">
-        <thead><tr><th>Lead</th><th>Etapa</th><th>Próxima acción</th><th>Último contacto</th><th>Teléfono</th><th>Responsable</th></tr></thead>
+        <thead><tr><th>Lead</th><th>Etapa</th><th>Próxima tarea</th><th>Último contacto</th><th>Teléfono</th><th>Responsable</th></tr></thead>
         <tbody>${list.map((l) => html`<tr key=${l.id} onClick=${() => openLead(l.id)}>
-          <td><div class="cell-name"><b>${leadName(l)}</b>${leadSub(l) ? html`<span>${leadSub(l)}</span>` : null}</div></td>
+          <td><div class="cell-name"><b>${leadTitulo(l)}</b>${leadPersona(l) ? html`<span>${leadPersona(l)}</span>` : null}</div></td>
           <td><div style="display:grid;gap:6px;justify-items:start"><${StagePill} etapa=${l.etapa} /><${Meter} etapa=${l.etapa} /></div></td>
-          <td>${l.noContactar ? html`<span class="tag late">No contactar</span>` : html`<${NextTag} proxima=${l.proxima} />`}</td>
+          <td>${l.noContactar ? html`<span class="tag late">No contactar</span>` : html`<${SigTag} t=${siguienteDe(l)} />`}</td>
           <td class="small muted">${l.ultimoContacto ? ago(l.ultimoContacto) : "—"}${l.intentos ? html`<br />${l.intentos} sin respuesta` : null}</td>
           <td><span class="phone">${l.telefono ? fmtPhone(l.telefono) : "—"}</span></td>
           <td class="small">${l.responsable ? nameOf(l.responsable) : html`<span class="muted">—</span>`}</td>
@@ -1887,7 +2269,7 @@ function useBoardDrag({ enabled, onDrop }) {
   useEffect(() => () => fin(false), []);
   const start = (ev, id, from) => {
     if (!enabled || st.current || ev.button > 0 || ev.isPrimary === false) return;
-    if (ev.target.closest("a, input, select, textarea, .kact, .tagbtn")) return;
+    if (ev.target.closest("a, input, select, textarea, .kact, .tagbtn, .tick")) return;
     const card = ev.currentTarget;
     const touch = ev.pointerType !== "mouse";
     const s = { id, from, over: from, card, touch, pid: ev.pointerId, x0: ev.clientX, y0: ev.clientY, x: ev.clientX, y: ev.clientY, active: false };
@@ -2027,30 +2409,33 @@ function GanadoTag({ l }) {
 }
 
 function LeadCard({ l, ultima, onPointerDown }) {
-  const { api, openLead, openModal, canWrite, cfg } = useCtx();
-  const abierto = ETAPA[l.etapa || "nuevo"].open;
+  const { api, openLead, openModal, canWrite, cfg, siguienteDe } = useCtx();
+  const etapa = etapaDe(l);
+  const abierto = ETAPA[etapa].open;
+  const sig = siguienteDe(l);
   const wa = l.telefono && !l.noContactar ? waLink(l.telefono, "", cfg) : null;
   const abrir = () => { if (!recienArrastrado()) openLead(l.id); };
   const accion = (tab) => (e) => { e.stopPropagation(); openLead(l.id, tab); };
   const ventana = (m) => (e) => { e.stopPropagation(); openModal(m); };
-  return html`<div class="kcard lead" role="button" tabindex="0" aria-label=${"Abrir " + leadName(l)} onPointerDown=${onPointerDown} onClick=${abrir} onKeyDown=${(e) => { if (e.target === e.currentTarget && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); openLead(l.id); } }}>
-    <div class="kcard-top"><b>${leadName(l)}</b>${l.prioridad === "alta" ? html`<i class="prio" title="Prioridad alta"></i>` : null}</div>
-    ${leadSub(l) ? html`<span class="kcard-sub">${leadSub(l)}</span>` : null}
+  const persona = leadPersona(l);
+  return html`<div class="kcard lead" role="button" tabindex="0" aria-label=${"Abrir " + leadTitulo(l)} onPointerDown=${onPointerDown} onClick=${abrir} onKeyDown=${(e) => { if (e.target === e.currentTarget && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); openLead(l.id); } }}>
+    <div class="kcard-top"><b class="kcard-titulo">${leadTitulo(l)}</b>${l.prioridad === "alta" ? html`<i class="prio" title="Prioridad alta"></i>` : null}</div>
+    ${persona ? html`<span class="kcard-sub">${persona}</span>` : null}
     ${Number(l.valor) > 0 ? html`<span class="kcard-valor">${money(l.valor)} + IVA</span>` : null}
-    ${l.noContactar ? html`<div><span class="tag late">No contactar</span></div>`
-      : abierto ? html`<div class="kcard-tags">${l.proxima && l.proxima.fecha ? html`<${NextTag} proxima=${l.proxima} />` : html`<span class="tag warn">Sin próxima acción</span>`}${l.intentos ? html`<span class="tag warn" title="Llamadas seguidas sin respuesta">${l.intentos} sin respuesta</span>` : null}</div>`
-      : l.etapa === "perdido" ? html`<div class="kcard-tags">${l.motivoPerdida ? html`<span class="tag late">${l.motivoPerdida}</span>` : canWrite ? html`<button type="button" class="tag warn tagbtn" onClick=${ventana({ type: "lost", lead: l })}>Falta el motivo</button>` : html`<span class="tag warn">Sin motivo</span>`}</div>`
-      : l.etapa === "ganado" ? html`<div class="kcard-tags"><${GanadoTag} l=${l} /></div>`
-      : l.etapa === "pausa" && l.proxima && l.proxima.fecha ? html`<div><${NextTag} proxima=${l.proxima} /></div>` : null}
-    ${ultima ? html`<span class="kcard-act"><${Icon} name=${ACT_ICON[ultima.tipo] || "note"} size=${13} />${clip(actTitulo(ultima), 34)} · ${ago(ultima.fecha)}</span>` : null}
+    ${l.noContactar ? html`<div class="kcard-tags"><span class="tag late">No contactar</span></div>`
+      : sig && (abierto || etapa === "pausa") ? html`<${SigLinea} t=${sig} />`
+      : abierto ? html`<div class="knext vacio">Sin tarea${canWrite ? html` · <button type="button" class="linkbtn tagbtn" onClick=${accion("tareas")}>agregar</button>` : null}</div>`
+      : etapa === "perdido" ? html`<div class="kcard-tags">${l.motivoPerdida ? html`<span class="tag late">${l.motivoPerdida}</span>` : canWrite ? html`<button type="button" class="tag warn tagbtn" onClick=${ventana({ type: "lost", lead: l })}>Falta el motivo</button>` : html`<span class="tag warn">Sin motivo</span>`}</div>`
+      : etapa === "ganado" ? html`<div class="kcard-tags"><${GanadoTag} l=${l} /></div>` : null}
+    ${l.intentos && abierto && !l.noContactar ? html`<div class="kcard-tags"><span class="tag warn" title="Llamadas seguidas sin respuesta">${l.intentos} sin respuesta</span></div>` : null}
+    ${ultima ? html`<span class="kcard-act"><${Icon} name=${ACT_ICON[ultima.tipo] || "note"} size=${12} /><span>${actTitulo(ultima)} · ${ago(ultima.fecha)}</span></span>` : null}
     <div class="kcard-foot">
-      <${RespAvatar} valor=${l.responsable} quien=${leadName(l)} guardar=${(nv) => api.updateLead(l.id, { responsable: nv })} />
+      <${RespAvatar} valor=${l.responsable} quien=${leadTitulo(l)} guardar=${(nv) => api.updateLead(l.id, { responsable: nv })} />
       ${l.noContactar ? null : html`<span class="kacts">
         ${l.telefono && abierto && canWrite ? html`<button type="button" class="kact" title="No contestó" aria-label=${"No contestó " + leadName(l)} onClick=${ventana({ type: "noContesto", lead: l })}><${Icon} name="phonex" size=${15} /></button>` : null}
         ${l.telefono ? html`<button type="button" class="kact" title="Registrar llamada" aria-label=${"Registrar llamada con " + leadName(l)} onClick=${accion("llamada")}><${Icon} name="phone" size=${15} /></button>` : null}
         ${wa ? html`<a class="kact" href=${wa} target="_blank" rel="noopener" title="Abrir WhatsApp" aria-label=${"WhatsApp a " + leadName(l)} onClick=${(e) => e.stopPropagation()}><${Icon} name="chat" size=${15} /></a>` : null}
         <button type="button" class="kact opt" title="Redactar con Claude" aria-label=${"Redactar para " + leadName(l)} onClick=${accion("redactar")}><${Icon} name="spark" size=${15} /></button>
-        <button type="button" class="kact opt" title="Anotar" aria-label=${"Anotar algo de " + leadName(l)} onClick=${accion("otro")}><${Icon} name="note" size=${15} /></button>
       </span>`}
     </div>
   </div>`;
@@ -2064,7 +2449,7 @@ const motivosResumen = (items) => {
 };
 
 function EmbudoView() {
-  const { leads, acts, openModal, changeStage, canWrite, nameOf, team, nav } = useCtx();
+  const { leads, acts, openModal, changeStage, canWrite, nameOf, team, nav, siguienteDe } = useCtx();
   const [verCerrados, setVerCerrados] = useState(() => ls.get("verCerrados", false));
   const [q, setQ] = useState(() => ls.get("qEmb", ""));
   const [resp, setResp] = useState(() => { const v = ls.get("respEmb", ""); return v === "mios" ? "" : v; });
@@ -2072,7 +2457,7 @@ function EmbudoView() {
   useEffect(() => { ls.set("verCerrados", verCerrados); ls.set("qEmb", q); ls.set("respEmb", resp); ls.set("ordenEmb", orden); }, [verCerrados, q, resp, orden]);
   const { drag, start, boardRef } = useBoardDrag({
     enabled: canWrite,
-    onDrop: (id, etapa) => { const l = leads.find((x) => x.id === id); if (l && (l.etapa || "nuevo") !== etapa) changeStage(l, etapa); },
+    onDrop: (id, etapa) => { const l = leads.find((x) => x.id === id); if (l && etapaDe(l) !== etapa) changeStage(l, etapa); },
   });
   const ultima = useMemo(() => {
     const m = {};
@@ -2087,20 +2472,20 @@ function EmbudoView() {
   });
   const fechaAct = (l) => String((ultima[l.id] || {}).fecha || l.ultimoContacto || l.actualizado || "");
   const cmp = {
-    proxima: (a, b) => String((a.proxima && a.proxima.fecha) || "9999").localeCompare(String((b.proxima && b.proxima.fecha) || "9999")) || fechaAct(b).localeCompare(fechaAct(a)),
+    proxima: (a, b) => { const x = siguienteDe(a); const y = siguienteDe(b); return (x ? tareaClave(x) : "9999").localeCompare(y ? tareaClave(y) : "9999") || fechaAct(b).localeCompare(fechaAct(a)); },
     actividad: (a, b) => fechaAct(b).localeCompare(fechaAct(a)),
     valor: (a, b) => (Number(b.valor) || 0) - (Number(a.valor) || 0) || fechaAct(b).localeCompare(fechaAct(a)),
     creado: (a, b) => String(b.creado || "").localeCompare(String(a.creado || "")),
   }[orden] || (() => 0);
-  const abiertos = visibles.filter((l) => ETAPA[l.etapa || "nuevo"].open);
+  const abiertos = visibles.filter(isOpen);
   const enJuego = sum(abiertos, (l) => l.valor);
-  const ponderado = Math.round(sum(abiertos, (l) => (Number(l.valor) || 0) * PROB_ETAPA[l.etapa || "nuevo"]));
+  const ponderado = Math.round(sum(abiertos, (l) => (Number(l.valor) || 0) * PROB_ETAPA[etapaDe(l)]));
   /* «Ganado» va siempre al final; Perdido y En pausa, solo si se piden (o como zonas al arrastrar). */
   const cols = ETAPAS.filter((e) => e.open || e.id === "ganado" || verCerrados);
-  return html`<div class="main-inner">
+  return html`<div class="main-inner ancho">
     <header class="page-head">
       <div><p class="eyebrow">${abiertos.length} ${abiertos.length === 1 ? "abierto" : "abiertos"}${enJuego ? ` · ${money(enJuego)} en juego · ${money(ponderado)} ponderado` : ""}</p><h1>Embudo de leads</h1>
-        <p class="lede">${canWrite ? (pantallaTactil() ? "Mantén apretada una tarjeta y arrástrala a otra etapa." : "Arrastra las tarjetas de una etapa a otra.") + " Al soltar en «Ganado» se crea el cliente." : "Solo lectura."}</p></div>
+        <p class="lede">${canWrite ? (pantallaTactil() ? "Mantén apretada una tarjeta y arrástrala a otra etapa." : "Arrastra las tarjetas de una etapa a otra.") + " En «Reunión agendada» se elige el día; en «Ganado» se crea el cliente. El círculo de cada tarjeta completa su próxima tarea." : "Solo lectura."}</p></div>
       <div class="actions">
         <${VistaLeads} actual="embudo" />
         <button class="btn primary" onClick=${() => openModal({ type: "newLead" })} disabled=${!canWrite}><${Icon} name="plus" />Nuevo lead</button>
@@ -2116,11 +2501,11 @@ function EmbudoView() {
     </div>
     <div class="board embudo" ref=${boardRef}>
       ${cols.map((e) => {
-        const items = visibles.filter((l) => (l.etapa || "nuevo") === e.id).sort(cmp);
+        const items = visibles.filter((l) => etapaDe(l) === e.id).sort(cmp);
         const total = sum(items, (l) => l.valor);
         return html`<div key=${e.id} data-col=${e.id} class=${cx("col", drag && drag.over === e.id && drag.from !== e.id && "drop")}>
-          <div class="col-head"><${StagePill} etapa=${e.id} /><span class="count">${items.length}</span></div>
-          ${total ? html`<p class="col-sum"><b>${money(total)}</b>${e.open ? ` · ${money(Math.round(total * PROB_ETAPA[e.id]))} ponderado (${Math.round(PROB_ETAPA[e.id] * 100)} %)` : ""}</p>` : null}
+          <div class="col-head"><span class="col-title" style=${"--dot: var(--st-" + e.id + ")"}><i></i>${e.label}</span><span class="count">${items.length}</span></div>
+          ${total ? html`<p class="col-sum" title=${e.open ? `Ponderado con ${Math.round(PROB_ETAPA[e.id] * 100)} % de probabilidad de cierre` : ""}><b>${money(total)}</b>${e.open ? ` · ${money(Math.round(total * PROB_ETAPA[e.id]))} ponderado` : ""}</p>` : null}
           ${e.id === "perdido" && items.length ? html`<p class="col-sum motivos">${motivosResumen(items)}</p>` : null}
           ${e.id === "ganado" ? html`<p class="col-sum"><button type="button" class="linkbtn" onClick=${() => nav("embudoClientes")}>Ver el embudo de clientes →</button></p>` : null}
           <${ColLista} n=${items.length}>
@@ -2186,7 +2571,7 @@ function EmailPreview({ draft, firma, cfg }) {
 }
 
 function DraftEditor({ id }) {
-  const { drafts, leadsById, clientesById, proyectosById, cobros, solicitudes, mantenciones, api, equipo, me, cfg, toast, sampleState, setSampleState, closeModal, db, openLead, openCliente, canWrite } = useCtx();
+  const { drafts, leadsById, clientesById, proyectosById, cobros, solicitudes, mantenciones, api, equipo, me, yo, cfg, toast, sampleState, setSampleState, closeModal, db, openLead, openCliente, canWrite, tareasPorLead } = useCtx();
   const stored = drafts.find((d) => d.id === id);
   const [d, setD] = useState(() => (stored ? { ...stored } : null));
   const dirty = useRef(false);
@@ -2273,10 +2658,12 @@ function DraftEditor({ id }) {
       }
       await api.addAct({ leadId: lead.id, tipo: d.canal === "whatsapp" ? "whatsapp" : "correo", resumen, borradorId: id });
       const patch = { ultimoContacto: now };
-      if (moveStage && lead.etapa === "nuevo") { patch.etapa = "contactado"; await api.addAct({ leadId: lead.id, tipo: "etapa", de: "nuevo", a: "contactado" }); }
-      if (followUp) patch.proxima = { tipo: "llamar", fecha: addBusinessDays(todayKey(), 3), hora: "", nota: `Seguimiento del ${isMail ? "correo" : "WhatsApp"}: ${clip(isMail ? d.asunto || "" : d.texto || "", 60)}` };
+      if (moveStage && etapaDe(lead) === "nuevo") { patch.etapa = "contactado"; await api.addAct({ leadId: lead.id, tipo: "etapa", de: "nuevo", a: "contactado" }); }
       await api.updateLead(lead.id, patch);
-      toast("Marcado como enviado y registrado en el historial.");
+      const tarea = stored.tareaId ? (tareasPorLead[lead.id] || []).find((x) => x.id === stored.tareaId) : null;
+      if (tarea) await api.updateTarea(tarea.id, { estado: "hecha", hecha: now, hechaPor: me.id || null });
+      if (followUp) await api.createTarea({ leadId: lead.id, tipo: "llamar", titulo: `Seguimiento del ${isMail ? "correo" : "WhatsApp"}`, nota: clip(isMail ? d.asunto || "" : d.texto || "", 140), fecha: addBusinessDays(todayKey(), 3), hora: "", responsable: lead.responsable || yo || null, estado: "pendiente", origen: "borrador" });
+      toast(tarea ? "Enviado: quedó en el historial y su tarea quedó hecha." : "Marcado como enviado y registrado en el historial.");
       closeModal();
     } catch (e) { toast(dbErrorText(e), "bad"); }
   };
@@ -2299,7 +2686,7 @@ function DraftEditor({ id }) {
       ${blocked ? html`<button class="btn primary" disabled>No contactar</button>` : html`<a class="btn primary" href=${gmailLink(correo, d.asunto, cfg)} target="_blank" rel="noopener" onClick=${() => { save(); doCopyMail(); }}><${Icon} name="ext" />Copiar y abrir Gmail</a>`}` : html`
       <button class="btn" onClick=${doCopyWa}><${Icon} name="copy" />Copiar texto</button>
       ${blocked ? html`<button class="btn primary" disabled>No contactar</button>` : waLink(tel, d.texto, cfg) ? html`<a class="btn primary" href=${waLink(tel, d.texto, cfg)} target="_blank" rel="noopener" onClick=${() => save()}><${Icon} name="ext" />Abrir en WhatsApp</a>` : html`<button class="btn primary" disabled>Falta el teléfono</button>`}`}
-    ${!sent && (lead || cli) ? html`<button class="btn" onClick=${() => setSending(true)} disabled=${!canWrite}><${Icon} name="check" />Marcar como enviado</button>` : null}`;
+    ${!sent && (lead || cli) ? html`<button class="btn" onClick=${() => { setFollowUp(!(lead && (tareasPorLead[lead.id] || []).some((x) => x.id !== stored.tareaId))); setSending(true); }} disabled=${!canWrite}><${Icon} name="check" />Marcar como enviado</button>` : null}`;
 
   return html`<${Modal} title=${title} onClose=${() => { save(); closeModal(); }} wide foot=${foot} labelId="draft-title">
     <div class="editor">
@@ -2308,8 +2695,9 @@ function DraftEditor({ id }) {
         ${sent ? html`<div class="note"><${Icon} name="check" /><div>Enviado ${ago(stored.enviado)}. Si lo editas, el historial conserva lo que se registró al enviarlo.</div></div>` : null}
         ${sending ? html`<div class="note" style="display:grid;gap:10px">
           <p><b>¿Ya lo enviaste?</b> Se registra en el historial ${cli ? "del cliente" : "del lead"}.</p>
-          ${lead ? html`<label class="check"><input type="checkbox" checked=${followUp} onChange=${(e) => setFollowUp(e.currentTarget.checked)} />Programar una llamada de seguimiento en 3 días hábiles (${dayLabel(addBusinessDays(todayKey(), 3))})</label>` : null}
-          ${lead && lead.etapa === "nuevo" ? html`<label class="check"><input type="checkbox" checked=${moveStage} onChange=${(e) => setMoveStage(e.currentTarget.checked)} />Mover el lead a «Contactado»</label>` : null}
+          ${lead && stored.tareaId && (tareasPorLead[lead.id] || []).some((x) => x.id === stored.tareaId) ? html`<p class="small">Su tarea queda hecha.</p>` : null}
+          ${lead ? html`<label class="check"><input type="checkbox" checked=${followUp} onChange=${(e) => setFollowUp(e.currentTarget.checked)} />Agregar una tarea: llamar de seguimiento en 3 días hábiles (${dayLabel(addBusinessDays(todayKey(), 3))})</label>` : null}
+          ${lead && etapaDe(lead) === "nuevo" ? html`<label class="check"><input type="checkbox" checked=${moveStage} onChange=${(e) => setMoveStage(e.currentTarget.checked)} />Mover el lead a «Contactado»</label>` : null}
           <div class="actions"><button class="btn primary small" onClick=${markSent}>Sí, registrar envío</button><button class="btn small ghost" onClick=${() => setSending(false)}>Cancelar</button></div>
         </div>` : null}
         ${isMail ? html`
@@ -2372,11 +2760,18 @@ function LeadDrawer({ id, tab: initialTab, onClose }) {
   const { leads, db, api, cfg, toast, changeStage, openModal, canWrite, nameOf, team, drafts, clientesById, openCliente } = useCtx();
   const lead = leads.find((l) => l.id === id);
   const [hist, setHist] = useState([]);
-  const [tab, setTab] = useState(initialTab || "");
+  const [tab, setTab] = useState(initialTab === "tareas" ? "" : initialTab || "");
+  const [listo, setListo] = useState(null);
   const [confirmDel, setConfirmDel] = useState(false);
   const bodyRef = useRef(null);
 
-  useEffect(() => { setTab(initialTab || ""); }, [id, initialTab]);
+  useEffect(() => { setTab(initialTab === "tareas" ? "" : initialTab || ""); setListo(null); }, [id, initialTab]);
+  useEffect(() => { if (listo && bodyRef.current) bodyRef.current.scrollTop = 0; }, [listo]);
+  useEffect(() => {
+    if (initialTab !== "tareas" || !bodyRef.current) return;
+    const el = bodyRef.current.querySelector(".tareas-box");
+    if (el && el.scrollIntoView) el.scrollIntoView({ block: "nearest" });
+  }, [id, initialTab]);
   useEffect(() => {
     if (!db || !id) return undefined;
     return db.collection("actividades").where("leadId", "==", id).onSnapshot((s) => setHist(s.docs.map((x) => ({ id: x.id, ...x.data() })).sort((a, b) => String(b.fecha).localeCompare(String(a.fecha)))), () => {});
@@ -2406,12 +2801,12 @@ function LeadDrawer({ id, tab: initialTab, onClose }) {
     <aside class="drawer" role="dialog" aria-modal="true" aria-labelledby="lead-title">
       <div class="drawer-head">
         <div class="drawer-title">
-          <div style="min-width:0"><h2 id="lead-title">${leadName(lead)}</h2>${leadSub(lead) ? html`<p>${leadSub(lead)}</p>` : null}</div>
+          <div style="min-width:0"><h2 id="lead-title">${leadTitulo(lead)}</h2>${[lead.empresa ? lead.nombre : "", lead.cargo, lead.rubro].filter(Boolean).length ? html`<p>${[lead.empresa ? lead.nombre : "", lead.cargo, lead.rubro].filter(Boolean).join(" · ")}</p>` : null}</div>
           <button class="btn ghost icon" aria-label="Cerrar ficha" onClick=${onClose}><${Icon} name="x" size=${18} /></button>
         </div>
         <div class="drawer-meta">
           <label class="sr" for="lead-etapa">Etapa</label>
-          <select id="lead-etapa" class="select" value=${lead.etapa || "nuevo"} disabled=${!canWrite} onChange=${(e) => changeStage(lead, e.currentTarget.value)}>
+          <select id="lead-etapa" class="select" value=${etapaDe(lead)} disabled=${!canWrite} onChange=${(e) => changeStage(lead, e.currentTarget.value)}>
             ${ETAPAS.map((e) => html`<option value=${e.id}>${e.label}</option>`)}
           </select>
           <${Meter} etapa=${lead.etapa} />
@@ -2428,6 +2823,7 @@ function LeadDrawer({ id, tab: initialTab, onClose }) {
         </div>
       </div>
       <div class="drawer-body" ref=${bodyRef}>
+        ${listo ? html`<${ListoCard} r=${listo} lead=${lead} onClose=${() => setListo(null)} />` : null}
         ${noc ? html`<div class="note bad"><${Icon} name="info" /><div>Pidió no ser contactado${lead.noContactarDesde ? " (" + ago(lead.noContactarDesde) + ")" : ""}. No lo llames ni le escribas; puedes seguir anotando en el historial. La marca se quita en «Datos del lead».</div></div>` : null}
         <section>
           <h3 class="sr">Contacto</h3>
@@ -2449,25 +2845,26 @@ function LeadDrawer({ id, tab: initialTab, onClose }) {
           </div>
         </section>
 
+        <${TareasLead} lead=${lead} abrirNueva=${initialTab === "tareas"} />
+
         ${lead.dolor || lead.comoAyudamos || lead.guion ? html`<section class="pitch">
           <h3>${lead.dolor || lead.comoAyudamos ? "Dolor y cómo ayudamos" : "Preparación"}</h3>
-          ${lead.dolor ? html`<div><span class="eyebrow">Dolor${isOpen(lead) && RUTA.indexOf(lead.etapa) < 2 ? " · por confirmar" : ""}</span><p>${lead.dolor}</p></div>` : null}
+          ${lead.dolor ? html`<div><span class="eyebrow">Dolor${isOpen(lead) && RUTA.indexOf(etapaDe(lead)) < RUTA.indexOf("reunion_concretada") ? " · por confirmar" : ""}</span><p>${lead.dolor}</p></div>` : null}
           ${lead.comoAyudamos ? html`<div><span class="eyebrow">Cómo ayudamos</span><p>${lead.comoAyudamos}</p></div>` : null}
           ${lead.guion ? html`<details class="guion"><summary>Guion y preparación</summary><p>${lead.guion}</p></details>` : null}
         </section>` : null}
 
-        <${NextAction} lead=${lead} save=${save} canWrite=${canWrite} />
-
         <section class="work">
           <div class="work-tabs" role="tablist" aria-label="Registrar">
             ${noc ? null : html`<button type="button" aria-pressed=${tab === "llamada" ? "true" : "false"} onClick=${() => setTab(tab === "llamada" ? "" : "llamada")}><${Icon} name="phone" />Registrar llamada</button>`}
-            ${noc ? null : html`<button type="button" aria-pressed=${tab === "redactar" ? "true" : "false"} onClick=${() => setTab(tab === "redactar" ? "" : "redactar")}><${Icon} name="spark" />Redactar con Claude</button>`}
-            <button type="button" aria-pressed=${tab === "otro" ? "true" : "false"} onClick=${() => setTab(tab === "otro" ? "" : "otro")}><${Icon} name="note" />Otro registro</button>
+            <button type="button" aria-pressed=${tab === "reunion" ? "true" : "false"} onClick=${() => setTab(tab === "reunion" ? "" : "reunion")}><${Icon} name="meet" />Registrar reunión</button>
+            ${noc ? null : html`<button type="button" title="Redactar un correo o un WhatsApp con Claude" aria-pressed=${tab === "redactar" ? "true" : "false"} onClick=${() => setTab(tab === "redactar" ? "" : "redactar")}><${Icon} name="spark" />Redactar</button>`}
+            <button type="button" aria-pressed=${tab === "otro" ? "true" : "false"} onClick=${() => setTab(tab === "otro" ? "" : "otro")}><${Icon} name="note" />Nota</button>
           </div>
-          ${tab === "llamada" && !noc ? html`<${CallLogger} lead=${lead} hist=${hist} onDone=${() => setTab("")} />` : null}
+          ${(tab === "llamada" && !noc) || tab === "reunion" ? html`<${RegistroContacto} key=${tab} modo=${tab} lead=${lead} hist=${hist} onDone=${(r) => { setTab(""); if (r) setListo(r); }} />` : null}
           ${tab === "redactar" && !noc ? html`<${Composer} lead=${lead} hist=${hist} onDone=${() => setTab("")} />` : null}
           ${tab === "otro" ? html`<${OtherLogger} lead=${lead} onDone=${() => setTab("")} />` : null}
-          ${!tab ? html`<div class="work-body"><p class="small muted">Registra cada llamada (con su transcripción, si la tienes), pide a Claude un correo o un WhatsApp, o anota una reunión o un mensaje que mandaste por fuera.</p></div>` : null}
+          ${!tab ? html`<div class="work-body"><p class="small muted">Graba la llamada o la reunión y Claude deja las tareas, la etapa y los borradores listos. También puedes pedirle un correo o un WhatsApp, o anotar algo que mandaste por fuera.</p></div>` : null}
         </section>
 
         ${leadDrafts.length ? html`<section><h3>Borradores</h3><${DraftList} items=${leadDrafts} /></section>` : null}
@@ -2503,36 +2900,6 @@ function LeadDrawer({ id, tab: initialTab, onClose }) {
       </div>
     </aside>
   </div>`;
-}
-
-function NextAction({ lead, save, canWrite }) {
-  const p = lead.proxima || null;
-  const [tipo, setTipo] = useState((p && p.tipo) || "llamar");
-  const [fecha, setFecha] = useState((p && p.fecha) || "");
-  const [nota, setNota] = useState((p && p.nota) || "");
-  useEffect(() => { setTipo((p && p.tipo) || "llamar"); setFecha((p && p.fecha) || ""); setNota((p && p.nota) || ""); }, [lead.id, p && p.tipo, p && p.fecha, p && p.nota]);
-  const t = todayKey();
-  const write = (patch) => {
-    const next = { tipo, fecha, nota, ...patch };
-    if (!next.fecha) return save({ proxima: null });
-    return save({ proxima: { tipo: next.tipo, fecha: next.fecha, hora: "", nota: String(next.nota || "").trim() } });
-  };
-  const quick = [["Hoy", t], ["Mañana", addDays(t, 1)], ["En 3 días hábiles", addBusinessDays(t, 3)], ["En una semana", addDays(t, 7)]];
-  return html`<section class="next-box" aria-label="Próxima acción">
-    <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap">
-      <h3 style="font-size:15px">Próxima acción</h3>
-      ${p && p.fecha ? html`<${NextTag} proxima=${p} />` : html`<span class="tag warn">Sin programar</span>`}
-    </div>
-    <div class="next-row">
-      <select id="n-tipo" class="select" aria-label="Tipo de acción" value=${tipo} disabled=${!canWrite} onChange=${(e) => { setTipo(e.currentTarget.value); if (fecha) write({ tipo: e.currentTarget.value }); }}>${ACCIONES.map(([v, l]) => html`<option value=${v}>${l}</option>`)}</select>
-      <input id="n-fecha" class="input" type="date" aria-label="Fecha" value=${fecha} disabled=${!canWrite} onChange=${(e) => { setFecha(e.currentTarget.value); write({ fecha: e.currentTarget.value }); }} />
-      <input id="n-nota" class="input" placeholder="Qué hay que hacer" value=${nota} disabled=${!canWrite} onInput=${(e) => setNota(e.currentTarget.value)} onBlur=${() => { if (fecha && nota !== ((p && p.nota) || "")) write({}); }} />
-    </div>
-    <div class="actions">
-      ${quick.map(([l, k]) => html`<button class="btn small" disabled=${!canWrite} onClick=${() => { setFecha(k); write({ fecha: k }); }}>${l}</button>`)}
-      ${p && p.fecha ? html`<button class="btn small ghost" disabled=${!canWrite} onClick=${() => { setFecha(""); save({ proxima: null }); }}><${Icon} name="check" />Hecha</button>` : null}
-    </div>
-  </section>`;
 }
 
 function cleanTranscript(raw) {
@@ -2792,140 +3159,217 @@ function AyudaEnVivo({ lead, texto, notas, pista, onUsada }) {
   </div>`;
 }
 
-function CallLogger({ lead, hist, onDone }) {
-  const { api, toast, sampleState, setSampleState, cfg, canWrite, borradoresDeTareas } = useCtx();
-  const llave = "llamada:" + lead.id;
+/* Registrar una llamada o una reunión. Con «Automático» (lo normal), al detener la grabación
+   Claude la analiza y se guarda sola: la actividad, las tareas acordadas (con la reunión si quedó
+   día), la etapa que corresponde y los borradores de los mensajes. Sin «Automático», muestra el
+   análisis para revisar antes de guardar. */
+function RegistroContacto({ lead, hist, onDone, modo }) {
+  const { api, toast, sampleState, setSampleState, cfg, canWrite, redactarTareas, tareasPorLead, yo, me, changeStage } = useCtx();
+  const esReunion = modo === "reunion";
+  const nombreReg = esReunion ? "reunión" : "llamada";
+  const llave = (esReunion ? "reunion:" : "llamada:") + lead.id;
   const [previo] = useState(() => borradorLocal(llave));
-  const [resultado, setResultado] = useState("");
+  const [resultado, setResultado] = useState(esReunion ? "realizada" : "");
   const [linea, setLinea] = useState(() => ls.get("linea", "negocios"));
   const [duracion, setDuracion] = useState(() => (previo && previo.duracion) || "");
-  const [notas, setNotas] = useState(() => (previo && previo.notas) || "");
-  const [trans, setTrans] = useState(() => (previo && previo.trans) || "");
+  const [notas, setNotasE] = useState(() => (previo && previo.notas) || "");
+  const [trans, setTransE] = useState(() => (previo && previo.trans) || "");
+  /* Lo escrito y lo transcrito también van en refs: al detener la grabación, el análisis tiene que
+     leer hasta la última frase, aunque todavía no se haya vuelto a dibujar la pantalla. */
+  const notasRef = useRef(notas);
+  const transRef = useRef(trans);
+  const ponerNotas = (v) => { notasRef.current = v; setNotasE(v); };
+  const ponerTrans = (v) => { transRef.current = v; setTransE(v); };
   const [showTrans, setShowTrans] = useState(() => !!(previo && previo.trans));
   const [an, setAn] = useState(null);
-  const [busy, setBusy] = useState(false);
-  const [saving, setSaving] = useState(false);
+  const [fase, setFase] = useState("");
+  const [auto, setAuto] = useState(() => ls.get("autoGuardar", true));
   const [useStage, setUseStage] = useState(true);
-  const [useNext, setUseNext] = useState(true);
+  const [useReunion, setUseReunion] = useState(true);
   const [useData, setUseData] = useState(true);
+  const [selT, setSelT] = useState({});
+  const [conBorr, setConBorr] = useState(true);
   const [retry, setRetry] = useState(true);
   const [toContactado, setToContactado] = useState(true);
   const [guardarTrans, setGuardarTrans] = useState(() => ls.get("guardarTrans", false));
   const [enVivo, setEnVivo] = useState(() => !!(previo && previo.enVivo));
+  const enVivoRef = useRef(enVivo);
   const [pista, setPista] = useState("");
-  const [borr, setBorr] = useState({});
   const ctl = useRef(null);
   const pistaT = useRef(null);
   useEffect(() => () => clearTimeout(pistaT.current), []);
   useEffect(() => ls.set("linea", linea), [linea]);
   useEffect(() => { if (notas.trim() || trans.trim()) ls.set(llave, { notas, trans, duracion, enVivo, t: Date.now() }); else ls.del(llave); }, [notas, trans, duracion, enVivo]);
-  const cancelar = () => { ls.del(llave); onDone(); };
   useEffect(() => ls.set("guardarTrans", guardarTrans), [guardarTrans]);
-  useEffect(() => () => { if (ctl.current) ctl.current.abort(); }, []);
+  const cancelar = () => { if (ctl.current) ctl.current.abort(); ls.del(llave); onDone(null); };
 
-  const contesto = resultado === "contesto" || resultado === "volver";
+  const contesto = !esReunion && (resultado === "contesto" || resultado === "volver");
   const sinResp = SIN_RESPUESTA.has(resultado);
-  const t = todayKey();
+  const hoy = todayKey();
 
   const readFile = (file) => {
     if (!file) return;
     if (file.size > 2e6) { toast("El archivo es muy grande. Pega solo el texto de la transcripción.", "bad"); return; }
     const r = new FileReader();
-    r.onload = () => { setTrans(cleanTranscript(r.result)); setShowTrans(true); };
+    r.onload = () => { ponerTrans(cleanTranscript(r.result)); setShowTrans(true); };
     r.onerror = () => toast("No se pudo leer el archivo.", "bad");
     r.readAsText(file);
   };
 
-  const analizar = async () => {
-    if (!sampleState.fn) return;
+  const nuevosDatosDe = (a) => (a ? Object.entries(a.datos).filter(([k, v]) => v && !lead[k]) : []);
+  const pedirAnalisis = async (res) => {
     ctl.current = new AbortController();
-    setBusy(true);
-    try {
-      const r = await sampleState.fn.json(promptLlamada({ lead, hist, resultado, notas, transcripcion: trans, enVivo }), { modelTier: "default", cache: false, signal: ctl.current.signal });
-      const s = sanitizeAnalisis(r);
-      setAn(s);
-      setBorr(Object.fromEntries(s.tareas.map((x, i) => [i, x.quien === "zh" && TAREA_MENSAJE.has(x.tipo)])));
-      setUseStage(!!s.etapaSugerida && s.etapaSugerida !== lead.etapa);
-      setUseNext(!!s.proxima);
-      setUseData(Object.values(s.datos).some(Boolean));
-    } catch (e) {
-      if (e && e.code !== "cancelled") { if (CLAUDE_OFF.has(e.code)) setSampleState({ fn: null, off: true }); toast(sampleErrorText(e), "bad"); }
-    } finally { setBusy(false); }
+    return sanitizeAnalisis(await sampleState.fn.json(promptLlamada({ lead, hist, modo, resultado: res, notas: notasRef.current, transcripcion: transRef.current, enVivo: enVivoRef.current }), { modelTier: "default", cache: false, signal: ctl.current.signal }));
+  };
+  const prepararRevision = (s) => {
+    setAn(s);
+    setSelT(Object.fromEntries(s.tareas.map((x, i) => [i, x.quien === "zh"])));
+    setUseStage(!!s.etapaSugerida && s.etapaSugerida !== etapaDe(lead) && (avanza(lead, s.etapaSugerida) || CERRADAS.includes(s.etapaSugerida)));
+    setUseReunion(!!s.reunion);
+    setUseData(nuevosDatosDe(s).length > 0);
+  };
+  const fallaClaude = (e) => {
+    setFase("");
+    if (e && e.code === "cancelled") return;
+    if (e && CLAUDE_OFF.has(e.code)) setSampleState({ fn: null, off: true });
+    toast(`${sampleErrorText(e)} Lo escrito sigue aquí: guárdalo sin análisis o vuelve a intentar.`, "bad");
+  };
+  const analizar = async () => {
+    if (!sampleState.fn || fase) return;
+    setFase("analizando");
+    try { prepararRevision(await pedirAnalisis(esReunion ? "realizada" : resultado)); setFase(""); } catch (e) { fallaClaude(e); }
   };
 
-  const nuevosDatos = an ? Object.entries(an.datos).filter(([k, v]) => v && !lead[k]) : [];
-
-  const guardar = async () => {
-    if (!resultado) { toast("Elige el resultado de la llamada.", "bad"); return; }
-    setSaving(true);
+  const guardar = async ({ res, a, dur, auto: esAuto }) => {
+    if (!res) { toast("Elige el resultado de la llamada.", "bad"); return; }
+    setFase("guardando");
     try {
       const now = nowISO();
-      const transcripcion = trans.length > 180000 ? trans.slice(0, 180000) + "\n[transcripción recortada]" : trans;
-      await api.addAct({ leadId: lead.id, tipo: "llamada", resultado, linea, duracion: Number(duracion) > 0 ? Number(duracion) : null, resumen: notas || (an ? an.resumen : ""), transcripcion: guardarTrans && transcripcion ? transcripcion : null, analisis: an || null });
-      const patch = { ultimoIntento: now, intentos: sinResp ? (lead.intentos || 0) + 1 : 0 };
-      if (!sinResp && resultado !== "equivocado") patch.ultimoContacto = now;
-      let etapa = lead.etapa;
-      if (an && useStage && an.etapaSugerida && an.etapaSugerida !== lead.etapa) etapa = an.etapaSugerida;
-      else if (contesto && lead.etapa === "nuevo" && toContactado) etapa = "contactado";
-      if (etapa !== lead.etapa) { patch.etapa = etapa; await api.addAct({ leadId: lead.id, tipo: "etapa", de: lead.etapa, a: etapa }); }
-      if (an && useNext && an.proxima) patch.proxima = { tipo: an.proxima.tipo, fecha: an.proxima.fecha, hora: "", nota: an.proxima.nota };
-      else if (sinResp && retry) { const n = (lead.intentos || 0) + 1; patch.proxima = { tipo: "llamar", fecha: addBusinessDays(t, 1), hora: "", nota: `Volver a llamar (${n} ${n === 1 ? "intento" : "intentos"} sin respuesta)` }; }
-      if (an && useData) for (const [k, v] of nuevosDatos) patch[k] = k === "correo" ? v.toLowerCase() : v;
+      const nt = notasRef.current.trim();
+      const tx = transRef.current;
+      const transcripcion = tx.length > 180000 ? tx.slice(0, 180000) + "\n[transcripción recortada]" : tx;
+      const sinR = SIN_RESPUESTA.has(res);
+      const actId = await api.addAct({ leadId: lead.id, tipo: esReunion ? "reunion" : "llamada", ...(esReunion ? {} : { resultado: res, linea }), duracion: Number(dur) > 0 ? Number(dur) : null, resumen: nt || (a ? a.resumen : ""), transcripcion: guardarTrans && transcripcion.trim() ? transcripcion : null, analisis: a || null });
+      const de = etapaDe(lead);
+      const patch = {};
+      if (!esReunion) { patch.ultimoIntento = now; patch.intentos = sinR ? (lead.intentos || 0) + 1 : 0; }
+      if (!sinR && res !== "equivocado") patch.ultimoContacto = now;
+      /* La etapa queda en lo más avanzado de lo que pasó; lo automático nunca retrocede. */
+      const sug = a ? a.etapaSugerida : "";
+      const cand = [];
+      if (!esReunion && !sinR && res !== "equivocado" && de === "nuevo" && (esAuto || toContactado)) cand.push("contactado");
+      if (esReunion) cand.push("reunion_concretada");
+      if (a && a.reunion && (esAuto || useReunion)) cand.push("reunion_agendada");
+      if (sug && RUTA.includes(sug) && (esAuto || useStage)) cand.push(sug);
+      let etapa = de;
+      for (const c of cand) if (avanza({ etapa }, c)) etapa = c;
+      if (etapa !== de) { patch.etapa = etapa; await api.addAct({ leadId: lead.id, tipo: "etapa", de, a: etapa }); }
+      if (a && (esAuto || useData)) for (const [k, v] of nuevosDatosDe(a)) patch[k] = k === "correo" ? v.toLowerCase() : v;
+      /* Lo que tocaba queda hecho: la llamada cumple las tareas de llamar que vencían y la reunión,
+         la reunión que estaba agendada. */
+      const pend = tareasPorLead[lead.id] || [];
+      const hechas = esReunion ? pend.filter((x) => tipoTarea(x.tipo) === "reunion").slice(0, 1) : pend.filter((x) => tipoTarea(x.tipo) === "llamar" && x.fecha <= hoy);
+      const vieja = pend.length ? null : tareaDeProxima(lead);
+      if (vieja && vieja.fecha <= hoy && (esReunion ? vieja.tipo === "reunion" : vieja.tipo === "llamar")) { patch.proxima = null; hechas.push(vieja); }
       await api.updateLead(lead.id, patch);
+      for (const x of hechas) if (!x.virtual) await api.updateTarea(x.id, { estado: "hecha", hecha: now, hechaPor: me.id || null, actividadId: actId });
+      /* Tareas nuevas: la reunión si quedó con día, lo que quedó en hacer ZH y, si no contestó, volver a llamar. */
+      const base = { leadId: lead.id, estado: "pendiente", responsable: lead.responsable || yo || null, origen: esReunion ? "reunion" : "llamada", actividadId: actId };
+      const nuevas = [];
+      if (a && a.reunion && (esAuto || useReunion) && !pend.some((x) => tipoTarea(x.tipo) === "reunion" && x.fecha === a.reunion.fecha && !hechas.includes(x))) nuevas.push({ ...base, tipo: "reunion", titulo: a.reunion.titulo || "Reunión", fecha: a.reunion.fecha, hora: a.reunion.hora, duracion: a.reunion.duracion });
+      if (a) a.tareas.forEach((x, i) => { if (x.quien === "zh" && (esAuto || selT[i])) nuevas.push({ ...base, tipo: x.tipo, titulo: x.que, fecha: x.fecha || fechaPorDefecto(x.tipo), hora: x.hora || "" }); });
+      const n = (lead.intentos || 0) + 1;
+      if (!esReunion && sinR && retry && !nuevas.some((x) => x.tipo === "llamar" || x.tipo === "whatsapp")) nuevas.push({ ...base, tipo: "llamar", titulo: `Volver a llamar (${n} ${n === 1 ? "intento" : "intentos"} sin respuesta)`, fecha: addBusinessDays(hoy, 1), hora: "" });
+      const ids = [];
+      for (const x of nuevas) ids.push(await api.createTarea(x));
       ls.del(llave);
-      /* Los correos y WhatsApp acordados quedan redactados en «Borradores»; Claude sigue aunque se cierre la ficha. */
-      const jobs = an && sampleState.fn ? an.tareas.filter((x, i) => borr[i] && x.quien === "zh" && TAREA_MENSAJE.has(x.tipo)) : [];
-      if (jobs.length && borradoresDeTareas) {
-        toast(`Llamada registrada. Claude está redactando ${jobs.length === 1 ? "el borrador" : `los ${jobs.length} borradores`} de lo acordado.`);
-        borradoresDeTareas({ ...lead, ...patch }, jobs, an.tareas.filter((x) => x.quien === "lead"), [{ tipo: "llamada", fecha: now, resultado, resumen: notas || an.resumen, analisis: an }, ...hist]);
-      } else toast("Llamada registrada.");
-      onDone();
-    } catch (e) { toast(dbErrorText(e), "bad"); } finally { setSaving(false); }
+      /* Los correos y WhatsApp acordados quedan redactados, cada uno unido a su tarea. */
+      const jobs = (esAuto || conBorr) && sampleState.fn && !lead.noContactar ? nuevas.map((x, i) => ({ tipo: x.tipo, que: x.titulo, fecha: x.fecha, tareaId: ids[i] })).filter((x) => TAREA_MENSAJE.has(x.tipo)) : [];
+      if (jobs.length && redactarTareas) redactarTareas({ ...lead, ...patch }, jobs, a ? a.tareas.filter((x) => x.quien === "lead") : [], [{ tipo: esReunion ? "reunion" : "llamada", fecha: now, resultado: res, resumen: nt || (a ? a.resumen : ""), analisis: a }, ...hist]);
+      const cierre = sug && CERRADAS.includes(sug) && sug !== etapa ? sug : "";
+      toast(`${esReunion ? "Reunión" : "Llamada"} guardada${nuevas.length ? ` · ${nuevas.length} ${nuevas.length === 1 ? "tarea nueva" : "tareas nuevas"}` : ""}${etapa !== de ? ` · ${etapaLabel(etapa)}` : ""}.`);
+      onDone({ tipo: esReunion ? "reunion" : "llamada", conAnalisis: !!a, de, a: etapa !== de ? etapa : "", nuevas: nuevas.map((x) => ({ titulo: x.titulo, tipo: x.tipo, fecha: x.fecha, hora: x.hora || "" })), hechas: hechas.length, borradores: jobs.length, sugerencia: esAuto ? cierre : "" });
+      if (!esAuto && cierre && useStage) changeStage({ ...lead, ...patch }, cierre);
+    } catch (e) { toast(dbErrorText(e), "bad"); setFase(""); }
   };
 
+  /* «Analizar y guardar»: lo que pasa solo al detener la grabación, o con un clic. */
+  const analizarYGuardar = async (res, dur) => {
+    if (!sampleState.fn || fase) return;
+    setFase("analizando");
+    let s;
+    try { s = await pedirAnalisis(res); } catch (e) { fallaClaude(e); return; }
+    prepararRevision(s);
+    await guardar({ res, a: s, dur, auto: true });
+  };
+  const alDetener = (segundos) => {
+    const dur = duracion || (segundos >= 30 ? String(Math.max(1, Math.round(segundos / 60))) : "");
+    if (dur !== duracion) setDuracion(dur);
+    if (!auto || !sampleState.fn || !canWrite || fase || transRef.current.trim().length < 80) return;
+    const res = esReunion ? "realizada" : resultado || "contesto";
+    if (res !== resultado) setResultado(res);
+    analizarYGuardar(res, dur);
+  };
+
+  const hayTexto = !!(notas.trim() || trans.trim());
+  const ocupado = !!fase;
+  const puedeClaude = !!sampleState.fn && hayTexto;
+  const nuevosDatos = nuevosDatosDe(an);
+  const guardarManual = () => guardar({ res: esReunion ? "realizada" : resultado, a: an, dur: duracion, auto: false });
+  const analizarYGuardarClick = () => { const res = esReunion ? "realizada" : resultado; if (!res) { toast("Elige el resultado de la llamada.", "bad"); return; } analizarYGuardar(res, duracion); };
+
   return html`<div class="work-body">
-    ${lead.telefono ? html`<div class="cline" style="background:var(--surface-2)">
+    ${!esReunion && lead.telefono ? html`<div class="cline" style="background:var(--surface-2)">
       <span class="value" style="font-size:18px">${fmtPhone(lead.telefono)}</span>
       <a class="btn small" href=${"tel:" + lead.telefono}><${Icon} name="phone" />Llamar</a>
       <span class="small muted" style="flex-basis:100%">${cfg.whatsappNegocios ? `Llama desde la línea de negocios (${fmtPhone(normPhone(cfg.whatsappNegocios))}).` : "Llama desde la línea de negocios."} Si el botón no abre el teléfono, marca el número a mano.</span>
     </div>` : null}
-    ${previo ? html`<div class="note"><${Icon} name="info" /><div>Recuperé lo que quedó sin guardar de esta llamada.</div></div>` : null}
+    ${esReunion ? html`<p class="small muted">Si la reunión es por Meet en este computador, toca «Transcribir en vivo» y deja esta pestaña abierta. También puedes pegar tus notas o la transcripción de Meet.</p>` : null}
+    ${previo ? html`<div class="note"><${Icon} name="info" /><div>Recuperé lo que quedó sin guardar de esta ${nombreReg}.</div></div>` : null}
+    ${sampleState.fn ? html`<label class="switch"><input type="checkbox" checked=${auto} onChange=${(e) => { const v = e.currentTarget.checked; setAuto(v); ls.set("autoGuardar", v); }} />Automático: al detener la grabación, Claude analiza, crea las tareas y guarda</label>` : null}
     <${LiveTranscriber} onStart=${() => setShowTrans(true)} onText=${(x) => {
       setEnVivo(true);
-      setTrans((t) => (t.trim() ? t.replace(/\s+$/, "") + "\n" : "") + x);
-      const p = pistaObjecion(x);
-      if (p) { setPista(p); clearTimeout(pistaT.current); pistaT.current = setTimeout(() => setPista(""), 45000); }
-    }} onStop=${(segundos) => { if (segundos >= 30) setDuracion((d) => d || String(Math.max(1, Math.round(segundos / 60)))); }}>
-      <${AyudaEnVivo} lead=${lead} texto=${trans} notas=${notas} pista=${pista} onUsada=${() => setPista("")} />
+      enVivoRef.current = true;
+      const t0 = transRef.current;
+      ponerTrans((t0.trim() ? t0.replace(/\s+$/, "") + "\n" : "") + x);
+      if (!esReunion) {
+        const p = pistaObjecion(x);
+        if (p) { setPista(p); clearTimeout(pistaT.current); pistaT.current = setTimeout(() => setPista(""), 45000); }
+      }
+    }} onStop=${alDetener}>
+      ${esReunion ? null : html`<${AyudaEnVivo} lead=${lead} texto=${trans} notas=${notas} pista=${pista} onUsada=${() => setPista("")} />`}
     </${LiveTranscriber}>
-    <div class="field"><span>Resultado</span><${Chips} label="Resultado" value=${resultado} onChange=${setResultado} options=${RESULTADOS} /></div>
+    ${fase ? html`<div class="progreso" role="status"><${Thinking} text=${fase === "analizando" ? `Claude está leyendo la ${nombreReg} y armando las tareas…` : "Guardando…"} />${fase === "analizando" ? html`<button class="btn small ghost" onClick=${() => ctl.current && ctl.current.abort()}>Detener</button>` : null}</div>` : null}
+    ${esReunion ? null : html`<div class="field"><span>Resultado</span><${Chips} label="Resultado" value=${resultado} onChange=${setResultado} options=${RESULTADOS} /></div>`}
     <div class="grid-2">
-      <div class="field"><span>Línea</span><${Seg} label="Línea" value=${linea} onChange=${setLinea} options=${[["negocios", "Negocios"], ["personal", "Personal"]]} /></div>
+      ${esReunion ? null : html`<div class="field"><span>Línea</span><${Seg} label="Línea" value=${linea} onChange=${setLinea} options=${[["negocios", "Negocios"], ["personal", "Personal"]]} /></div>`}
       <label class="field" for="c-dur"><span>Duración (minutos)</span><input id="c-dur" class="input mono" inputmode="numeric" value=${duracion} onInput=${(e) => setDuracion(e.currentTarget.value.replace(/[^\d]/g, ""))} /></label>
     </div>
-    <label class="field" for="c-notas"><span>Notas de la llamada</span><textarea id="c-notas" class="textarea" rows="4" placeholder="Qué se habló, qué necesita, qué quedamos en hacer" value=${notas} onInput=${(e) => setNotas(e.currentTarget.value)}></textarea>
-      <small class="hint">Al cortar, en el teléfono, toca el micrófono del teclado y dicta lo que recuerdes, sin orden. «Analizar con Claude» lo ordena.</small></label>
-    ${showTrans ? html`<label class="field" for="c-trans"><span>Transcripción</span><textarea id="c-trans" class="textarea" rows="7" placeholder="Pega aquí la transcripción de la llamada" value=${trans} onInput=${(e) => setTrans(e.currentTarget.value)}></textarea>
+    <label class="field" for="c-notas"><span>Notas de la ${nombreReg}</span><textarea id="c-notas" class="textarea" rows="4" placeholder=${esReunion ? "Qué se habló, qué necesitan, qué quedamos en hacer" : "Qué se habló, qué necesita, qué quedamos en hacer"} value=${notas} onInput=${(e) => ponerNotas(e.currentTarget.value)}></textarea>
+      <small class="hint">${esReunion ? "Con notas sueltas basta: Claude las ordena y saca las tareas." : "Al cortar, en el teléfono, toca el micrófono del teclado y dicta lo que recuerdes, sin orden. Claude lo ordena y saca las tareas."}</small></label>
+    ${showTrans ? html`<label class="field" for="c-trans"><span>Transcripción</span><textarea id="c-trans" class="textarea" rows="7" placeholder=${"Pega aquí la transcripción de la " + nombreReg} value=${trans} onInput=${(e) => ponerTrans(e.currentTarget.value)}></textarea>
       <small class="hint">Pégala desde la herramienta que uses o sube un .txt, .vtt o .srt. Claude la usa para el análisis.</small></label>
       <label class="check" for="c-guardar-trans"><input type="checkbox" id="c-guardar-trans" checked=${guardarTrans} onChange=${(e) => setGuardarTrans(e.currentTarget.checked)} />Guardar también la transcripción completa. Si no, solo quedan tus notas y el análisis de Claude.</label>` : null}
     <div class="actions">
       ${!showTrans ? html`<button class="btn small" onClick=${() => setShowTrans(true)}><${Icon} name="doc" />Agregar transcripción</button>` : null}
       <label class="btn small"><${Icon} name="upload" />Subir archivo<input type="file" accept=".txt,.vtt,.srt,.md,text/plain" class="sr" onChange=${(e) => readFile(e.currentTarget.files && e.currentTarget.files[0])} /></label>
-      ${sampleState.fn ? (busy ? html`<${Thinking} text="Claude está analizando la llamada…" /><button class="btn small ghost" onClick=${() => ctl.current && ctl.current.abort()}>Detener</button>` : html`<button class="btn small claude" onClick=${analizar} disabled=${!(notas.trim() || trans.trim())}><${Icon} name="spark" />Analizar con Claude</button>`) : null}
     </div>
-    ${an ? html`<${AnalysisView} a=${an} />
+    ${an && !ocupado ? html`<${AnalysisView} a=${an} />
       <div class="suggest">
-        <p class="eyebrow">Aplicar al guardar</p>
-        ${an.etapaSugerida && an.etapaSugerida !== lead.etapa ? html`<label class="check"><input type="checkbox" checked=${useStage} onChange=${(e) => setUseStage(e.currentTarget.checked)} />Mover a «${etapaLabel(an.etapaSugerida)}»</label>` : null}
-        ${an.proxima ? html`<label class="check"><input type="checkbox" checked=${useNext} onChange=${(e) => setUseNext(e.currentTarget.checked)} />Próxima acción: ${accionLabel(an.proxima.tipo)} · ${dayLabel(an.proxima.fecha)}${an.proxima.nota ? " · " + an.proxima.nota : ""}</label>` : null}
+        <p class="eyebrow">Al guardar</p>
+        ${an.reunion ? html`<label class="check"><input type="checkbox" checked=${useReunion} onChange=${(e) => setUseReunion(e.currentTarget.checked)} />Agendar la reunión: ${cuandoTexto(an.reunion.fecha)}${an.reunion.hora ? " a las " + an.reunion.hora : ""}${avanza(lead, "reunion_agendada") ? " (pasa a «Reunión agendada»)" : ""}</label>` : null}
+        ${an.etapaSugerida && an.etapaSugerida !== etapaDe(lead) ? html`<label class="check"><input type="checkbox" checked=${useStage} onChange=${(e) => setUseStage(e.currentTarget.checked)} />Mover a «${etapaLabel(an.etapaSugerida)}»</label>` : null}
+        ${an.tareas.map((x, i) => (x.quien === "zh" ? html`<label class="check" key=${"t" + i}><input type="checkbox" checked=${!!selT[i]} onChange=${(e) => { const v = e.currentTarget.checked; setSelT((s) => ({ ...s, [i]: v })); }} />Tarea: ${x.que} · ${cuandoTexto(x.fecha || fechaPorDefecto(x.tipo))}${x.hora ? " a las " + x.hora : ""}</label>` : null))}
+        ${sampleState.fn && an.tareas.some((x, i) => x.quien === "zh" && selT[i] && TAREA_MENSAJE.has(x.tipo)) ? html`<label class="check"><input type="checkbox" checked=${conBorr} onChange=${(e) => setConBorr(e.currentTarget.checked)} />Que Claude deje redactados los correos y WhatsApp de esas tareas</label>` : null}
         ${nuevosDatos.length ? html`<label class="check"><input type="checkbox" checked=${useData} onChange=${(e) => setUseData(e.currentTarget.checked)} />Completar datos: ${nuevosDatos.map(([k, v]) => `${k} «${v}»`).join(", ")}</label>` : null}
-        ${sampleState.fn ? an.tareas.map((x, i) => (x.quien === "zh" && TAREA_MENSAJE.has(x.tipo) ? html`<label class="check" key=${"tarea" + i}><input type="checkbox" checked=${!!borr[i]} onChange=${(e) => { const v = e.currentTarget.checked; setBorr((b) => ({ ...b, [i]: v })); }} />Dejar redactado el ${x.tipo === "whatsapp" ? "WhatsApp" : "correo"}: ${x.que}</label>` : null)) : null}
         ${an.interes && an.interes !== "sin_datos" ? html`<p class="small muted">Interés estimado: ${an.interes}</p>` : null}
       </div>` : null}
-    ${!an && contesto && lead.etapa === "nuevo" ? html`<label class="check"><input type="checkbox" checked=${toContactado} onChange=${(e) => setToContactado(e.currentTarget.checked)} />Mover a «Contactado»</label>` : null}
-    ${!(an && an.proxima) && sinResp ? html`<label class="check"><input type="checkbox" checked=${retry} onChange=${(e) => setRetry(e.currentTarget.checked)} />Volver a llamar ${cuandoTexto(addBusinessDays(t, 1))}</label>` : null}
+    ${!an && contesto && etapaDe(lead) === "nuevo" ? html`<label class="check"><input type="checkbox" checked=${toContactado} onChange=${(e) => setToContactado(e.currentTarget.checked)} />Mover a «Contactado»</label>` : null}
+    ${!esReunion && !an && sinResp ? html`<label class="check"><input type="checkbox" checked=${retry} onChange=${(e) => setRetry(e.currentTarget.checked)} />Volver a llamar ${cuandoTexto(addBusinessDays(hoy, 1))}</label>` : null}
     <div class="actions">
-      <button class="btn primary" onClick=${guardar} disabled=${saving || !canWrite}>${saving ? "Guardando…" : "Guardar llamada"}</button>
+      ${an ? html`<button class="btn primary" onClick=${guardarManual} disabled=${ocupado || !canWrite}>Guardar ${nombreReg}</button>`
+        : puedeClaude && auto ? html`<button class="btn primary" onClick=${analizarYGuardarClick} disabled=${ocupado || !canWrite}><${Icon} name="spark" />Analizar y guardar</button><button class="btn ghost" onClick=${guardarManual} disabled=${ocupado || !canWrite}>Guardar sin analizar</button>`
+        : html`${puedeClaude ? html`<button class="btn claude" onClick=${analizar} disabled=${ocupado}><${Icon} name="spark" />Analizar con Claude</button>` : null}<button class="btn primary" onClick=${guardarManual} disabled=${ocupado || !canWrite}>Guardar ${nombreReg}</button>`}
       <button class="btn ghost" onClick=${cancelar}>Cancelar</button>
     </div>
   </div>`;
@@ -2933,9 +3377,9 @@ function CallLogger({ lead, hist, onDone }) {
 
 function Composer({ lead, hist, onDone }) {
   const { api, toast, sampleState, setSampleState, cfg, me, equipo, openDraft, canWrite } = useCtx();
-  const def = { nuevo: "primer_contacto", contactado: "seguimiento", reunion: "recordatorio", propuesta: "seguimiento", negociacion: "seguimiento", pausa: "reactivar", perdido: "reactivar", ganado: "gracias" };
+  const def = { nuevo: "primer_contacto", contactado: "seguimiento", reunion_agendada: "confirmar", reunion_concretada: "gracias", propuesta: "seguimiento", negociacion: "seguimiento", pausa: "reactivar", perdido: "reactivar", ganado: "gracias" };
   const [canal, setCanal] = useState(lead.telefono ? "whatsapp" : "correo");
-  const [objetivo, setObjetivo] = useState(def[lead.etapa] || "primer_contacto");
+  const [objetivo, setObjetivo] = useState(def[etapaDe(lead)] || "primer_contacto");
   const [trato, setTrato] = useState(lead.trato || "tu");
   const [plantilla, setPlantilla] = useState("carta");
   const [instr, setInstr] = useState("");
@@ -2988,29 +3432,32 @@ function Composer({ lead, hist, onDone }) {
 }
 
 function OtherLogger({ lead, onDone }) {
-  const { api, toast, canWrite } = useCtx();
+  const { api, toast, canWrite, tareasPorLead, me } = useCtx();
   const [tipo, setTipo] = useState("nota");
   const [texto, setTexto] = useState("");
-  const sumar = (x) => setTexto((t) => (t.trim() ? t.replace(/\s+$/, "") + "\n" : "") + x);
   const [saving, setSaving] = useState(false);
   const guardar = async () => {
     if (!texto.trim()) { toast("Escribe qué pasó.", "bad"); return; }
     setSaving(true);
     try {
-      await api.addAct({ leadId: lead.id, tipo, resumen: texto.trim() });
+      const actId = await api.addAct({ leadId: lead.id, tipo, resumen: texto.trim() });
+      let hechas = 0;
       if (CONTACTOS.has(tipo)) {
         const patch = { ultimoContacto: nowISO() };
-        if (lead.etapa === "nuevo") { patch.etapa = "contactado"; await api.addAct({ leadId: lead.id, tipo: "etapa", de: "nuevo", a: "contactado" }); }
+        if (etapaDe(lead) === "nuevo") { patch.etapa = "contactado"; await api.addAct({ leadId: lead.id, tipo: "etapa", de: "nuevo", a: "contactado" }); }
         await api.updateLead(lead.id, patch);
+        /* Un mensaje que se mandó por fuera cumple la tarea de ese mensaje. */
+        for (const x of tareasPorLead[lead.id] || []) {
+          if (tipoTarea(x.tipo) === tipo && x.fecha <= todayKey()) { await api.updateTarea(x.id, { estado: "hecha", hecha: nowISO(), hechaPor: me.id || null, actividadId: actId }); hechas += 1; }
+        }
       }
-      toast("Registrado en el historial.");
+      toast(hechas ? `Registrado. ${hechas === 1 ? "La tarea quedó hecha" : `Quedaron hechas ${hechas} tareas`}.` : "Registrado en el historial.");
       onDone();
-    } catch (e) { toast(dbErrorText(e), "bad"); } finally { setSaving(false); }
+    } catch (e) { toast(dbErrorText(e), "bad"); setSaving(false); }
   };
   return html`<div class="work-body">
-    <div class="field"><span>Tipo</span><${Chips} label="Tipo" value=${tipo} onChange=${setTipo} options=${REGISTROS} /></div>
-    ${tipo === "reunion" ? html`<${LiveTranscriber} onText=${sumar} />` : null}
-    <label class="field" for="o-texto"><span>${tipo === "nota" ? "Nota" : "Qué pasó"}</span><textarea id="o-texto" class="textarea" rows="4" value=${texto} onInput=${(e) => setTexto(e.currentTarget.value)} placeholder=${tipo === "whatsapp" ? "Pega el mensaje que mandaste o lo que respondió" : tipo === "reunion" ? "Resumen de la reunión y acuerdos" : ""}></textarea></label>
+    <div class="field"><span>Qué registras</span><${Chips} label="Tipo" value=${tipo} onChange=${setTipo} options=${REGISTROS} /></div>
+    <label class="field" for="o-texto"><span>${tipo === "nota" ? "Nota" : "Qué mandaste o qué respondió"}</span><textarea id="o-texto" class="textarea" rows="4" value=${texto} onInput=${(e) => setTexto(e.currentTarget.value)} placeholder=${tipo === "nota" ? "" : "Pega el mensaje que mandaste o lo que respondió"}></textarea></label>
     <div class="actions"><button class="btn primary" onClick=${guardar} disabled=${saving || !canWrite}>Guardar</button><button class="btn ghost" onClick=${onDone}>Cancelar</button></div>
   </div>`;
 }
@@ -4257,7 +4704,7 @@ function MantencionModal({ id, clienteId: cid0 }) {
 /* ===================================================================== altas: ganado, cliente, proyecto */
 
 function WonModal({ lead }) {
-  const { api, clientes, proyectos, closeModal, toast, cfg, me, yo, openCliente, canWrite } = useCtx();
+  const { api, clientes, proyectos, closeModal, toast, cfg, me, yo, openCliente, canWrite, cerrarTareasDe } = useCtx();
   const t = todayKey();
   const [modo, setModo] = useState(lead.clienteId ? "existente" : "nuevo");
   const [existente, setExistente] = useState(lead.clienteId || (clientes[0] || {}).id || "");
@@ -4305,8 +4752,9 @@ function WonModal({ lead }) {
         if (conMant && mm) await api.createMantencion({ clienteId: cid, proyectoId: null, plan: "Mantención técnica", monto: mm, incluye: MANT_INCLUYE, inicio: entrega || inicio || t, diaCobro: 1, estado: "activa", fin: "", notas: "" });
         await api.addAct({ clienteId: cid, tipo: "cliente", resumen: `Cliente desde el lead ${leadName(lead)}.` });
       }
+      await cerrarTareasDe(lead.id);
       await api.updateLead(lead.id, { etapa: "ganado", proxima: null, ...(cid ? { clienteId: cid } : {}) });
-      await api.addAct({ leadId: lead.id, tipo: "etapa", de: lead.etapa || "nuevo", a: "ganado" });
+      await api.addAct({ leadId: lead.id, tipo: "etapa", de: etapaDe(lead), a: "ganado" });
       toast(cid ? "¡Ganado! Quedó como cliente con su proyecto." : `${leadName(lead)}: Ganado.`);
       closeModal();
       if (cid) openCliente(cid);
@@ -4455,6 +4903,7 @@ function findDup(leads, l) {
   return leads.find((x) => (tel && isPhone(tel) && x.telefono === tel) || (mail && String(x.correo || "").toLowerCase() === mail)) || null;
 }
 
+const PRIMERA_TAREA = { llamar: "Primera llamada", whatsapp: "Primer WhatsApp", correo: "Primer correo", agendar: "Agendar la reunión", propuesta: "Enviar propuesta", otro: "Primera tarea" };
 function NewLeadModal() {
   const { api, leads, closeModal, openLead, toast, yo } = useCtx();
   const t = todayKey();
@@ -4470,8 +4919,9 @@ function NewLeadModal() {
     try {
       const id = await api.createLead({
         nombre: f.nombre, empresa: f.empresa, cargo: f.cargo, telefono: tel, correo: f.correo.trim().toLowerCase(), origen: f.origen, necesidad: f.necesidad, notas: f.notas,
-        prioridad: f.prioridad, responsable: f.responsable || null, proxima: f.fecha ? { tipo: f.accion, fecha: f.fecha, hora: "", nota: "" } : null,
+        prioridad: f.prioridad, responsable: f.responsable || null, proxima: null,
       });
+      if (isKey(f.fecha)) await api.createTarea({ leadId: id, tipo: f.accion, titulo: PRIMERA_TAREA[f.accion] || accionLabel(f.accion), fecha: f.fecha, hora: "", responsable: f.responsable || null, estado: "pendiente", origen: "manual" });
       if (f.responsable) ls.set("respUltimo", f.responsable);
       toast("Lead agregado.");
       closeModal();
@@ -4488,7 +4938,7 @@ function NewLeadModal() {
         <label class="field" for="nl-tel"><span>Teléfono</span><input id="nl-tel" class="input mono" type="tel" value=${f.telefono} onInput=${set("telefono")} placeholder="9 1234 5678" />${f.telefono ? html`<small class="hint">${isPhone(tel) ? "Se guarda como " + fmtPhone(tel) : "Revisa el número: no parece un teléfono chileno."}</small>` : null}</label>
         <label class="field" for="nl-correo"><span>Correo</span><input id="nl-correo" class="input" type="email" value=${f.correo} onInput=${set("correo")} /></label>
         <label class="field span-2" for="nl-nec"><span>Qué necesita</span><textarea id="nl-nec" class="textarea" rows="2" value=${f.necesidad} onInput=${set("necesidad")}></textarea></label>
-        <label class="field" for="nl-accion"><span>Primera acción</span><select id="nl-accion" class="select" value=${f.accion} onChange=${set("accion")}>${ACCIONES.map(([v, l]) => html`<option value=${v}>${l}</option>`)}</select></label>
+        <label class="field" for="nl-accion"><span>Primera tarea</span><select id="nl-accion" class="select" value=${f.accion} onChange=${set("accion")}>${TIPOS_EDITABLES.map(([v, l]) => html`<option value=${v}>${l}</option>`)}</select></label>
         <label class="field" for="nl-fecha"><span>Fecha</span><input id="nl-fecha" class="input" type="date" value=${f.fecha} onInput=${set("fecha")} /></label>
         <label class="field" for="nl-prio"><span>Prioridad</span><select id="nl-prio" class="select" value=${f.prioridad} onChange=${set("prioridad")}>${PRIORIDADES.map(([v, l]) => html`<option value=${v}>${l}</option>`)}</select></label>
         <label class="field" for="nl-resp"><span>Responsable</span><select id="nl-resp" class="select" value=${f.responsable} onChange=${set("responsable")}><option value="">Sin responsable</option>${RESPONSABLES.map(([v, l]) => html`<option value=${v}>${l}</option>`)}</select></label>
@@ -4628,7 +5078,7 @@ function ImportModal() {
 }
 
 function LostModal({ lead }) {
-  const { api, closeModal, toast } = useCtx();
+  const { api, closeModal, toast, cerrarTareasDe } = useCtx();
   const ya = lead.etapa === "perdido";
   const antes = lead.motivoPerdida && !MOTIVOS.includes(lead.motivoPerdida) ? lead.motivoPerdida : "";
   const [motivo, setMotivo] = useState(MOTIVOS.includes(lead.motivoPerdida) ? lead.motivoPerdida : "");
@@ -4643,10 +5093,11 @@ function LostModal({ lead }) {
         await api.updateLead(lead.id, { motivoPerdida: motivo, motivoDetalle: d });
         await api.addAct({ leadId: lead.id, tipo: "nota", resumen: `Motivo de pérdida: ${motivo}${d ? ". " + d : ""}` });
       } else {
+        await cerrarTareasDe(lead.id);
         await api.updateLead(lead.id, { etapa: "perdido", motivoPerdida: motivo, motivoDetalle: d, proxima: null });
-        await api.addAct({ leadId: lead.id, tipo: "etapa", de: lead.etapa || "nuevo", a: "perdido", resumen: d ? `${motivo}: ${d}` : motivo });
+        await api.addAct({ leadId: lead.id, tipo: "etapa", de: etapaDe(lead), a: "perdido", resumen: d ? `${motivo}: ${d}` : motivo });
       }
-      toast(`${leadName(lead)}: perdido · ${motivo}.`);
+      toast(`${leadTitulo(lead)}: perdido · ${motivo}.`);
       closeModal();
     } catch (e) { toast(dbErrorText(e), "bad"); setSaving(false); }
   };
@@ -4660,10 +5111,114 @@ function LostModal({ lead }) {
   </${Modal}>`;
 }
 
+/* Agendar (o cambiar) la reunión: queda como tarea con día y hora, el lead pasa a «Reunión
+   agendada» y, si se pide, Claude deja redactada la confirmación. */
+function AgendarModal({ lead: lead0, tarea, desdeEtapa }) {
+  const { closeModal, agendarReunion, tareasPorLead, sampleState, cfg, canWrite, moverEtapa, toast, leadsById } = useCtx();
+  const lead = leadsById[lead0.id] || lead0;
+  const [existente] = useState(() => (tareasPorLead[lead.id] || []).find((x) => tipoTarea(x.tipo) === "reunion") || null);
+  const hoy = todayKey();
+  const [fecha, setFecha] = useState(existente ? existente.fecha : addBusinessDays(hoy, 1));
+  const [hora, setHora] = useState(existente && isHora(existente.hora) ? existente.hora : "11:00");
+  const [duracion, setDuracion] = useState(String((existente && existente.duracion) || DURACION_REUNION));
+  const [titulo, setTitulo] = useState(existente ? existente.titulo || "Reunión" : "Reunión de descubrimiento");
+  const [nota, setNota] = useState(existente ? existente.nota || "" : (tarea && tarea.nota) || "");
+  const canal = lead.noContactar ? "" : lead.telefono ? "whatsapp" : lead.correo ? "correo" : "";
+  const [confirmar, setConfirmar] = useState(sampleState.fn && canal && !existente ? canal : "");
+  const [saving, setSaving] = useState(false);
+  const dur = Number(duracion) || DURACION_REUNION;
+  const gcal = gcalLink({ titulo: `${titulo.trim() || "Reunión"} · ${leadTitulo(lead)} y ZH Development`, fecha, hora: isHora(hora) ? hora : "", duracion: dur, detalle: "Reunión con ZH Development.\nzhdevelopment.cl", invitados: lead.correo || "" }, cfg);
+  const quick = [["Hoy", hoy], ["Mañana", addDays(hoy, 1)], ["Pasado mañana", addDays(hoy, 2)], ["En una semana", addDays(hoy, 7)]];
+  const guardar = async () => {
+    if (!isKey(fecha)) { toast("Elige el día de la reunión.", "bad"); return; }
+    setSaving(true);
+    const ok = await agendarReunion(lead, { fecha, hora: isHora(hora) ? hora : "", duracion: dur, titulo: titulo.trim() || "Reunión", nota: nota.trim(), confirmar, reunionId: existente ? existente.id : "" }, tarea || null);
+    if (ok) closeModal(); else setSaving(false);
+  };
+  const sinFecha = async () => {
+    setSaving(true);
+    try { await moverEtapa(lead, "reunion_agendada"); toast(`${leadTitulo(lead)}: Reunión agendada, sin día en el CRM.`); closeModal(); } catch (e) { toast(dbErrorText(e), "bad"); setSaving(false); }
+  };
+  const foot = html`<button class="btn ghost" onClick=${closeModal}>Cancelar</button><span style="flex:1"></span>
+    ${desdeEtapa ? html`<button class="btn" onClick=${sinFecha} disabled=${saving || !canWrite}>Mover sin día</button>` : null}
+    <button class="btn primary" onClick=${guardar} disabled=${saving || !canWrite}>${saving ? "Guardando…" : existente ? "Guardar cambios" : "Agendar reunión"}</button>`;
+  return html`<${Modal} title=${(existente ? "Cambiar la reunión con " : "Agendar reunión con ") + leadTitulo(lead)} onClose=${closeModal} foot=${foot} labelId="agendar-title">
+    <div class="modal-body">
+      <p class="small muted">${existente ? "Cambia el día o la hora: la tarea de la reunión se actualiza." : avanza(lead, "reunion_agendada") ? "Queda como tarea con día y hora, y el lead pasa a «Reunión agendada». Después de la hora, el CRM pregunta si se hizo." : "Queda como tarea con día y hora. Después de la hora, el CRM pregunta si se hizo."}</p>
+      <div class="grid-3">
+        <label class="field" for="ag-fecha"><span>Día</span><input id="ag-fecha" class="input" type="date" value=${fecha} onInput=${(e) => setFecha(e.currentTarget.value)} /></label>
+        <label class="field" for="ag-hora"><span>Hora</span><input id="ag-hora" class="input" type="time" value=${hora} onInput=${(e) => setHora(e.currentTarget.value)} /></label>
+        <div class="field"><span>Duración</span><${Seg} label="Duración" value=${String(duracion)} onChange=${setDuracion} options=${[["30", "30 min"], ["45", "45"], ["60", "1 h"]]} /></div>
+      </div>
+      <div class="actions">${quick.map(([l, k]) => html`<button type="button" class=${cx("btn small", fecha === k && "on")} onClick=${() => setFecha(k)}>${l}</button>`)}</div>
+      <label class="field" for="ag-titulo"><span>Para qué es</span><input id="ag-titulo" class="input" value=${titulo} onInput=${(e) => setTitulo(e.currentTarget.value)} /></label>
+      <label class="field" for="ag-nota"><span>Notas internas para la reunión (opcional)</span><textarea id="ag-nota" class="textarea" rows="2" value=${nota} onInput=${(e) => setNota(e.currentTarget.value)}></textarea><small class="hint">Quedan en la tarea; no van en la invitación.</small></label>
+      ${sampleState.fn && canal && !existente ? html`<div class="field"><span>Confirmación al lead</span><${Seg} label="Confirmación" value=${confirmar} onChange=${setConfirmar} options=${[["", "No"], ...(lead.telefono ? [["whatsapp", "WhatsApp", "chat"]] : []), ...(lead.correo ? [["correo", "Correo", "mail"]] : [])]} />
+        <small class="hint">${confirmar ? `Claude deja redactada la confirmación por ${confirmar === "whatsapp" ? "WhatsApp" : "correo"} en «Borradores», con una tarea para enviarla hoy.` : "Sin mensaje de confirmación."}</small></div>` : null}
+      ${gcal ? html`<div class="cal-box"><a class="btn small" href=${gcal} target="_blank" rel="noopener"><${Icon} name="cal" />Agregar a Google Calendar</a>
+        <small class="hint">Abre el evento ya lleno${lead.correo ? ", con " + lead.correo + " como invitado" : ""}${cfg.gmailCuenta ? ", en la cuenta " + cfg.gmailCuenta : ""}. Al guardarlo, Google manda la invitación: revisa que lleve la videollamada de Meet.</small></div>` : null}
+    </div>
+  </${Modal}>`;
+}
+
+/* Pasada la hora de la reunión: ¿se hizo? «Sí» la da por hecha, pasa el lead a «Reunión
+   concretada» y abre «Registrar reunión» para que Claude arme las tareas que salieron. */
+function ReunionHechaModal({ lead: lead0, tarea }) {
+  const { closeModal, api, toast, marcarTarea, moverEtapa, openLead, yo, canWrite, leadsById } = useCtx();
+  const lead = leadsById[lead0.id] || lead0;
+  const [modo, setModo] = useState("si");
+  const [fecha, setFecha] = useState(addBusinessDays(todayKey(), 1));
+  const [hora, setHora] = useState(isHora(tarea.hora) ? tarea.hora : "11:00");
+  const [saving, setSaving] = useState(false);
+  const cuando = `${cuandoTexto(tarea.fecha)}${isHora(tarea.hora) ? " a las " + tarea.hora : ""}`;
+  const guardar = async () => {
+    setSaving(true);
+    try {
+      if (modo === "si") {
+        await marcarTarea(tarea, "hecha");
+        if (avanza(lead, "reunion_concretada")) await moverEtapa(lead, "reunion_concretada", { resumen: tarea.titulo || "" });
+        closeModal();
+        openLead(lead.id, "reunion");
+        toast(`${leadTitulo(lead)}: Reunión concretada. Cuenta lo que se habló y Claude arma las tareas.`);
+        return;
+      }
+      if (modo === "reagendar") {
+        if (!isKey(fecha)) { toast("Elige el día nuevo.", "bad"); setSaving(false); return; }
+        const datos = { fecha, hora: isHora(hora) ? hora : "" };
+        if (tarea.virtual) { await api.createTarea({ leadId: lead.id, tipo: "reunion", titulo: tarea.titulo || "Reunión", ...datos, duracion: DURACION_REUNION, responsable: lead.responsable || yo || null, estado: "pendiente", origen: "manual" }); await api.updateLead(lead.id, { proxima: null }); }
+        else await api.updateTarea(tarea.id, datos);
+        const nuevo = `${cuandoTexto(fecha)}${datos.hora ? " a las " + datos.hora : ""}`;
+        await api.addAct({ leadId: lead.id, tipo: "nota", resumen: `La reunión de ${cuando} se cambió para ${nuevo}.` });
+        toast(`${leadTitulo(lead)}: reunión ${nuevo}.`);
+        closeModal();
+        return;
+      }
+      await marcarTarea(tarea, "descartada");
+      await api.createTarea({ leadId: lead.id, tipo: "agendar", titulo: "Reagendar la reunión", fecha: todayKey(), hora: "", responsable: tarea.responsable || lead.responsable || yo || null, estado: "pendiente", origen: "reunion" });
+      await api.addAct({ leadId: lead.id, tipo: "nota", resumen: `No se hizo la reunión de ${cuando}. Queda la tarea de reagendarla.` });
+      toast(`${leadTitulo(lead)}: queda la tarea de reagendar la reunión.`);
+      closeModal();
+    } catch (e) { toast(dbErrorText(e), "bad"); setSaving(false); }
+  };
+  const foot = html`<button class="btn ghost" onClick=${closeModal}>Cancelar</button><button class="btn primary" onClick=${guardar} disabled=${saving || !canWrite}>${saving ? "Guardando…" : modo === "si" ? "Guardar y registrar la reunión" : "Guardar"}</button>`;
+  return html`<${Modal} title=${"¿Se hizo la reunión con " + leadTitulo(lead) + "?"} onClose=${closeModal} foot=${foot} labelId="hecha-title">
+    <div class="modal-body">
+      <p class="small muted">${tarea.titulo || "Reunión"} · ${cuando}</p>
+      <${Seg} label="¿Se hizo?" value=${modo} onChange=${setModo} options=${[["si", "Sí, se hizo"], ["reagendar", "La cambiamos"], ["no", "No se hizo"]]} />
+      ${modo === "si" ? html`<p class="small">El lead pasa a «Reunión concretada» y se abre «Registrar reunión»: graba o pega lo que se habló y Claude crea las tareas, como enviar la propuesta.</p>` : null}
+      ${modo === "reagendar" ? html`<div class="grid-2">
+        <label class="field" for="rh-fecha"><span>Día nuevo</span><input id="rh-fecha" class="input" type="date" value=${fecha} onInput=${(e) => setFecha(e.currentTarget.value)} /></label>
+        <label class="field" for="rh-hora"><span>Hora</span><input id="rh-hora" class="input" type="time" value=${hora} onInput=${(e) => setHora(e.currentTarget.value)} /></label>
+      </div>` : null}
+      ${modo === "no" ? html`<p class="small">Queda una tarea para hoy: «Reagendar la reunión». El lead sigue en su etapa.</p>` : null}
+    </div>
+  </${Modal}>`;
+}
+
 /* No contestó: queda el intento y cuándo volver a intentarlo, sin abrir la ficha. Después de
    varios intentos se puede cerrar como perdido por «No responde». */
 function NoContestoModal({ lead }) {
-  const { api, closeModal, toast } = useCtx();
+  const { api, closeModal, toast, tareasPorLead, me, yo, cerrarTareasDe } = useCtx();
   const n = (lead.intentos || 0) + 1;
   const cuando = (c) => {
     const t = todayKey();
@@ -4688,10 +5243,14 @@ function NoContestoModal({ lead }) {
     if (!isKey(fecha)) { toast("Elige el día para volver a intentarlo.", "bad"); return; }
     setSaving(true);
     try {
-      await registro();
+      const actId = await registro();
       const veces = `${n} ${n === 1 ? "intento" : "intentos"} sin respuesta`;
-      await api.updateLead(lead.id, { ultimoIntento: nowISO(), intentos: n, proxima: { tipo: canal, fecha, hora: hora || "", nota: canal === "whatsapp" ? `No contesta (${veces}): escribirle por WhatsApp` : `Volver a llamar (${veces})` } });
-      toast(`${leadName(lead)}: ${canal === "whatsapp" ? "escribirle por WhatsApp" : "volver a llamar"} ${cuandoTexto(fecha)}${hora ? " a las " + hora : ""}.`);
+      /* El intento cumple la tarea de llamar que tocaba; queda una nueva para el día elegido. */
+      const pend = tareasPorLead[lead.id] || [];
+      for (const x of pend) if (tipoTarea(x.tipo) === "llamar" && x.fecha <= todayKey()) await api.updateTarea(x.id, { estado: "hecha", hecha: nowISO(), hechaPor: me.id || null, actividadId: actId });
+      await api.updateLead(lead.id, { ultimoIntento: nowISO(), intentos: n, ...(!pend.length && tareaDeProxima(lead) ? { proxima: null } : {}) });
+      await api.createTarea({ leadId: lead.id, tipo: canal, titulo: canal === "whatsapp" ? `No contesta (${veces}): escribirle por WhatsApp` : `Volver a llamar (${veces})`, fecha, hora: hora || "", responsable: lead.responsable || yo || null, estado: "pendiente", origen: "no_contesto", actividadId: actId });
+      toast(`${leadTitulo(lead)}: ${canal === "whatsapp" ? "escribirle por WhatsApp" : "volver a llamar"} ${cuandoTexto(fecha)}${hora ? " a las " + hora : ""}.`);
       closeModal();
     } catch (e) { toast(dbErrorText(e), "bad"); setSaving(false); }
   };
@@ -4699,9 +5258,10 @@ function NoContestoModal({ lead }) {
     setSaving(true);
     try {
       await registro();
+      await cerrarTareasDe(lead.id);
       await api.updateLead(lead.id, { ultimoIntento: nowISO(), intentos: n, etapa: "perdido", motivoPerdida: "No responde", motivoDetalle: "", proxima: null });
-      await api.addAct({ leadId: lead.id, tipo: "etapa", de: lead.etapa || "nuevo", a: "perdido", resumen: `No responde (${n} intentos)` });
-      toast(`${leadName(lead)}: perdido · No responde.`);
+      await api.addAct({ leadId: lead.id, tipo: "etapa", de: etapaDe(lead), a: "perdido", resumen: `No responde (${n} intentos)` });
+      toast(`${leadTitulo(lead)}: perdido · No responde.`);
       closeModal();
     } catch (e) { toast(dbErrorText(e), "bad"); setSaving(false); }
   };
@@ -4824,7 +5384,7 @@ function AjustesView() {
           <div class="grid-2">
             <label class="field" for="c-wa"><span>WhatsApp de negocios</span><input id="c-wa" class="input mono" type="tel" value=${c.whatsappNegocios} onInput=${sc("whatsappNegocios")} placeholder="9 1234 5678" /><small class="hint">Se usa en el enlace «WhatsApp» de las firmas y como recordatorio de la línea para llamar.</small></label>
             <label class="field" for="c-agenda"><span>Enlace para agendar</span><input id="c-agenda" class="input" value=${c.agendaUrl} onInput=${sc("agendaUrl")} /><small class="hint">Claude lo usa en los botones y mensajes para agendar.</small></label>
-            <label class="field" for="c-gmail"><span>Cuenta de Gmail para enviar</span><input id="c-gmail" class="input" type="email" value=${c.gmailCuenta} onInput=${sc("gmailCuenta")} placeholder="tu cuenta de Gmail de ZH" /><small class="hint">«Copiar y abrir Gmail» abre el correo nuevo en esta cuenta. Vacío: la cuenta por defecto del navegador.</small></label>
+            <label class="field" for="c-gmail"><span>Cuenta de Google de ZH (Gmail y Calendar)</span><input id="c-gmail" class="input" type="email" value=${c.gmailCuenta} onInput=${sc("gmailCuenta")} placeholder="contacto@zhdevelopment.cl" /><small class="hint">«Copiar y abrir Gmail» y «Agregar a Google Calendar» se abren en esta cuenta. Vacío: la cuenta por defecto del navegador.</small></label>
             <div class="field"><span>Abrir WhatsApp en</span><${Seg} label="Abrir WhatsApp en" value=${c.abrirWhatsapp} onChange=${(v) => setC((x) => ({ ...x, abrirWhatsapp: v }))} options=${[["app", "App o wa.me"], ["web", "WhatsApp Web"]]} /><small class="hint">En el computador, WhatsApp Web abre directo el chat si tienes la sesión de negocios iniciada.</small></div>
           </div>
           <div class="actions"><button class="btn primary" onClick=${guardarCfg} disabled=${!canWrite}>Guardar ajustes</button></div>
@@ -4860,7 +5420,7 @@ function AjustesView() {
             <li>«¿A quién tengo que llamar hoy?» o «¿qué leads llevan más de una semana sin contacto?»</li>
             <li>«¿Qué le debemos a cada cliente y qué facturas están vencidas?» o «registra esta solicitud del cliente y clasifícala».</li>
           </ul>
-          <p>Para transcribir una llamada, abre «Registrar llamada» en el computador, toca «Transcribir en vivo» y habla con el celular en altavoz al lado: el CRM escucha y lo pasa a texto (en Chrome o Edge). También se puede pegar o subir una transcripción hecha en otra herramienta. La guía completa está en <span class="mono">docs/crm-telefonia-whatsapp.md</span> del repositorio marketing.</p>
+          <p>Para transcribir una llamada, abre «Registrar llamada» en el computador, toca «Transcribir en vivo» y habla con el celular en altavoz al lado: el CRM escucha y lo pasa a texto (en Chrome o Edge). Al tocar «Detener», Claude la analiza y deja las tareas, la etapa y los borradores. También se puede pegar o subir una transcripción hecha en otra herramienta. La guía completa está en <span class="mono">docs/crm-telefonia-whatsapp.md</span> del repositorio marketing.</p>
         </div></section>
     </div>
   </div>`;
@@ -4868,7 +5428,8 @@ function AjustesView() {
 
 /* ===================================================================== app */
 
-const VIEWS = [["hoy", "Hoy", "sun"], ["leads", "Leads", "list"], ["embudo", "Embudo de leads", "funnel"], ["clientes", "Clientes", "building"], ["embudoClientes", "Embudo de clientes", "funnel"], ["proyectos", "Proyectos", "folder"], ["soporte", "Soporte", "lifebuoy"], ["cobros", "Cobros", "coin"], ["borradores", "Borradores", "doc"], ["ajustes", "Ajustes", "sliders"]];
+/* [id, nombre, ícono, nombre corto para el menú contraído] */
+const VIEWS = [["hoy", "Hoy", "sun", "Hoy"], ["leads", "Leads", "list", "Leads"], ["embudo", "Embudo de leads", "funnel", "Embudo"], ["clientes", "Clientes", "building", "Clientes"], ["embudoClientes", "Embudo de clientes", "funnel", "Etapas"], ["proyectos", "Proyectos", "folder", "Proyectos"], ["soporte", "Soporte", "lifebuoy", "Soporte"], ["cobros", "Cobros", "coin", "Cobros"], ["borradores", "Borradores", "doc", "Borradores"], ["ajustes", "Ajustes", "sliders", "Ajustes"]];
 const VIEW = Object.fromEntries(VIEWS.map((v) => [v[0], v]));
 const NAV_GROUPS = [["", ["hoy"]], ["Ventas", ["leads", "embudo"]], ["Clientes", ["clientes", "embudoClientes", "proyectos", "soporte", "cobros"]], ["", ["borradores", "ajustes"]]];
 const TABS_MOVIL = ["hoy", "leads", "clientes", "borradores"];
@@ -4900,12 +5461,17 @@ function App() {
   const [modal, setModal] = useState(null);
   const [toasts, setToasts] = useState([]);
   const [readOnly, setReadOnly] = useState(false);
+  const [tareas, setTareas] = useState(null);
+  /* Menú lateral con solo íconos: por defecto en pantallas de menos de 1500 px, para que el embudo quepa entero. */
+  const [mini, setMini] = useState(() => { const v = ls.get("menuMini", null); return v == null ? window.innerWidth < 1500 : !!v; });
+  const alternarMenu = () => { const v = !mini; ls.set("menuMini", v); setMini(v); };
 
-  const toast = useCallback((msg, tone) => {
+  /* Un aviso a la vez; «accion» agrega un botón (por ejemplo «Deshacer»). */
+  const toast = useCallback((msg, tone, accion) => {
     if (!msg) return;
     const id = Math.random().toString(36).slice(2);
-    setToasts([{ id, msg, tone: tone || "" }]);
-    setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), tone === "bad" ? 7000 : 4200);
+    setToasts([{ id, msg, tone: tone || "", accion: accion || null }]);
+    setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), tone === "bad" ? 7000 : accion ? 9000 : 4200);
   }, []);
 
   useEffect(() => {
@@ -4937,6 +5503,7 @@ function App() {
       db.collection("cobros").onSnapshot((s) => setCobros(rows(s)), fail),
       db.collection("mantenciones").onSnapshot((s) => setMantenciones(rows(s)), fail),
       db.collection("solicitudes").orderBy("creado", "desc").limit(600).onSnapshot((s) => setSolicitudes(rows(s)), fail),
+      db.collection("tareas").where("estado", "==", "pendiente").onSnapshot((s) => setTareas(rows(s)), fail),
       db.collection("equipo").onSnapshot((s) => setEquipo(Object.fromEntries(s.docs.map((d) => [d.id, d.data()]))), fail),
       db.doc("config/general").onSnapshot((s) => setCfg(s.exists ? s.data() : {}), fail),
     ];
@@ -4992,19 +5559,6 @@ function App() {
   const openDraft = useCallback((id) => setModal({ type: "draft", id }), []);
   const openModal = useCallback((m) => setModal(m), []);
   const closeModal = useCallback(() => setModal(null), []);
-
-  const changeStage = useCallback(async (lead, etapa) => {
-    if (!wrapApi || lead.etapa === etapa) return;
-    if (etapa === "perdido") { setModal({ type: "lost", lead }); return; }
-    if (etapa === "ganado" && !lead.clienteId) { setModal({ type: "won", lead }); return; }
-    try {
-      const patch = { etapa };
-      if (!ETAPA[etapa].open) patch.proxima = null;
-      await wrapApi.updateLead(lead.id, patch);
-      await wrapApi.addAct({ leadId: lead.id, tipo: "etapa", de: lead.etapa || "nuevo", a: etapa });
-      toast(etapa === "pausa" ? `${leadName(lead)}: En pausa. Si hay que retomarlo, ponle fecha en «Próxima acción».` : `${leadName(lead)}: ${etapaLabel(etapa)}.`);
-    } catch (e) { toast(dbErrorText(e), "bad"); }
-  }, [wrapApi, toast]);
 
   /* Embudo de clientes: la etapa queda fija; con "" vuelve a la automática. «Nueva propuesta» pide qué y cuánto. */
   const moverCliente = useCallback(async (c, a, de, extra) => {
@@ -5065,8 +5619,151 @@ function App() {
   const yo = respDeNombre((equipo[me.id] && equipo[me.id].nombre) || me.name || "") || (respNombre(ls.get("respUltimo", "")) ? ls.get("respUltimo", "") : "");
   const clientesById = useMemo(() => Object.fromEntries((clientes || []).map((c) => [c.id, c])), [clientes]);
   const proyectosById = useMemo(() => Object.fromEntries((proyectos || []).map((p) => [p.id, p])), [proyectos]);
+
+  /* ---------- tareas */
+  const tareasPorLead = useMemo(() => {
+    const m = {};
+    for (const t of tareas || []) if (t.leadId) (m[t.leadId] = m[t.leadId] || []).push(t);
+    for (const k of Object.keys(m)) m[k].sort(tareaOrden);
+    return m;
+  }, [tareas]);
+  /* La próxima tarea de un lead: la primera pendiente o, si no tiene, su «proxima» antigua. */
+  const siguienteDe = useCallback((l) => (l ? (tareasPorLead[l.id] || [])[0] || tareaDeProxima(l) : null), [tareasPorLead]);
+  const marcarTarea = useCallback(async (t, estado, extra) => {
+    if (t.virtual) { await wrapApi.updateLead(t.leadId, { proxima: null }); return; }
+    const fin = estado !== "pendiente";
+    await wrapApi.updateTarea(t.id, { estado, hecha: fin ? nowISO() : null, hechaPor: fin ? meRef.current.id || null : null, ...(extra || {}) });
+  }, [wrapApi]);
+  const moverEtapa = useCallback(async (lead, a, extra) => {
+    const o = extra || {};
+    await wrapApi.updateLead(lead.id, { etapa: a, ...(o.patch || {}) });
+    await wrapApi.addAct({ leadId: lead.id, tipo: "etapa", de: etapaDe(lead), a, ...(o.resumen ? { resumen: o.resumen } : {}) });
+  }, [wrapApi]);
+  /* Al perder, ganar o pausar un lead, sus tareas pendientes quedan descartadas. */
+  const cerrarTareasDe = useCallback(async (leadId) => {
+    for (const t of tareasPorLead[leadId] || []) await wrapApi.updateTarea(t.id, { estado: "descartada", hecha: nowISO(), hechaPor: meRef.current.id || null });
+  }, [wrapApi, tareasPorLead]);
+
+  /* Redacta, uno tras otro, los correos y WhatsApp de las tareas (lo acordado en una llamada o la
+     confirmación de una reunión). Cada borrador queda unido a su tarea: al marcarlo como enviado,
+     la tarea queda hecha. Claude sigue aunque se cierre la ficha. */
+  const redactarTareas = useCallback(async (lead, jobs, delLead, hist) => {
+    const fn = sampleState.fn;
+    if (!wrapApi || !fn || !jobs.length) return;
+    const historial = hist || acts.filter((a) => a.leadId === lead.id);
+    const lp = delLead || [];
+    let n = 0;
+    for (const t of jobs) {
+      const canal = t.tipo === "whatsapp" ? "whatsapp" : "correo";
+      const que = t.que || t.titulo || "";
+      const objetivo = t.objetivo || (/propuesta|cotizaci/i.test(que) ? "propuesta" : /reuni|agend|demo/i.test(que) ? "agendar" : "seguimiento");
+      const instrucciones = t.instrucciones || `Quedó acordado en la conversación de hoy: ${que}${t.fecha ? ` (para ${cuandoTexto(t.fecha)})` : ""}.${lp.length ? ` Lo que quedó en hacer ${firstName(lead.nombre) || "el lead"}: ${lp.map((x) => x.que).join("; ")}.` : ""}`;
+      try {
+        const r = await fn.json(promptBorrador({ canal, objetivo, instrucciones, trato: lead.trato || "tu", firma: equipo[me.id] || {}, cfg, lead, hist: historial }), { modelTier: "default", cache: false });
+        let data = { leadId: lead.id, canal, objetivo, instrucciones, firma: me.id || null, generadoPor: "claude", tareaId: t.tareaId || null };
+        if (canal === "whatsapp") data.texto = String((r && r.texto) || "").trim();
+        else data = { ...data, ...sanitizeEmail(r), plantilla: "carta" };
+        const bid = await wrapApi.createDraft(data);
+        if (t.tareaId) await wrapApi.updateTarea(t.tareaId, { borradorId: bid });
+        n += 1;
+      } catch (e) {
+        if (e && CLAUDE_OFF.has(e.code)) { setSampleState({ fn: null, off: true }); break; }
+      }
+    }
+    if (n) toast(`${n === 1 ? "Quedó redactado 1 borrador" : `Quedaron redactados ${n} borradores`} para ${leadTitulo(lead)}: revísalo desde su tarea o en «Borradores».`);
+    else toast("Claude no pudo redactar el borrador. Puedes hacerlo desde «Redactar con Claude».", "bad");
+  }, [wrapApi, sampleState.fn, equipo, me.id, cfg, toast, acts]);
+
+  /* Completar una tarea. «Agendar» pide el día de la reunión y «Reunión» pregunta si se hizo;
+     «Enviar propuesta» pasa el lead a «Propuesta enviada» con una llamada de seguimiento. */
+  const completarTarea = useCallback(async (t) => {
+    const lead = t && leadsById[t.leadId];
+    if (!wrapApi || !lead || !tareaPendiente(t)) return;
+    const tipo = tipoTarea(t.tipo);
+    if (tipo === "agendar") { setModal({ type: "agendar", lead, tarea: t }); return; }
+    if (tipo === "reunion") { setModal({ type: "reunionHecha", lead, tarea: t }); return; }
+    try {
+      const vuelta = [];
+      await marcarTarea(t, "hecha");
+      vuelta.push(t.virtual ? () => wrapApi.updateLead(lead.id, { proxima: lead.proxima }) : () => wrapApi.updateTarea(t.id, { estado: "pendiente", hecha: null, hechaPor: null }));
+      let msg = `Hecho: ${t.titulo || accionLabel(tipo)}.`;
+      if (tipo === "propuesta" && avanza(lead, "propuesta")) {
+        await moverEtapa(lead, "propuesta", { resumen: t.titulo || "" });
+        vuelta.push(() => moverEtapa({ ...lead, etapa: "propuesta" }, etapaDe(lead)));
+        msg = `${leadTitulo(lead)}: Propuesta enviada.`;
+        if (!(tareasPorLead[lead.id] || []).some((x) => x.id !== t.id)) {
+          const f = addBusinessDays(todayKey(), 3);
+          const nid = await wrapApi.createTarea({ leadId: lead.id, tipo: "llamar", titulo: "Seguimiento de la propuesta", fecha: f, hora: "", responsable: t.responsable || lead.responsable || yo || null, estado: "pendiente", origen: "etapa" });
+          vuelta.push(() => wrapApi.deleteTarea(nid));
+          msg += ` Queda una llamada de seguimiento ${cuandoTexto(f)}.`;
+        }
+      }
+      toast(msg, "", { label: "Deshacer", fn: async () => { try { for (const f of vuelta.reverse()) await f(); toast("Listo: quedó como estaba."); } catch (e) { toast(dbErrorText(e), "bad"); } } });
+    } catch (e) { toast(dbErrorText(e), "bad"); }
+  }, [wrapApi, leadsById, tareasPorLead, marcarTarea, moverEtapa, toast, yo]);
+
+  /* Agenda (o cambia) la reunión de un lead: tarea con día y hora, etapa «Reunión agendada» y, si
+     se pide, la confirmación redactada por Claude con su tarea para enviarla hoy. */
+  const agendarReunion = useCallback(async (lead, d, origen) => {
+    if (!wrapApi) return false;
+    try {
+      if (origen && tipoTarea(origen.tipo) === "agendar" && tareaPendiente(origen)) await marcarTarea(origen, "hecha");
+      const datos = { titulo: d.titulo, fecha: d.fecha, hora: d.hora, duracion: d.duracion, nota: d.nota };
+      if (d.reunionId) await wrapApi.updateTarea(d.reunionId, datos);
+      else await wrapApi.createTarea({ leadId: lead.id, tipo: "reunion", ...datos, responsable: lead.responsable || yo || null, estado: "pendiente", origen: origen ? "agendar" : "manual" });
+      const cuando = `${cuandoTexto(d.fecha)}${d.hora ? " a las " + d.hora : ""}`;
+      if (avanza(lead, "reunion_agendada")) await moverEtapa(lead, "reunion_agendada", { resumen: `Reunión ${cuando}` });
+      else await wrapApi.addAct({ leadId: lead.id, tipo: "nota", resumen: `${d.reunionId ? "Reunión cambiada" : "Reunión agendada"}: ${cuando}.` });
+      let extra = "";
+      if (d.confirmar && sampleState.fn && !lead.noContactar) {
+        const canal = d.confirmar === "whatsapp" ? "WhatsApp" : "correo";
+        const tid = await wrapApi.createTarea({ leadId: lead.id, tipo: d.confirmar, titulo: `Confirmar la reunión por ${canal}`, fecha: todayKey(), hora: "", responsable: lead.responsable || yo || null, estado: "pendiente", origen: "agendar" });
+        redactarTareas(lead, [{ tipo: d.confirmar, que: "Confirmar la reunión", tareaId: tid, objetivo: "confirmar", instrucciones: `Confirma la reunión que acabamos de agendar: ${cuando} (${d.duracion} minutos), por Google Meet. Tema: ${d.titulo}.${lead.correo ? " Si sirve, menciona que le mandamos la invitación de calendario a su correo." : ""} Breve y cordial.` }]);
+        extra = " Claude está redactando la confirmación.";
+      }
+      toast(`${leadTitulo(lead)}: reunión ${cuando}.${extra}`);
+      return true;
+    } catch (e) { toast(dbErrorText(e), "bad"); return false; }
+  }, [wrapApi, marcarTarea, moverEtapa, redactarTareas, sampleState.fn, toast, yo]);
+
+  /* Cambiar de etapa desde el embudo o la ficha, con lo que corresponde a cada etapa. */
+  const changeStage = useCallback(async (lead, etapa) => {
+    const de = etapaDe(lead);
+    if (!wrapApi || de === etapa) return;
+    if (etapa === "perdido") { setModal({ type: "lost", lead }); return; }
+    if (etapa === "ganado" && !lead.clienteId) { setModal({ type: "won", lead }); return; }
+    const pend = tareasPorLead[lead.id] || [];
+    if (etapa === "reunion_agendada" && !pend.some((x) => tipoTarea(x.tipo) === "reunion")) { setModal({ type: "agendar", lead, desdeEtapa: true }); return; }
+    try {
+      await moverEtapa(lead, etapa, ETAPA[etapa].open ? {} : { patch: { proxima: null } });
+      let msg = `${leadTitulo(lead)}: ${etapaLabel(etapa)}.`;
+      let accion = null;
+      if (etapa === "ganado" || etapa === "pausa") await cerrarTareasDe(lead.id);
+      if (etapa === "pausa") msg = `${leadTitulo(lead)}: En pausa. Si hay que retomarlo, agrégale una tarea con el día.`;
+      if (etapa === "reunion_concretada") {
+        for (const x of pend) if (tipoTarea(x.tipo) === "reunion") await marcarTarea(x, "hecha");
+        accion = { label: "Registrar la reunión", fn: () => openLead(lead.id, "reunion") };
+      }
+      if (etapa === "propuesta") {
+        const props = pend.filter((x) => tipoTarea(x.tipo) === "propuesta");
+        for (const x of props) await marcarTarea(x, "hecha");
+        if (pend.length === props.length) {
+          const f = addBusinessDays(todayKey(), 3);
+          await wrapApi.createTarea({ leadId: lead.id, tipo: "llamar", titulo: "Seguimiento de la propuesta", fecha: f, hora: "", responsable: lead.responsable || yo || null, estado: "pendiente", origen: "etapa" });
+          msg += ` Queda una llamada de seguimiento ${cuandoTexto(f)}.`;
+        }
+      }
+      toast(msg, "", accion);
+    } catch (e) { toast(dbErrorText(e), "bad"); }
+  }, [wrapApi, tareasPorLead, moverEtapa, marcarTarea, cerrarTareasDe, toast, openLead, yo]);
   const hoyKey = todayKey();
-  const pendientes = (leads || []).filter((l) => retomable(l) && l.proxima && l.proxima.fecha && l.proxima.fecha <= hoyKey).length;
+  let pendientes = 0;
+  for (const l of leads || []) {
+    if (l.noContactar) continue;
+    const ts = tareasPorLead[l.id] || [];
+    const v = ts.length ? null : tareaDeProxima(l);
+    pendientes += ts.filter((t) => t.fecha && t.fecha <= hoyKey).length + (v && v.fecha <= hoyKey ? 1 : 0);
+  }
   const clientesHoy = agendaClientes({ proyectos: proyectos || [], cobros: cobros || [], clientesById }, cfg, 0).length;
   const porRevisar = drafts.filter((d) => d.estado === "por_revisar").length;
   const counts = {
@@ -5075,32 +5772,23 @@ function App() {
     cobros: (cobros || []).filter((x) => pagoVencido(x, cfg) || facturaAtrasada(x)).length,
   };
 
-  /* Redacta, uno tras otro, los correos y WhatsApp que quedaron acordados en una llamada. */
-  const borradoresDeTareas = useCallback(async (lead, tareas, delLead, hist) => {
-    const fn = sampleState.fn;
-    if (!wrapApi || !fn) return;
-    let n = 0;
-    for (const t of tareas) {
-      const canal = t.tipo === "whatsapp" ? "whatsapp" : "correo";
-      const objetivo = t.tipo === "propuesta" || /propuesta|cotizaci/i.test(t.que) ? "propuesta" : /reuni|agend|demo/i.test(t.que) ? "agendar" : "seguimiento";
-      const instrucciones = `Quedó acordado en la llamada de hoy: ${t.que}${t.fecha ? ` (para el ${dayLabel(t.fecha).toLowerCase()})` : ""}.${delLead.length ? ` Lo que quedó en hacer ${firstName(lead.nombre) || "el lead"}: ${delLead.map((x) => x.que).join("; ")}.` : ""}`;
-      try {
-        const r = await fn.json(promptBorrador({ canal, objetivo, instrucciones, trato: lead.trato || "tu", firma: equipo[me.id] || {}, cfg, lead, hist }), { modelTier: "default", cache: false });
-        let data = { leadId: lead.id, canal, objetivo, instrucciones, firma: me.id || null, generadoPor: "claude" };
-        if (canal === "whatsapp") data.texto = String((r && r.texto) || "").trim();
-        else data = { ...data, ...sanitizeEmail(r), plantilla: "carta" };
-        await wrapApi.createDraft(data);
-        n += 1;
-      } catch (e) {
-        if (e && CLAUDE_OFF.has(e.code)) { setSampleState({ fn: null, off: true }); break; }
+  /* La «proxima» de cada lead es su primera tarea pendiente: la tabla, el CSV, los respaldos y
+     Claude la leen de ahí. Si alguien cambia las tareas, se pone al día sola (sin escribir de más). */
+  useEffect(() => {
+    if (!wrapApi || !canWrite || leads === null || tareas === null) return undefined;
+    const timer = setTimeout(() => {
+      for (const l of leads) {
+        const ts = tareasPorLead[l.id] || [];
+        const esperada = ts.length ? proximaDe(ts[0]) : l.proxima && l.proxima.tareaId ? null : l.proxima || null;
+        if (claveProxima(esperada) !== claveProxima(l.proxima)) wrapApi.updateLead(l.id, { proxima: esperada }).catch(() => {});
       }
-    }
-    if (n) toast(`${n === 1 ? "Quedó redactado 1 borrador" : `Quedaron redactados ${n} borradores`} de lo acordado con ${leadName(lead)}. Revísalos en «Borradores».`);
-    else toast("Claude no pudo redactar los borradores de lo acordado. Puedes hacerlo desde «Redactar con Claude».", "bad");
-  }, [wrapApi, sampleState.fn, equipo, me.id, cfg, toast]);
+    }, 900);
+    return () => clearTimeout(timer);
+  }, [wrapApi, canWrite, leads, tareas, tareasPorLead]);
 
   const ctx = {
-    db, api: wrapApi, me, yo, leads: leads || [], leadsById, acts, drafts, equipo, cfg, sampleState, setSampleState, downloads, toast, nameOf, team, borradoresDeTareas,
+    db, api: wrapApi, me, yo, leads: leads || [], leadsById, acts, drafts, equipo, cfg, sampleState, setSampleState, downloads, toast, nameOf, team, redactarTareas,
+    tareas: tareas || [], tareasPorLead, siguienteDe, completarTarea, marcarTarea, agendarReunion, moverEtapa, cerrarTareasDe,
     clientes: clientes || [], clientesById, proyectos: proyectos || [], proyectosById, cobros: cobros || [], mantenciones: mantenciones || [], solicitudes: solicitudes || [],
     openLead, openCliente, openProyecto, openDraft, openModal, closeModal, nav, changeStage, moveProyecto, moverCliente, canWrite, profileName: me.name,
   };
@@ -5127,16 +5815,17 @@ function App() {
   else body = html`<${HoyView} />`;
 
   return html`<${Ctx.Provider} value=${ctx}>
-    <div class="app">
+    <div class=${cx("app", mini && "mini")}>
       <aside class="side">
-        <div class="brand"><${Logo} /><div style="display:grid;gap:5px"><b>ZH Development</b><span>CRM y clientes</span></div></div>
+        <div class="brand"><${Logo} /><div class="brand-txt"><b>ZH Development</b><span>CRM y clientes</span></div></div>
         <nav class="nav" aria-label="Secciones">
-          ${NAV_GROUPS.map(([g, vs]) => html`${g ? html`<p class="nav-group">${g}</p>` : null}${vs.map((v) => { const [, l, ic] = VIEW[v]; return html`<button key=${v} aria-current=${view === v ? "page" : "false"} onClick=${() => nav(v)}><${Icon} name=${ic} size=${18} />${l}${counts[v] ? html`<span class="count">${counts[v]}</span>` : null}</button>`; })}`)}
+          ${NAV_GROUPS.map(([g, vs], gi) => html`${g ? html`<p class="nav-group">${g}</p>` : gi && mini ? html`<p class="nav-group" aria-hidden="true"></p>` : null}${vs.map((v) => { const [, l, ic, corto] = VIEW[v]; return html`<button key=${v} aria-current=${view === v ? "page" : "false"} title=${mini ? l : null} onClick=${() => nav(v)}><${Icon} name=${ic} size=${18} /><span class="lbl">${l}</span><span class="lbl-c" aria-hidden="true">${corto || l}</span>${counts[v] ? html`<span class="count">${counts[v]}</span>` : null}</button>`; })}`)}
         </nav>
         <div class="side-foot">
-          <button class="btn primary" onClick=${() => openModal({ type: "newLead" })} disabled=${!wrapApi || !canWrite}><${Icon} name="plus" />Nuevo lead</button>
-          ${me.id ? html`<div class="me"><img src=${me.avatar} alt="" />${nameOf(me.id)}</div>` : null}
+          <button class="btn primary" title="Nuevo lead" onClick=${() => openModal({ type: "newLead" })} disabled=${!wrapApi || !canWrite}><${Icon} name="plus" /><span>Nuevo lead</span></button>
+          ${me.id ? html`<div class="me" title=${nameOf(me.id)}><img src=${me.avatar} alt="" /><span>${nameOf(me.id)}</span></div>` : null}
           ${!canWrite ? html`<p>Tienes acceso de solo lectura.</p>` : null}
+          <button type="button" class="side-toggle" onClick=${alternarMenu} title=${mini ? "Mostrar el menú completo" : "Dejar solo los íconos"}><${Icon} name=${mini ? "chevR" : "chevL"} size=${18} /><span>Contraer menú</span><span class="sr">${mini ? "Mostrar el menú completo" : ""}</span></button>
         </div>
       </aside>
       <header class="topbar">
@@ -5165,6 +5854,8 @@ function App() {
       ${modal.type === "draft" ? html`<${DraftEditor} id=${modal.id} />` : null}
       ${modal.type === "lost" ? html`<${LostModal} lead=${modal.lead} />` : null}
       ${modal.type === "noContesto" ? html`<${NoContestoModal} lead=${modal.lead} />` : null}
+      ${modal.type === "agendar" ? html`<${AgendarModal} lead=${modal.lead} tarea=${modal.tarea} desdeEtapa=${!!modal.desdeEtapa} />` : null}
+      ${modal.type === "reunionHecha" ? html`<${ReunionHechaModal} lead=${modal.lead} tarea=${modal.tarea} />` : null}
       ${modal.type === "propuestaCliente" ? html`<${PropuestaClienteModal} cliente=${modal.cliente} de=${modal.de} />` : null}
       ${modal.type === "won" ? html`<${WonModal} lead=${modal.lead} />` : null}
       ${modal.type === "newCliente" ? html`<${NewClienteModal} />` : null}
@@ -5174,7 +5865,7 @@ function App() {
       ${modal.type === "mantencion" ? html`<${MantencionModal} id=${modal.id} clienteId=${modal.clienteId} />` : null}
       ${modal.type === "composeCliente" ? html`<${ComposeClienteModal} clienteId=${modal.clienteId} preset=${modal.preset} />` : null}
     </${Boundary}>` : null}
-    <div class=${cx("toasts", modal && "raised")} aria-live="polite">${toasts.map((t) => html`<div key=${t.id} class=${cx("toast", t.tone === "bad" && "bad")}><span>${t.msg}</span><button aria-label="Cerrar aviso" onClick=${() => setToasts((x) => x.filter((y) => y.id !== t.id))}>OK</button></div>`)}</div>
+    <div class=${cx("toasts", modal && "raised")} aria-live="polite">${toasts.map((t) => html`<div key=${t.id} class=${cx("toast", t.tone === "bad" && "bad")}><span>${t.msg}</span><span class="toast-acts">${t.accion ? html`<button onClick=${() => { setToasts((x) => x.filter((y) => y.id !== t.id)); t.accion.fn(); }}>${t.accion.label}</button>` : null}<button aria-label="Cerrar aviso" onClick=${() => setToasts((x) => x.filter((y) => y.id !== t.id))}>OK</button></span></div>`)}</div>
   </${Ctx.Provider}>`;
 }
 

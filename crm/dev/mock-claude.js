@@ -162,19 +162,32 @@
       saludo: "Hola Carolina,", parrafos: ["Gracias por la conversación de hoy. Me quedó claro que hoy los despachos se coordinan entre **planillas, correo y WhatsApp**, y que eso hace difícil saber en qué estado está cada pedido.", "Te propongo una llamada de 30 minutos para levantar el proceso y ver qué conviene conectar primero. Después te enviamos una propuesta escrita con alcance, plazo y precio."],
       puntos: ["Un solo lugar para ver cada despacho", "Avisos automáticos cuando algo se atrasa"], cta: { texto: "Agendar llamada", url: "https://zhdevelopment.cl/#agendar" }, cierre: "Saludos,", posdata: "",
     };
-    if (p.includes("Analiza esta llamada")) return {
-      resumen: "Carolina coordina los despachos con planillas y WhatsApp. Quiere ver el estado de cada pedido sin preguntar.", puntos: ["Tienen 3 bodegas", "Usan una planilla compartida"], necesidades: ["Saber en qué estado está cada despacho"],
-      objeciones: ["Les preocupa que el equipo no lo use"], compromisos: ["Enviar un correo con la propuesta de llamada"], proximosPasos: ["Agendar llamada de descubrimiento"], interes: "alto",
-      etapaSugerida: "reunion", proxima: { tipo: "reunion", fecha: plus(2), nota: "Llamada de descubrimiento" }, datos: { cargo: "Jefa de operaciones", empresa: "", correo: "", necesidad: "" },
-      tareas: /propuesta al correo/i.test(p)
-        ? [{ quien: "zh", que: "Enviar la propuesta por correo", tipo: "propuesta", fecha: plus(3) }, { quien: "lead", que: "Mandar la planilla de inventario", tipo: "otro", fecha: "" }, { quien: "zh", que: "Agendar la demo", tipo: "reunion", fecha: plus(5) }]
-        : [{ quien: "zh", que: "Agendar llamada de descubrimiento", tipo: "reunion", fecha: plus(2) }],
-      evaluacion: /Transcripción[^:]*:\n\(sin transcripción\)/.test(p) ? null : {
+    if (p.includes("Analiza esta reunión")) return {
+      resumen: "Revisamos cómo coordinan hoy los despachos. Quieren una propuesta para ordenar el seguimiento de pedidos.", puntos: ["Tres bodegas", "Usan una planilla compartida"], necesidades: ["Ver el estado de cada pedido sin llamar"],
+      objeciones: ["Les preocupa el tiempo de implementación"], compromisos: ["Enviar la propuesta"], proximosPasos: ["Propuesta escrita"], interes: "alto", etapaSugerida: "reunion_concretada", reunion: null,
+      datos: { cargo: "", empresa: "", correo: "", necesidad: "" },
+      tareas: [{ quien: "zh", que: "Enviar la propuesta", tipo: "propuesta", fecha: plus(3), hora: "" }, { quien: "zh", que: "Mandar el resumen de la reunión por correo", tipo: "correo", fecha: "", hora: "" }, { quien: "lead", que: "Mandar la planilla de despachos", tipo: "otro", fecha: "", hora: "" }],
+      evaluacion: null,
+    };
+    if (p.includes("Analiza esta llamada")) {
+      const evaluacion = /Transcripción[^:]*:\n\(sin transcripción\)/.test(p) ? null : {
         criterios: { apertura: { nota: 4, comentario: "Se presentó y dijo para qué llamaba." }, descubrimiento: { nota: 3, comentario: "Preguntó por el problema, pero no por el impacto." }, escucha: { nota: 4, comentario: "Dejó hablar." },
           valor: { nota: 3, comentario: "Conectó con el inventario." }, objeciones: { nota: 2, comentario: "Ante el precio, cambió de tema." }, cierre: { nota: 4, comentario: "Quedó una demo agendada." } },
         bien: ["Abrió con el motivo de la llamada"], mejorar: ["Ante «es caro», pregunta cuánto les cuesta hoy el problema"],
-      },
-    };
+      };
+      const base = { puntos: [], necesidades: [], objeciones: [], compromisos: [], proximosPasos: [], datos: { cargo: "", empresa: "", correo: "", necesidad: "" }, evaluacion };
+      if (/no me interesa/i.test(p)) return { ...base, resumen: "Dijo que no le interesa por ahora.", interes: "bajo", etapaSugerida: "perdido", reunion: null, tareas: [] };
+      if (/te escribo para agendar/i.test(p)) return { ...base, resumen: "Quiere ver una demo, pero no dio día.", interes: "medio", etapaSugerida: "contactado", reunion: null, tareas: [{ quien: "zh", que: "Coordinar el día de la demo", tipo: "agendar", fecha: "", hora: "" }] };
+      return {
+        ...base,
+        resumen: "Carolina coordina los despachos con planillas y WhatsApp. Quiere ver el estado de cada pedido sin preguntar.", puntos: ["Tienen 3 bodegas", "Usan una planilla compartida"], necesidades: ["Saber en qué estado está cada despacho"],
+        objeciones: ["Les preocupa que el equipo no lo use"], compromisos: ["Enviar un correo con la propuesta de llamada"], proximosPasos: ["Agendar llamada de descubrimiento"], interes: "alto",
+        etapaSugerida: "reunion_agendada", reunion: { fecha: plus(2), hora: "11:00", duracion: 30, titulo: "Llamada de descubrimiento" }, datos: { cargo: "Jefa de operaciones", empresa: "", correo: "", necesidad: "" },
+        tareas: /propuesta al correo/i.test(p)
+          ? [{ quien: "zh", que: "Enviar la propuesta por correo", tipo: "propuesta", fecha: plus(3) }, { quien: "lead", que: "Mandar la planilla de inventario", tipo: "otro", fecha: "" }, { quien: "zh", que: "Mandar por correo el resumen de la llamada", tipo: "correo", fecha: "" }]
+          : [{ quien: "zh", que: "Mandar por WhatsApp el enlace de la reunión", tipo: "whatsapp", fecha: "" }],
+      };
+    }
     if (p.includes("Extrae los contactos")) return { leads: [
       { nombre: "Matías Rojas", empresa: "Ferretería Sur", cargo: "Dueño", telefono: "9 8765 4321", correo: "matias@ferreteriasur.cl", origen: "instagram", necesidad: "Cotizaciones por WhatsApp", notas: "" },
       { nombre: "Carolina Pérez", empresa: "Transportes Andes", telefono: "+56 9 1234 5678", correo: "", origen: "", necesidad: "", notas: "" },
