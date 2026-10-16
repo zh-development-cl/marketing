@@ -37,6 +37,7 @@ const SEED = {
   "leads/lead-f": base({ nombre: "Luis Soto", empresa: "Imprenta Norte", telefono: "+56911110006", etapa: "propuesta", valor: 2000000, responsable: ME, proxima: { tipo: "llamar", fecha: addDays(T, 1), hora: "", nota: "" }, creado: iso(-3), actualizado: iso(-3) }),
   "leads/lead-d": base({ nombre: "Carlos Díaz", empresa: "Transportes Río", telefono: "+56911110004", etapa: "negociacion", valor: 5000000, responsable: ME, proxima: { tipo: "reunion", fecha: addDays(T, 2), hora: "", nota: "" }, creado: iso(-30), actualizado: iso(-4) }),
   "leads/lead-e": base({ nombre: "Rosa Pinto", empresa: "Ferretería Ola", telefono: "+56911110005", etapa: "perdido", motivoPerdida: "No es el momento", responsable: ME, creado: iso(-40), actualizado: iso(-10) }),
+  "leads/lead-g": base({ nombre: "Ana Ruiz", empresa: "Vivero Sur", telefono: "+56911110007", etapa: "pausa", responsable: ME, proxima: { tipo: "llamar", fecha: T, hora: "", nota: "Retomar: quedó en hablar este mes" }, creado: iso(-15), actualizado: iso(-5) }),
   "actividades/act-b1": { leadId: "lead-b", tipo: "llamada", resultado: "contesto", fecha: new Date(Date.now() - 2 * 3600e3).toISOString(), autor: NICO, resumen: "Quiere ver una demo." },
   "clientes/cli-x": { nombre: "Taller Sur", razonSocial: "", rut: "", contactos: [], responsable: ME, trato: "tu", leadIds: [], estado: "activo", notas: "", creado: iso(-30), actualizado: iso(-30), creadoPor: ME },
   "proyectos/pro-x": { clienteId: "cli-x", nombre: "Agenda de taller", tipo: "software", valor: 4000000, estado: "entender", inicio: addDays(T, -5), entregaEstimada: addDays(T, 40), produccion: "", garantiaDias: 60, hitos: [], enlaces: [], caso: "", alcance: "", responsable: ME, creado: iso(-5), actualizado: iso(-5), creadoPor: ME },
@@ -88,6 +89,9 @@ const SEED = {
   };
 
   const page = await open({ name: "escritorio", seed: SEED });
+  const hoyPanel = page.locator(".panel", { hasText: "Para hoy" });
+  ok(await hoyPanel.locator(".lrow", { hasText: "Ana Ruiz" }).isVisible(), "un lead en pausa con fecha para retomarlo aparece en «Para hoy»");
+  ok((await page.locator(".panel", { hasText: "Sin próxima acción" }).locator(".lrow", { hasText: "Ana Ruiz" }).count()) === 0, "y no cuenta como abierto sin próxima acción");
   /* ---------------- tabla ↔ tablero ---------------- */
   await page.locator(".side .nav button", { hasText: "Leads" }).click();
   await page.locator("h1", { hasText: "Leads" }).waitFor();
@@ -210,6 +214,7 @@ const SEED = {
   ok(orden[0] === "Luis Soto", "y por los más nuevos");
   await page.check("#ver-cerrados");
   ok((await page.locator(".board .col").count()) === 8 && await col(page, "perdido").locator(".kcard.lead", { hasText: "Rosa Pinto" }).isVisible(), "se pueden ver los ganados, perdidos y en pausa");
+  ok(await col(page, "pausa").locator(".kcard.lead", { hasText: "Ana Ruiz" }).locator(".tag", { hasText: "Llamar" }).isVisible(), "la tarjeta en pausa muestra cuándo retomarlo");
   await page.uncheck("#ver-cerrados");
 
   /* ---------------- Proyectos: mismo arrastre ---------------- */
