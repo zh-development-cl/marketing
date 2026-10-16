@@ -346,6 +346,8 @@ body.arrastrando .toasts { bottom: calc(112px + env(safe-area-inset-bottom, 0px)
 .tagbtn { border: 0; cursor: pointer; }
 .tagbtn:hover { filter: brightness(0.95); }
 .col-sum.motivos { font-size: 12px; }
+.linkbtn { border: 0; padding: 0; background: none; color: var(--accent); font: inherit; font-size: 12.5px; cursor: pointer; text-align: left; }
+.linkbtn:hover { text-decoration: underline; }
 .pitch { display: grid; gap: 10px; padding: 14px 16px; border-radius: var(--r-m); background: var(--sunken); }
 .pitch h3 { margin: 0; }
 .pitch p { margin: 4px 0 0; font-size: 14px; line-height: 1.5; color: var(--fg); }
@@ -363,7 +365,11 @@ body.arrastrando .toasts { bottom: calc(112px + env(safe-area-inset-bottom, 0px)
 .dropzone.on { border-color: var(--accent); background: var(--accent-soft); }
 .dropzone.ganado.on { border-color: var(--ok); background: var(--ok-soft); }
 .dropzone.perdido.on { border-color: var(--bad); background: var(--bad-soft); }
-.board.embudo { grid-auto-columns: minmax(208px, 1fr); }
+/* Seis columnas (las abiertas más «Ganado», o las del embudo de clientes) caben en una pantalla de 1360 px. */
+.board.embudo { grid-auto-columns: minmax(170px, 1fr); }
+/* En una tarjeta angosta quedan las acciones de llamar; redactar y anotar siguen en la ficha. */
+.board.embudo .kcard.lead { container-type: inline-size; }
+@container (max-width: 159px) { .kact.opt { display: none; } }
 .board.embudo .kcard { grid-template-columns: minmax(0, 1fr); }
 .board.embudo .tag { white-space: normal; line-height: 1.3; }
 @media (max-width: 760px) {
@@ -714,6 +720,18 @@ const FASE = Object.fromEntries(FASES.map((f) => [f.id, f]));
 const FASES_TABLERO = ["por_iniciar", "entender", "disenar", "construir", "probar", "mejorar"];
 const PROYECTO_VIVO = new Set(["por_iniciar", "entender", "disenar", "construir", "probar", "mejorar"]);
 const EN_DESARROLLO = new Set(["entender", "disenar", "construir", "probar"]);
+/* Embudo de clientes: en qué va la relación con cada cliente después de ganarlo. Si nadie mueve la
+   tarjeta, la etapa sale de sus servicios (proyectos, garantía, mantención); al moverla queda fija. */
+const ETAPAS_CLIENTE = [
+  { id: "inicio", label: "Por iniciar", tone: "accent", ayuda: "Recién ganado: falta el anticipo o partir el proyecto." },
+  { id: "desarrollo", label: "En desarrollo", tone: "accent", ayuda: "Proyecto en curso." },
+  { id: "garantia", label: "En garantía", tone: "ok", ayuda: "En producción, dentro del plazo de garantía." },
+  { id: "mantencion", label: "Con mantención", tone: "ok", ayuda: "Mantención activa: ingreso todos los meses." },
+  { id: "propuesta", label: "Nueva propuesta", tone: "accent", ayuda: "Preparando o enviada otra propuesta: un evolutivo o un proyecto nuevo." },
+  { id: "sin_servicio", label: "Sin servicio", tone: "muted", ayuda: "Sin proyecto ni mantención: para reactivar." },
+];
+const ETAPA_CLIENTE = Object.fromEntries(ETAPAS_CLIENTE.map((e) => [e.id, e]));
+const etapaClienteLabel = (id) => (ETAPA_CLIENTE[id] || {}).label || "";
 const TIPOS_PROYECTO = [["software", "Software a medida"], ["automatizacion", "Automatización e integración"], ["ia", "IA aplicada"], ["web", "Diseño y desarrollo web"], ["procesos", "Levantamiento de procesos"], ["consultoria", "Consultoría"], ["otro", "Otro"]];
 const TIPOS_COBRO = [["anticipo", "Anticipo"], ["hito", "Pago intermedio"], ["cierre", "Pago final"], ["mensualidad", "Mensualidad"], ["evolutivo", "Evolutivo"], ["otro", "Otro"]];
 const ESTADOS_COBRO = [["por_facturar", "Por facturar"], ["facturado", "Facturado"], ["pagado", "Pagado"], ["anulado", "Anulado"]];
@@ -1145,6 +1163,8 @@ function clienteContexto(c, o) {
   const ct = o.contacto;
   if (ct) add("Destinatario", [ct.nombre, ct.cargo].filter(Boolean).join(", "));
   add("Notas internas (solo contexto)", c.notas);
+  add("Etapa con el cliente", etapaClienteLabel(c.etapa));
+  if (c.etapa === "propuesta" && c.propuesta && c.propuesta.titulo) add("Nueva propuesta en preparación", c.propuesta.titulo);
   const ms = (o.mantenciones || []).filter((m) => m.estado === "activa");
   add("Mantención técnica", ms.length ? ms.map((m) => `${m.plan || "Mantención"}: ${money(m.monto)} + IVA al mes${m.incluye ? " (incluye: " + clip(m.incluye, 220) + ")" : ""}`).join("; ") : "no tiene mantención activa");
   const p = o.proyecto;
@@ -1555,6 +1575,7 @@ function actTitulo(a) {
   if (a.tipo === "whatsapp") return "WhatsApp enviado";
   if (a.tipo === "correo") return "Correo enviado";
   if (a.tipo === "reunion") return a.acta ? "Reunión · acta" : "Reunión";
+  if (a.tipo === "etapa" && a.clienteId && !a.leadId) return `Etapa del cliente: ${etapaClienteLabel(a.de) || "—"} → ${a.a ? etapaClienteLabel(a.a) : "automática"}`;
   if (a.tipo === "etapa") return `Etapa: ${etapaLabel(a.de)} → ${etapaLabel(a.a)}`;
   if (a.tipo === "proyecto") return a.a ? `Proyecto: ${a.de ? faseLabel(a.de) + " → " : ""}${faseLabel(a.a)}` : "Proyecto";
   if (a.tipo === "cobro") return a.accion === "pagado" ? "Pago recibido" : a.accion === "facturado" ? "Cobro facturado" : "Cobro";
@@ -1943,29 +1964,38 @@ function VistaLeads({ actual }) {
   </div>`;
 }
 
-/* Responsable en la tarjeta: su inicial. Al tocarla se elige otro (un select invisible encima). */
-function RespAvatar({ l }) {
-  const { api, canWrite, nameOf, toast } = useCtx();
-  const v = l.responsable || "";
+/* Responsable en una tarjeta: su inicial. Al tocarla se elige otro (un select invisible encima). */
+function RespAvatar({ valor, quien, guardar }) {
+  const { canWrite, nameOf, toast } = useCtx();
+  const v = valor || "";
   const nombre = v ? nameOf(v) : "";
   const cambiar = async (nv) => {
     if (nv === v) return;
     try {
-      await api.updateLead(l.id, { responsable: nv || null });
-      toast(nv ? `${leadName(l)}: lo lleva ${nameOf(nv)}.` : `${leadName(l)}: sin responsable.`);
+      await guardar(nv || null);
+      toast(nv ? `${quien}: lo lleva ${nameOf(nv)}.` : `${quien}: sin responsable.`);
     } catch (e) { toast(dbErrorText(e), "bad"); }
   };
   const stop = (e) => e.stopPropagation();
   return html`<span class=${cx("avatar", !v && "vacio", respTono(v), canWrite && "pick")} title=${nombre ? "Lo lleva " + nombre : "Sin responsable"} onPointerDown=${stop} onClick=${stop}>
     ${v ? iniciales(nombre) || "·" : "·"}
-    ${canWrite ? html`<select aria-label=${"Responsable de " + leadName(l)} value=${v} onChange=${(e) => cambiar(e.currentTarget.value)}>
+    ${canWrite ? html`<select aria-label=${"Responsable de " + quien} value=${v} onChange=${(e) => cambiar(e.currentTarget.value)}>
       <option value="">Sin responsable</option>${RESPONSABLES.map(([id, n]) => html`<option value=${id}>${n}</option>`)}${v && !respNombre(v) ? html`<option value=${v}>${nombre}</option>` : null}
     </select>` : null}
   </span>`;
 }
 
+/* En «Ganado»: a qué cliente pasó y en qué etapa va, o el botón para convertirlo. */
+function GanadoTag({ l }) {
+  const { clientesById, proyectos, cobros, mantenciones, solicitudes, cfg, openCliente, openModal, canWrite } = useCtx();
+  const c = l.clienteId ? clientesById[l.clienteId] : null;
+  if (!c) return canWrite ? html`<button type="button" class="tag warn tagbtn" onClick=${(e) => { e.stopPropagation(); openModal({ type: "won", lead: l }); }}>Convertir en cliente</button>` : null;
+  const r = resumenCliente(c.id, { proyectos, cobros, mantenciones, solicitudes, clientesById }, cfg);
+  return html`<button type="button" class="tag ok tagbtn" title=${"Abrir el cliente " + clienteName(c)} onClick=${(e) => { e.stopPropagation(); openCliente(c.id); }}>Cliente · ${etapaClienteLabel(etapaDeCliente(c, r))}</button>`;
+}
+
 function LeadCard({ l, ultima, onPointerDown }) {
-  const { openLead, openModal, canWrite, cfg } = useCtx();
+  const { api, openLead, openModal, canWrite, cfg } = useCtx();
   const abierto = ETAPA[l.etapa || "nuevo"].open;
   const wa = l.telefono && !l.noContactar ? waLink(l.telefono, "", cfg) : null;
   const abrir = () => { if (!recienArrastrado()) openLead(l.id); };
@@ -1976,18 +2006,19 @@ function LeadCard({ l, ultima, onPointerDown }) {
     ${leadSub(l) ? html`<span class="kcard-sub">${leadSub(l)}</span>` : null}
     ${Number(l.valor) > 0 ? html`<span class="kcard-valor">${money(l.valor)} + IVA</span>` : null}
     ${l.noContactar ? html`<div><span class="tag late">No contactar</span></div>`
-      : abierto ? html`<div class="kcard-tags">${l.proxima && l.proxima.fecha ? html`<${NextTag} proxima=${l.proxima} />` : html`<span class="tag warn">Sin próxima acción</span>`}${l.intentos ? html`<span class="tag warn" title="Llamadas seguidas sin respuesta">${l.intentos}\u00a0sin respuesta</span>` : null}</div>`
+      : abierto ? html`<div class="kcard-tags">${l.proxima && l.proxima.fecha ? html`<${NextTag} proxima=${l.proxima} />` : html`<span class="tag warn">Sin próxima acción</span>`}${l.intentos ? html`<span class="tag warn" title="Llamadas seguidas sin respuesta">${l.intentos} sin respuesta</span>` : null}</div>`
       : l.etapa === "perdido" ? html`<div class="kcard-tags">${l.motivoPerdida ? html`<span class="tag late">${l.motivoPerdida}</span>` : canWrite ? html`<button type="button" class="tag warn tagbtn" onClick=${ventana({ type: "lost", lead: l })}>Falta el motivo</button>` : html`<span class="tag warn">Sin motivo</span>`}</div>`
+      : l.etapa === "ganado" ? html`<div class="kcard-tags"><${GanadoTag} l=${l} /></div>`
       : l.etapa === "pausa" && l.proxima && l.proxima.fecha ? html`<div><${NextTag} proxima=${l.proxima} /></div>` : null}
     <span class="kcard-act">${ultima ? html`<${Icon} name=${ACT_ICON[ultima.tipo] || "note"} size=${13} />${clip(actTitulo(ultima), 34)} · ${ago(ultima.fecha)}` : "Sin actividad registrada"}</span>
     <div class="kcard-foot">
-      <${RespAvatar} l=${l} />
+      <${RespAvatar} valor=${l.responsable} quien=${leadName(l)} guardar=${(nv) => api.updateLead(l.id, { responsable: nv })} />
       ${l.noContactar ? null : html`<span class="kacts">
         ${l.telefono && abierto && canWrite ? html`<button type="button" class="kact" title="No contestó" aria-label=${"No contestó " + leadName(l)} onClick=${ventana({ type: "noContesto", lead: l })}><${Icon} name="phonex" size=${15} /></button>` : null}
         ${l.telefono ? html`<button type="button" class="kact" title="Registrar llamada" aria-label=${"Registrar llamada con " + leadName(l)} onClick=${accion("llamada")}><${Icon} name="phone" size=${15} /></button>` : null}
         ${wa ? html`<a class="kact" href=${wa} target="_blank" rel="noopener" title="Abrir WhatsApp" aria-label=${"WhatsApp a " + leadName(l)} onClick=${(e) => e.stopPropagation()}><${Icon} name="chat" size=${15} /></a>` : null}
-        <button type="button" class="kact" title="Redactar con Claude" aria-label=${"Redactar para " + leadName(l)} onClick=${accion("redactar")}><${Icon} name="spark" size=${15} /></button>
-        <button type="button" class="kact" title="Anotar" aria-label=${"Anotar algo de " + leadName(l)} onClick=${accion("otro")}><${Icon} name="note" size=${15} /></button>
+        <button type="button" class="kact opt" title="Redactar con Claude" aria-label=${"Redactar para " + leadName(l)} onClick=${accion("redactar")}><${Icon} name="spark" size=${15} /></button>
+        <button type="button" class="kact opt" title="Anotar" aria-label=${"Anotar algo de " + leadName(l)} onClick=${accion("otro")}><${Icon} name="note" size=${15} /></button>
       </span>`}
     </div>
   </div>`;
@@ -2001,7 +2032,7 @@ const motivosResumen = (items) => {
 };
 
 function EmbudoView() {
-  const { leads, acts, openModal, changeStage, canWrite, nameOf, team } = useCtx();
+  const { leads, acts, openModal, changeStage, canWrite, nameOf, team, nav } = useCtx();
   const [verCerrados, setVerCerrados] = useState(() => ls.get("verCerrados", false));
   const [q, setQ] = useState(() => ls.get("qEmb", ""));
   const [resp, setResp] = useState(() => { const v = ls.get("respEmb", ""); return v === "mios" ? "" : v; });
@@ -2032,10 +2063,11 @@ function EmbudoView() {
   const abiertos = visibles.filter((l) => ETAPA[l.etapa || "nuevo"].open);
   const enJuego = sum(abiertos, (l) => l.valor);
   const ponderado = Math.round(sum(abiertos, (l) => (Number(l.valor) || 0) * PROB_ETAPA[l.etapa || "nuevo"]));
-  const cols = ETAPAS.filter((e) => e.open || verCerrados);
+  /* «Ganado» va siempre al final; Perdido y En pausa, solo si se piden (o como zonas al arrastrar). */
+  const cols = ETAPAS.filter((e) => e.open || e.id === "ganado" || verCerrados);
   return html`<div class="main-inner">
     <header class="page-head">
-      <div><p class="eyebrow">${abiertos.length} ${abiertos.length === 1 ? "abierto" : "abiertos"}${enJuego ? ` · ${money(enJuego)} en juego · ${money(ponderado)} ponderado` : ""}</p><h1>Embudo</h1>
+      <div><p class="eyebrow">${abiertos.length} ${abiertos.length === 1 ? "abierto" : "abiertos"}${enJuego ? ` · ${money(enJuego)} en juego · ${money(ponderado)} ponderado` : ""}</p><h1>Embudo de leads</h1>
         <p class="lede">${canWrite ? (pantallaTactil() ? "Mantén apretada una tarjeta y arrástrala a otra etapa." : "Arrastra las tarjetas de una etapa a otra.") + " Al soltar en «Ganado» se crea el cliente." : "Solo lectura."}</p></div>
       <div class="actions">
         <${VistaLeads} actual="embudo" />
@@ -2048,7 +2080,7 @@ function EmbudoView() {
         <option value="">Todos los responsables</option>${team.map((u) => html`<option value=${u}>${nameOf(u)}</option>`)}<option value="sin">Sin responsable</option>
       </select>
       <select id="emb-orden" class="select" aria-label="Ordenar" value=${orden} onChange=${(e) => setOrden(e.currentTarget.value)}>${ORDEN_EMBUDO.map(([v, t]) => html`<option value=${v}>${t}</option>`)}</select>
-      <label class="check"><input type="checkbox" id="ver-cerrados" checked=${verCerrados} onChange=${(e) => setVerCerrados(e.currentTarget.checked)} />Ganados, perdidos y en pausa</label>
+      <label class="check"><input type="checkbox" id="ver-cerrados" checked=${verCerrados} onChange=${(e) => setVerCerrados(e.currentTarget.checked)} />Perdidos y en pausa</label>
     </div>
     <div class="board embudo" ref=${boardRef}>
       ${cols.map((e) => {
@@ -2058,12 +2090,13 @@ function EmbudoView() {
           <div class="col-head"><${StagePill} etapa=${e.id} /><span class="count">${items.length}</span></div>
           ${total ? html`<p class="col-sum"><b>${money(total)}</b>${e.open ? ` · ${money(Math.round(total * PROB_ETAPA[e.id]))} ponderado (${Math.round(PROB_ETAPA[e.id] * 100)} %)` : ""}</p>` : null}
           ${e.id === "perdido" && items.length ? html`<p class="col-sum motivos">${motivosResumen(items)}</p>` : null}
+          ${e.id === "ganado" ? html`<p class="col-sum"><button type="button" class="linkbtn" onClick=${() => nav("embudoClientes")}>Ver el embudo de clientes →</button></p>` : null}
           ${items.map((l) => html`<${LeadCard} key=${l.id} l=${l} ultima=${ultima[l.id]} onPointerDown=${(ev) => start(ev, l.id, e.id)} />`)}
           ${!items.length ? html`<p class="col-empty">${drag ? "Suelta aquí" : "Sin leads"}</p>` : null}
         </div>`;
       })}
     </div>
-    ${drag && !verCerrados ? html`<div class="dropbar">${CERRADAS.map((id) => html`<div key=${id} data-col=${id} class=${cx("dropzone", id, drag.over === id && "on")}><${StagePill} etapa=${id} /><span>${SOLTAR_EN[id]}</span></div>`)}</div>` : null}
+    ${drag && !verCerrados ? html`<div class="dropbar">${CERRADAS.filter((id) => id !== "ganado").map((id) => html`<div key=${id} data-col=${id} class=${cx("dropzone", id, drag.over === id && "on")}><${StagePill} etapa=${id} /><span>${SOLTAR_EN[id]}</span></div>`)}</div>` : null}
   </div>`;
 }
 
@@ -3016,6 +3049,22 @@ function resumenCliente(cid, d, cfg) {
   };
 }
 const tieneServicio = (r) => !!(r.activos.length || r.garantia.length || r.ms.length || r.sols.length || r.porCobrar);
+/* La etapa del cliente: la que se fijó al mover la tarjeta o, si no, la que dicen sus servicios. */
+function etapaDeCliente(c, r) {
+  if (c && ETAPA_CLIENTE[c.etapa]) return c.etapa;
+  if (r.activos.some((p) => EN_DESARROLLO.has(p.estado))) return "desarrollo";
+  if (r.activos.length) return "inicio";
+  if (r.garantia.length) return "garantia";
+  if (r.ms.length) return "mantencion";
+  return "sin_servicio";
+}
+/* Un proyecto nuevo devuelve al cliente a su etapa automática (si estaba en «Nueva propuesta», la ganó). */
+async function etapaAutomatica(api, c, proyectos) {
+  if (!c || !c.etapa) return;
+  const dev = proyectos.some((p) => p.clienteId === c.id && EN_DESARROLLO.has(p.estado));
+  await api.updateCliente(c.id, { etapa: null, propuesta: null });
+  await api.addAct({ clienteId: c.id, tipo: "etapa", de: c.etapa, a: dev ? "desarrollo" : "inicio", resumen: c.etapa === "propuesta" ? "Ganó la nueva propuesta" + (c.propuesta && c.propuesta.titulo ? ": " + c.propuesta.titulo : "") : "Proyecto nuevo" });
+}
 function ServiciosTags({ r }) {
   const { cfg } = useCtx();
   const out = [];
@@ -3181,7 +3230,7 @@ function ClientesView() {
     <header class="page-head">
       <div><p class="eyebrow">${clientes.length} ${clientes.length === 1 ? "cliente" : "clientes"}${mrr ? ` · ${money(mrr)} al mes en mantenciones` : ""}</p><h1>Clientes</h1>
         <p class="lede">Cuando un lead se marca como «Ganado», pasa aquí con su proyecto y su calendario de cobros.</p></div>
-      <div class="actions"><button class="btn primary" onClick=${() => openModal({ type: "newCliente" })} disabled=${!canWrite}><${Icon} name="plus" />Nuevo cliente</button></div>
+      <div class="actions"><${VistaClientes} actual="clientes" /><button class="btn primary" onClick=${() => openModal({ type: "newCliente" })} disabled=${!canWrite}><${Icon} name="plus" />Nuevo cliente</button></div>
     </header>
     <div class="toolbar">
       <label class="search"><span class="sr">Buscar clientes</span><${Icon} name="search" /><input id="buscar-cli" class="input" type="search" placeholder="Buscar por nombre, razón social, RUT o contacto" value=${q} onInput=${(e) => setQ(e.currentTarget.value)} /></label>
@@ -3190,9 +3239,10 @@ function ClientesView() {
     <section class="panel">
       ${!rows.length ? html`<div class="panel-body" style="padding-top:16px"><p class="empty">${clientes.length ? "Ningún cliente coincide con estos filtros." : "Todavía no hay clientes. Marca un lead como «Ganado» o agrega uno con «Nuevo cliente»."}</p></div>` : html`
       <div class="only-wide table-wrap"><table class="leads">
-        <thead><tr><th>Cliente</th><th>Servicios</th><th>Soporte</th><th class="r">Por cobrar</th><th>Responsable</th></tr></thead>
+        <thead><tr><th>Cliente</th><th>Etapa</th><th>Servicios</th><th>Soporte</th><th class="r">Por cobrar</th><th>Responsable</th></tr></thead>
         <tbody>${rows.map(({ c, r }) => html`<tr key=${c.id} onClick=${() => openCliente(c.id)}>
           <td><div class="cell-name"><b>${clienteName(c)}</b><span>${[contactoPrincipal(c) && contactoPrincipal(c).nombre, c.rubro].filter(Boolean).join(" · ") || c.razonSocial || ""}</span></div></td>
+          <td><${EtapaClientePill} etapa=${etapaDeCliente(c, r)} /></td>
           <td><div class="actions"><${ServiciosTags} r=${r} /></div></td>
           <td>${r.sols.length ? html`<span class="tag warn">${r.sols.length} ${r.sols.length === 1 ? "abierta" : "abiertas"}</span>` : html`<span class="muted small">—</span>`}</td>
           <td class="amount-cell">${r.porCobrar ? html`<span class="amount">${money(r.porCobrar)}${r.vencido ? html`<small style="color:var(--bad)">${money(r.vencido)} vencido</small>` : html`<small>+ IVA</small>`}</span>` : html`<span class="muted small">—</span>`}</td>
@@ -3206,6 +3256,125 @@ function ClientesView() {
       </div>`)}</div></div>`}
     </section>
   </div>`;
+}
+
+/* ===================================================================== vista: embudo de clientes */
+
+function VistaClientes({ actual }) {
+  const { nav } = useCtx();
+  return html`<div class="seg" role="group" aria-label="Vista">
+    <button type="button" aria-pressed=${actual === "clientes" ? "true" : "false"} onClick=${() => nav("clientes")}><${Icon} name="list" />Tabla</button>
+    <button type="button" aria-pressed=${actual === "embudoClientes" ? "true" : "false"} onClick=${() => nav("embudoClientes")}><${Icon} name="stage" />Tablero</button>
+  </div>`;
+}
+
+function EtapaClientePill({ etapa }) {
+  const e = ETAPA_CLIENTE[etapa] || ETAPA_CLIENTE.sin_servicio;
+  return html`<span class=${"stage " + e.tone} title=${e.ayuda}><i></i>${e.label}</span>`;
+}
+
+function ClienteCard({ c, r, etapa, onPointerDown }) {
+  const { api, openCliente, openModal, canWrite } = useCtx();
+  const pc = contactoPrincipal(c);
+  const prop = c.propuesta || null;
+  const abrir = () => { if (!recienArrastrado()) openCliente(c.id); };
+  const accion = (tab) => (e) => { e.stopPropagation(); openCliente(c.id, tab); };
+  const editar = (e) => { e.stopPropagation(); if (canWrite) openModal({ type: "propuestaCliente", cliente: c, de: etapa }); };
+  return html`<div class="kcard lead" role="button" tabindex="0" aria-label=${"Abrir " + clienteName(c)} onPointerDown=${onPointerDown} onClick=${abrir} onKeyDown=${(e) => { if (e.target === e.currentTarget && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); openCliente(c.id); } }}>
+    <div class="kcard-top"><b>${clienteName(c)}</b></div>
+    ${pc || c.rubro ? html`<span class="kcard-sub">${[pc && pc.nombre, c.rubro].filter(Boolean).join(" · ")}</span>` : null}
+    ${etapa === "propuesta" ? html`<div>${prop && (prop.titulo || prop.valor) ? html`<button type="button" class="tag today tagbtn" title="Cambiar la propuesta" onClick=${editar}>${prop.titulo || "Propuesta"}${prop.valor ? " · " + money(prop.valor) : ""}</button>` : canWrite ? html`<button type="button" class="tag warn tagbtn" onClick=${editar}>¿Qué le proponemos?</button>` : null}</div>` : null}
+    <div class="kcard-tags"><${ServiciosTags} r=${r} />${r.sols.length ? html`<span class="tag warn">${r.sols.length} ${r.sols.length === 1 ? "solicitud" : "solicitudes"}</span>` : null}${r.vencido ? html`<span class="tag late">${money(r.vencido)} vencido</span>` : null}${c.estado === "archivado" ? html`<span class="tag">Archivado</span>` : null}</div>
+    <div class="kcard-foot">
+      <${RespAvatar} valor=${c.responsable} quien=${clienteName(c)} guardar=${(nv) => api.updateCliente(c.id, { responsable: nv })} />
+      <span class="kacts">
+        <button type="button" class="kact" title="Registrar reunión o llamada" aria-label=${"Registrar algo con " + clienteName(c)} onClick=${accion("registrar")}><${Icon} name="note" size=${15} /></button>
+        <button type="button" class="kact" title="Redactar con Claude" aria-label=${"Redactar para " + clienteName(c)} onClick=${accion("redactar")}><${Icon} name="spark" size=${15} /></button>
+      </span>
+    </div>
+  </div>`;
+}
+
+function EmbudoClientesView() {
+  const { clientes, proyectos, cobros, mantenciones, solicitudes, clientesById, openModal, canWrite, cfg, team, nameOf, moverCliente } = useCtx();
+  const [q, setQ] = useState(() => ls.get("qEmbCli", ""));
+  const [resp, setResp] = useState(() => ls.get("respEmbCli", ""));
+  const [verArch, setVerArch] = useState(() => ls.get("verCliArch", false));
+  useEffect(() => { ls.set("qEmbCli", q); ls.set("respEmbCli", resp); ls.set("verCliArch", verArch); }, [q, resp, verArch]);
+  const rows = useMemo(() => {
+    const d = { proyectos, cobros, mantenciones, solicitudes, clientesById };
+    const qq = fold(q).trim();
+    return clientes
+      .filter((c) => verArch || c.estado !== "archivado")
+      .filter((c) => (resp === "sin" ? !c.responsable : !resp || c.responsable === resp))
+      .filter((c) => !qq || fold([c.nombre, c.razonSocial, c.rubro, ...(c.contactos || []).map((x) => x.nombre)].join(" ")).includes(qq))
+      .map((c) => { const r = resumenCliente(c.id, d, cfg); return { c, r, etapa: etapaDeCliente(c, r) }; });
+  }, [clientes, proyectos, cobros, mantenciones, solicitudes, clientesById, cfg, q, resp, verArch]);
+  const { drag, start, boardRef } = useBoardDrag({
+    enabled: canWrite,
+    onDrop: (id, etapa) => { const x = rows.find((y) => y.c.id === id); if (x) moverCliente(x.c, etapa, x.etapa); },
+  });
+  const mrr = sum(rows, (x) => x.r.mrr);
+  const valorProp = sum(rows.filter((x) => x.etapa === "propuesta"), (x) => (x.c.propuesta || {}).valor);
+  const resumen = (id, items) => {
+    if (id === "mantencion") { const m = sum(items, (x) => x.r.mrr); return m ? html`<b>${money(m)}</b> al mes` : null; }
+    if (id === "propuesta") { const v = sum(items, (x) => (x.c.propuesta || {}).valor); return v ? html`<b>${money(v)}</b> propuesto` : null; }
+    if (id === "inicio" || id === "desarrollo") { const v = sum(items, (x) => sum(x.r.activos, (p) => p.valor)); return v ? html`<b>${money(v)}</b> en proyectos` : null; }
+    return null;
+  };
+  return html`<div class="main-inner">
+    <header class="page-head">
+      <div><p class="eyebrow">${rows.length} ${rows.length === 1 ? "cliente" : "clientes"}${mrr ? ` · ${money(mrr)} al mes en mantenciones` : ""}${valorProp ? ` · ${money(valorProp)} en propuestas` : ""}</p><h1>Embudo de clientes</h1>
+        <p class="lede">${canWrite ? "En qué va cada cliente después de ganarlo. Arrastra la tarjeta para cambiar la etapa; mientras no la muevas, sigue a sus proyectos y su mantención." : "Solo lectura."}</p></div>
+      <div class="actions">
+        <${VistaClientes} actual="embudoClientes" />
+        <button class="btn primary" onClick=${() => openModal({ type: "newCliente" })} disabled=${!canWrite}><${Icon} name="plus" />Nuevo cliente</button>
+      </div>
+    </header>
+    <div class="toolbar">
+      <label class="search"><span class="sr">Buscar clientes</span><${Icon} name="search" /><input id="buscar-emb-cli" class="input" type="search" placeholder="Buscar por nombre, razón social o contacto" value=${q} onInput=${(e) => setQ(e.currentTarget.value)} /></label>
+      <select id="emb-cli-resp" class="select" aria-label="Responsable" value=${resp} onChange=${(e) => setResp(e.currentTarget.value)}>
+        <option value="">Todos los responsables</option>${team.map((u) => html`<option value=${u}>${nameOf(u)}</option>`)}<option value="sin">Sin responsable</option>
+      </select>
+      <label class="check"><input type="checkbox" id="ver-cli-arch" checked=${verArch} onChange=${(e) => setVerArch(e.currentTarget.checked)} />Incluir archivados</label>
+    </div>
+    ${!clientes.length ? html`<section class="panel"><div class="panel-body" style="padding-top:16px"><p class="empty">Todavía no hay clientes. Cuando un lead pasa a «Ganado» en el embudo de leads, aparece aquí en «Por iniciar».</p></div></section>` : html`
+    <div class="board embudo" ref=${boardRef}>
+      ${ETAPAS_CLIENTE.map((e) => {
+        const items = rows.filter((x) => x.etapa === e.id).sort((a, b) => fold(clienteName(a.c)).localeCompare(fold(clienteName(b.c))));
+        const s = resumen(e.id, items);
+        return html`<div key=${e.id} data-col=${e.id} class=${cx("col", drag && drag.over === e.id && drag.from !== e.id && "drop")}>
+          <div class="col-head"><${EtapaClientePill} etapa=${e.id} /><span class="count">${items.length}</span></div>
+          ${s ? html`<p class="col-sum">${s}</p>` : null}
+          ${items.map((x) => html`<${ClienteCard} key=${x.c.id} c=${x.c} r=${x.r} etapa=${x.etapa} onPointerDown=${(ev) => start(ev, x.c.id, x.etapa)} />`)}
+          ${!items.length ? html`<p class="col-empty">${drag ? "Suelta aquí" : "Sin clientes"}</p>` : null}
+        </div>`;
+      })}
+    </div>`}
+  </div>`;
+}
+
+/* Al pasar un cliente a «Nueva propuesta»: qué le vamos a proponer y cuánto, más o menos. */
+function PropuestaClienteModal({ cliente, de }) {
+  const { closeModal, moverCliente } = useCtx();
+  const p = cliente.propuesta || {};
+  const [titulo, setTitulo] = useState(p.titulo || "");
+  const [valor, setValor] = useState(p.valor ? String(p.valor) : "");
+  const [saving, setSaving] = useState(false);
+  const v = parseMonto(valor);
+  const guardar = async () => {
+    setSaving(true);
+    const ok = await moverCliente(cliente, "propuesta", de, { propuesta: { titulo: titulo.trim(), valor: v || null } });
+    if (ok) closeModal(); else setSaving(false);
+  };
+  return html`<${Modal} title=${"Nueva propuesta: " + clienteName(cliente)} onClose=${closeModal} foot=${html`<button class="btn ghost" onClick=${closeModal}>Cancelar</button><button class="btn primary" onClick=${guardar} disabled=${saving}>Guardar</button>`}>
+    <form class="modal-body" onSubmit=${(e) => { e.preventDefault(); guardar(); }}>
+      <label class="field" for="prop-titulo"><span>Qué le vamos a proponer</span><input id="prop-titulo" class="input" value=${titulo} onInput=${(e) => setTitulo(e.currentTarget.value)} placeholder="Ej.: evolutivo de reportes, app para los choferes" /></label>
+      <label class="field" for="prop-valor"><span>Valor estimado (CLP sin IVA, opcional)</span><input id="prop-valor" class="input mono" inputmode="numeric" value=${valor} onInput=${(e) => setValor(e.currentTarget.value)} />${v ? html`<small class="hint">${money(v)} + IVA</small>` : null}</label>
+      <p class="small muted">El caso comercial se arma en propuestaszh, como con un lead. Cuando la ganen, crea el proyecto desde la ficha del cliente: el cliente vuelve solo a su etapa según el proyecto.</p>
+      <button type="submit" class="sr">Guardar</button>
+    </form>
+  </${Modal}>`;
 }
 
 /* ===================================================================== ficha del cliente */
@@ -3422,12 +3591,14 @@ function ClienteDatos({ c, save, onClose }) {
 }
 
 function ClienteDrawer({ id, tab: initialTab, onClose }) {
-  const { clientesById, proyectos, cobros, mantenciones, solicitudes, db, api, cfg, toast, canWrite, drafts, openModal, openProyecto } = useCtx();
+  const { clientesById, proyectos, cobros, mantenciones, solicitudes, db, api, cfg, toast, canWrite, drafts, openModal, openProyecto, moverCliente } = useCtx();
   const c = clientesById[id];
-  const [tab, setTab] = useState(initialTab || "resumen");
-  const [work, setWork] = useState("");
+  /* «redactar» y «registrar» abren la ficha con esa herramienta lista (desde la tarjeta del embudo). */
+  const directo = initialTab === "redactar" || initialTab === "registrar";
+  const [tab, setTab] = useState(directo ? "resumen" : initialTab || "resumen");
+  const [work, setWork] = useState(directo ? initialTab : "");
   const [hist, setHist] = useState([]);
-  useEffect(() => { setTab(initialTab || "resumen"); setWork(""); }, [id, initialTab]);
+  useEffect(() => { setTab(directo ? "resumen" : initialTab || "resumen"); setWork(directo ? initialTab : ""); }, [id, initialTab]);
   useEffect(() => {
     if (!db || !id) return undefined;
     return db.collection("actividades").where("clienteId", "==", id).onSnapshot((s) => setHist(s.docs.map((x) => ({ id: x.id, ...x.data() })).sort((a, b) => String(b.fecha).localeCompare(String(a.fecha)))), () => {});
@@ -3437,6 +3608,8 @@ function ClienteDrawer({ id, tab: initialTab, onClose }) {
 
   const d = { proyectos, cobros, mantenciones, solicitudes, clientesById };
   const r = resumenCliente(c.id, d, cfg);
+  const etapa = etapaDeCliente(c, r);
+  const auto = etapaDeCliente({ ...c, etapa: null }, r);
   const ps = [...r.ps].sort((a, b) => (PROYECTO_VIVO.has(b.estado) - PROYECTO_VIVO.has(a.estado)) || String(b.creado).localeCompare(String(a.creado)));
   const sols = solicitudes.filter((s) => s.clienteId === c.id).sort(solOrden);
   const cs = cobros.filter((x) => x.clienteId === c.id).sort((a, b) => String(a.fecha || "9999").localeCompare(String(b.fecha || "9999")));
@@ -3455,6 +3628,11 @@ function ClienteDrawer({ id, tab: initialTab, onClose }) {
           <button class="btn ghost icon" aria-label="Cerrar ficha" onClick=${onClose}><${Icon} name="x" size=${18} /></button>
         </div>
         <div class="drawer-meta">
+          <label class="sr" for="cli-etapa">Etapa del cliente</label>
+          <select id="cli-etapa" class="select" value=${ETAPA_CLIENTE[c.etapa] ? c.etapa : ""} disabled=${!canWrite} onChange=${(e) => moverCliente(c, e.currentTarget.value, etapa)}>
+            <option value="">${"Automática · " + etapaClienteLabel(auto)}</option>${ETAPAS_CLIENTE.map((x) => html`<option value=${x.id}>${x.label}</option>`)}
+          </select>
+          ${etapa === "propuesta" ? html`<button type="button" class="tag today tagbtn" title="Cambiar la propuesta" onClick=${() => canWrite && openModal({ type: "propuestaCliente", cliente: c, de: etapa })}>${(c.propuesta && c.propuesta.titulo) || "¿Qué le proponemos?"}${c.propuesta && c.propuesta.valor ? " · " + money(c.propuesta.valor) : ""}</button>` : null}
           <${ServiciosTags} r=${r} />
           ${r.sols.length ? html`<span class="tag warn">${r.sols.length} ${r.sols.length === 1 ? "solicitud abierta" : "solicitudes abiertas"}</span>` : null}
           ${r.vencido ? html`<span class="tag late">${money(r.vencido)} vencido</span>` : null}
@@ -4043,7 +4221,7 @@ function MantencionModal({ id, clienteId: cid0 }) {
 /* ===================================================================== altas: ganado, cliente, proyecto */
 
 function WonModal({ lead }) {
-  const { api, clientes, closeModal, toast, cfg, me, yo, openCliente, canWrite } = useCtx();
+  const { api, clientes, proyectos, closeModal, toast, cfg, me, yo, openCliente, canWrite } = useCtx();
   const t = todayKey();
   const [modo, setModo] = useState(lead.clienteId ? "existente" : "nuevo");
   const [existente, setExistente] = useState(lead.clienteId || (clientes[0] || {}).id || "");
@@ -4085,6 +4263,7 @@ function WonModal({ lead }) {
           const pid = await api.createProyecto({ clienteId: cid, leadId: lead.id, nombre: pNombre.trim() || "Proyecto", tipo, valor: v || null, estado: "por_iniciar", inicio: inicio || "", entregaEstimada: entrega || "", produccion: "", garantiaDias: Number(cfg.garantiaDias) || 60, hitos: [], enlaces: [], caso: lead.caso || "", alcance: lead.necesidad || "", responsable: lead.responsable || yo || null });
           if (v) await crearPlanPago(api, { clienteId: cid, proyectoId: pid }, plan, v, fechas);
           await api.addAct({ clienteId: cid, proyectoId: pid, tipo: "proyecto", a: "por_iniciar", resumen: `${pNombre.trim() || "Proyecto"}${v ? ": " + money(v) + " + IVA" : ""}` });
+          if (modo === "existente") await etapaAutomatica(api, clientes.find((x) => x.id === cid), proyectos);
         }
         const mm = parseMonto(mMonto);
         if (conMant && mm) await api.createMantencion({ clienteId: cid, proyectoId: null, plan: "Mantención técnica", monto: mm, incluye: MANT_INCLUYE, inicio: entrega || inicio || t, diaCobro: 1, estado: "activa", fin: "", notas: "" });
@@ -4173,7 +4352,7 @@ function NewClienteModal() {
 }
 
 function NewProyectoModal({ clienteId: cid0 }) {
-  const { api, clientes, closeModal, toast, cfg, me, yo, openProyecto, canWrite } = useCtx();
+  const { api, clientes, proyectos, closeModal, toast, cfg, me, yo, openProyecto, canWrite } = useCtx();
   const t = todayKey();
   const [cid, setCid] = useState(cid0 || (clientes.find((c) => c.estado !== "archivado") || {}).id || "");
   const [nombre, setNombre] = useState("");
@@ -4193,6 +4372,7 @@ function NewProyectoModal({ clienteId: cid0 }) {
       const pid = await api.createProyecto({ clienteId: cid, nombre: nombre.trim(), tipo, valor: v || null, estado: "por_iniciar", inicio: inicio || "", entregaEstimada: entrega || "", produccion: "", garantiaDias: Number(cfg.garantiaDias) || 60, hitos: [], enlaces: [], caso: "", alcance: "", responsable: yo || null });
       if (v) await crearPlanPago(api, { clienteId: cid, proyectoId: pid }, plan, v, fechas);
       await api.addAct({ clienteId: cid, proyectoId: pid, tipo: "proyecto", a: "por_iniciar", resumen: `${nombre.trim()}${v ? ": " + money(v) + " + IVA" : ""}` });
+      await etapaAutomatica(api, clientes.find((x) => x.id === cid), proyectos);
       toast("Proyecto creado.");
       closeModal();
       openProyecto(pid);
@@ -4652,11 +4832,11 @@ function AjustesView() {
 
 /* ===================================================================== app */
 
-const VIEWS = [["hoy", "Hoy", "sun"], ["leads", "Leads", "list"], ["embudo", "Embudo", "funnel"], ["clientes", "Clientes", "building"], ["proyectos", "Proyectos", "folder"], ["soporte", "Soporte", "lifebuoy"], ["cobros", "Cobros", "coin"], ["borradores", "Borradores", "doc"], ["ajustes", "Ajustes", "sliders"]];
+const VIEWS = [["hoy", "Hoy", "sun"], ["leads", "Leads", "list"], ["embudo", "Embudo de leads", "funnel"], ["clientes", "Clientes", "building"], ["embudoClientes", "Embudo de clientes", "funnel"], ["proyectos", "Proyectos", "folder"], ["soporte", "Soporte", "lifebuoy"], ["cobros", "Cobros", "coin"], ["borradores", "Borradores", "doc"], ["ajustes", "Ajustes", "sliders"]];
 const VIEW = Object.fromEntries(VIEWS.map((v) => [v[0], v]));
-const NAV_GROUPS = [["", ["hoy"]], ["Ventas", ["leads", "embudo"]], ["Clientes", ["clientes", "proyectos", "soporte", "cobros"]], ["", ["borradores", "ajustes"]]];
+const NAV_GROUPS = [["", ["hoy"]], ["Ventas", ["leads", "embudo"]], ["Clientes", ["clientes", "embudoClientes", "proyectos", "soporte", "cobros"]], ["", ["borradores", "ajustes"]]];
 const TABS_MOVIL = ["hoy", "leads", "clientes", "borradores"];
-const MAS_MOVIL = ["embudo", "proyectos", "soporte", "cobros", "ajustes"];
+const MAS_MOVIL = ["embudo", "embudoClientes", "proyectos", "soporte", "cobros", "ajustes"];
 
 function App() {
   const [db, setDb] = useState(undefined);
@@ -4790,6 +4970,18 @@ function App() {
     } catch (e) { toast(dbErrorText(e), "bad"); }
   }, [wrapApi, toast]);
 
+  /* Embudo de clientes: la etapa queda fija; con "" vuelve a la automática. «Nueva propuesta» pide qué y cuánto. */
+  const moverCliente = useCallback(async (c, a, de, extra) => {
+    if (!wrapApi) return false;
+    if (a === "propuesta" && !extra) { setModal({ type: "propuestaCliente", cliente: c, de }); return false; }
+    try {
+      await wrapApi.updateCliente(c.id, { ...(extra || {}), etapa: a || null });
+      if (a !== de || !a) await wrapApi.addAct({ clienteId: c.id, tipo: "etapa", de: de || "", a: a || "", resumen: a === "propuesta" && extra && extra.propuesta && extra.propuesta.titulo ? extra.propuesta.titulo : "" });
+      toast(a ? `${clienteName(c)}: ${etapaClienteLabel(a)}.` : `${clienteName(c)}: etapa automática.`);
+      return true;
+    } catch (e) { toast(dbErrorText(e), "bad"); return false; }
+  }, [wrapApi, toast]);
+
   const moveProyecto = useCallback(async (p, estado) => {
     if (!wrapApi || p.estado === estado) return;
     try {
@@ -4874,7 +5066,7 @@ function App() {
   const ctx = {
     db, api: wrapApi, me, yo, leads: leads || [], leadsById, acts, drafts, equipo, cfg, sampleState, setSampleState, downloads, toast, nameOf, team, borradoresDeTareas,
     clientes: clientes || [], clientesById, proyectos: proyectos || [], proyectosById, cobros: cobros || [], mantenciones: mantenciones || [], solicitudes: solicitudes || [],
-    openLead, openCliente, openProyecto, openDraft, openModal, closeModal, nav, changeStage, moveProyecto, canWrite, profileName: me.name,
+    openLead, openCliente, openProyecto, openDraft, openModal, closeModal, nav, changeStage, moveProyecto, moverCliente, canWrite, profileName: me.name,
   };
 
   if (db === null) {
@@ -4890,6 +5082,7 @@ function App() {
   } else if (view === "leads") body = html`<${LeadsView} />`;
   else if (view === "embudo") body = html`<${EmbudoView} />`;
   else if (view === "clientes") body = html`<${ClientesView} />`;
+  else if (view === "embudoClientes") body = html`<${EmbudoClientesView} />`;
   else if (view === "proyectos") body = html`<${ProyectosView} />`;
   else if (view === "soporte") body = html`<${SoporteView} />`;
   else if (view === "cobros") body = html`<${CobrosView} />`;
@@ -4936,6 +5129,7 @@ function App() {
       ${modal.type === "draft" ? html`<${DraftEditor} id=${modal.id} />` : null}
       ${modal.type === "lost" ? html`<${LostModal} lead=${modal.lead} />` : null}
       ${modal.type === "noContesto" ? html`<${NoContestoModal} lead=${modal.lead} />` : null}
+      ${modal.type === "propuestaCliente" ? html`<${PropuestaClienteModal} cliente=${modal.cliente} de=${modal.de} />` : null}
       ${modal.type === "won" ? html`<${WonModal} lead=${modal.lead} />` : null}
       ${modal.type === "newCliente" ? html`<${NewClienteModal} />` : null}
       ${modal.type === "newProyecto" ? html`<${NewProyectoModal} clienteId=${modal.clienteId} />` : null}

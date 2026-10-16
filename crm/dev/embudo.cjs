@@ -42,6 +42,7 @@ const SEED = {
   "leads/lead-g": base({ nombre: "Ana Ruiz", empresa: "Vivero Sur", telefono: "+56911110007", etapa: "pausa", responsable: LO, proxima: { tipo: "llamar", fecha: T, hora: "", nota: "Retomar: quedó en hablar este mes" }, creado: iso(-15), actualizado: iso(-5) }),
   "leads/lead-h": base({ nombre: "Marta Gil", empresa: "Textil Norte", telefono: "+56911110008", etapa: "perdido", motivoPerdida: "", responsable: null, creado: iso(-6), actualizado: iso(-6) }),
   "leads/lead-i": base({ nombre: "Jorge Paz", empresa: "Fletes Paz", telefono: "+56911110009", etapa: "nuevo", intentos: 2, responsable: NI, proxima: { tipo: "llamar", fecha: addDays(T, 4), hora: "", nota: "Volver a llamar" }, creado: iso(-7), actualizado: iso(-2) }),
+  "leads/lead-j": base({ nombre: "Pedro León", empresa: "Taller Sur", telefono: "+56911110010", etapa: "ganado", clienteId: "cli-x", responsable: LO, creado: iso(-60), actualizado: iso(-30) }),
   "actividades/act-b1": { leadId: "lead-b", tipo: "llamada", resultado: "contesto", fecha: new Date(Date.now() - 2 * 3600e3).toISOString(), autor: NICO, resumen: "Quiere ver una demo." },
   "clientes/cli-x": { nombre: "Taller Sur", razonSocial: "", rut: "", contactos: [], responsable: LO, trato: "tu", leadIds: [], estado: "activo", notas: "", creado: iso(-30), actualizado: iso(-30), creadoPor: ME },
   "proyectos/pro-x": { clienteId: "cli-x", nombre: "Agenda de taller", tipo: "software", valor: 4000000, estado: "entender", inicio: addDays(T, -5), entregaEstimada: addDays(T, 40), produccion: "", garantiaDias: 60, hitos: [], enlaces: [], caso: "", alcance: "", responsable: LO, creado: iso(-5), actualizado: iso(-5), creadoPor: ME },
@@ -104,7 +105,7 @@ const SEED = {
   await page.locator(".toolbar .seg button", { hasText: "Todo el equipo" }).click();
   ok(await hoyPanel.locator(".lrow", { hasText: "Ana Ruiz" }).isVisible(), "y volver a ver todo el equipo");
   /* ---------------- tabla ↔ tablero ---------------- */
-  await page.locator(".side .nav button", { hasText: "Leads" }).click();
+  await page.locator(".side .nav button", { hasText: /^Leads/ }).click();
   await page.locator("h1", { hasText: "Leads" }).waitFor();
   await page.selectOption("#f-resp", NI);
   ok((await page.locator("table.leads tbody tr").count()) === 2, "en la tabla se filtra por responsable");
@@ -118,7 +119,8 @@ const SEED = {
   const eyebrow = await page.locator(".page-head .eyebrow").textContent();
   ok(eyebrow.includes("6 abiertos") && eyebrow.includes("$18.000.000 en juego") && eyebrow.includes("$9.050.000 ponderado"), "la cabecera suma lo que está en juego y lo ponderado por etapa");
   ok((await col(page, "propuesta").locator(".col-sum").innerText()).includes("$10.000.000 · $5.000.000 ponderado (50 %)"), "cada etapa muestra su total y su ponderado");
-  ok((await page.locator(".board .col").count()) === 5, "por defecto se ven las 5 etapas abiertas");
+  ok((await page.locator(".board .col").count()) === 6 && (await page.locator(".board .col").last().getAttribute("data-col")) === "ganado", "por defecto se ven las 5 etapas abiertas y «Ganado» al final");
+  ok(await card(page, "Pedro León").locator(".tag", { hasText: /Cliente.+En desarrollo/ }).isVisible(), "la tarjeta ganada dice a qué cliente pasó y en qué etapa va");
   ok(await card(page, "Paula Rojas").locator(".tag", { hasText: "Sin próxima acción" }).isVisible(), "la tarjeta avisa cuando no hay próxima acción");
   ok(await card(page, "Paula Rojas").locator(".prio").isVisible(), "y marca la prioridad alta");
   ok((await card(page, "Tomás Vera").locator(".kcard-act").innerText()).includes("Llamada"), "muestra la última actividad");
@@ -145,18 +147,13 @@ const SEED = {
   await page.waitForTimeout(150);
   ok((await page.locator(".kghost").count()) === 0 && (await store(page))["leads/lead-f"].etapa === "propuesta", "Escape cancela el arrastre");
 
-  /* ---------------- Ganado y Perdido aparecen al arrastrar ---------------- */
-  await arrastrar(page, card(page, "Carlos Díaz"), page.locator(".dropbar .dropzone.ganado"), { soltar: false }).catch(() => {});
-  if (!(await page.locator(".dropbar").count())) {
-    const a = await centro(card(page, "Carlos Díaz"));
-    await page.mouse.move(a.x, a.y); await page.mouse.down(); await page.mouse.move(a.x + 20, a.y + 10, { steps: 4 });
-  }
-  await page.locator(".dropbar").waitFor();
-  ok((await page.locator(".dropbar .dropzone").count()) === 3, "al arrastrar aparecen las zonas Ganado, Perdido y En pausa");
+  /* ---------------- Ganado es una columna; Perdido y En pausa aparecen al arrastrar ---------------- */
+  /* Con seis columnas el tablero se desliza a lo ancho: «Ganado» queda a la derecha. */
+  await col(page, "ganado").scrollIntoViewIfNeeded();
+  await arrastrar(page, card(page, "Carlos Díaz"), col(page, "ganado"), { soltar: false });
+  ok(await col(page, "ganado").evaluate((el) => el.classList.contains("drop")), "se arrastra a «Ganado» como a cualquier etapa");
+  ok((await page.locator(".dropbar .dropzone").count()) === 2 && (await page.locator(".dropbar .dropzone.ganado").count()) === 0, "y abajo aparecen solo Perdido y En pausa");
   await shot(page, "e02-arrastrando.png");
-  const g = await centro(page.locator(".dropbar .dropzone.ganado"));
-  await page.mouse.move(g.x, g.y, { steps: 6 });
-  ok(await page.locator(".dropzone.ganado.on").isVisible(), "la zona bajo el cursor se ilumina");
   await page.mouse.up();
   await page.locator("#won-title").waitFor();
   ok(true, "soltar en Ganado abre «Convertir en cliente»");
@@ -168,6 +165,7 @@ const SEED = {
     await page.locator(".dropbar").waitFor();
     const pz = await centro(page.locator(".dropbar .dropzone.perdido"));
     await page.mouse.move(pz.x, pz.y, { steps: 6 });
+    ok(await page.locator(".dropzone.perdido.on").isVisible(), "la zona bajo el cursor se ilumina");
     await page.mouse.up();
   }
   await page.locator(".modal", { hasText: "Perdido: Carlos Díaz" }).waitFor();
@@ -231,7 +229,7 @@ const SEED = {
   await page.selectOption("#emb-resp", NI);
   ok((await page.locator(".kcard.lead").count()) === 2 && await card(page, "Tomás Vera").isVisible() && await card(page, "Jorge Paz").isVisible(), "el filtro por responsable muestra solo los de Nicolás");
   await page.selectOption("#emb-resp", LO);
-  ok((await card(page, "Tomás Vera").count()) === 0 && (await page.locator(".kcard.lead").count()) === 4, "o solo los de Lorenzo");
+  ok((await card(page, "Tomás Vera").count()) === 0 && (await page.locator(".kcard.lead").count()) === 5, "o solo los de Lorenzo (4 abiertos y 1 ganado)");
   ok((await page.locator("#emb-resp option").allInnerTexts()).join("|") === "Todos los responsables|Lorenzo|Nicolás|Sin responsable", "los responsables son solo Lorenzo y Nicolás");
   await page.selectOption("#emb-resp", "");
   await page.selectOption("#emb-orden", "valor");
@@ -295,7 +293,7 @@ const SEED = {
   await page.uncheck("#ver-cerrados");
 
   /* ---------------- Proyectos: mismo arrastre ---------------- */
-  await page.locator(".side .nav button", { hasText: "Proyectos" }).click();
+  await page.locator(".side .nav button", { hasText: /^Proyectos/ }).click();
   await page.locator(".board.fases .col").first().waitFor();
   await arrastrar(page, page.locator(".board.fases .kcard", { hasText: "Agenda de taller" }), page.locator('.board.fases [data-col="disenar"]'));
   await toast(page, "Agenda de taller: Diseñar.");
@@ -303,16 +301,68 @@ const SEED = {
   ok(dump["proyectos/pro-x"].estado === "disenar", "en Proyectos también se arrastra entre etapas");
   await page.waitForTimeout(150);
   ok((await page.locator("#pro-title").count()) === 0, "y soltar no abre la ficha del proyecto");
+
+  /* ---------------- embudo de clientes ---------------- */
+  await page.locator(".side .nav button", { hasText: /^Embudo de leads/ }).click();
+  await page.locator(".board .linkbtn", { hasText: "Ver el embudo de clientes" }).click();
+  await page.locator("h1", { hasText: "Embudo de clientes" }).waitFor();
+  ok(true, "desde «Ganado» se pasa al embudo de clientes");
+  const ccard = (nombre) => page.locator(".kcard.lead", { hasText: nombre });
+  ok((await page.locator(".board .col").count()) === 6, "el embudo de clientes tiene 6 etapas");
+  ok(await col(page, "desarrollo").locator(".kcard.lead", { hasText: "Taller Sur" }).isVisible(), "un cliente sin etapa fija va según su proyecto: En desarrollo");
+  ok((await col(page, "desarrollo").locator(".col-sum").innerText()).includes("$4.000.000 en proyectos"), "la etapa suma lo que hay en proyectos");
+  await arrastrar(page, ccard("Taller Sur"), col(page, "mantencion"));
+  await toast(page, "Taller Sur: Con mantención.");
+  dump = await store(page);
+  ok(dump["clientes/cli-x"].etapa === "mantencion", "arrastrar cambia la etapa del cliente");
+  ok(Object.values(dump).some((v) => v.clienteId === "cli-x" && v.tipo === "etapa" && v.de === "desarrollo" && v.a === "mantencion"), "y el cambio queda en su historial");
+  await arrastrar(page, ccard("Taller Sur"), col(page, "propuesta"));
+  await page.locator(".modal", { hasText: "Nueva propuesta: Taller Sur" }).waitFor();
+  await page.fill("#prop-titulo", "Evolutivo de reportes");
+  await page.fill("#prop-valor", "1500000");
+  await page.locator(".modal .btn.primary").click();
+  await toast(page, "Taller Sur: Nueva propuesta.");
+  dump = await store(page);
+  const cx1 = dump["clientes/cli-x"];
+  ok(cx1.etapa === "propuesta" && cx1.propuesta.titulo === "Evolutivo de reportes" && cx1.propuesta.valor === 1500000, "«Nueva propuesta» guarda qué le proponemos y cuánto");
+  ok((await ccard("Taller Sur").locator(".tag", { hasText: "Evolutivo de reportes" }).innerText()).includes("$1.500.000"), "la tarjeta lo muestra");
+  ok((await col(page, "propuesta").locator(".col-sum").innerText()).includes("$1.500.000 propuesto"), "y la columna suma lo propuesto");
+  await shot(page, "e06-embudo-clientes.png");
+  await ccard("Taller Sur").locator(".avatar select").selectOption(NI);
+  await toast(page, "Taller Sur: lo lleva Nicolás.");
+  ok((await store(page))["clientes/cli-x"].responsable === NI, "el responsable del cliente se cambia desde la tarjeta");
+  await ccard("Taller Sur").locator(".kcard-top").click();
+  await page.locator("#cli-title", { hasText: "Taller Sur" }).waitFor();
+  ok((await page.inputValue("#cli-etapa")) === "propuesta", "la ficha del cliente muestra la etapa arriba");
+  await page.selectOption("#cli-etapa", "");
+  await page.waitForFunction(() => window.__mockStore.get("clientes/cli-x").etapa === null, null, { timeout: 5000 });
+  ok(true, "y desde ahí vuelve a la etapa automática");
+  await page.keyboard.press("Escape");
+  await page.locator(".scrim").first().waitFor({ state: "detached" });
+  const enDesarrollo = await col(page, "desarrollo").locator(".kcard.lead", { hasText: "Taller Sur" }).waitFor({ timeout: 5000 }).then(() => true, () => false);
+  ok(enDesarrollo, "con la automática vuelve a seguir a su proyecto");
+  await ccard("Taller Sur").locator('.kact[title="Redactar con Claude"]').click();
+  await page.locator("#cli-title", { hasText: "Taller Sur" }).waitFor();
+  ok((await page.locator(".work-tabs button[aria-pressed=true]").innerText()).includes("Redactar"), "el atajo de la tarjeta abre la ficha con «Redactar» listo");
+  await page.keyboard.press("Escape");
+  await page.locator(".scrim").first().waitFor({ state: "detached" });
+  await page.locator(".page-head .seg button", { hasText: "Tabla" }).click();
+  await page.locator("h1", { hasText: /^Clientes$/ }).waitFor();
+  ok(await page.locator("table.leads tbody tr", { hasText: "Taller Sur" }).locator(".stage", { hasText: "En desarrollo" }).isVisible(), "la tabla de clientes muestra la etapa");
   await page.close();
 
   /* ---------------- teléfono ---------------- */
   const phone = await open({ name: "teléfono", viewport: { width: 390, height: 844 }, touch: true, seed: SEED });
-  await phone.locator(".tabs button", { hasText: "Más" }).click();
-  await phone.locator(".more button", { hasText: "Embudo" }).click();
+  await phone.locator(".tabs button", { hasText: /^Más/ }).click();
+  await phone.locator(".more button", { hasText: /^Embudo de leads/ }).click();
   await phone.locator("h1", { hasText: "Embudo" }).waitFor();
   await noOverflow(phone, "teléfono, Embudo");
   ok((await phone.locator(".page-head .lede").innerText()).includes("Mantén apretada"), "en el teléfono explica que hay que mantener apretada la tarjeta");
   await shot(phone, "e03-movil.png");
+  await phone.locator(".tabs button", { hasText: /^Más/ }).click();
+  await phone.locator(".more button", { hasText: /^Embudo de clientes/ }).click();
+  await phone.locator("h1", { hasText: "Embudo de clientes" }).waitFor();
+  await noOverflow(phone, "teléfono, Embudo de clientes");
 
   await browser.close();
   console.log(notes.join("\n"));

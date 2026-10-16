@@ -59,7 +59,7 @@ const FRASES = ["hola andrea te llamo de zh por lo del inventario", "la verdad l
   const toast = (page, text) => page.locator(".toast", { hasText: text }).first().waitFor({ timeout: 8000 });
   const store = (page) => page.evaluate(() => Object.fromEntries(window.__mockStore));
   const abrirLlamada = async (page) => {
-    await page.locator(".side .nav button", { hasText: "Leads" }).click();
+    await page.locator(".side .nav button", { hasText: /^Leads/ }).click();
     await page.locator("table.leads tbody tr", { hasText: "Andrea Fuentes" }).click();
     await page.locator("#lead-title", { hasText: "Andrea Fuentes" }).waitFor();
     await page.locator(".work-tabs button", { hasText: "Registrar llamada" }).click();
@@ -144,11 +144,11 @@ const FRASES = ["hola andrea te llamo de zh por lo del inventario", "la verdad l
   ok(pBorr && pBorr.includes("Análisis: Carolina coordina"), "Claude redacta con la llamada recién guardada en el historial");
   await page.keyboard.press("Escape");
   await page.locator(".scrim").first().waitFor({ state: "detached" });
-  await page.locator(".side .nav button", { hasText: "Hoy" }).click();
+  await page.locator(".side .nav button", { hasText: /^Hoy/ }).click();
   ok(await page.locator(".summary .stat", { hasText: "tu puntaje en llamadas (1)" }).filter({ hasText: "67" }).isVisible(), "Hoy muestra tu puntaje promedio en llamadas");
 
   /* ---------------- reunión con un cliente ---------------- */
-  await page.locator(".side .nav button", { hasText: "Clientes" }).click();
+  await page.locator(".side .nav button", { hasText: /^Clientes/ }).click();
   await page.locator("table.leads tbody tr", { hasText: "Taller Sur" }).click();
   await page.locator("#cli-title", { hasText: "Taller Sur" }).waitFor();
   await page.locator(".work-tabs button", { hasText: "Registrar" }).first().click();

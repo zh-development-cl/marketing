@@ -73,7 +73,8 @@ const SEED = {
     const r = await page.evaluate(() => ({ sw: document.documentElement.scrollWidth, w: window.innerWidth }));
     ok(r.sw <= r.w + 1, `${label}: sin scroll horizontal (${r.sw} <= ${r.w})`);
   };
-  const side = (page, name) => page.locator(".side .nav button", { hasText: name }).click();
+  /* Por el nombre exacto: «Clientes» no debe tomar «Embudo de clientes». */
+  const side = (page, name) => page.locator(".side .nav button", { hasText: new RegExp("^" + name) }).click();
 
   /* ---------------- Hoy con un cliente sembrado ---------------- */
   const page = await open({ name: "escritorio", seed: SEED });
@@ -268,13 +269,13 @@ const SEED = {
   const reabierto = await store(phone);
   ok(reabierto[`cobros/cob-m-${manLS.id}-${MK}`].estado === "anulado", "al abrir de nuevo, la mensualidad anulada no se vuelve a generar");
   await noOverflow(phone, "teléfono, Hoy");
-  await phone.locator(".tabs button", { hasText: "Más" }).click();
+  await phone.locator(".tabs button", { hasText: /^Más/ }).click();
   await phone.locator(".more").waitFor();
   await shot(phone, "c12-movil-mas.png");
-  await phone.locator(".more button", { hasText: "Soporte" }).click();
+  await phone.locator(".more button", { hasText: /^Soporte/ }).click();
   await phone.locator("h1", { hasText: "Soporte" }).waitFor();
   await noOverflow(phone, "teléfono, Soporte");
-  await phone.locator(".tabs button", { hasText: "Clientes" }).click();
+  await phone.locator(".tabs button", { hasText: /^Clientes/ }).click();
   await phone.locator(".only-narrow .irow").first().waitFor();
   await noOverflow(phone, "teléfono, Clientes");
   await phone.locator(".only-narrow .irow-main", { hasText: "Clínica Norte" }).click();

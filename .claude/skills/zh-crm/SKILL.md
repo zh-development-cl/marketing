@@ -165,6 +165,17 @@ repositorio `zh-development-cl/propuestaszh` con su skill `zh-proposals`; guarda
      peso y deja la diferencia en el último, para que sumen el valor exacto.
    - `update` del lead `{etapa: "ganado", proxima: null, clienteId}` y las actividades
      `{leadId, tipo: "etapa", de, a: "ganado"}` y `{clienteId, tipo: "cliente", resumen}`.
+   - No le pongas `etapa` al cliente: sin ella, el embudo de clientes la saca de sus servicios
+     (con el proyecto por iniciar, queda en «Por iniciar»). Si el cliente ya existía y tenía una
+     `etapa` fija, déjala en `null` y `propuesta: null`, con la actividad `{clienteId, tipo:
+     "etapa", de: <la que tenía>, a: "inicio"}`.
+
+**Mover un cliente de etapa (embudo de clientes):** `update` de `etapa` del cliente: `inicio`
+(por iniciar), `desarrollo`, `garantia`, `mantencion` (con mantención), `propuesta` (nueva
+propuesta) o `sin_servicio`; `null` vuelve a la automática, según sus servicios. Más la actividad
+`{clienteId, tipo: "etapa", de, a}`. En `propuesta`, guarda también `propuesta: {titulo, valor}`
+(qué le vamos a proponer; valor en CLP sin IVA o `null`). El caso comercial se arma en
+`propuestaszh`, como con un lead.
 
 **Mover un proyecto de etapa:** las etapas son `por_iniciar`, `entender`, `disenar`, `construir`,
 `probar` y `mejorar` (en producción, en garantía), más `cerrado`, `pausado` y `cancelado`.

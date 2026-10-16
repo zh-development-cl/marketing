@@ -19,9 +19,10 @@ revisarlos antes de enviarlos.
 | Hoy | Lo que toca hoy (y lo atrasado), con un filtro para ver lo de Lorenzo o lo de Nicolás; los leads nuevos sin contactar, los que no tienen próxima acción, los borradores por revisar y la actividad reciente. Con clientes: pagos atrasados, cobros por facturar, hitos y garantías que terminan en los próximos 7 días, y el soporte abierto. |
 | **Ventas** | |
 | Leads | Tabla con búsqueda por nombre, empresa, correo o teléfono, y filtros por etapa, origen y responsable. «Tabla / Tablero» cambia al embudo. |
-| Embudo | Tablero por etapa, al estilo de HubSpot: las tarjetas se arrastran de una etapa a otra (ver «Embudo»). |
+| Embudo de leads | Tablero por etapa, al estilo de HubSpot: las tarjetas se arrastran de una etapa a otra, hasta «Ganado» (ver «Embudo de leads»). |
 | **Clientes** | |
-| Clientes | Lista de clientes con sus servicios (proyecto en curso, garantía, mantención), las solicitudes abiertas y lo que falta cobrar. |
+| Clientes | Lista de clientes con su etapa, sus servicios (proyecto en curso, garantía, mantención), las solicitudes abiertas y lo que falta cobrar. «Tabla / Tablero» cambia al embudo de clientes. |
+| Embudo de clientes | Tablero de clientes por etapa: por iniciar, en desarrollo, en garantía, con mantención, nueva propuesta y sin servicio (ver «Embudo de clientes»). |
 | Proyectos | Tablero por las etapas de trabajo de ZH. |
 | Soporte | Solicitudes de los clientes, con su cobertura: garantía, mantención o evolutivo. |
 | Cobros | Anticipos, pagos por hito, evolutivos y mensualidades: por facturar, facturado, vencido y pagado. |
@@ -65,13 +66,16 @@ Las etapas son: Por contactar → Contactado → Reunión → Propuesta enviada 
 Ganado, Perdido y En pausa. Un perdido lleva su motivo: **no responde**, **mal timing**, **no hay
 fit** o **está con la competencia**, más lo que dijo, si se tiene.
 
-## Embudo
+## Embudo de leads
 
 - **Arrastrar:** con el mouse, se toma la tarjeta y se suelta en otra etapa; en el teléfono o la
   tablet, se mantiene apretada un momento y se arrastra (deslizar rápido sigue siendo scroll).
-  Cerca de los bordes el tablero avanza solo y Escape cancela. Mientras se arrastra aparecen abajo
-  **Ganado**, **Perdido** y **En pausa**: soltar en Ganado abre «Convertir en cliente» y en Perdido
-  pide el motivo. Cada cambio queda en el historial del lead.
+  Cerca de los bordes el tablero avanza solo y Escape cancela. **Ganado** es la última columna,
+  después de Negociación: soltar ahí abre «Convertir en cliente». Mientras se arrastra aparecen
+  abajo **Perdido** (pide el motivo) y **En pausa**. Cada cambio queda en el historial del lead.
+- **Ganados:** cada tarjeta dice a qué cliente pasó y en qué etapa va («Cliente · En desarrollo»,
+  que abre su ficha), o trae «Convertir en cliente» si se marcó como ganado sin crearlo. La columna
+  tiene el enlace al embudo de clientes.
 - **Montos:** cada etapa muestra su total y su valor ponderado, y la cabecera suma lo que está en
   juego. Probabilidad por etapa: Por contactar 5 %, Contactado 10 %, Reunión 25 %, Propuesta
   enviada 50 %, Negociación 75 %.
@@ -84,13 +88,41 @@ fit** o **está con la competencia**, más lo que dijo, si se tiene.
   hora) y si se vuelve a llamar o se le escribe por WhatsApp. La llamada queda en el historial, suma
   el intento y la tarjeta sigue en su etapa. Desde el tercer intento ofrece pasarla a Perdido con el
   motivo «No responde».
-- **Perdidos:** con «Ganados, perdidos y en pausa», la columna Perdido muestra cuántos hay por
+- **Perdidos:** con «Perdidos y en pausa», la columna Perdido muestra cuántos hay por
   motivo y cada tarjeta, el suyo. «Falta el motivo» abre la ventana para ponerlo.
 - **Filtros:** búsqueda (sin importar tildes), responsable (todos, Lorenzo, Nicolás o sin
-  responsable), orden (próxima acción, última actividad, valor o más nuevos) y mostrar ganados,
-  perdidos y en pausa.
+  responsable), orden (próxima acción, última actividad, valor o más nuevos) y mostrar perdidos y
+  en pausa.
 
-El tablero de Proyectos se arrastra igual.
+Las seis columnas caben en una pantalla de 1360 px. Si la tarjeta queda angosta, muestra solo las
+acciones de llamar; redactar y anotar siguen en la ficha. El tablero de Proyectos se arrastra igual.
+
+## Embudo de clientes
+
+Después de «Ganado», cada cliente sigue en su propio embudo:
+
+| Etapa | Qué significa |
+|---|---|
+| Por iniciar | Recién ganado: falta el anticipo o partir el proyecto. |
+| En desarrollo | Proyecto en curso. |
+| En garantía | En producción, dentro del plazo de garantía. |
+| Con mantención | Mantención activa: ingreso todos los meses. |
+| Nueva propuesta | Preparando o enviada otra propuesta: un evolutivo o un proyecto nuevo. |
+| Sin servicio | Sin proyecto ni mantención: para reactivar. |
+
+- **Automática o fija:** mientras nadie la mueva, la etapa sale de sus servicios: un proyecto por
+  iniciar, uno en desarrollo, la garantía o la mantención activa. Al arrastrar la tarjeta la etapa
+  queda fija; en la ficha del cliente, arriba, se cambia o se vuelve a «Automática».
+- **Nueva propuesta:** al soltar ahí se anota qué le vamos a proponer y cuánto, más o menos. La
+  tarjeta lo muestra y la columna suma lo propuesto. El caso comercial se arma en propuestaszh;
+  cuando la ganen, el proyecto nuevo (desde la ficha del cliente o ganando un lead de ese cliente)
+  devuelve al cliente a su etapa automática.
+- **Tarjetas:** nombre, contacto principal, servicios (fase del proyecto, garantía, mantención),
+  solicitudes abiertas, lo vencido, la inicial del responsable (se cambia tocándola) y atajos a
+  «Registrar» y «Redactar con Claude».
+- **Montos:** «Por iniciar» y «En desarrollo» suman sus proyectos; «Con mantención», lo que entra al
+  mes; «Nueva propuesta», lo propuesto.
+- **Filtros:** búsqueda, responsable e incluir archivados.
 
 ## Etapa con clientes
 
@@ -233,7 +265,7 @@ calendario `AAAA-MM-DD` en hora de Chile; marcas de tiempo en ISO. En todas las 
 | Colección | Documento | Campos principales |
 |---|---|---|
 | `leads` | un lead | `nombre`, `empresa`, `cargo`, `telefono` (E.164, `+569…`), `correo`, `sitio`, `rubro`, `ciudad`, `origen` (`web`, `agenda`, `instagram`, `linkedin`, `referido`, `evento`, `prospeccion`, `otro`), `etapa` (`nuevo`, `contactado`, `reunion`, `propuesta`, `negociacion`, `ganado`, `perdido`, `pausa`), `prioridad` (`alta`, `media`, `baja`), `trato` (`tu`, `usted`), `necesidad` (lo que pide, confirmado), `dolor` (lo que suponemos), `comoAyudamos`, `guion`, `notas`, `responsable` (`lorenzo`, `nicolas` o `null`), `proxima` (`{tipo, fecha AAAA-MM-DD, hora, nota}` o `null`), `intentos` (llamadas seguidas sin respuesta), `ultimoContacto`, `ultimoIntento`, `motivoPerdida` (`No responde`, `Mal timing`, `No hay fit`, `Está con la competencia`; vacío = falta; puede quedar un texto antiguo), `motivoDetalle` (lo que dijo), `noContactar`, `noContactarDesde`, `valor`, `caso` (id en `propuestaszh`), `clienteId` (si se convirtió), `creado`, `actualizado`, `creadoPor` |
-| `clientes` | un cliente | `nombre`, `razonSocial`, `rut`, `giro`, `direccion`, `ciudad`, `correoFacturacion`, `sitio`, `rubro`, `contactos[]` (`{id, nombre, cargo, correo, telefono, rol, principal}`, con `rol` = `decisor`, `usuario`, `facturacion`, `tecnico` u `otro`), `responsable`, `trato`, `leadIds[]`, `estado` (`activo`, `archivado`), `notas` |
+| `clientes` | un cliente | `nombre`, `razonSocial`, `rut`, `giro`, `direccion`, `ciudad`, `correoFacturacion`, `sitio`, `rubro`, `contactos[]` (`{id, nombre, cargo, correo, telefono, rol, principal}`, con `rol` = `decisor`, `usuario`, `facturacion`, `tecnico` u `otro`), `responsable`, `trato`, `leadIds[]`, `estado` (`activo`, `archivado`), `etapa` (embudo de clientes: `inicio`, `desarrollo`, `garantia`, `mantencion`, `propuesta`, `sin_servicio`; vacío o `null` = automática, según sus servicios), `propuesta` (`{titulo, valor}` en «Nueva propuesta»), `notas` |
 | `proyectos` | un proyecto | `clienteId`, `leadId`, `nombre`, `tipo` (`software`, `automatizacion`, `ia`, `web`, `procesos`, `consultoria`, `otro`), `valor`, `estado` (`por_iniciar`, `entender`, `disenar`, `construir`, `probar`, `mejorar`, `cerrado`, `pausado`, `cancelado`), `inicio`, `entregaEstimada`, `produccion` (desde aquí corre la garantía), `garantiaDias`, `cierre`, `hitos[]` (`{id, nombre, fecha, hecho, fechaHecho}`), `enlaces[]` (`{id, titulo, url}`), `caso`, `alcance`, `responsable`, `notas` |
 | `cobros` | un cobro | `clienteId`, `proyectoId`, `mantencionId`, `solicitudId`, `tipo` (`anticipo`, `hito`, `cierre`, `mensualidad`, `evolutivo`, `otro`), `concepto`, `monto`, `fecha` (cuándo facturar), `estado` (`por_facturar`, `facturado`, `pagado`, `anulado`), `factura`, `fechaFactura`, `vence`, `fechaPago`, `notas`, `generado`, `ultimoRecordatorio`. Las mensualidades usan el id `cob-m-<id de la mantención>-<AAAA-MM>` |
 | `mantenciones` | un plan mensual | `clienteId`, `proyectoId`, `plan`, `monto` (al mes), `incluye`, `inicio`, `diaCobro` (1-28), `estado` (`activa`, `pausada`, `terminada`), `fin`, `notas` |
@@ -268,7 +300,7 @@ python3 crm/dev/build_preview.py                    # arma crm/dev/preview.html 
 NODE_PATH=$(npm root -g) node crm/dev/smoke.cjs     # leads, llamadas y borradores (capturas en crm/dev/shots)
 NODE_PATH=$(npm root -g) node crm/dev/clientes.cjs  # etapa con clientes: lead ganado, proyecto, cobros, soporte, acta
 NODE_PATH=$(npm root -g) node crm/dev/microfono.cjs # transcribir en vivo, con micrófono simulado
-NODE_PATH=$(npm root -g) node crm/dev/embudo.cjs    # embudo y Proyectos: arrastrar (mouse y dedo), montos, filtros, responsables, no contestó y motivos de pérdida
+NODE_PATH=$(npm root -g) node crm/dev/embudo.cjs    # embudos de leads y de clientes, y Proyectos: arrastrar (mouse y dedo), montos, filtros, responsables, no contestó y motivos de pérdida
 ```
 
 `crm/dev/mock-claude.js` imita `window.claude` (base de datos en memoria, Claude con respuestas
