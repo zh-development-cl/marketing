@@ -1,5 +1,6 @@
-/* Imita window.claude (db, user, sample, downloads) para probar el CRM fuera de claude.ai, y el
-   micrófono con el reconocimiento de voz del navegador para «Transcribir en vivo».
+/* Imita window.claude (db, user, sample, downloads, permissions y, si la prueba lo pide, mcp con
+   Google Calendar) para probar el CRM fuera de claude.ai, y el micrófono con el reconocimiento de
+   voz del navegador para «Transcribir en vivo».
    Solo para desarrollo: build_preview.py lo inyecta antes de la página en crm/dev/preview.html.
    - db: almacén en memoria con la misma forma de la API (doc/collection, where/orderBy/limit,
      get/set/update/delete, onSnapshot). Rechaza valores undefined como lo haría el JSON real.
@@ -281,7 +282,98 @@
     }
   }
 
-  const caps = { db, user, sample, downloads, permissions };
+
+  /* Google Calendar simulado (capacidad «mcp»), solo si la prueba lo pide con
+     window.__MOCK_MCP = { modo: "ok" | "aprobacion" | "sin_conector" | "reauth" | "error_lectura",
+     eventos: [...], fallaCrear: "<código>", fallaMover: "<código>", rechazarPermiso: true }.
+     Los eventos tienen la forma que entrega list_events del conector real. window.__mcpCalls guarda
+     cada llamada; window.__mcpRefrescar() simula la lectura siguiente (después de cambiar eventos). */
+  const mcpCfg = window.__MOCK_MCP;
+  let mcp = null;
+  if (mcpCfg) {
+    window.__mcpCalls = [];
+    const cuenta = mcpCfg.cuenta || "contacto@zhdevelopment.cl";
+    const watchers = new Set();
+    let aprobado = mcpCfg.modo !== "aprobacion";
+    const fmtCL = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Santiago", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+    const conZona = (local) => {
+      for (const off of ["-03:00", "-04:00"]) {
+        const p = Object.fromEntries(fmtCL.formatToParts(new Date(local + off)).map((x) => [x.type, x.value]));
+        if (`${p.year}-${p.month}-${p.day}T${p.hour}:${p.minute}` === local.slice(0, 16)) return local + off;
+      }
+      return local + "-03:00";
+    };
+    const lista = () => ({ events: clone((mcpCfg.eventos || []).filter((e) => e.status !== "cancelled")), summary: cuenta, timeZone: "America/Santiago", accessRole: "owner" });
+    const falla = (code, message) => ({ code, server: "Google Calendar", message: message || "simulado: " + code, ...(code === "server_unavailable" ? { retryable: true } : {}) });
+    const entregar = (w) => setTimeout(() => {
+      if (!watchers.has(w)) return;
+      const m = mcpCfg.modo;
+      if (m === "sin_conector") w.handler({ type: "error", error: falla("server_not_connected") });
+      else if (m === "reauth") w.handler({ type: "error", error: falla("needs_reauth") });
+      else if (m === "error_lectura") w.handler({ type: "error", error: falla("server_unavailable") });
+      else if (!aprobado) w.handler({ type: "error", error: falla("approval_required") });
+      else w.handler({ type: "data", result: { content: [], payload: lista() } });
+    }, 30);
+    const crear = (input) => {
+      const id = "ev" + Math.random().toString(36).slice(2, 12);
+      const ahora = new Date().toISOString();
+      const meet = "https://meet.google.com/abc-" + id.slice(2, 6) + "-xyz";
+      const ev = {
+        id, summary: input.summary, description: input.description || "", status: "confirmed", eventType: "DEFAULT",
+        start: { dateTime: conZona(input.startTime), timeZone: input.timeZone || "America/Santiago" },
+        end: { dateTime: conZona(input.endTime), timeZone: input.timeZone || "America/Santiago" },
+        attendees: [{ email: cuenta, organizer: true, self: true, responseStatus: "accepted" }, ...(input.attendees || []).map((a) => ({ email: a.email, ...(a.displayName ? { displayName: a.displayName } : {}), responseStatus: "needsAction" }))],
+        organizer: { email: cuenta, self: true }, creator: { email: cuenta, self: true },
+        htmlLink: "https://www.google.com/calendar/event?eid=" + id,
+        ...(input.addGoogleMeetUrl ? { conferenceUrl: meet, conferenceData: { solutionName: "Google Meet", videoEntryPoint: { uri: meet } } } : {}),
+        created: ahora, updated: ahora,
+      };
+      mcpCfg.eventos = [...(mcpCfg.eventos || []), ev];
+      return ev;
+    };
+    mcp = Object.freeze({
+      watchTool(server, tool, input, handler) {
+        if (typeof handler !== "function") throw new TypeError("handler");
+        window.__mcpCalls.push({ tipo: "watch", server, tool, input: clone(input) });
+        const w = { handler };
+        if (server !== "Google Calendar" || tool !== "list_events") { setTimeout(() => handler({ type: "error", error: falla("not_in_manifest") }), 10); return () => {}; }
+        watchers.add(w);
+        entregar(w);
+        return () => watchers.delete(w);
+      },
+      async callTool(server, tool, input) {
+        window.__mcpCalls.push({ tipo: "call", server, tool, input: clone(input) });
+        await tick(60);
+        if (server !== "Google Calendar" || !["list_events", "create_event", "update_event"].includes(tool)) throw falla("not_in_manifest");
+        if (mcpCfg.modo === "sin_conector") throw falla("server_not_connected");
+        if (mcpCfg.modo === "reauth") throw falla("needs_reauth");
+        if (tool === "list_events") {
+          if (mcpCfg.rechazarPermiso) throw falla("approval_required");
+          aprobado = true;
+          for (const w of watchers) entregar(w);
+          return { content: [], payload: lista() };
+        }
+        if (!aprobado) throw falla("approval_required");
+        if (tool === "create_event") {
+          if (mcpCfg.fallaCrear) throw falla(mcpCfg.fallaCrear);
+          return { content: [], payload: clone(crear(input)) };
+        }
+        const ev = (mcpCfg.eventos || []).find((e) => e.id === input.eventId);
+        if (!ev) throw falla("tool_error", "Not Found");
+        if (mcpCfg.fallaMover) throw falla(mcpCfg.fallaMover);
+        if (input.startTime) ev.start = { dateTime: conZona(input.startTime), timeZone: input.timeZone || "America/Santiago" };
+        if (input.endTime) ev.end = { dateTime: conZona(input.endTime), timeZone: input.timeZone || "America/Santiago" };
+        if (input.summary) ev.summary = input.summary;
+        ev.updated = new Date().toISOString();
+        return { content: [], payload: clone(ev) };
+      },
+      async invalidate(server, tool) { window.__mcpCalls.push({ tipo: "invalidate", server, tool }); for (const w of watchers) entregar(w); },
+      async listTools() { return { servers: [{ server: "Google Calendar", authStatus: "connected", tools: ["list_events", "create_event", "update_event"].map((name) => ({ name, description: "" })) }] }; },
+    });
+    window.__mcpRefrescar = () => { for (const w of watchers) entregar(w); };
+  }
+
+  const caps = { db, user, sample, downloads, permissions, ...(mcp ? { mcp } : {}) };
   const memo = {};
   window.claude = Object.freeze({ use: (name) => (memo[name] = memo[name] || tick(30).then(() => caps[name] || null)) });
 })();

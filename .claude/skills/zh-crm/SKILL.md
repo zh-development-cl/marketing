@@ -61,10 +61,12 @@ se lee como `reunion_agendada`: no lo escribas.
 
 Lo que hay que hacer con cada lead son **tareas** (colección `tareas`): `{leadId, tipo, titulo,
 nota, fecha: "AAAA-MM-DD", hora: "HH:MM" | "", duracion (minutos, en reuniones), responsable,
-estado: "pendiente", origen, actividadId, borradorId, creado, actualizado, creadoPor: "claude"}`,
+estado: "pendiente", origen, actividadId, borradorId, evento, creado, actualizado, creadoPor: "claude"}`,
 con `tipo` = `llamar`, `whatsapp`, `correo`, `agendar` (coordinar el día de una reunión),
 `reunion` (la reunión, con día y hora), `propuesta` (enviar la propuesta) u `otro`. Toda tarea
-lleva día; `titulo` corto, empezando con un verbo; el detalle interno va en `nota`.
+lleva día; `titulo` corto, empezando con un verbo; el detalle interno va en `nota`. Una `reunion`
+unida a Google Calendar lleva `evento: {id, link, meet, respuesta, actualizado, propio,
+organizador}` (ver «Google Calendar»).
 
 - La primera pendiente (por día y hora) es la **próxima acción**: cópiala en el lead como
   `proxima: {tipo, fecha, hora, nota: <titulo>, tareaId}` (si no lo haces, la página lo hace sola
@@ -165,9 +167,28 @@ llamar en otro momento. Desde el tercer intento, si el socio lo pide, pásalo a 
 5. Dile al usuario que el borrador está en «Borradores por revisar» del CRM.
 
 **Agendar una reunión:** tarea `{tipo: "reunion", titulo, fecha, hora, duracion: 30, origen:
-"agendar"}` (si había una de `agendar`, queda `hecha`), el lead a `reunion_agendada` (si avanza) y
+"agendar"}` (las de `agendar` del lead quedan `hecha`), el lead a `reunion_agendada` (si avanza) y
 su `proxima`. Si el socio lo pide, la confirmación va como borrador (`objetivo: "confirmar"`) unido
-a una tarea de `whatsapp` o `correo` para hoy.
+a una tarea de `whatsapp` o `correo` para hoy. Para el evento, ver «Google Calendar».
+
+**Google Calendar.** La página del CRM lee el calendario de `config/general.gmailCuenta`
+(`contacto@zhdevelopment.cl`) y une sola cada reunión con su lead (por el correo de los
+invitados), crea los leads de las reservas de zhdevelopment.cl y mueve las tareas cuando se mueve
+un evento: no repitas ese trabajo. Si el socio te pide agendar con evento y tienes el conector de
+Google Calendar en la conversación:
+1. Pide su confirmación con el día, la hora y a quién se invita: el evento le manda la invitación
+   al lead.
+2. `create_event` con `calendarId` = la cuenta, `summary` = «<titulo> · <empresa> y ZH
+   Development», `startTime` y `endTime` en hora local sin desfase (`2026-10-19T11:00:00`),
+   `timeZone: "America/Santiago"`, `attendees` (el lead con `displayName` y los
+   `config/general.correosEquipo`), `addGoogleMeetUrl: true` y una descripción sin notas internas.
+3. La tarea `reunion` con id `tar-cal-<id del evento>` y `evento: {id, link: htmlLink, meet:
+   conferenceUrl, respuesta: "needsAction", actualizado: updated, propio: true, organizador: la
+   cuenta}`, y `set` en `eventos/<id del evento>`: `{leadId, tareaId, inicio (ISO), evActualizado:
+   updated, actualizado}`.
+Para mover una reunión unida a un evento de la cuenta, `update_event` con `eventId`, `startTime` y
+`endTime`, y actualiza la tarea. Si la creación falla sin respuesta clara, no la repitas: revisa el
+calendario con `list_events` (si el evento aparece, la página lo une sola). Nunca borres eventos.
 
 **Mover de etapa:** `update` de `etapa` más la actividad `{tipo: "etapa", de, a}`; al cerrarlo
 (`ganado`, `perdido`, `pausa`), sus tareas pendientes quedan `descartada` y `proxima: null`. Si es `perdido`, `motivoPerdida` es uno de: `"No responde"`, `"Mal timing"`,

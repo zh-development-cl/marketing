@@ -707,7 +707,37 @@ table.leads th.r { text-align: right; }
 details.hechas summary { cursor: pointer; font-size: 13px; font-weight: 500; color: var(--fg-3); }
 details.hechas[open] summary { margin-bottom: 4px; }
 .btn.small.on { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
-.cal-box { display: grid; gap: 6px; justify-items: start; padding: 12px; border-radius: var(--r-m); background: var(--surface-2); border: 1px solid var(--line); }
+.cal-box { display: grid; gap: 8px; justify-items: start; padding: 12px; border-radius: var(--r-m); background: var(--surface-2); border: 1px solid var(--line); }
+.cal-box .small { color: var(--fg-2); }
+
+/* ---------- calendario ---------- */
+.cevs { display: grid; }
+.cev-dia { margin: 14px 0 2px; font: 600 12.5px/1.2 var(--font-text); color: var(--fg-3); }
+.cev-dia:first-child { margin-top: 2px; }
+.cev { display: grid; grid-template-columns: 48px minmax(0, 1fr) auto; gap: 4px 12px; align-items: start; padding: 9px 0; border-top: 1px solid var(--line); }
+.cev-dia + .cev { border-top: 0; }
+.cev-hora { display: grid; gap: 1px; padding-top: 1px; font-variant-numeric: tabular-nums; }
+.cev-hora b { font: 600 14px/1.3 var(--font-text); color: var(--fg); }
+.cev-hora span { font-size: 12px; color: var(--fg-3); }
+.cev-main { display: grid; gap: 2px; min-width: 0; }
+.cev-titulo { font-size: 14.5px; font-weight: 600; line-height: 1.35; color: var(--fg); overflow-wrap: anywhere; }
+button.cev-titulo { all: unset; cursor: pointer; font-size: 14.5px; font-weight: 600; line-height: 1.35; overflow-wrap: anywhere; }
+a.cev-titulo, .cev-meta a { color: inherit; text-decoration: none; }
+button.cev-titulo:hover, a.cev-titulo:hover, .cev-meta a:hover { text-decoration: underline; }
+button.cev-titulo:focus-visible, a.cev-titulo:focus-visible, .cev-meta a:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+.cev-meta { font-size: 13px; color: var(--fg-3); overflow-wrap: anywhere; }
+.cev-side { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 6px; }
+.cev.pasado .cev-hora b, .cev.pasado .cev-titulo { color: var(--fg-3); }
+.cev.ahora .cev-hora b { color: var(--accent); }
+.resp { font-weight: 500; }
+.resp.ok { color: var(--ok); font-weight: 600; }
+.resp.late { color: var(--bad); font-weight: 600; }
+.resp.warn { color: var(--warn); font-weight: 600; }
+.resp.today { color: var(--accent); font-weight: 600; }
+.cal-pie { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-top: 12px; font-size: 12.5px; color: var(--fg-3); }
+.cal-aviso p { margin: 0; }
+.cal-aviso .actions { margin-top: 8px; }
+@container (max-width: 520px) { .cev { grid-template-columns: 44px minmax(0, 1fr); } .cev-side { grid-column: 2; justify-content: flex-start; } }
 
 /* ---------- registrar: automático, progreso y resumen ---------- */
 .switch { display: inline-flex; align-items: center; gap: 10px; font-size: 13.5px; color: var(--fg-2); cursor: pointer; }
@@ -1124,6 +1154,105 @@ function gcalLink({ titulo, fecha, hora, duracion, detalle, invitados }, cfg) {
   if (invitados) p.set("add", invitados);
   if (cfg && cfg.gmailCuenta) p.set("authuser", cfg.gmailCuenta);
   return "https://calendar.google.com/calendar/render?" + p.toString();
+}
+
+/* ---------- Google Calendar, con el conector de claude.ai (capacidad «mcp»). El CRM lee el
+   calendario de la cuenta de ZH, une cada reunión con su lead y su tarea, y crea o mueve los
+   eventos con Meet. Los datos llegan del conector: se leen con cuidado, porque puede omitir campos. */
+const GCAL = "Google Calendar";
+const CAL_DIAS = 60;
+/* Sin permiso, sin conexión o bloqueado: se retiran los eventos que se mostraban. */
+const CAL_DENEGADO = new Set(["needs_reauth", "server_not_connected", "selection_required", "server_not_found", "not_in_manifest", "blocked_by_policy", "approval_required", "consent_required", "not_granted", "capability_disabled", "capability_removed", "user_changed"]);
+const CAL_REINTENTAR = new Set(["server_unavailable", "upstream_error", "tool_error", "rate_limited", "formato", "bad_request"]);
+const idEventoOk = (id) => /^[A-Za-z0-9_\-.~:@+]{1,180}$/.test(String(id || ""));
+const httpsOk = (u) => (/^https:\/\/[^\s"'<>]+$/.test(String(u || "")) ? String(u) : "");
+const correosDe = (v) => [...new Set((Array.isArray(v) ? v : String(v || "").split(/[\s,;]+/)).map((x) => String(x || "").trim().toLowerCase()).filter(isEmail))];
+const meetDe = (e) => {
+  const c = (e && e.conferenceData) || {};
+  const pts = Array.isArray(c.entryPoints) ? c.entryPoints.filter((x) => x && x.entryPointType === "video").map((x) => x.uri) : [];
+  return [e && e.conferenceUrl, e && e.hangoutLink, c.videoEntryPoint && c.videoEntryPoint.uri, ...pts].map(httpsOk).find(Boolean) || "";
+};
+/* Un evento en la forma que usa el CRM, con la hora de Chile. */
+function normEvento(e, cuenta) {
+  if (!e || typeof e !== "object" || !idEventoOk(e.id)) return null;
+  const s = e.start || {};
+  const f = e.end || {};
+  const todoElDia = !s.dateTime && isKey(s.date);
+  const ini = s.dateTime ? Date.parse(s.dateTime) : todoElDia ? Date.parse(s.date + "T12:00:00Z") : NaN;
+  if (isNaN(ini)) return null;
+  let fin = f.dateTime ? Date.parse(f.dateTime) : NaN;
+  if (isNaN(fin)) fin = todoElDia ? ini + 864e5 : ini + DURACION_REUNION * 6e4;
+  const org = e.organizer || {};
+  const organizador = String(org.email || "").toLowerCase();
+  return {
+    id: e.id,
+    titulo: String(e.summary || "").trim() || "Sin título",
+    fecha: todoElDia ? s.date : keyOf(ini),
+    hora: todoElDia ? "" : fmtHM.format(new Date(ini)),
+    horaFin: todoElDia ? "" : fmtHM.format(new Date(fin)),
+    ini, fin, todoElDia,
+    inicio: todoElDia ? s.date : new Date(ini).toISOString(),
+    duracion: todoElDia ? 0 : Math.max(5, Math.round((fin - ini) / 6e4)),
+    link: httpsOk(e.htmlLink),
+    meet: meetDe(e),
+    invitados: (Array.isArray(e.attendees) ? e.attendees : []).filter((a) => a && isEmail(a.email)).map((a) => ({ correo: String(a.email).toLowerCase(), nombre: String(a.displayName || "").trim(), respuesta: String(a.responseStatus || ""), self: !!a.self, recurso: !!a.resource })),
+    organizador,
+    propio: !!org.self || (!!cuenta && organizador === cuenta),
+    estado: String(e.status || ""),
+    actualizado: String(e.updated || ""),
+    descripcion: typeof e.description === "string" ? e.description.slice(0, 4000) : "",
+  };
+}
+const evOrden = (a, b) => `${a.fecha} ${a.hora || "00:00"}`.localeCompare(`${b.fecha} ${b.hora || "00:00"}`);
+/* La respuesta de create_event o update_event: el evento, directo o dentro de «event». */
+const eventoDePayload = (p) => (p && typeof p === "object" ? (p.event && typeof p.event === "object" ? p.event : p) : null);
+/* La respuesta del lead a la invitación: [texto, tono]. */
+const RESPUESTA = { accepted: ["Confirmó la invitación", "ok", "confirmó"], declined: ["Rechazó la invitación", "late", "rechazó la invitación"], tentative: ["Respondió «tal vez»", "warn", "tal vez"], needsAction: ["Invitación sin responder", "", ""] };
+/* El título de la tarea sale del evento: lo que va antes del primer « · » («Llamada de descubrimiento · …»). */
+const tituloDeEvento = (s, lead) => {
+  const t = clip(String(s || "").split(" · ")[0].trim(), 80);
+  /* «VinoPrint · ZH Development»: lo de antes del « · » es el lead, no lo que se hace. */
+  return !t || (lead && [lead.empresa, lead.nombre].some((x) => x && fold(x) === fold(t))) ? "Reunión" : t;
+};
+/* Los invitados de afuera: ni la cuenta del calendario, ni el equipo, ni salas. */
+const deAfuera = (ev, equipo) => ev.invitados.filter((a) => !a.self && !a.recurso && !equipo.has(a.correo) && !/@zhdevelopment\.cl$/.test(a.correo));
+/* Lo que la tarea guarda del evento: el enlace, Meet, la respuesta del lead y quién lo organiza. */
+const eventoParaTarea = (ev, lead) => {
+  const correo = String((lead && lead.correo) || "").toLowerCase();
+  const inv = correo ? (ev.invitados || []).find((a) => a.correo === correo) : null;
+  return { id: ev.id, link: ev.link || "", meet: ev.meet || "", respuesta: inv ? inv.respuesta : "", actualizado: ev.actualizado || "", propio: !!ev.propio, organizador: ev.organizador || "" };
+};
+/* Reservas de la agenda de zhdevelopment.cl (api/agenda.js de la landing): título y descripción fijos. */
+function reservaWeb(ev) {
+  const m = /^Llamada de descubrimiento · (.+?)(?: \((.+)\))? · ZH Development$/.exec(ev.titulo);
+  if (!m && !/^Agendada desde zhdevelopment\.cl/.test(ev.descripcion)) return null;
+  const linea = (k) => { const x = new RegExp("^" + k + ":[ \\t]*(.+)$", "m").exec(ev.descripcion); const v = x ? x[1].trim() : ""; return v === "—" ? "" : v; };
+  const men = /\nMensaje:\n([\s\S]+)$/.exec(ev.descripcion);
+  return { nombre: (m && m[1]) || linea("Nombre"), empresa: (m && m[2]) || linea("Empresa"), telefono: normPhone(linea("Teléfono")), correo: linea("Correo").toLowerCase(), mensaje: men ? men[1].trim().slice(0, 600) : "" };
+}
+/* Qué decir según el código del conector, con lo que se puede hacer en cada caso. */
+function calErrorText(e, cuenta) {
+  const c = e && e.code;
+  if (c === "approval_required" || c === "consent_required") return "Falta tu permiso para que este CRM use Google Calendar.";
+  if (c === "server_not_connected" || c === "server_not_found") return "Google Calendar no está conectado en tu cuenta de claude.ai. Agrégalo en claude.ai → Ajustes → Conectores.";
+  if (c === "needs_reauth") return "La conexión con Google Calendar venció. Vuelve a conectarlo en claude.ai → Ajustes → Conectores.";
+  if (c === "selection_required") return "Tienes más de un Google Calendar conectado: elige cuál usar en el aviso de claude.ai.";
+  if (c === "not_in_manifest") return "Google Calendar está desactivado para este CRM. Actívalo en Permisos.";
+  if (c === "blocked_by_policy") return "Tu organización no permite usar Google Calendar desde aquí.";
+  if (c === "not_granted" || c === "capability_disabled" || c === "capability_removed" || c === "user_changed") return "Esta vista no puede usar Google Calendar. Abre el CRM desde claude.ai.";
+  if (c === "tool_error") return `Google Calendar respondió con un error${cuenta ? " al leer " + cuenta : ""}: ${clip(String((e && e.message) || "sin detalle"), 160)}. Revisa que tu cuenta conectada tenga acceso a ese calendario.`;
+  if (c === "server_unavailable" || c === "rate_limited") return "Google Calendar no respondió. El CRM vuelve a intentarlo solo en unos minutos.";
+  if (c === "formato") return "Google Calendar respondió en un formato que el CRM no reconoce.";
+  return "No se pudo leer Google Calendar por un problema temporal.";
+}
+/* Al crear o mover un evento, una falla sin respuesta clara no prueba que no se hizo: no se repite sola. */
+function calEscrituraTexto(e, mover) {
+  const c = e && e.code;
+  if (!c || c === "server_unavailable" || c === "upstream_error" || c === "cancelled" || c === "rate_limited") return mover
+    ? "Google Calendar no confirmó el cambio: revisa el evento antes de volver a intentarlo."
+    : "Google Calendar no confirmó el evento: puede que se haya creado igual. Revisa el calendario antes de volver a intentarlo; si aparece, el CRM lo une solo a la reunión.";
+  if (c === "tool_error") return `Google Calendar no ${mover ? "movió" : "creó"} el evento: ${clip(String(e.message || "sin detalle"), 160)}.`;
+  return calErrorText(e);
 }
 
 const ls = {
@@ -1577,6 +1706,13 @@ function makeApi(db, meRef) {
   const update = (col) => (id, patch) => run(col + "/" + id, () => retry(() => db.doc(col + "/" + id).update(clean({ ...patch, actualizado: nowISO() }))));
   const remove = (col) => (id) => run(col + "/" + id, () => retry(() => db.doc(col + "/" + id).delete()));
   const idsWhere = async (col, field, value) => (await db.collection(col).where(field, "==", value).get()).docs.map((d) => d.id);
+  const existe = async (path) => (await retry(() => db.doc(path).get())).exists;
+  const createLead = async (data, fixedId) => {
+    const id = fixedId || newId("lead");
+    const now = nowISO();
+    await run("leads/" + id, () => retry(() => db.doc("leads/" + id).set(clean({ etapa: "nuevo", prioridad: "media", trato: "tu", intentos: 0, proxima: null, ...data, creado: now, actualizado: now, creadoPor: who() }))));
+    return id;
+  };
   return {
     createCliente: create("clientes", "cli"),
     updateCliente: update("clientes"),
@@ -1620,13 +1756,19 @@ function makeApi(db, meRef) {
     deleteSolicitud: remove("solicitudes"),
     updateAct: update("actividades"),
     createTarea: create("tareas", "tar"),
+    /* Tareas y leads que salen del calendario: id fijo y solo si no existen (dos vistas abiertas no duplican). */
+    async ensureTarea(id, data) {
+      if (await existe("tareas/" + id)) return false;
+      await create("tareas", "tar")(data, id);
+      return true;
+    },
     updateTarea: update("tareas"),
     deleteTarea: remove("tareas"),
-    async createLead(data) {
-      const id = newId("lead");
-      const now = nowISO();
-      await run("leads/" + id, () => retry(() => db.doc("leads/" + id).set(clean({ etapa: "nuevo", prioridad: "media", trato: "tu", intentos: 0, proxima: null, ...data, creado: now, actualizado: now, creadoPor: who() }))));
-      return id;
+    createLead,
+    async ensureLead(id, data) {
+      if (await existe("leads/" + id)) return false;
+      await createLead(data, id);
+      return true;
     },
     updateLead: (id, patch) => run("leads/" + id, () => retry(() => db.doc("leads/" + id).update(clean({ ...patch, actualizado: nowISO() })))),
     async deleteLead(id) {
@@ -1638,8 +1780,8 @@ function makeApi(db, meRef) {
       for (const d of trs.docs) await retry(() => db.doc("tareas/" + d.id).delete());
       await run("leads/" + id, () => retry(() => db.doc("leads/" + id).delete()));
     },
-    async addAct(data) {
-      const id = newId("act");
+    async addAct(data, fixedId) {
+      const id = fixedId || newId("act");
       await run("actividades/" + id, () => retry(() => db.doc("actividades/" + id).set(clean({ fecha: nowISO(), autor: who(), ...data }))));
       return id;
     },
@@ -1653,6 +1795,8 @@ function makeApi(db, meRef) {
     updateDraft: (id, patch) => run("borradores/" + id, () => retry(() => db.doc("borradores/" + id).update(clean({ ...patch, actualizado: nowISO() })))),
     deleteDraft: (id) => run("borradores/" + id, () => retry(() => db.doc("borradores/" + id).delete())),
     setConfig: (data) => run("config/general", () => retry(() => db.doc("config/general").set(clean(data)))),
+    /* eventos/<id de Google>: a qué lead y tarea quedó unido cada evento, y cuándo empezaba. */
+    setEvento: (id, data) => run("eventos/" + id, () => retry(() => db.doc("eventos/" + id).set(clean({ ...data, actualizado: nowISO() })))),
     setEquipo: (uid, data) => run("equipo/" + uid, () => retry(() => db.doc("equipo/" + uid).set(clean(data)))),
     /* Un documento por persona con el último resultado de «Transcribir en vivo». */
     diagMicrofono: (data) => { const p = "diagnostico/microfono-" + who(); return run(p, () => retry(() => db.doc(p).set(clean({ ...data, fecha: nowISO() })))); },
@@ -1909,9 +2053,11 @@ function LeadRow({ lead, mode }) {
 /* ===================================================================== tareas */
 
 /* Una tarea: el círculo la completa (agendar y la reunión piden un dato antes) y el botón de la
-   derecha hace lo que toca: llamar, revisar el borrador, agendar o contar cómo fue la reunión. */
+   derecha hace lo que toca: llamar, revisar el borrador, agendar, entrar a Meet o contar cómo fue
+   la reunión. Una reunión unida a Google Calendar muestra si el lead aceptó la invitación. */
 function TareaFila({ t, conLead, onEditar }) {
-  const { leadsById, openLead, openDraft, completarTarea, canWrite, cfg, nameOf, drafts } = useCtx();
+  const { leadsById, openLead, openDraft, completarTarea, canWrite, cfg, nameOf, drafts, cal, calListo, crearEventoDeReunion } = useCtx();
+  const [creando, setCreando] = useState(false);
   const lead = leadsById[t.leadId] || null;
   const tipo = tipoTarea(t.tipo);
   const pend = tareaPendiente(t);
@@ -1919,32 +2065,43 @@ function TareaFila({ t, conLead, onEditar }) {
   const pasada = c.tono === "ask";
   const borrador = t.borradorId ? drafts.find((d) => d.id === t.borradorId) : null;
   const wa = lead && lead.telefono && !lead.noContactar ? waLink(lead.telefono, "", cfg) : null;
-  const gcal = tipo === "reunion" && pend && !pasada && lead ? gcalLink({ titulo: `${t.titulo || "Reunión"} · ${leadTitulo(lead)} y ZH Development`, fecha: t.fecha, hora: t.hora, duracion: t.duracion, detalle: "Reunión con ZH Development.\nzhdevelopment.cl", invitados: lead.correo || "" }, cfg) : null;
+  const ev = tipo === "reunion" && t.evento && t.evento.id ? t.evento : null;
+  const resp = ev && RESPUESTA[ev.respuesta];
+  /* Sin evento unido: si el calendario ya tiene uno de este lead ese día, se une solo; si no, se puede crear. */
+  const correo = lead ? String(lead.correo || "").toLowerCase() : "";
+  const yaEnCal = !!correo && (cal.eventos || []).some((e) => e.fecha === t.fecha && e.invitados.some((a) => a.correo === correo));
+  const reunionAbierta = tipo === "reunion" && pend && !pasada && !!lead && !t.virtual;
+  const puedeCrear = reunionAbierta && !ev && calListo && !lead.noContactar && isHora(t.hora) && !yaEnCal;
+  const gcal = reunionAbierta && !ev && !calListo ? gcalLink({ titulo: `${t.titulo || "Reunión"} · ${leadTitulo(lead)} y ZH Development`, fecha: t.fecha, hora: t.hora, duracion: t.duracion, detalle: "Reunión con ZH Development.\nzhdevelopment.cl", invitados: lead.correo || "" }, cfg) : null;
+  const crear = async () => { setCreando(true); await crearEventoDeReunion(t); setCreando(false); };
   let accion = null;
-  if (pend && lead && canWrite) {
+  if (reunionAbierta && ev && ev.meet && t.fecha === todayKey()) accion = html`<a class="btn small primary" href=${ev.meet} target="_blank" rel="noopener"><${Icon} name="meet" />Unirse a Meet</a>`;
+  else if (pend && lead && canWrite) {
     if (pasada) accion = html`<button type="button" class="btn small primary" onClick=${() => completarTarea(t)}>¿Se hizo?</button>`;
     else if (borrador && borrador.estado !== "enviado" && borrador.estado !== "descartado") accion = html`<button type="button" class="btn small claude" onClick=${() => openDraft(borrador.id)}><${Icon} name="doc" />Revisar y enviar</button>`;
     else if (tipo === "llamar" && lead.telefono && !lead.noContactar) accion = html`<button type="button" class="btn small" onClick=${() => openLead(lead.id, "llamada")}><${Icon} name="phone" />Llamar</button>`;
     else if (tipo === "whatsapp" && wa) accion = html`<a class="btn small" href=${wa} target="_blank" rel="noopener"><${Icon} name="chat" />WhatsApp</a>`;
     else if (tipo === "correo" && !lead.noContactar) accion = html`<button type="button" class="btn small" onClick=${() => openLead(lead.id, "redactar")}><${Icon} name="spark" />Redactar</button>`;
     else if (tipo === "agendar") accion = html`<button type="button" class="btn small" onClick=${() => completarTarea(t)}><${Icon} name="cal" />Agendar</button>`;
+    else if (puedeCrear) accion = html`<button type="button" class="btn small" onClick=${crear} disabled=${creando} title="Crea el evento con Meet e invita al lead"><${Icon} name="cal" />${creando ? "Creando…" : "Crear en Calendar"}</button>`;
     else if (gcal) accion = html`<a class="btn small" href=${gcal} target="_blank" rel="noopener" title="Abre Google Calendar con el evento lleno"><${Icon} name="cal" />Calendario</a>`;
   }
+  const verEvento = ev && ev.link && pend ? html`<a class="btn small icon" href=${ev.link} target="_blank" rel="noopener" title="Abrir el evento en Google Calendar" aria-label="Abrir el evento en Google Calendar"><${Icon} name="cal" /></a>` : null;
   const titulo = t.titulo || accionLabel(tipo);
   return html`<div class=${cx("task", t.estado === "hecha" && "done", t.estado === "descartada" && "gone")}>
     <button type="button" class=${cx("tick", t.estado === "hecha" && "on")} disabled=${!pend || !canWrite} title=${pend ? (tipo === "agendar" ? "Agendar la reunión" : tipo === "reunion" ? "¿Se hizo la reunión?" : "Marcar como hecha") : ""} aria-label=${(pend ? "Completar: " : "Hecha: ") + titulo} onClick=${() => completarTarea(t)}><${Icon} name="check" size=${12} /></button>
     <div class="task-main">
       <div class="task-title"><${Icon} name=${TIPO_TAREA[tipo][2]} size=${15} />${onEditar && pend ? html`<button type="button" title="Editar la tarea" onClick=${onEditar}>${titulo}</button>` : html`<span>${titulo}</span>`}</div>
-      <div class="task-meta">${conLead && lead ? html`<button type="button" onClick=${() => openLead(lead.id)}>${leadTitulo(lead)}</button> · ` : null}<span class=${c.tono}>${c.txt}</span>${t.responsable ? " · " + nameOf(t.responsable) : ""}${pend && t.origen === "llamada" ? " · acordado en una llamada" : pend && t.origen === "reunion" ? " · acordado en una reunión" : ""}</div>
+      <div class="task-meta">${conLead && lead ? html`<button type="button" onClick=${() => openLead(lead.id)}>${leadTitulo(lead)}</button> · ` : null}<span class=${c.tono}>${c.txt}</span>${t.responsable ? " · " + nameOf(t.responsable) : ""}${pend && t.origen === "llamada" ? " · acordado en una llamada" : pend && t.origen === "reunion" ? " · acordado en una reunión" : pend && t.origen === "agenda_web" ? " · agendó por la web" : ""}${pend && ev ? (resp && resp[0] ? html` · <span class=${cx("resp", resp[1])}>${resp[0]}</span>` : " · en Google Calendar") : null}</div>
       ${t.nota ? html`<p class="task-nota">${t.nota}</p>` : null}
     </div>
-    ${accion ? html`<div class="task-side">${accion}</div>` : null}
+    ${accion || verEvento ? html`<div class="task-side">${accion}${verEvento}</div>` : null}
   </div>`;
 }
 
 const TIPOS_EDITABLES = TIPOS_TAREA.filter((x) => x[0] !== "reunion");
 function TareaEditor({ lead, t, onDone }) {
-  const { api, toast, yo, canWrite } = useCtx();
+  const { api, toast, yo, canWrite, moverReunion } = useCtx();
   const nueva = !t || !!t.virtual;
   const esReunion = !!t && tipoTarea(t.tipo) === "reunion";
   const [tipo, setTipo] = useState(t ? tipoTarea(t.tipo) : "llamar");
@@ -1962,13 +2119,21 @@ function TareaEditor({ lead, t, onDone }) {
     try {
       const data = { tipo, titulo: titulo.trim() || accionLabel(tipo), fecha, hora: isHora(hora) ? hora : "", responsable: resp || null, nota: nota.trim() };
       if (nueva) await api.createTarea({ leadId: lead.id, ...data, estado: "pendiente", origen: "manual" });
-      else await api.updateTarea(t.id, data);
+      else if (esReunion && t.evento && t.evento.id) {
+        const { fecha: f, hora: h, ...resto } = data;
+        const extra = await moverReunion(t, lead, { fecha: f, hora: h, resumen: resto.titulo !== (t.titulo || "") ? `${resto.titulo} · ${leadTitulo(lead)} y ZH Development` : "" }, resto);
+        if (extra) toast(`Reunión ${cuandoTexto(f)}${h ? " a las " + h : ""}.${extra}`, /no confirmó|no movió/.test(extra) ? "bad" : "");
+      } else await api.updateTarea(t.id, data);
       onDone();
     } catch (e) { toast(dbErrorText(e), "bad"); setSaving(false); }
   };
   const descartar = async () => {
     setSaving(true);
-    try { await api.updateTarea(t.id, { estado: "descartada", hecha: nowISO() }); toast("Tarea descartada."); onDone(); } catch (e) { toast(dbErrorText(e), "bad"); setSaving(false); }
+    try {
+      await api.updateTarea(t.id, { estado: "descartada", hecha: nowISO() });
+      toast(esReunion && t.evento && t.evento.id && !tareaVencida(t) ? "Tarea descartada. La reunión sigue en Google Calendar: cancélala allá si ya no va." : "Tarea descartada.");
+      onDone();
+    } catch (e) { toast(dbErrorText(e), "bad"); setSaving(false); }
   };
   const idp = nueva ? "tn" : "te";
   return html`<div class="task-form">
@@ -2027,9 +2192,10 @@ function SigLinea({ t }) {
   const c = cuandoTarea(t);
   const tipo = tipoTarea(t.tipo);
   const titulo = t.titulo || accionLabel(tipo);
+  const resp = tipo === "reunion" && t.evento && t.evento.id ? RESPUESTA[t.evento.respuesta] : null;
   return html`<div class=${cx("knext", c.tono)}>
     ${canWrite ? html`<button type="button" class="tick" title=${tipo === "agendar" ? "Agendar la reunión" : tipo === "reunion" ? "¿Se hizo la reunión?" : "Marcar como hecha"} aria-label=${"Completar: " + titulo} onClick=${(e) => { e.stopPropagation(); completarTarea(t); }}><${Icon} name="check" size=${11} /></button>` : html`<${Icon} name=${TIPO_TAREA[tipo][2]} size=${14} />`}
-    <span class="knext-txt"><b>${c.tono === "ask" ? "¿Se hizo la reunión?" : titulo}</b><span>${c.tono === "ask" ? c.txt.replace(" · ¿se hizo?", "") : c.txt}</span></span>
+    <span class="knext-txt"><b>${c.tono === "ask" ? "¿Se hizo la reunión?" : titulo}</b><span>${c.tono === "ask" ? c.txt.replace(" · ¿se hizo?", "") : c.txt}${c.tono !== "ask" && resp && resp[2] ? " · " + resp[2] : ""}</span></span>
   </div>`;
 }
 
@@ -2047,6 +2213,80 @@ function ListoCard({ r, lead, onClose }) {
     ${r.sugerencia && canWrite ? html`<p>Claude sugiere pasarlo a «${etapaLabel(r.sugerencia)}». <button type="button" class="btn small" onClick=${() => { onClose(); changeStage(lead, r.sugerencia); }}>Pasar a ${etapaLabel(r.sugerencia)}</button></p>` : null}
     <div class="actions"><button type="button" class="btn small ghost" onClick=${onClose}>Cerrar</button></div>
   </div>`;
+}
+
+/* ===================================================================== calendario */
+
+/* La conexión con Google Calendar: si está al día y, si no, qué hacer según el código. */
+function CalEstado({ detalle }) {
+  const { cal, calCuenta, permitirCalendario, refrescarCalendario, abrirPermisos } = useCtx();
+  const e = cal.error || {};
+  if (cal.estado === "off") return html`<div class="note"><${Icon} name="info" /><div>Esta vista no tiene acceso a Google Calendar. Abre el CRM desde claude.ai, con Google Calendar conectado en tu cuenta.</div></div>`;
+  if (cal.estado === "cargando") return html`<p class="empty">Leyendo Google Calendar…</p>`;
+  if (cal.estado === "error") {
+    const boton = e.code === "approval_required" || e.code === "consent_required" ? html`<button type="button" class="btn small primary" onClick=${permitirCalendario}>Permitir Google Calendar</button>`
+      : e.code === "not_in_manifest" ? html`<button type="button" class="btn small" onClick=${abrirPermisos}>Abrir permisos</button>`
+      : !e.code || CAL_REINTENTAR.has(e.code) ? html`<button type="button" class="btn small" onClick=${refrescarCalendario}>Volver a intentar</button>` : null;
+    return html`<div class="note warn cal-aviso"><${Icon} name="info" /><div><p>${calErrorText(e, calCuenta)}</p>${boton ? html`<div class="actions">${boton}</div>` : null}</div></div>`;
+  }
+  const cuando = ago(new Date(cal.storedAt || Date.now()).toISOString());
+  return html`<div class="cal-pie">
+    ${detalle ? html`<span>Lee las reuniones de ${calCuenta} de hoy a ${CAL_DIAS} días (${(cal.eventos || []).length} ahora) y crea los eventos con Meet.</span>` : null}
+    <span class=${cal.error ? "resp warn" : ""}>${cal.error ? `No se pudo actualizar: es lo de ${cuando}.` : `Actualizado ${cuando}.`}</span>
+    <button type="button" class="linkbtn" onClick=${refrescarCalendario}>Actualizar</button>
+  </div>`;
+}
+
+/* Un evento del calendario: la hora, el lead (o los invitados), la respuesta, Meet y «Crear lead». */
+function EventoFila({ ev }) {
+  const { leadDeEvento, openLead, openModal, canWrite, equipoCorreos } = useCtx();
+  const lead = leadDeEvento(ev);
+  const fuera = deAfuera(ev, equipoCorreos);
+  const inv = lead ? ev.invitados.find((a) => a.correo === String(lead.correo || "").toLowerCase()) : fuera[0];
+  const resp = inv && RESPUESTA[inv.respuesta];
+  const ahora = Date.now();
+  const termino = ev.fin <= ahora;
+  const enCurso = !ev.todoElDia && ev.ini <= ahora && !termino;
+  const meet = !!ev.meet && ev.fecha === todayKey() && !termino;
+  const web = lead ? null : reservaWeb(ev);
+  const quien = fuera.length ? fuera.map((a) => a.nombre || a.correo).join(", ") : ev.invitados.length ? "Solo el equipo" : "Sin invitados";
+  /* Una reserva de la web que todavía no termina crea su lead sola: no hace falta el botón. */
+  const crear = !lead && canWrite && !ev.todoElDia && (fuera.length || web) && !(web && !termino) ? () => openModal({ type: "newLead", preset: {
+    nombre: (web && web.nombre) || (fuera[0] && fuera[0].nombre) || "", empresa: (web && web.empresa) || "", telefono: (web && web.telefono) || "",
+    correo: (fuera[0] && fuera[0].correo) || (web && web.correo) || "", necesidad: (web && web.mensaje) || "", origen: web ? "agenda" : "", desdeCalendario: !termino,
+  } }) : null;
+  return html`<div class=${cx("cev", termino && "pasado", enCurso && "ahora")}>
+    <div class="cev-hora">${ev.todoElDia ? html`<b>Todo el día</b>` : html`<b>${ev.hora}</b><span>${ev.horaFin}</span>`}</div>
+    <div class="cev-main">
+      ${lead ? html`<button type="button" class="cev-titulo" onClick=${() => openLead(lead.id)}>${leadTitulo(lead)}</button>`
+        : ev.link ? html`<a class="cev-titulo" href=${ev.link} target="_blank" rel="noopener" title="Abrir en Google Calendar">${ev.titulo}</a>` : html`<span class="cev-titulo">${ev.titulo}</span>`}
+      <span class="cev-meta">${lead ? (ev.link ? html`<a href=${ev.link} target="_blank" rel="noopener" title="Abrir en Google Calendar">${tituloDeEvento(ev.titulo, lead)}</a>` : tituloDeEvento(ev.titulo, lead)) : quien}${resp && resp[0] ? html` · <span class=${cx("resp", resp[1])}>${resp[0]}</span>` : null}${enCurso ? html` · <span class="resp today">Ahora</span>` : null}</span>
+    </div>
+    ${meet || crear ? html`<div class="cev-side">
+      ${meet ? html`<a class="btn small primary" href=${ev.meet} target="_blank" rel="noopener"><${Icon} name="meet" />Meet</a>` : null}
+      ${crear ? html`<button type="button" class="btn small" onClick=${crear}><${Icon} name="plus" />Crear lead</button>` : null}
+    </div>` : null}
+  </div>`;
+}
+
+/* Las reuniones de Google Calendar de hoy y los próximos 7 días. */
+function CalendarioPanel() {
+  const { cal, calCuenta } = useCtx();
+  if (cal.estado === "off") return null;
+  const t = todayKey();
+  const evs = (cal.eventos || []).filter((e) => e.estado !== "cancelled" && e.fecha >= t && e.fecha <= addDays(t, 7));
+  const vista = evs.slice(0, 12);
+  const dias = [];
+  for (const e of vista) { const g = dias[dias.length - 1]; if (g && g.fecha === e.fecha) g.items.push(e); else dias.push({ fecha: e.fecha, items: [e] }); }
+  const diaTxt = (f) => (f === t ? "Hoy" : f === addDays(t, 1) ? "Mañana" : cap(noDots(fmtShort.format(keyDate(f)))));
+  const hoyN = evs.filter((e) => e.fecha === t && !e.todoElDia).length;
+  return html`<section class="panel" aria-label="Calendario"><div class="panel-head"><h2>Calendario</h2><span class="eyebrow">${cal.estado === "ok" && hoyN ? `${hoyN} ${hoyN === 1 ? "reunión" : "reuniones"} hoy` : calCuenta}</span></div>
+    <div class="panel-body">
+      ${cal.estado !== "ok" ? html`<${CalEstado} />` : html`
+        ${dias.length ? html`<div class="cevs">${dias.map((g) => html`<p class="cev-dia" key=${"d" + g.fecha}>${diaTxt(g.fecha)}</p>${g.items.map((e) => html`<${EventoFila} key=${e.id} ev=${e} />`)}`)}</div>` : html`<p class="empty">Sin reuniones en los próximos 7 días.</p>`}
+        ${evs.length > vista.length ? html`<p class="small muted">Y ${evs.length - vista.length} más en Google Calendar.</p>` : null}
+        <${CalEstado} />`}
+    </div></section>`;
 }
 
 /* ===================================================================== vista: hoy */
@@ -2135,6 +2375,7 @@ function HoyView() {
           ${nuevos.length > 12 ? html`<button class="btn small ghost" onClick=${() => nav("embudo")}>Ver los ${nuevos.length} en el embudo</button>` : null}</div></section>
       </div>
       <div class="stack">
+        <${CalendarioPanel} />
         ${clientes.length ? html`<section class="panel"><div class="panel-head"><h2>Clientes: próximos 7 días</h2><span class="eyebrow">${agenda.length}</span></div>
           <div class="panel-body"><${AgendaList} items=${agenda} limit=${10} empty="Sin hitos, entregas, facturas ni pagos en los próximos 7 días." />
           ${agenda.length > 10 ? html`<button class="btn small ghost" onClick=${() => nav("proyectos")}>Ver proyectos</button>` : null}</div></section>
@@ -4906,10 +5147,12 @@ function findDup(leads, l) {
 }
 
 const PRIMERA_TAREA = { llamar: "Primera llamada", whatsapp: "Primer WhatsApp", correo: "Primer correo", agendar: "Agendar la reunión", propuesta: "Enviar propuesta", otro: "Primera tarea" };
-function NewLeadModal() {
+function NewLeadModal({ preset }) {
   const { api, leads, closeModal, openLead, toast, yo } = useCtx();
   const t = todayKey();
-  const [f, setF] = useState({ nombre: "", empresa: "", cargo: "", telefono: "", correo: "", origen: "", necesidad: "", notas: "", prioridad: "media", accion: "llamar", fecha: t, responsable: yo });
+  const p = preset || {};
+  /* Desde una reunión del calendario: sin primera tarea, porque la reunión queda como su tarea. */
+  const [f, setF] = useState({ nombre: p.nombre || "", empresa: p.empresa || "", cargo: "", telefono: p.telefono || "", correo: p.correo || "", origen: p.origen || "", necesidad: p.necesidad || "", notas: "", prioridad: "media", accion: "llamar", fecha: p.desdeCalendario ? "" : t, responsable: yo });
   const [saving, setSaving] = useState(false);
   const set = (k) => (e) => setF((x) => ({ ...x, [k]: e.currentTarget.value }));
   const dup = findDup(leads, f);
@@ -4946,6 +5189,7 @@ function NewLeadModal() {
         <label class="field" for="nl-resp"><span>Responsable</span><select id="nl-resp" class="select" value=${f.responsable} onChange=${set("responsable")}><option value="">Sin responsable</option>${RESPONSABLES.map(([v, l]) => html`<option value=${v}>${l}</option>`)}</select></label>
         <label class="field" for="nl-notas"><span>Notas internas</span><input id="nl-notas" class="input" value=${f.notas} onInput=${set("notas")} /></label>
       </div>
+      ${p.desdeCalendario ? html`<div class="note"><${Icon} name="cal" /><div>La reunión de Google Calendar se une sola a este lead: queda como su tarea y el lead pasa a «Reunión agendada». Deja el correo del invitado para que se reconozca.</div></div>` : null}
       ${dup ? html`<div class="note warn"><${Icon} name="info" /><div>Ya existe <b>${leadName(dup)}</b> con ese teléfono o correo. <button type="button" class="btn small ghost" style="min-height:0;padding:0;text-decoration:underline" onClick=${() => { closeModal(); openLead(dup.id); }}>Abrir ficha</button></div></div>` : null}
       <button type="submit" class="sr">Agregar</button>
     </form>
@@ -5091,15 +5335,16 @@ function LostModal({ lead }) {
     setSaving(true);
     try {
       const d = detalle.trim();
+      let avisoCal = "";
       if (ya) {
         await api.updateLead(lead.id, { motivoPerdida: motivo, motivoDetalle: d });
         await api.addAct({ leadId: lead.id, tipo: "nota", resumen: `Motivo de pérdida: ${motivo}${d ? ". " + d : ""}` });
       } else {
-        await cerrarTareasDe(lead.id);
+        avisoCal = await cerrarTareasDe(lead.id);
         await api.updateLead(lead.id, { etapa: "perdido", motivoPerdida: motivo, motivoDetalle: d, proxima: null });
         await api.addAct({ leadId: lead.id, tipo: "etapa", de: etapaDe(lead), a: "perdido", resumen: d ? `${motivo}: ${d}` : motivo });
       }
-      toast(`${leadTitulo(lead)}: perdido · ${motivo}.`);
+      toast(`${leadTitulo(lead)}: perdido · ${motivo}.${avisoCal}`);
       closeModal();
     } catch (e) { toast(dbErrorText(e), "bad"); setSaving(false); }
   };
@@ -5116,9 +5361,12 @@ function LostModal({ lead }) {
 /* Agendar (o cambiar) la reunión: queda como tarea con día y hora, el lead pasa a «Reunión
    agendada» y, si se pide, Claude deja redactada la confirmación. */
 function AgendarModal({ lead: lead0, tarea, desdeEtapa }) {
-  const { closeModal, agendarReunion, tareasPorLead, sampleState, cfg, canWrite, moverEtapa, toast, leadsById } = useCtx();
+  const { closeModal, agendarReunion, tareasPorLead, sampleState, cfg, canWrite, moverEtapa, toast, leadsById, calListo, calCuenta, equipoCorreos } = useCtx();
   const lead = leadsById[lead0.id] || lead0;
   const [existente] = useState(() => (tareasPorLead[lead.id] || []).find((x) => tipoTarea(x.tipo) === "reunion") || null);
+  const evPrevio = existente && existente.evento && existente.evento.id ? existente.evento : null;
+  /* Una reunión nueva va a Google Calendar por defecto; una ya agendada sin evento, solo si se pide. */
+  const [enCal, setEnCal] = useState(!existente);
   const hoy = todayKey();
   const [fecha, setFecha] = useState(existente ? existente.fecha : addBusinessDays(hoy, 1));
   const [hora, setHora] = useState(existente && isHora(existente.hora) ? existente.hora : "11:00");
@@ -5129,14 +5377,29 @@ function AgendarModal({ lead: lead0, tarea, desdeEtapa }) {
   const [confirmar, setConfirmar] = useState(sampleState.fn && canal && !existente ? canal : "");
   const [saving, setSaving] = useState(false);
   const dur = Number(duracion) || DURACION_REUNION;
-  const gcal = gcalLink({ titulo: `${titulo.trim() || "Reunión"} · ${leadTitulo(lead)} y ZH Development`, fecha, hora: isHora(hora) ? hora : "", duracion: dur, detalle: "Reunión con ZH Development.\nzhdevelopment.cl", invitados: lead.correo || "" }, cfg);
+  const conHora = isHora(hora);
+  const correo = isEmail(lead.correo) ? String(lead.correo).toLowerCase() : "";
+  const equipoInv = [...equipoCorreos].filter((x) => x !== calCuenta && x !== correo);
+  const conCal = calListo && enCal && conHora && !evPrevio;
+  const gcal = gcalLink({ titulo: `${titulo.trim() || "Reunión"} · ${leadTitulo(lead)} y ZH Development`, fecha, hora: conHora ? hora : "", duracion: dur, detalle: "Reunión con ZH Development.\nzhdevelopment.cl", invitados: lead.correo || "" }, cfg);
   const quick = [["Hoy", hoy], ["Mañana", addDays(hoy, 1)], ["Pasado mañana", addDays(hoy, 2)], ["En una semana", addDays(hoy, 7)]];
   const guardar = async () => {
     if (!isKey(fecha)) { toast("Elige el día de la reunión.", "bad"); return; }
     setSaving(true);
-    const ok = await agendarReunion(lead, { fecha, hora: isHora(hora) ? hora : "", duracion: dur, titulo: titulo.trim() || "Reunión", nota: nota.trim(), confirmar, reunionId: existente ? existente.id : "" }, tarea || null);
+    const t2 = titulo.trim() || "Reunión";
+    const resumen = `${t2} · ${leadTitulo(lead)} y ZH Development`;
+    const ok = await agendarReunion(lead, { fecha, hora: conHora ? hora : "", duracion: dur, titulo: t2, nota: nota.trim(), confirmar, reunionId: existente ? existente.id : "", calendario: conCal, resumen: evPrevio ? (t2 !== (existente.titulo || "") ? resumen : "") : resumen }, tarea || null);
     if (ok) closeModal(); else setSaving(false);
   };
+  const invTxt = correo ? `Google le manda la invitación a ${correo}${equipoInv.length ? ` y al equipo (${equipoInv.join(", ")})` : ""}.` : `El lead no tiene correo: agrégalo en su ficha para invitarlo.${equipoInv.length ? ` Se invita al equipo (${equipoInv.join(", ")}).` : ""}`;
+  const calBox = evPrevio
+    ? html`<div class="cal-box"><p class="small">${evPrevio.propio ? (calListo ? "El evento de Google Calendar se mueve con la reunión y Google les avisa del cambio a los invitados." : "Desde esta vista no se puede mover el evento de Google Calendar: muévelo allá también.") : `El evento lo organizó ${evPrevio.organizador || "otra cuenta"}: si cambias el día o la hora, muévelo también en su Google Calendar.`}</p>
+        ${evPrevio.link ? html`<a class="btn small" href=${evPrevio.link} target="_blank" rel="noopener"><${Icon} name="ext" />Abrir el evento</a>` : null}</div>`
+    : calListo
+      ? html`<div class="cal-box"><label class="switch"><input type="checkbox" checked=${enCal} onChange=${(e) => setEnCal(e.currentTarget.checked)} />Crear el evento en Google Calendar, con Meet</label>
+          <small class="hint">${!enCal ? "La reunión queda solo en el CRM." : !conHora ? "Ponle hora para crear el evento." : `Queda en ${calCuenta}. ${invTxt}`}</small></div>`
+      : gcal ? html`<div class="cal-box"><a class="btn small" href=${gcal} target="_blank" rel="noopener"><${Icon} name="cal" />Agregar a Google Calendar</a>
+          <small class="hint">Abre el evento ya lleno${lead.correo ? ", con " + lead.correo + " como invitado" : ""}${cfg.gmailCuenta ? ", en la cuenta " + cfg.gmailCuenta : ""}. Al guardarlo, Google manda la invitación: revisa que lleve la videollamada de Meet.</small></div>` : null;
   const sinFecha = async () => {
     setSaving(true);
     try { await moverEtapa(lead, "reunion_agendada"); toast(`${leadTitulo(lead)}: Reunión agendada, sin día en el CRM.`); closeModal(); } catch (e) { toast(dbErrorText(e), "bad"); setSaving(false); }
@@ -5155,10 +5418,9 @@ function AgendarModal({ lead: lead0, tarea, desdeEtapa }) {
       <div class="actions">${quick.map(([l, k]) => html`<button type="button" class=${cx("btn small", fecha === k && "on")} onClick=${() => setFecha(k)}>${l}</button>`)}</div>
       <label class="field" for="ag-titulo"><span>Para qué es</span><input id="ag-titulo" class="input" value=${titulo} onInput=${(e) => setTitulo(e.currentTarget.value)} /></label>
       <label class="field" for="ag-nota"><span>Notas internas para la reunión (opcional)</span><textarea id="ag-nota" class="textarea" rows="2" value=${nota} onInput=${(e) => setNota(e.currentTarget.value)}></textarea><small class="hint">Quedan en la tarea; no van en la invitación.</small></label>
+      ${calBox}
       ${sampleState.fn && canal && !existente ? html`<div class="field"><span>Confirmación al lead</span><${Seg} label="Confirmación" value=${confirmar} onChange=${setConfirmar} options=${[["", "No"], ...(lead.telefono ? [["whatsapp", "WhatsApp", "chat"]] : []), ...(lead.correo ? [["correo", "Correo", "mail"]] : [])]} />
-        <small class="hint">${confirmar ? `Claude deja redactada la confirmación por ${confirmar === "whatsapp" ? "WhatsApp" : "correo"} en «Borradores», con una tarea para enviarla hoy.` : "Sin mensaje de confirmación."}</small></div>` : null}
-      ${gcal ? html`<div class="cal-box"><a class="btn small" href=${gcal} target="_blank" rel="noopener"><${Icon} name="cal" />Agregar a Google Calendar</a>
-        <small class="hint">Abre el evento ya lleno${lead.correo ? ", con " + lead.correo + " como invitado" : ""}${cfg.gmailCuenta ? ", en la cuenta " + cfg.gmailCuenta : ""}. Al guardarlo, Google manda la invitación: revisa que lleve la videollamada de Meet.</small></div>` : null}
+        <small class="hint">${confirmar ? `Claude deja redactada la confirmación por ${confirmar === "whatsapp" ? "WhatsApp" : "correo"}${conCal ? ", con el enlace de Meet," : ""} en «Borradores», con una tarea para enviarla hoy.` : "Sin mensaje de confirmación."}</small></div>` : null}
     </div>
   </${Modal}>`;
 }
@@ -5168,9 +5430,10 @@ function AgendarModal({ lead: lead0, tarea, desdeEtapa }) {
    no se presentó, se le escribe para reagendar (con el WhatsApp redactado) o se da por perdido. */
 const fechaTxt = (f, h) => `${fmtLong.format(keyDate(f)).replace(",", "")}${isHora(h) ? " a las " + h : ""}`;
 function ReunionHechaModal({ lead: lead0, tarea }) {
-  const { closeModal, api, toast, marcarTarea, moverEtapa, openLead, yo, canWrite, leadsById, cerrarTareasDe, redactarTareas, sampleState } = useCtx();
+  const { closeModal, api, toast, marcarTarea, moverEtapa, openLead, yo, canWrite, leadsById, cerrarTareasDe, redactarTareas, sampleState, moverReunion } = useCtx();
   const lead = leadsById[lead0.id] || lead0;
   const veces = (Number(lead.inasistencias) || 0) + 1;
+  const ev = tarea.evento && tarea.evento.id ? tarea.evento : null;
   const cuando = `${cuandoTexto(tarea.fecha)}${isHora(tarea.hora) ? " a las " + tarea.hora : ""}`;
   const nota = `No se presentó a la reunión del ${fechaTxt(tarea.fecha, tarea.hora)}.`;
   const [modo, setModo] = useState("si");
@@ -5195,11 +5458,11 @@ function ReunionHechaModal({ lead: lead0, tarea }) {
       if (modo === "noshow") {
         await marcarTarea(tarea, "descartada", { resultado: "no_se_presento" });
         if (tras === "perdido") {
-          await cerrarTareasDe(lead.id);
+          const avisoCal = await cerrarTareasDe(lead.id);
           const d = detalle.trim() || nota;
           await api.updateLead(lead.id, { etapa: "perdido", motivoPerdida: motivo, motivoDetalle: d, proxima: null, inasistencias: veces });
           await api.addAct({ leadId: lead.id, tipo: "etapa", de: etapaDe(lead), a: "perdido", resumen: `${motivo}: ${d}` });
-          toast(`${leadTitulo(lead)}: perdido · ${motivo}.`);
+          toast(`${leadTitulo(lead)}: perdido · ${motivo}.${avisoCal}`);
         } else {
           await api.updateLead(lead.id, { inasistencias: veces });
           await api.addAct({ leadId: lead.id, tipo: "nota", resumen: nota });
@@ -5213,10 +5476,11 @@ function ReunionHechaModal({ lead: lead0, tarea }) {
       if (modo === "reagendar") {
         if (!isKey(fecha)) { toast("Elige el día nuevo.", "bad"); setSaving(false); return; }
         const datos = { fecha, hora: isHora(hora) ? hora : "" };
+        let extraCal = "";
         if (tarea.virtual) { await api.createTarea({ leadId: lead.id, tipo: "reunion", titulo: tarea.titulo || "Reunión", ...datos, duracion: DURACION_REUNION, responsable: lead.responsable || yo || null, estado: "pendiente", origen: "manual" }); await api.updateLead(lead.id, { proxima: null }); }
-        else await api.updateTarea(tarea.id, datos);
+        else extraCal = await moverReunion(tarea, lead, datos);
         await api.addAct({ leadId: lead.id, tipo: "nota", resumen: `La reunión del ${fechaTxt(tarea.fecha, tarea.hora)} se cambió para el ${fechaTxt(fecha, datos.hora)}.` });
-        toast(`${leadTitulo(lead)}: reunión ${cuandoTexto(fecha)}${datos.hora ? " a las " + datos.hora : ""}.`);
+        toast(`${leadTitulo(lead)}: reunión ${cuandoTexto(fecha)}${datos.hora ? " a las " + datos.hora : ""}.${extraCal}`, /no confirmó|no movió/.test(extraCal) ? "bad" : "");
         closeModal();
         return;
       }
@@ -5242,7 +5506,8 @@ function ReunionHechaModal({ lead: lead0, tarea }) {
       ${modo === "reagendar" ? html`<div class="grid-2">
         <label class="field" for="rh-fecha"><span>Día nuevo</span><input id="rh-fecha" class="input" type="date" value=${fecha} onInput=${(e) => setFecha(e.currentTarget.value)} /></label>
         <label class="field" for="rh-hora"><span>Hora</span><input id="rh-hora" class="input" type="time" value=${hora} onInput=${(e) => setHora(e.currentTarget.value)} /></label>
-      </div>` : null}
+      </div>
+      ${ev ? html`<p class="small muted">${ev.propio ? "El evento de Google Calendar se mueve también y Google les avisa a los invitados." : `El evento lo organizó ${ev.organizador || "otra cuenta"}: muévelo también en su Google Calendar.`}</p>` : null}` : null}
       ${modo === "no" ? html`<p class="small">Queda una tarea para hoy: «Reagendar la reunión». El lead sigue en su etapa.</p>` : null}
     </div>
   </${Modal}>`;
@@ -5291,10 +5556,10 @@ function NoContestoModal({ lead }) {
     setSaving(true);
     try {
       await registro();
-      await cerrarTareasDe(lead.id);
+      const avisoCal = await cerrarTareasDe(lead.id);
       await api.updateLead(lead.id, { ultimoIntento: nowISO(), intentos: n, etapa: "perdido", motivoPerdida: "No responde", motivoDetalle: "", proxima: null });
       await api.addAct({ leadId: lead.id, tipo: "etapa", de: etapaDe(lead), a: "perdido", resumen: `No responde (${n} intentos)` });
-      toast(`${leadTitulo(lead)}: perdido · No responde.`);
+      toast(`${leadTitulo(lead)}: perdido · No responde.${avisoCal}`);
       closeModal();
     } catch (e) { toast(dbErrorText(e), "bad"); setSaving(false); }
   };
@@ -5359,14 +5624,15 @@ async function getAll(db, path, field) {
 }
 
 function AjustesView() {
-  const { me, equipo, cfg, api, toast, downloads, leads, db, nameOf, canWrite, profileName, clientes, cobros, clientesById, proyectosById } = useCtx();
+  const { me, equipo, cfg, api, toast, downloads, leads, db, nameOf, canWrite, profileName, clientes, cobros, clientesById, proyectosById, calCuenta } = useCtx();
   const [cc, setCc] = useState({ garantiaDias: String(cfg.garantiaDias || 60), plazoPago: String(cfg.plazoPago || 30) });
   useEffect(() => { setCc({ garantiaDias: String(cfg.garantiaDias || 60), plazoPago: String(cfg.plazoPago || 30) }); }, [cfg.garantiaDias, cfg.plazoPago]);
   const mine = (me.id && equipo[me.id]) || {};
   const [firma, setFirma] = useState({ nombre: mine.nombre || profileName || "", cargo: mine.cargo || "", telefono: mine.telefono ? fmtPhone(mine.telefono) : "", correo: mine.correo || "" });
-  const [c, setC] = useState({ whatsappNegocios: cfg.whatsappNegocios ? fmtPhone(cfg.whatsappNegocios) : "", agendaUrl: cfg.agendaUrl || AGENDA_DEFAULT, gmailCuenta: cfg.gmailCuenta || "", abrirWhatsapp: cfg.abrirWhatsapp || "app" });
+  const [c, setC] = useState({ whatsappNegocios: cfg.whatsappNegocios ? fmtPhone(cfg.whatsappNegocios) : "", agendaUrl: cfg.agendaUrl || AGENDA_DEFAULT, gmailCuenta: cfg.gmailCuenta || "", abrirWhatsapp: cfg.abrirWhatsapp || "app", correosEquipo: correosDe(cfg.correosEquipo).join(", ") });
   useEffect(() => { setFirma({ nombre: mine.nombre || profileName || "", cargo: mine.cargo || "", telefono: mine.telefono ? fmtPhone(mine.telefono) : "", correo: mine.correo || "" }); }, [mine.nombre, mine.cargo, mine.telefono, mine.correo, profileName]);
-  useEffect(() => { setC({ whatsappNegocios: cfg.whatsappNegocios ? fmtPhone(cfg.whatsappNegocios) : "", agendaUrl: cfg.agendaUrl || AGENDA_DEFAULT, gmailCuenta: cfg.gmailCuenta || "", abrirWhatsapp: cfg.abrirWhatsapp || "app" }); }, [cfg.whatsappNegocios, cfg.agendaUrl, cfg.gmailCuenta, cfg.abrirWhatsapp]);
+  const equipoKey = correosDe(cfg.correosEquipo).join(",");
+  useEffect(() => { setC({ whatsappNegocios: cfg.whatsappNegocios ? fmtPhone(cfg.whatsappNegocios) : "", agendaUrl: cfg.agendaUrl || AGENDA_DEFAULT, gmailCuenta: cfg.gmailCuenta || "", abrirWhatsapp: cfg.abrirWhatsapp || "app", correosEquipo: correosDe(cfg.correosEquipo).join(", ") }); }, [cfg.whatsappNegocios, cfg.agendaUrl, cfg.gmailCuenta, cfg.abrirWhatsapp, equipoKey]);
   const sf = (k) => (e) => setFirma((x) => ({ ...x, [k]: e.currentTarget.value }));
   const sc = (k) => (e) => setC((x) => ({ ...x, [k]: e.currentTarget.value }));
 
@@ -5375,7 +5641,7 @@ function AjustesView() {
     try { await api.setEquipo(me.id, { ...mine, nombre: firma.nombre, cargo: firma.cargo, telefono: normPhone(firma.telefono), correo: firma.correo.toLowerCase() }); toast("Firma guardada."); } catch (e) { toast(dbErrorText(e), "bad"); }
   };
   const guardarCfg = async () => {
-    try { await api.setConfig({ ...cfg, whatsappNegocios: normPhone(c.whatsappNegocios), agendaUrl: c.agendaUrl || AGENDA_DEFAULT, gmailCuenta: c.gmailCuenta.trim().toLowerCase(), abrirWhatsapp: c.abrirWhatsapp }); toast("Ajustes guardados."); } catch (e) { toast(dbErrorText(e), "bad"); }
+    try { await api.setConfig({ ...cfg, whatsappNegocios: normPhone(c.whatsappNegocios), agendaUrl: c.agendaUrl || AGENDA_DEFAULT, gmailCuenta: c.gmailCuenta.trim().toLowerCase(), abrirWhatsapp: c.abrirWhatsapp, correosEquipo: correosDe(c.correosEquipo) }); toast("Ajustes guardados."); } catch (e) { toast(dbErrorText(e), "bad"); }
   };
   const guardarClientes = async () => {
     const g = Number(String(cc.garantiaDias).replace(/\D/g, ""));
@@ -5417,11 +5683,16 @@ function AjustesView() {
           <div class="grid-2">
             <label class="field" for="c-wa"><span>WhatsApp de negocios</span><input id="c-wa" class="input mono" type="tel" value=${c.whatsappNegocios} onInput=${sc("whatsappNegocios")} placeholder="9 1234 5678" /><small class="hint">Se usa en el enlace «WhatsApp» de las firmas y como recordatorio de la línea para llamar.</small></label>
             <label class="field" for="c-agenda"><span>Enlace para agendar</span><input id="c-agenda" class="input" value=${c.agendaUrl} onInput=${sc("agendaUrl")} /><small class="hint">Claude lo usa en los botones y mensajes para agendar.</small></label>
-            <label class="field" for="c-gmail"><span>Cuenta de Google de ZH (Gmail y Calendar)</span><input id="c-gmail" class="input" type="email" value=${c.gmailCuenta} onInput=${sc("gmailCuenta")} placeholder="contacto@zhdevelopment.cl" /><small class="hint">«Copiar y abrir Gmail» y «Agregar a Google Calendar» se abren en esta cuenta. Vacío: la cuenta por defecto del navegador.</small></label>
+            <label class="field" for="c-gmail"><span>Cuenta de Google de ZH (Gmail y Calendar)</span><input id="c-gmail" class="input" type="email" value=${c.gmailCuenta} onInput=${sc("gmailCuenta")} placeholder="contacto@zhdevelopment.cl" /><small class="hint">El CRM lee y crea las reuniones en el calendario de esta cuenta, y «Copiar y abrir Gmail» se abre en ella.</small></label>
+            <label class="field" for="c-equipo"><span>Correos del equipo</span><input id="c-equipo" class="input" value=${c.correosEquipo} onInput=${sc("correosEquipo")} placeholder="nombre@zhdevelopment.cl, otro@gmail.com" /><small class="hint">Se invitan a las reuniones que crea el CRM y nunca se confunden con un lead. Sepáralos con comas.</small></label>
             <div class="field"><span>Abrir WhatsApp en</span><${Seg} label="Abrir WhatsApp en" value=${c.abrirWhatsapp} onChange=${(v) => setC((x) => ({ ...x, abrirWhatsapp: v }))} options=${[["app", "App o wa.me"], ["web", "WhatsApp Web"]]} /><small class="hint">En el computador, WhatsApp Web abre directo el chat si tienes la sesión de negocios iniciada.</small></div>
           </div>
           <div class="actions"><button class="btn primary" onClick=${guardarCfg} disabled=${!canWrite}>Guardar ajustes</button></div>
         </div></section>
+
+      <section class="panel"><div class="panel-head"><h2>Google Calendar</h2><span class="eyebrow">${calCuenta}</span></div>
+        <div class="panel-body"><${CalEstado} detalle />
+          <p class="small muted" style="margin-top:10px">Cada reunión del calendario con un lead queda como su tarea, con el botón de Meet y la respuesta a la invitación, y el lead pasa a «Reunión agendada». Las reservas de zhdevelopment.cl crean su lead. Al agendar desde el CRM, el evento se crea con Meet e invita al lead y al equipo; al cambiar el día, se mueve.</p></div></section>
 
       <section class="panel"><div class="panel-head"><h2>Clientes y cobros</h2><span class="eyebrow">Garantía, plazos e IVA</span></div>
         <div class="panel-body">
@@ -5495,6 +5766,11 @@ function App() {
   const [toasts, setToasts] = useState([]);
   const [readOnly, setReadOnly] = useState(false);
   const [tareas, setTareas] = useState(null);
+  /* Google Calendar: el conector (capacidad «mcp»), lo último que se leyó y el registro eventos/. */
+  const [mcp, setMcp] = useState(undefined);
+  const [permisos, setPermisos] = useState(null);
+  const [cal, setCal] = useState({ estado: "cargando", eventos: null, storedAt: 0, error: null });
+  const [registro, setRegistro] = useState(null);
   /* Menú lateral con solo íconos: por defecto en pantallas de menos de 1500 px, para que el embudo quepa entero. */
   const [mini, setMini] = useState(() => { const v = ls.get("menuMini", null); return v == null ? window.innerWidth < 1500 : !!v; });
   const alternarMenu = () => { const v = !mini; ls.set("menuMini", v); setMini(v); };
@@ -5514,6 +5790,8 @@ function App() {
     c.use("db").then((d) => { if (alive) setDb(d || null); }, () => alive && setDb(null));
     c.use("downloads").then((d) => { if (alive) setDownloads(d || null); }, () => {});
     c.use("sample").then((s) => { if (alive) setSampleState(s ? { fn: s, off: false } : { fn: null, off: true }); }, () => alive && setSampleState({ fn: null, off: true }));
+    c.use("mcp").then((m) => { if (alive) setMcp(m || null); }, () => alive && setMcp(null));
+    c.use("permissions").then((p) => { if (alive) setPermisos(p || null); }, () => {});
     c.use("user").then(async (u) => {
       if (!alive || !u) return;
       setUserApi(u);
@@ -5537,6 +5815,7 @@ function App() {
       db.collection("mantenciones").onSnapshot((s) => setMantenciones(rows(s)), fail),
       db.collection("solicitudes").orderBy("creado", "desc").limit(600).onSnapshot((s) => setSolicitudes(rows(s)), fail),
       db.collection("tareas").where("estado", "==", "pendiente").onSnapshot((s) => setTareas(rows(s)), fail),
+      db.collection("eventos").onSnapshot((s) => setRegistro(Object.fromEntries(s.docs.map((d) => [d.id, d.data()]))), (e) => console.error("[crm] eventos", e)),
       db.collection("equipo").onSnapshot((s) => setEquipo(Object.fromEntries(s.docs.map((d) => [d.id, d.data()]))), fail),
       db.doc("config/general").onSnapshot((s) => setCfg(s.exists ? s.data() : {}), fail),
     ];
@@ -5670,11 +5949,17 @@ function App() {
   const moverEtapa = useCallback(async (lead, a, extra) => {
     const o = extra || {};
     await wrapApi.updateLead(lead.id, { etapa: a, ...(o.patch || {}) });
-    await wrapApi.addAct({ leadId: lead.id, tipo: "etapa", de: etapaDe(lead), a, ...(o.resumen ? { resumen: o.resumen } : {}) });
+    await wrapApi.addAct({ leadId: lead.id, tipo: "etapa", de: etapaDe(lead), a, ...(o.resumen ? { resumen: o.resumen } : {}) }, o.actId);
   }, [wrapApi]);
-  /* Al perder, ganar o pausar un lead, sus tareas pendientes quedan descartadas. */
+  /* Al perder, ganar o pausar un lead, sus tareas pendientes quedan descartadas. El evento de una
+     reunión no se borra solo: el aviso que devuelve lo recuerda. */
   const cerrarTareasDe = useCallback(async (leadId) => {
-    for (const t of tareasPorLead[leadId] || []) await wrapApi.updateTarea(t.id, { estado: "descartada", hecha: nowISO(), hechaPor: meRef.current.id || null });
+    let enCal = 0;
+    for (const t of tareasPorLead[leadId] || []) {
+      await wrapApi.updateTarea(t.id, { estado: "descartada", hecha: nowISO(), hechaPor: meRef.current.id || null });
+      if (tipoTarea(t.tipo) === "reunion" && t.evento && t.evento.id && !tareaVencida(t)) enCal += 1;
+    }
+    return enCal ? " La reunión sigue en Google Calendar: cancélala allá si ya no va." : "";
   }, [wrapApi, tareasPorLead]);
 
   /* Redacta, uno tras otro, los correos y WhatsApp de las tareas (lo acordado en una llamada o la
@@ -5735,15 +6020,150 @@ function App() {
     } catch (e) { toast(dbErrorText(e), "bad"); }
   }, [wrapApi, leadsById, tareasPorLead, marcarTarea, moverEtapa, toast, yo]);
 
-  /* Agenda (o cambia) la reunión de un lead: tarea con día y hora, etapa «Reunión agendada» y, si
-     se pide, la confirmación redactada por Claude con su tarea para enviarla hoy. */
+  /* ---------- Google Calendar */
+  const calCuenta = String(cfg.gmailCuenta || CORREO_PUBLICO).trim().toLowerCase();
+  /* El equipo: se invita a las reuniones que crea el CRM y nunca se confunde con un lead. */
+  const equipoCorreos = useMemo(() => new Set([calCuenta, ...correosDe(cfg.correosEquipo), ...Object.values(equipo).map((x) => String((x && x.correo) || "").toLowerCase()).filter(isEmail)]), [calCuenta, cfg.correosEquipo, equipo]);
+  const hoyCal = todayKey();
+  const calInput = useMemo(() => ({ calendarId: calCuenta, startTime: `${hoyCal}T00:00:00`, endTime: `${addDays(hoyCal, CAL_DIAS)}T00:00:00`, timeZone: TZ, orderBy: "startTime", pageSize: 250 }), [calCuenta, hoyCal]);
+  const calKey = JSON.stringify(calInput);
+  const recibirCal = useCallback((res) => {
+    const p = res && res.payload;
+    const lista = p && typeof p === "object" && Array.isArray(p.events) ? p.events : null;
+    if (!lista) { setCal((c) => ({ ...c, estado: c.eventos ? "ok" : "error", error: { code: "formato" } })); return; }
+    setCal({ estado: "ok", eventos: lista.map((e) => normEvento(e, calCuenta)).filter(Boolean).sort(evOrden), storedAt: (res.cache && res.cache.storedAt) || Date.now(), error: null });
+  }, [calCuenta]);
+  /* Las reuniones de hoy a 60 días: se leen al abrir, cada 5 minutos y al volver a la pestaña. Un
+     error pasajero deja lo último que se leyó; sin permiso o sin conexión, se retira. */
+  useEffect(() => {
+    if (mcp === undefined) return undefined;
+    if (!mcp) { setCal({ estado: "off", eventos: null, storedAt: 0, error: null }); return undefined; }
+    let alive = true;
+    let un = () => {};
+    try {
+      un = mcp.watchTool(GCAL, "list_events", calInput, (ev) => {
+        if (!alive) return;
+        if (ev && ev.type === "data") { recibirCal(ev.result); return; }
+        const e = (ev && ev.error) || {};
+        setCal((c) => (CAL_DENEGADO.has(e.code) || !c.eventos ? { estado: "error", eventos: null, storedAt: 0, error: e } : { ...c, error: e }));
+      }, { cache: { staleTime: 60000, gcTime: 1800000 }, refetchInterval: 300000 });
+    } catch (e) { setCal({ estado: "error", eventos: null, storedAt: 0, error: { code: "bad_request", message: String((e && e.message) || e) } }); }
+    return () => { alive = false; un(); };
+  }, [mcp, recibirCal, calKey]);
+  /* «Permitir»: la misma lectura, una vez, con callTool (la lectura automática nunca pide permiso). */
+  const permitirCalendario = useCallback(async () => {
+    if (!mcp) return;
+    setCal((c) => ({ ...c, estado: "cargando", error: null }));
+    try { recibirCal(await mcp.callTool(GCAL, "list_events", calInput, { cache: { staleTime: 60000, gcTime: 1800000 } })); } catch (e) { setCal({ estado: "error", eventos: null, storedAt: 0, error: e || {} }); }
+  }, [mcp, calKey, recibirCal]);
+  const invalidarCal = useCallback(() => { try { mcp.invalidate(GCAL, "list_events").catch(() => {}); } catch (e) { /* visor antiguo: se vuelve a leer con el intervalo */ } }, [mcp]);
+  const refrescarCalendario = useCallback(() => { if (mcp) invalidarCal(); }, [mcp, invalidarCal]);
+  const abrirPermisos = useCallback(async () => {
+    try { if (!permisos) throw new Error("sin panel"); await permisos.manage(); refrescarCalendario(); } catch (e) { toast("Abre el menú del CRM en claude.ai → Permisos y activa Google Calendar.", "bad"); }
+  }, [permisos, refrescarCalendario, toast]);
+  const calListo = !!mcp && cal.estado === "ok";
+  const leadPorCorreo = useMemo(() => {
+    const m = {};
+    for (const l of leads || []) {
+      const c = String(l.correo || "").trim().toLowerCase();
+      if (!isEmail(c)) continue;
+      const p = m[c];
+      if (!p || (isOpen(l) && !isOpen(p))) m[c] = l;
+    }
+    return m;
+  }, [leads]);
+  /* El lead de un evento: el que quedó unido en eventos/ o el invitado con el correo de un lead. */
+  const leadDeEvento = useCallback((ev) => {
+    const r = registro && registro[ev.id];
+    if (r && r.leadId && leadsById[r.leadId]) return leadsById[r.leadId];
+    for (const a of ev.invitados) if (!equipoCorreos.has(a.correo) && leadPorCorreo[a.correo]) return leadPorCorreo[a.correo];
+    return null;
+  }, [registro, leadsById, leadPorCorreo, equipoCorreos]);
+
+  /* Crea el evento de una reunión (con Meet, y el lead y el equipo invitados) o lo mueve. Devuelve
+     el evento o lanza el error del conector: nunca se repite solo. */
+  const escribirEvento = useCallback(async (lead, d, previo) => {
+    if (!mcp) throw { code: "not_granted" };
+    const fin = sumarMin(d.hora, Number(d.duracion) || DURACION_REUNION);
+    const base = { calendarId: calCuenta, startTime: `${d.fecha}T${d.hora}:00`, endTime: `${d.fecha}T${fin}:00`, timeZone: TZ };
+    let res;
+    if (previo && previo.id) res = await mcp.callTool(GCAL, "update_event", clean({ ...base, eventId: previo.id, summary: d.resumen || undefined }));
+    else {
+      const correo = String(lead.correo || "").trim().toLowerCase();
+      const invitados = [...(isEmail(correo) ? [{ email: correo, displayName: lead.nombre || undefined }] : []), ...[...equipoCorreos].filter((x) => x !== calCuenta && x !== correo).map((email) => ({ email }))];
+      res = await mcp.callTool(GCAL, "create_event", clean({ ...base, summary: d.resumen, description: "Reunión con ZH Development por Google Meet.\nzhdevelopment.cl", attendees: invitados.length ? invitados : undefined, addGoogleMeetUrl: true }));
+    }
+    invalidarCal();
+    const e = eventoDePayload(res && res.payload);
+    const ev = normEvento(e, calCuenta) || (e && idEventoOk(e.id) ? { id: e.id, link: httpsOk(e.htmlLink), meet: meetDe(e), invitados: [], actualizado: String(e.updated || ""), propio: true, organizador: calCuenta, inicio: "" } : previo && previo.id ? { ...previo, invitados: [], actualizado: "", inicio: "" } : null);
+    /* Sin la hora de Google, la del navegador: así una lectura anterior al cambio no lo deshace. */
+    if (ev && !ev.actualizado) ev.actualizado = nowISO();
+    return ev;
+  }, [mcp, calCuenta, equipoCorreos, invalidarCal]);
+
+  /* Mover una reunión ya agendada: la tarea y, si está unida a un evento de esta cuenta, el evento
+     (Google les avisa del cambio a los invitados). Devuelve lo que hay que sumar al aviso. */
+  const moverReunion = useCallback(async (t, lead, d, extra) => {
+    const previo = t.evento && t.evento.id ? t.evento : null;
+    const cambia = d.fecha !== t.fecha || (d.hora || "") !== (t.hora || "") || (!!d.duracion && d.duracion !== t.duracion) || !!d.resumen;
+    let ev = null;
+    let aviso = "";
+    if (previo && cambia) {
+      if (!isHora(d.hora)) aviso = " El evento de Google Calendar quedó como estaba: ponle hora a la reunión para moverlo.";
+      else if (!previo.propio) aviso = ` El evento lo organizó ${previo.organizador || "otra cuenta"}: muévelo también en su Google Calendar.`;
+      else if (!calListo) aviso = " Muévela también en Google Calendar: desde esta vista no se puede.";
+      else { try { ev = await escribirEvento(lead, { ...d, duracion: d.duracion || t.duracion || DURACION_REUNION }, previo); } catch (e) { aviso = " " + calEscrituraTexto(e, true); } }
+    }
+    const evento = ev ? { ...eventoParaTarea(ev, lead), ...((ev.invitados || []).length ? {} : { respuesta: previo.respuesta || "" }) } : null;
+    await wrapApi.updateTarea(t.id, { ...(extra || {}), fecha: d.fecha, hora: d.hora || "", ...(d.duracion ? { duracion: d.duracion } : {}), ...(evento ? { evento } : {}) });
+    if (ev && ev.inicio) await wrapApi.setEvento(ev.id, { leadId: lead.id, tareaId: t.id, inicio: ev.inicio, evActualizado: ev.actualizado });
+    return ev ? " También se movió en Google Calendar." : aviso;
+  }, [wrapApi, calListo, escribirEvento]);
+
+  /* «Crear en Calendar» en una reunión que todavía no tiene evento. */
+  const crearEventoDeReunion = useCallback(async (t) => {
+    const lead = leadsById[t.leadId];
+    if (!wrapApi || !lead || !isHora(t.hora) || !calListo) return;
+    try {
+      const ev = await escribirEvento(lead, { fecha: t.fecha, hora: t.hora, duracion: t.duracion || DURACION_REUNION, resumen: `${t.titulo || "Reunión"} · ${leadTitulo(lead)} y ZH Development` }, null);
+      if (ev) {
+        await wrapApi.updateTarea(t.id, { evento: eventoParaTarea(ev, lead) });
+        await wrapApi.setEvento(ev.id, { leadId: lead.id, tareaId: t.id, inicio: ev.inicio || "", evActualizado: ev.actualizado });
+      }
+      toast(`${leadTitulo(lead)}: la reunión quedó en Google Calendar con Meet${isEmail(lead.correo) ? " y Google le mandó la invitación a " + lead.correo : ""}.`);
+    } catch (e) { toast(calEscrituraTexto(e), "bad"); }
+  }, [wrapApi, leadsById, calListo, escribirEvento, toast]);
+
+  /* Agenda (o cambia) la reunión de un lead: el evento en Google Calendar (con Meet y la invitación),
+     la tarea con día y hora, la etapa «Reunión agendada» y, si se pide, la confirmación redactada
+     por Claude con su tarea para enviarla hoy. */
   const agendarReunion = useCallback(async (lead, d, origen) => {
     if (!wrapApi) return false;
     try {
-      if (origen && tipoTarea(origen.tipo) === "agendar" && tareaPendiente(origen)) await marcarTarea(origen, "hecha");
+      const existente = d.reunionId ? (tareas || []).find((x) => x.id === d.reunionId) || { id: d.reunionId } : null;
       const datos = { titulo: d.titulo, fecha: d.fecha, hora: d.hora, duracion: d.duracion, nota: d.nota };
-      if (d.reunionId) await wrapApi.updateTarea(d.reunionId, datos);
-      else await wrapApi.createTarea({ leadId: lead.id, tipo: "reunion", ...datos, responsable: lead.responsable || yo || null, estado: "pendiente", origen: origen ? "agendar" : "manual" });
+      let ev = null;
+      let calTxt = "";
+      let calMal = false;
+      if (existente && existente.evento && existente.evento.id) {
+        calTxt = await moverReunion(existente, lead, { fecha: d.fecha, hora: d.hora, duracion: d.duracion, resumen: d.resumen }, { titulo: d.titulo, nota: d.nota });
+      } else {
+        if (d.calendario && isHora(d.hora)) {
+          try { ev = await escribirEvento(lead, { fecha: d.fecha, hora: d.hora, duracion: d.duracion, resumen: d.resumen }, null); } catch (e) { calTxt = " " + calEscrituraTexto(e); calMal = true; }
+        }
+        const evento = ev ? { evento: eventoParaTarea(ev, lead) } : {};
+        let tid = existente && existente.id;
+        if (tid) await wrapApi.updateTarea(tid, { ...datos, ...evento });
+        else tid = await wrapApi.createTarea({ leadId: lead.id, tipo: "reunion", ...datos, ...evento, responsable: lead.responsable || yo || null, estado: "pendiente", origen: origen ? "agendar" : "manual" }, ev ? "tar-cal-" + ev.id : undefined);
+        if (ev) {
+          await wrapApi.setEvento(ev.id, { leadId: lead.id, tareaId: tid, inicio: ev.inicio || "", evActualizado: ev.actualizado });
+          calTxt = ` Quedó en Google Calendar con Meet${isEmail(lead.correo) ? " y Google le mandó la invitación a " + lead.correo : ""}.`;
+        }
+      }
+      /* Con la reunión agendada, las tareas de agendar del lead quedan hechas. */
+      const porAgendar = (tareasPorLead[lead.id] || []).filter((x) => tipoTarea(x.tipo) === "agendar");
+      if (origen && tipoTarea(origen.tipo) === "agendar" && tareaPendiente(origen) && !porAgendar.some((x) => x.id === origen.id)) porAgendar.push(origen);
+      for (const x of porAgendar) await marcarTarea(x, "hecha");
       const cuando = `${cuandoTexto(d.fecha)}${d.hora ? " a las " + d.hora : ""}`;
       if (avanza(lead, "reunion_agendada")) await moverEtapa(lead, "reunion_agendada", { resumen: `Reunión ${cuando}` });
       else await wrapApi.addAct({ leadId: lead.id, tipo: "nota", resumen: `${d.reunionId ? "Reunión cambiada" : "Reunión agendada"}: ${cuando}.` });
@@ -5751,13 +6171,15 @@ function App() {
       if (d.confirmar && sampleState.fn && !lead.noContactar) {
         const canal = d.confirmar === "whatsapp" ? "WhatsApp" : "correo";
         const tid = await wrapApi.createTarea({ leadId: lead.id, tipo: d.confirmar, titulo: `Confirmar la reunión por ${canal}`, fecha: todayKey(), hora: "", responsable: lead.responsable || yo || null, estado: "pendiente", origen: "agendar" });
-        redactarTareas(lead, [{ tipo: d.confirmar, que: "Confirmar la reunión", tareaId: tid, objetivo: "confirmar", instrucciones: `Confirma la reunión que acabamos de agendar: ${cuando} (${d.duracion} minutos), por Google Meet. Tema: ${d.titulo}.${lead.correo ? " Si sirve, menciona que le mandamos la invitación de calendario a su correo." : ""} Breve y cordial.` }]);
+        const meet = ev && ev.meet;
+        const invitacion = ev && isEmail(lead.correo) ? " Cuéntale que le llegó la invitación de Google Calendar a su correo, con el enlace." : !ev && lead.correo ? " Si sirve, menciona que le mandamos la invitación de calendario a su correo." : "";
+        redactarTareas(lead, [{ tipo: d.confirmar, que: "Confirmar la reunión", tareaId: tid, objetivo: "confirmar", instrucciones: `Confirma la reunión que acabamos de agendar: ${cuando} (${d.duracion} minutos), por Google Meet. Tema: ${d.titulo}.${meet ? ` El enlace de la videollamada es ${meet}: inclúyelo tal cual.` : ""}${invitacion} Breve y cordial.` }]);
         extra = " Claude está redactando la confirmación.";
       }
-      toast(`${leadTitulo(lead)}: reunión ${cuando}.${extra}`);
+      toast(`${leadTitulo(lead)}: reunión ${cuando}.${calTxt}${extra}`, calMal ? "bad" : "");
       return true;
     } catch (e) { toast(dbErrorText(e), "bad"); return false; }
-  }, [wrapApi, marcarTarea, moverEtapa, redactarTareas, sampleState.fn, toast, yo]);
+  }, [wrapApi, tareas, tareasPorLead, marcarTarea, moverEtapa, moverReunion, escribirEvento, redactarTareas, sampleState.fn, toast, yo]);
 
   /* Cambiar de etapa desde el embudo o la ficha, con lo que corresponde a cada etapa. */
   const changeStage = useCallback(async (lead, etapa) => {
@@ -5771,8 +6193,8 @@ function App() {
       await moverEtapa(lead, etapa, ETAPA[etapa].open ? {} : { patch: { proxima: null } });
       let msg = `${leadTitulo(lead)}: ${etapaLabel(etapa)}.`;
       let accion = null;
-      if (etapa === "ganado" || etapa === "pausa") await cerrarTareasDe(lead.id);
-      if (etapa === "pausa") msg = `${leadTitulo(lead)}: En pausa. Si hay que retomarlo, agrégale una tarea con el día.`;
+      const avisoCal = etapa === "ganado" || etapa === "pausa" ? await cerrarTareasDe(lead.id) : "";
+      if (etapa === "pausa") msg = `${leadTitulo(lead)}: En pausa. Si hay que retomarlo, agrégale una tarea con el día.${avisoCal}`;
       if (etapa === "reunion_concretada") {
         for (const x of pend) if (tipoTarea(x.tipo) === "reunion") await marcarTarea(x, "hecha");
         accion = { label: "Registrar la reunión", fn: () => openLead(lead.id, "reunion") };
@@ -5819,9 +6241,132 @@ function App() {
     return () => clearTimeout(timer);
   }, [wrapApi, canWrite, leads, tareas, tareasPorLead]);
 
+  /* ---------- Google Calendar → CRM. Cada reunión del calendario con un lead queda como su tarea
+     (con Meet y la respuesta a la invitación) y el lead pasa a «Reunión agendada»; si el evento se
+     mueve en el calendario, la tarea se mueve con él. Las reservas de la agenda de zhdevelopment.cl
+     crean su lead. Para reuniones que ya terminaron no se crea nada, y eventos/ recuerda lo hecho. */
+  const calUlt = useRef({});
+  calUlt.current = { cal, leads, tareas, registro, tareasPorLead, leadsById, equipoCorreos };
+  const calSync = useRef({ corriendo: false, otra: false });
+  const actCal = (k, ev) => `act-cal${k}-${ev.id}-${(ev.fecha + ev.hora).replace(/\D/g, "")}`;
+  const unirAEvento = async (t, ev, lead) => {
+    await wrapApi.updateTarea(t.id, { fecha: ev.fecha, hora: ev.hora, duracion: ev.duracion || t.duracion || DURACION_REUNION, evento: eventoParaTarea(ev, lead) });
+    await wrapApi.setEvento(ev.id, { leadId: lead.id, tareaId: t.id, inicio: ev.inicio, evActualizado: ev.actualizado });
+  };
+  const alDiaConEvento = async (t, ev, lead, reg) => {
+    const prev = t.evento || {};
+    if (prev.id && prev.id !== ev.id) return;
+    const tU = Date.parse(ev.actualizado);
+    const tS = Date.parse(prev.actualizado);
+    /* Una lectura anterior a lo que el CRM ya guardó (por ejemplo, justo después de mover el evento) no cuenta. */
+    if (!isNaN(tU) && !isNaN(tS) && tU < tS) return;
+    const masNuevo = isNaN(tS) || (!isNaN(tU) && tU > tS);
+    const nuevo = eventoParaTarea(ev, lead);
+    if (!masNuevo) nuevo.actualizado = prev.actualizado || "";
+    const difiere = ["id", "link", "meet", "respuesta", "organizador", "actualizado"].some((k) => String(prev[k] || "") !== String(nuevo[k] || "")) || !!prev.propio !== !!nuevo.propio;
+    const movido = masNuevo && (t.fecha !== ev.fecha || (t.hora || "") !== ev.hora);
+    if (difiere || movido) await wrapApi.updateTarea(t.id, { evento: nuevo, ...(movido ? { fecha: ev.fecha, hora: ev.hora, duracion: ev.duracion || t.duracion || DURACION_REUNION } : {}) });
+    if (reg.tareaId !== t.id || !reg.inicio || (masNuevo && (reg.inicio !== ev.inicio || reg.evActualizado !== ev.actualizado))) await wrapApi.setEvento(ev.id, { leadId: lead.id, tareaId: t.id, inicio: ev.inicio, evActualizado: ev.actualizado });
+    if (movido && prev.id) {
+      await wrapApi.addAct({ leadId: lead.id, tipo: "nota", resumen: `La reunión se movió en Google Calendar: del ${fechaTxt(t.fecha, t.hora)} al ${fechaTxt(ev.fecha, ev.hora)}.` }, actCal("mov", ev));
+      toast(`${leadTitulo(lead)}: la reunión se movió en Google Calendar para ${cuandoTexto(ev.fecha)} a las ${ev.hora}.`);
+    }
+    if (prev.id && prev.respuesta !== nuevo.respuesta && (nuevo.respuesta === "accepted" || nuevo.respuesta === "declined")) {
+      const si = nuevo.respuesta === "accepted";
+      await wrapApi.addAct({ leadId: lead.id, tipo: "nota", resumen: `${si ? "Confirmó" : "Rechazó"} la invitación a la reunión del ${fechaTxt(ev.fecha, ev.hora)}.` }, actCal(si ? "ok" : "no", ev));
+      if (!si) toast(`${leadTitulo(lead)} rechazó la invitación a la reunión del ${fechaTxt(ev.fecha, ev.hora)}. Escríbele para buscar otro horario.`, "bad");
+    }
+  };
+  const reunionDesdeEvento = async (lead, ev, tid, web) => {
+    const nueva = await wrapApi.ensureTarea(tid, { leadId: lead.id, tipo: "reunion", titulo: tituloDeEvento(ev.titulo, lead), fecha: ev.fecha, hora: ev.hora, duracion: ev.duracion || DURACION_REUNION, nota: "", responsable: lead.responsable || null, estado: "pendiente", origen: web ? "agenda_web" : "calendario", evento: eventoParaTarea(ev, lead) });
+    await wrapApi.setEvento(ev.id, { leadId: lead.id, tareaId: tid, inicio: ev.inicio, evActualizado: ev.actualizado });
+    if (!nueva) return;
+    for (const x of calUlt.current.tareasPorLead[lead.id] || []) if (tipoTarea(x.tipo) === "agendar") await marcarTarea(x, "hecha");
+    const cuando = `${cuandoTexto(ev.fecha)} a las ${ev.hora}`;
+    const resumen = web ? `Agendó por zhdevelopment.cl: reunión ${cuando}` : `Reunión ${cuando}, tomada de Google Calendar`;
+    if (avanza(lead, "reunion_agendada")) await moverEtapa(lead, "reunion_agendada", { resumen, actId: actCal("et", ev) });
+    else await wrapApi.addAct({ leadId: lead.id, tipo: "nota", resumen: resumen + "." }, actCal("et", ev));
+    toast(web ? `${leadTitulo(lead)} agendó por zhdevelopment.cl: reunión ${cuando}. Quedó como lead, con su tarea.` : `${leadTitulo(lead)}: reunión ${cuando}, tomada de Google Calendar.`);
+  };
+  /* Una reserva de la web sin lead: se une al lead con ese teléfono o se crea uno (con id fijo). */
+  const leadDeReserva = async (ev, web, porTel, lb, eq) => {
+    const fuera = deAfuera(ev, eq)[0] || {};
+    const correo = String(fuera.correo || web.correo || "").toLowerCase();
+    const igual = web.telefono && porTel[web.telefono];
+    if (igual) {
+      if (isEmail(correo) && !igual.correo) await wrapApi.updateLead(igual.id, { correo });
+      return igual;
+    }
+    const id = `lead-web-${ev.id}`;
+    if (lb[id]) return lb[id];
+    const nombre = web.nombre || fuera.nombre || "";
+    if (!nombre && !web.empresa) return null;
+    const datos = { nombre, empresa: web.empresa, telefono: isPhone(web.telefono) ? web.telefono : "", correo: isEmail(correo) ? correo : "", origen: "agenda", necesidad: web.mensaje, notas: "", responsable: null };
+    if (await wrapApi.ensureLead(id, datos)) await wrapApi.addAct({ leadId: id, tipo: "nota", resumen: "Llegó por la agenda de zhdevelopment.cl." }, actCal("web", ev));
+    return { id, etapa: "nuevo", ...datos };
+  };
+  const pasadaCalendario = async () => {
+    const { cal: c, leads: todos, tareas: ts, registro: reg0, tareasPorLead: tpl, leadsById: lb, equipoCorreos: eq } = calUlt.current;
+    if (!c || c.estado !== "ok" || !c.eventos || !todos || !ts || !reg0) return;
+    const ahora = Date.now();
+    const porId = Object.fromEntries(ts.map((t) => [t.id, t]));
+    const unidas = new Set(Object.values(reg0).map((r) => r && r.tareaId).filter(Boolean));
+    const porCorreo = {};
+    const porTel = {};
+    for (const l of todos) {
+      const m = String(l.correo || "").trim().toLowerCase();
+      if (isEmail(m) && !eq.has(m) && (!porCorreo[m] || (isOpen(l) && !isOpen(porCorreo[m])))) porCorreo[m] = l;
+      if (isPhone(l.telefono) && !porTel[l.telefono]) porTel[l.telefono] = l;
+    }
+    for (const ev of c.eventos) {
+      if (ev.todoElDia || !ev.hora || ev.estado === "cancelled") continue;
+      const reg = reg0[ev.id];
+      if (reg) {
+        const lead = lb[reg.leadId];
+        if (!lead) continue;
+        const t = porId[reg.tareaId];
+        if (t) { await alDiaConEvento(t, ev, lead, reg); continue; }
+        /* Su tarea ya se cerró, pero alguien movió el evento a otro día u hora: es una reunión nueva. */
+        const tU = Date.parse(ev.actualizado);
+        const tR = Date.parse(reg.evActualizado);
+        if (ev.fin > ahora && reg.inicio && reg.inicio !== ev.inicio && !isNaN(tU) && (isNaN(tR) || tU > tR) && etapaDe(lead) !== "ganado" && !lead.noContactar) {
+          await reunionDesdeEvento(lead, ev, `tar-cal-${ev.id}-${(ev.fecha + ev.hora).replace(/\D/g, "")}`, false);
+        }
+        continue;
+      }
+      let lead = null;
+      for (const a of ev.invitados) if (porCorreo[a.correo]) { lead = porCorreo[a.correo]; break; }
+      let web = null;
+      if (!lead && ev.fin > ahora) {
+        web = reservaWeb(ev);
+        if (web) lead = await leadDeReserva(ev, web, porTel, lb, eq);
+      }
+      if (!lead) continue;
+      const mismaFecha = (tpl[lead.id] || []).find((x) => tipoTarea(x.tipo) === "reunion" && x.fecha === ev.fecha && !(x.evento && x.evento.id) && !unidas.has(x.id));
+      if (mismaFecha) { unidas.add(mismaFecha.id); await unirAEvento(mismaFecha, ev, lead); continue; }
+      if (ev.fin <= ahora || etapaDe(lead) === "ganado" || lead.noContactar) continue;
+      await reunionDesdeEvento(lead, ev, `tar-cal-${ev.id}`, !!web);
+    }
+  };
+  const sincronizarCalendario = async () => {
+    const s = calSync.current;
+    if (s.corriendo) { s.otra = true; return; }
+    s.corriendo = true;
+    try { await pasadaCalendario(); } catch (e) { console.error("[crm] calendario", e); } finally {
+      s.corriendo = false;
+      if (s.otra) { s.otra = false; setTimeout(() => sincronizarCalendario(), 1500); }
+    }
+  };
+  useEffect(() => {
+    if (!wrapApi || !canWrite || cal.estado !== "ok" || leads === null || tareas === null || registro === null) return undefined;
+    const timer = setTimeout(() => sincronizarCalendario(), 1200);
+    return () => clearTimeout(timer);
+  }, [wrapApi, canWrite, cal, leads, tareas, registro]);
+
   const ctx = {
     db, api: wrapApi, me, yo, leads: leads || [], leadsById, acts, drafts, equipo, cfg, sampleState, setSampleState, downloads, toast, nameOf, team, redactarTareas,
     tareas: tareas || [], tareasPorLead, siguienteDe, completarTarea, marcarTarea, agendarReunion, moverEtapa, cerrarTareasDe,
+    cal, calCuenta, calListo, equipoCorreos, registro: registro || {}, leadDeEvento, permitirCalendario, refrescarCalendario, abrirPermisos, moverReunion, crearEventoDeReunion,
     clientes: clientes || [], clientesById, proyectos: proyectos || [], proyectosById, cobros: cobros || [], mantenciones: mantenciones || [], solicitudes: solicitudes || [],
     openLead, openCliente, openProyecto, openDraft, openModal, closeModal, nav, changeStage, moveProyecto, moverCliente, canWrite, profileName: me.name,
   };
@@ -5882,7 +6427,7 @@ function App() {
       ${drawer.kind === "cliente" ? html`<${ClienteDrawer} id=${drawer.id} tab=${drawer.tab} onClose=${closeDrawer} />` : drawer.kind === "proyecto" ? html`<${ProyectoDrawer} id=${drawer.id} onClose=${closeDrawer} />` : html`<${LeadDrawer} id=${drawer.id} tab=${drawer.tab} onClose=${closeDrawer} />`}
     </${Boundary}>` : null}
     ${modal && wrapApi ? html`<${Boundary} name="esta ventana">
-      ${modal.type === "newLead" ? html`<${NewLeadModal} />` : null}
+      ${modal.type === "newLead" ? html`<${NewLeadModal} preset=${modal.preset} />` : null}
       ${modal.type === "import" ? html`<${ImportModal} />` : null}
       ${modal.type === "draft" ? html`<${DraftEditor} id=${modal.id} />` : null}
       ${modal.type === "lost" ? html`<${LostModal} lead=${modal.lead} />` : null}
