@@ -25,22 +25,26 @@ const keyFmt = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Santiago", 
 const T = keyFmt.format(new Date());
 const addDays = (k, n) => { const d = new Date(k + "T12:00:00Z"); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
 const iso = (n) => new Date(Date.now() + n * 864e5).toISOString();
+const habil = (k, n) => { let d = k, left = n; while (left > 0) { d = addDays(d, 1); const w = new Date(d + "T12:00:00Z").getUTCDay(); if (w !== 0 && w !== 6) left -= 1; } return d; };
 const base = (o) => ({ cargo: "", correo: "", origen: "web", trato: "tu", intentos: 0, proxima: null, prioridad: "media", necesidad: "", creadoPor: ME, ...o });
+const LO = "lorenzo", NI = "nicolas";
 
 const SEED = {
   ["equipo/" + ME]: { nombre: "Lorenzo Bozzo", cargo: "Socio", telefono: "+56955551234", correo: "lorenzo@zhdevelopment.cl" },
   ["equipo/" + NICO]: { nombre: "Nicolás Valdivia", cargo: "Socio", telefono: "", correo: "" },
   "config/general": { agendaUrl: "https://zhdevelopment.cl/#agendar" },
-  "leads/lead-a": base({ nombre: "Paula Rojas", empresa: "Panadería Sol", telefono: "+56911110001", etapa: "nuevo", prioridad: "alta", responsable: ME, creado: iso(-9), actualizado: iso(-9) }),
-  "leads/lead-b": base({ nombre: "Tomás Vera", empresa: "Viña Cerro", telefono: "+56911110002", etapa: "contactado", valor: 3000000, responsable: NICO, proxima: { tipo: "llamar", fecha: T, hora: "", nota: "Confirmar reunión" }, creado: iso(-8), actualizado: iso(-1) }),
-  "leads/lead-c": base({ nombre: "Isabel Mora", empresa: "Clínica Mar", telefono: "+56911110003", etapa: "propuesta", valor: 8000000, responsable: ME, proxima: { tipo: "correo", fecha: addDays(T, 3), hora: "", nota: "" }, creado: iso(-20), actualizado: iso(-2) }),
-  "leads/lead-f": base({ nombre: "Luis Soto", empresa: "Imprenta Norte", telefono: "+56911110006", etapa: "propuesta", valor: 2000000, responsable: ME, proxima: { tipo: "llamar", fecha: addDays(T, 1), hora: "", nota: "" }, creado: iso(-3), actualizado: iso(-3) }),
-  "leads/lead-d": base({ nombre: "Carlos Díaz", empresa: "Transportes Río", telefono: "+56911110004", etapa: "negociacion", valor: 5000000, responsable: ME, proxima: { tipo: "reunion", fecha: addDays(T, 2), hora: "", nota: "" }, creado: iso(-30), actualizado: iso(-4) }),
-  "leads/lead-e": base({ nombre: "Rosa Pinto", empresa: "Ferretería Ola", telefono: "+56911110005", etapa: "perdido", motivoPerdida: "No es el momento", responsable: ME, creado: iso(-40), actualizado: iso(-10) }),
-  "leads/lead-g": base({ nombre: "Ana Ruiz", empresa: "Vivero Sur", telefono: "+56911110007", etapa: "pausa", responsable: ME, proxima: { tipo: "llamar", fecha: T, hora: "", nota: "Retomar: quedó en hablar este mes" }, creado: iso(-15), actualizado: iso(-5) }),
+  "leads/lead-a": base({ nombre: "Paula Rojas", empresa: "Panadería Sol", telefono: "+56911110001", etapa: "nuevo", prioridad: "alta", responsable: LO, creado: iso(-9), actualizado: iso(-9) }),
+  "leads/lead-b": base({ nombre: "Tomás Vera", empresa: "Viña Cerro", telefono: "+56911110002", etapa: "contactado", valor: 3000000, responsable: NI, proxima: { tipo: "llamar", fecha: T, hora: "", nota: "Confirmar reunión" }, creado: iso(-8), actualizado: iso(-1) }),
+  "leads/lead-c": base({ nombre: "Isabel Mora", empresa: "Clínica Mar", telefono: "+56911110003", etapa: "propuesta", valor: 8000000, responsable: LO, dolor: "Agendan las horas por teléfono y anotan en un cuaderno", comoAyudamos: "Agenda en línea con recordatorio por WhatsApp", proxima: { tipo: "correo", fecha: addDays(T, 3), hora: "", nota: "" }, creado: iso(-20), actualizado: iso(-2) }),
+  "leads/lead-f": base({ nombre: "Luis Soto", empresa: "Imprenta Norte", telefono: "+56911110006", etapa: "propuesta", valor: 2000000, responsable: LO, proxima: { tipo: "llamar", fecha: addDays(T, 1), hora: "", nota: "" }, creado: iso(-3), actualizado: iso(-3) }),
+  "leads/lead-d": base({ nombre: "Carlos Díaz", empresa: "Transportes Río", telefono: "+56911110004", etapa: "negociacion", valor: 5000000, responsable: LO, proxima: { tipo: "reunion", fecha: addDays(T, 2), hora: "", nota: "" }, creado: iso(-30), actualizado: iso(-4) }),
+  "leads/lead-e": base({ nombre: "Rosa Pinto", empresa: "Ferretería Ola", telefono: "+56911110005", etapa: "perdido", motivoPerdida: "No es el momento", responsable: LO, creado: iso(-40), actualizado: iso(-10) }),
+  "leads/lead-g": base({ nombre: "Ana Ruiz", empresa: "Vivero Sur", telefono: "+56911110007", etapa: "pausa", responsable: LO, proxima: { tipo: "llamar", fecha: T, hora: "", nota: "Retomar: quedó en hablar este mes" }, creado: iso(-15), actualizado: iso(-5) }),
+  "leads/lead-h": base({ nombre: "Marta Gil", empresa: "Textil Norte", telefono: "+56911110008", etapa: "perdido", motivoPerdida: "", responsable: null, creado: iso(-6), actualizado: iso(-6) }),
+  "leads/lead-i": base({ nombre: "Jorge Paz", empresa: "Fletes Paz", telefono: "+56911110009", etapa: "nuevo", intentos: 2, responsable: NI, proxima: { tipo: "llamar", fecha: addDays(T, 4), hora: "", nota: "Volver a llamar" }, creado: iso(-7), actualizado: iso(-2) }),
   "actividades/act-b1": { leadId: "lead-b", tipo: "llamada", resultado: "contesto", fecha: new Date(Date.now() - 2 * 3600e3).toISOString(), autor: NICO, resumen: "Quiere ver una demo." },
-  "clientes/cli-x": { nombre: "Taller Sur", razonSocial: "", rut: "", contactos: [], responsable: ME, trato: "tu", leadIds: [], estado: "activo", notas: "", creado: iso(-30), actualizado: iso(-30), creadoPor: ME },
-  "proyectos/pro-x": { clienteId: "cli-x", nombre: "Agenda de taller", tipo: "software", valor: 4000000, estado: "entender", inicio: addDays(T, -5), entregaEstimada: addDays(T, 40), produccion: "", garantiaDias: 60, hitos: [], enlaces: [], caso: "", alcance: "", responsable: ME, creado: iso(-5), actualizado: iso(-5), creadoPor: ME },
+  "clientes/cli-x": { nombre: "Taller Sur", razonSocial: "", rut: "", contactos: [], responsable: LO, trato: "tu", leadIds: [], estado: "activo", notas: "", creado: iso(-30), actualizado: iso(-30), creadoPor: ME },
+  "proyectos/pro-x": { clienteId: "cli-x", nombre: "Agenda de taller", tipo: "software", valor: 4000000, estado: "entender", inicio: addDays(T, -5), entregaEstimada: addDays(T, 40), produccion: "", garantiaDias: 60, hitos: [], enlaces: [], caso: "", alcance: "", responsable: LO, creado: iso(-5), actualizado: iso(-5), creadoPor: ME },
 };
 
 (async () => {
@@ -83,6 +87,8 @@ const SEED = {
     await page.mouse.move(b.x, b.y, { steps: 8 });
     if (soltar) await page.mouse.up();
   };
+  /* La inicial del responsable (el select invisible que va encima no cuenta). */
+  const ini = (loc) => loc.evaluate((el) => el.childNodes[0].textContent.trim());
   const noOverflow = async (page, label) => {
     const r = await page.evaluate(() => ({ sw: document.documentElement.scrollWidth, w: window.innerWidth }));
     ok(r.sw <= r.w + 1, `${label}: sin scroll horizontal (${r.sw} <= ${r.w})`);
@@ -92,22 +98,32 @@ const SEED = {
   const hoyPanel = page.locator(".panel", { hasText: "Para hoy" });
   ok(await hoyPanel.locator(".lrow", { hasText: "Ana Ruiz" }).isVisible(), "un lead en pausa con fecha para retomarlo aparece en «Para hoy»");
   ok((await page.locator(".panel", { hasText: "Sin próxima acción" }).locator(".lrow", { hasText: "Ana Ruiz" }).count()) === 0, "y no cuenta como abierto sin próxima acción");
+  await page.locator(".toolbar .seg button", { hasText: "Nicolás" }).click();
+  ok(await hoyPanel.locator(".lrow", { hasText: "Tomás Vera" }).isVisible() && (await hoyPanel.locator(".lrow", { hasText: "Ana Ruiz" }).count()) === 0, "en Hoy cada socio puede ver solo lo suyo");
+  ok(await hoyPanel.locator(".lrow", { hasText: "Tomás Vera" }).locator(".avatar.r2").isVisible(), "con la inicial de quién lo lleva");
+  await page.locator(".toolbar .seg button", { hasText: "Todo el equipo" }).click();
+  ok(await hoyPanel.locator(".lrow", { hasText: "Ana Ruiz" }).isVisible(), "y volver a ver todo el equipo");
   /* ---------------- tabla ↔ tablero ---------------- */
   await page.locator(".side .nav button", { hasText: "Leads" }).click();
   await page.locator("h1", { hasText: "Leads" }).waitFor();
+  await page.selectOption("#f-resp", NI);
+  ok((await page.locator("table.leads tbody tr").count()) === 2, "en la tabla se filtra por responsable");
+  ok((await page.locator("#f-resp option").allInnerTexts()).join("|") === "Todo el equipo|Lorenzo|Nicolás|Sin responsable", "y los responsables son solo Lorenzo y Nicolás");
+  await page.selectOption("#f-resp", "");
   await page.locator(".page-head .seg button", { hasText: "Tablero" }).click();
   await page.locator("h1", { hasText: "Embudo" }).waitFor();
   ok(true, "desde Leads se pasa al tablero");
 
   /* ---------------- totales y tarjetas ---------------- */
   const eyebrow = await page.locator(".page-head .eyebrow").textContent();
-  ok(eyebrow.includes("5 abiertos") && eyebrow.includes("$18.000.000 en juego") && eyebrow.includes("$9.050.000 ponderado"), "la cabecera suma lo que está en juego y lo ponderado por etapa");
+  ok(eyebrow.includes("6 abiertos") && eyebrow.includes("$18.000.000 en juego") && eyebrow.includes("$9.050.000 ponderado"), "la cabecera suma lo que está en juego y lo ponderado por etapa");
   ok((await col(page, "propuesta").locator(".col-sum").innerText()).includes("$10.000.000 · $5.000.000 ponderado (50 %)"), "cada etapa muestra su total y su ponderado");
   ok((await page.locator(".board .col").count()) === 5, "por defecto se ven las 5 etapas abiertas");
   ok(await card(page, "Paula Rojas").locator(".tag", { hasText: "Sin próxima acción" }).isVisible(), "la tarjeta avisa cuando no hay próxima acción");
   ok(await card(page, "Paula Rojas").locator(".prio").isVisible(), "y marca la prioridad alta");
   ok((await card(page, "Tomás Vera").locator(".kcard-act").innerText()).includes("Llamada"), "muestra la última actividad");
-  ok((await card(page, "Tomás Vera").locator(".avatar").innerText()) === "NV" && (await card(page, "Isabel Mora").locator(".avatar").innerText()) === "LB", "y las iniciales del responsable");
+  ok((await ini(card(page, "Tomás Vera").locator(".avatar"))) === "N" && (await ini(card(page, "Isabel Mora").locator(".avatar"))) === "L", "y la inicial del responsable");
+  ok(await card(page, "Tomás Vera").locator(".avatar.r2").isVisible() && await card(page, "Isabel Mora").locator(".avatar.r1").isVisible(), "con un color para cada socio");
   ok((await card(page, "Isabel Mora").locator(".kcard-valor").innerText()) === "$8.000.000 + IVA", "y el valor");
   await shot(page, "e01-embudo.png");
 
@@ -188,6 +204,15 @@ const SEED = {
   await card(page, "Isabel Mora").locator(".kcard-top").click();
   await page.locator("#lead-title", { hasText: "Isabel Mora" }).waitFor();
   ok(true, "un clic abre la ficha del lead");
+  const pitch = await page.locator(".pitch").innerText();
+  ok(pitch.includes("Agendan las horas por teléfono") && pitch.includes("Agenda en línea con recordatorio"), "la ficha muestra el dolor y cómo ayudamos");
+  ok((await page.locator("#lead-resp").evaluate((el) => el.options[el.selectedIndex].text)) === "Lo lleva Lorenzo", "y arriba, quién lo lleva");
+  await page.selectOption("#lead-resp", NI);
+  await page.waitForFunction(() => window.__mockStore.get("leads/lead-c").responsable === "nicolas", null, { timeout: 5000 });
+  await page.selectOption("#lead-resp", LO);
+  await page.waitForFunction(() => window.__mockStore.get("leads/lead-c").responsable === "lorenzo", null, { timeout: 5000 });
+  ok(true, "el responsable se cambia desde la ficha");
+  ok((await page.locator("#l-dolor").count()) === 1 && (await page.locator("#l-ayuda").count()) === 1, "y en «Datos del lead» se editan el dolor y cómo ayudamos");
   await page.keyboard.press("Escape");
   await page.locator(".scrim").first().waitFor({ state: "detached" });
   await card(page, "Luis Soto").locator('.kact[title="Registrar llamada"]').click();
@@ -201,10 +226,11 @@ const SEED = {
   await page.fill("#buscar-emb", "clínica");
   ok((await page.locator(".kcard.lead").count()) === 1 && await card(page, "Isabel Mora").isVisible(), "la búsqueda filtra las tarjetas (sin importar tildes)");
   await page.fill("#buscar-emb", "");
-  await page.selectOption("#emb-resp", NICO);
-  ok((await page.locator(".kcard.lead").count()) === 1 && await card(page, "Tomás Vera").isVisible(), "el filtro por responsable muestra solo los suyos");
-  await page.selectOption("#emb-resp", "mios");
-  ok((await card(page, "Tomás Vera").count()) === 0 && (await page.locator(".kcard.lead").count()) === 4, "«Míos» muestra los de quien mira");
+  await page.selectOption("#emb-resp", NI);
+  ok((await page.locator(".kcard.lead").count()) === 2 && await card(page, "Tomás Vera").isVisible() && await card(page, "Jorge Paz").isVisible(), "el filtro por responsable muestra solo los de Nicolás");
+  await page.selectOption("#emb-resp", LO);
+  ok((await card(page, "Tomás Vera").count()) === 0 && (await page.locator(".kcard.lead").count()) === 4, "o solo los de Lorenzo");
+  ok((await page.locator("#emb-resp option").allInnerTexts()).join("|") === "Todos los responsables|Lorenzo|Nicolás|Sin responsable", "los responsables son solo Lorenzo y Nicolás");
   await page.selectOption("#emb-resp", "");
   await page.selectOption("#emb-orden", "valor");
   let orden = await col(page, "propuesta").locator(".kcard.lead b").allInnerTexts();
@@ -212,9 +238,58 @@ const SEED = {
   await page.selectOption("#emb-orden", "creado");
   orden = await col(page, "propuesta").locator(".kcard.lead b").allInnerTexts();
   ok(orden[0] === "Luis Soto", "y por los más nuevos");
+  /* ---------------- responsable desde la tarjeta ---------------- */
+  await card(page, "Paula Rojas").locator(".avatar select").selectOption(NI);
+  await toast(page, "Paula Rojas: lo lleva Nicolás.");
+  ok((await store(page))["leads/lead-a"].responsable === NI, "el responsable se cambia tocando la inicial de la tarjeta");
+  ok((await ini(card(page, "Paula Rojas").locator(".avatar"))) === "N" && (await page.locator("#lead-title").count()) === 0, "la tarjeta muestra la nueva inicial, sin abrir la ficha");
+
+  /* ---------------- no contestó, desde el embudo ---------------- */
+  await card(page, "Luis Soto").locator('.kact[title="No contestó"]').click();
+  await page.locator(".modal", { hasText: "No contestó: Luis Soto" }).waitFor();
+  ok((await page.locator("#lead-title").count()) === 0, "«No contestó» abre una ventana corta, no la ficha");
+  ok((await page.locator("#nc-fecha").inputValue()) === habil(T, 1), "propone volver a llamar el próximo día hábil");
+  await page.locator(".modal .chip", { hasText: "Más tarde" }).click();
+  ok(/^\d\d:\d\d$/.test(await page.locator("#nc-hora").inputValue()), "«Más tarde» le pone hora");
+  await page.locator(".modal .chip", { hasText: "Mañana" }).click();
+  await shot(page, "e04-no-contesto.png");
+  await page.locator(".modal .btn.primary", { hasText: "Guardar" }).click();
+  await toast(page, "Luis Soto: volver a llamar");
+  dump = await store(page);
+  const lf = dump["leads/lead-f"];
+  ok(lf.intentos === 1 && lf.proxima.tipo === "llamar" && lf.proxima.fecha === habil(T, 1) && lf.proxima.nota.includes("1 intento sin respuesta"), "queda el intento y cuándo volver a llamar");
+  ok(lf.etapa === "propuesta" && !!lf.ultimoIntento, "sin cambiar la etapa");
+  ok(Object.values(dump).some((v) => v.leadId === "lead-f" && v.tipo === "llamada" && v.resultado === "no_contesto"), "la llamada sin respuesta queda en el historial");
+  ok(await card(page, "Luis Soto").locator(".tag", { hasText: "1 sin respuesta" }).isVisible(), "y la tarjeta cuenta las veces que no contestó");
+  await card(page, "Jorge Paz").locator('.kact[title="No contestó"]').click();
+  await page.locator(".modal", { hasText: "No contestó: Jorge Paz" }).waitFor();
+  ok(await page.locator(".modal .note", { hasText: "Lleva 3 intentos" }).isVisible(), "al tercer intento ofrece cerrarlo");
+  await page.locator(".modal button", { hasText: "Perdido · No responde" }).click();
+  await toast(page, "Jorge Paz: perdido · No responde.");
+  dump = await store(page);
+  const li = dump["leads/lead-i"];
+  ok(li.etapa === "perdido" && li.motivoPerdida === "No responde" && li.proxima === null && li.intentos === 3, "y lo pasa a Perdido con el motivo «No responde»");
+  ok(Object.values(dump).some((v) => v.leadId === "lead-i" && v.tipo === "etapa" && v.a === "perdido"), "con el cambio de etapa en el historial");
+
   await page.check("#ver-cerrados");
   ok((await page.locator(".board .col").count()) === 8 && await col(page, "perdido").locator(".kcard.lead", { hasText: "Rosa Pinto" }).isVisible(), "se pueden ver los ganados, perdidos y en pausa");
   ok(await col(page, "pausa").locator(".kcard.lead", { hasText: "Ana Ruiz" }).locator(".tag", { hasText: "Llamar" }).isVisible(), "la tarjeta en pausa muestra cuándo retomarlo");
+  ok(await card(page, "Rosa Pinto").locator(".tag", { hasText: "No es el momento" }).isVisible(), "un perdido muestra su motivo, también uno antiguo");
+  const resumen = await col(page, "perdido").locator(".col-sum.motivos").innerText();
+  ok(resumen.includes("1 sin motivo") && resumen.includes("1 no responde"), "la columna Perdido cuenta cuántos hay por motivo");
+  await card(page, "Marta Gil").locator(".tagbtn", { hasText: "Falta el motivo" }).click();
+  await page.locator(".modal", { hasText: "Motivo de pérdida: Marta Gil" }).waitFor();
+  ok((await page.locator(".modal .chip").allInnerTexts()).join("|") === "No responde|Mal timing|No hay fit|Está con la competencia", "los motivos son: no responde, mal timing, no hay fit y está con la competencia");
+  ok(await page.locator(".modal .btn.primary").isDisabled(), "sin motivo no se puede guardar");
+  await page.locator(".modal .chip", { hasText: "Está con la competencia" }).click();
+  await page.fill("#lost-det", "Trabaja con un proveedor de Iquique");
+  await page.locator(".modal .btn.primary").click();
+  await toast(page, "Marta Gil: perdido · Está con la competencia.");
+  dump = await store(page);
+  ok(dump["leads/lead-h"].motivoPerdida === "Está con la competencia" && dump["leads/lead-h"].motivoDetalle === "Trabaja con un proveedor de Iquique" && dump["leads/lead-h"].etapa === "perdido", "el motivo se pone desde la tarjeta del perdido");
+  ok(Object.values(dump).some((v) => v.leadId === "lead-h" && v.tipo === "nota" && String(v.resumen).startsWith("Motivo de pérdida: Está con la competencia")), "y queda anotado en el historial");
+  ok((await page.locator("#lead-title").count()) === 0, "sin abrir la ficha");
+  await shot(page, "e05-perdidos.png");
   await page.uncheck("#ver-cerrados");
 
   /* ---------------- Proyectos: mismo arrastre ---------------- */

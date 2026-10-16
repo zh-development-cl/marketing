@@ -16,7 +16,7 @@ revisarlos antes de enviarlos.
 
 | Sección | Para qué |
 |---|---|
-| Hoy | Lo que toca hoy (y lo atrasado), los leads nuevos sin contactar, los que no tienen próxima acción, los borradores por revisar y la actividad reciente. Con clientes: pagos atrasados, cobros por facturar, hitos y garantías que terminan en los próximos 7 días, y el soporte abierto. |
+| Hoy | Lo que toca hoy (y lo atrasado), con un filtro para ver lo de Lorenzo o lo de Nicolás; los leads nuevos sin contactar, los que no tienen próxima acción, los borradores por revisar y la actividad reciente. Con clientes: pagos atrasados, cobros por facturar, hitos y garantías que terminan en los próximos 7 días, y el soporte abierto. |
 | **Ventas** | |
 | Leads | Tabla con búsqueda por nombre, empresa, correo o teléfono, y filtros por etapa, origen y responsable. «Tabla / Tablero» cambia al embudo. |
 | Embudo | Tablero por etapa, al estilo de HubSpot: las tarjetas se arrastran de una etapa a otra (ver «Embudo»). |
@@ -28,8 +28,9 @@ revisarlos antes de enviarlos.
 | Borradores | Correos y WhatsApp redactados con Claude o a mano, con vista previa y acciones de envío. |
 | Ajustes | Firma de cada socio, WhatsApp de negocios, enlace para agendar, cuenta de Gmail, garantía y plazo de pago por defecto, exportación. |
 
-**Ficha del lead** (se abre al tocar un lead): teléfono y correo con copiar, llamar y WhatsApp;
-próxima acción con atajos (hoy, mañana, en 3 días hábiles, en una semana); y tres herramientas:
+**Ficha del lead** (se abre al tocar un lead): arriba, la etapa y quién lo lleva; teléfono y
+correo con copiar, llamar y WhatsApp; el dolor y cómo ayudamos, si están; próxima acción con atajos
+(hoy, mañana, en 3 días hábiles, en una semana); y tres herramientas:
 
 - **Registrar llamada:** resultado (contestó, no contestó, buzón, ocupado, pidió que llamemos
   después, número equivocado), línea (negocios o personal), duración, notas y transcripción
@@ -38,12 +39,20 @@ próxima acción con atajos (hoy, mañana, en 3 días hábiles, en una semana); 
   transcripción, el puntaje de la llamada, y propone etapa, próxima acción, datos nuevos (por
   ejemplo, el cargo) y los borradores de lo acordado para aplicarlos al guardar (ver «Llamadas y
   transcripción»). Si no contesta,
-  propone volver a llamar al día hábil siguiente y, desde el segundo intento, escribir por WhatsApp.
+  propone volver a llamar el día hábil siguiente.
 - **Redactar con Claude:** canal (WhatsApp o correo), objetivo (primer contacto, seguimiento,
   agendar reunión, enviar propuesta, recordatorio, reactivar, agradecer u otro), trato (tú o
   usted), diseño del correo e instrucciones libres. Claude recibe los datos del lead y su
   historial, el contexto de ZH y las reglas de tono; no inventa precios, plazos ni casos.
 - **Otro registro:** notas, WhatsApp o correos mandados por fuera y reuniones.
+
+**Responsables:** solo Lorenzo y Nicolás, en leads, clientes, proyectos y solicitudes. El CRM
+reconoce quién lo abre por el nombre de su firma o de su perfil y lo propone al crear un lead; si no
+lo reconoce, propone al último que se eligió.
+
+**Dolor y cómo ayudamos:** lo que suponemos que le duele al lead (hipótesis hasta que lo confirme)
+y el primer proyecto que le ofreceríamos. Se editan en «Datos del lead» y Claude los usa en el
+apoyo en vivo, el análisis de la llamada y los borradores, sin afirmarlos como un hecho.
 
 En «Datos del lead», **«Pidió no ser contactado»** deja registrada la fecha, saca al lead de las
 listas de trabajo y bloquea llamar, escribir y redactar (ver `docs/crm-telefonia-whatsapp.md`).
@@ -51,7 +60,8 @@ Al registrar una llamada se guardan las notas y el análisis de Claude; la trans
 se guarda solo si se marca esa opción.
 
 Las etapas son: Por contactar → Contactado → Reunión → Propuesta enviada → Negociación, más
-Ganado, Perdido (con motivo y lo que dijo el cliente) y En pausa.
+Ganado, Perdido y En pausa. Un perdido lleva su motivo: **no responde**, **mal timing**, **no hay
+fit** o **está con la competencia**, más lo que dijo, si se tiene.
 
 ## Embudo
 
@@ -64,9 +74,17 @@ Ganado, Perdido (con motivo y lo que dijo el cliente) y En pausa.
   juego. Probabilidad por etapa: Por contactar 5 %, Contactado 10 %, Reunión 25 %, Propuesta
   enviada 50 %, Negociación 75 %.
 - **Tarjetas:** nombre, empresa, valor, prioridad alta, próxima acción (o el aviso «Sin próxima
-  acción»), última actividad, iniciales del responsable y accesos a registrar llamada, WhatsApp,
-  redactar con Claude y anotar.
-- **Filtros:** búsqueda (sin importar tildes), responsable (todos, míos, cada socio o sin
+  acción»), cuántas veces no contestó, última actividad, la inicial de quién lo lleva y accesos a
+  «No contestó», registrar llamada, WhatsApp, redactar con Claude y anotar. Tocando la inicial se
+  cambia el responsable (Lorenzo, Nicolás o nadie) sin abrir la ficha.
+- **No contestó:** el teléfono tachado abre una ventana corta: qué pasó (no contestó, buzón de voz u
+  ocupado), cuándo volver a intentarlo (más tarde, mañana, en 2 días, en una semana, u otro día y
+  hora) y si se vuelve a llamar o se le escribe por WhatsApp. La llamada queda en el historial, suma
+  el intento y la tarjeta sigue en su etapa. Desde el tercer intento ofrece pasarla a Perdido con el
+  motivo «No responde».
+- **Perdidos:** con «Ganados, perdidos y en pausa», la columna Perdido muestra cuántos hay por
+  motivo y cada tarjeta, el suyo. «Falta el motivo» abre la ventana para ponerlo.
+- **Filtros:** búsqueda (sin importar tildes), responsable (todos, Lorenzo, Nicolás o sin
   responsable), orden (próxima acción, última actividad, valor o más nuevos) y mostrar ganados,
   perdidos y en pausa.
 
@@ -182,7 +200,7 @@ transcripción hecha en otra herramienta. Las demás opciones, sus costos y lo l
 
 Mientras el CRM escucha una llamada con un lead, aparece **«¿Qué le respondo?»**. Cada toque manda
 a Claude Haiku (`claude-haiku-5-5`, el modelo rápido, sin caché) lo último de la transcripción y los
-datos del lead, y en uno o dos segundos muestra qué decir ahora, qué preguntar después y qué evitar.
+datos del lead (con el dolor y cómo ayudamos), y en uno o dos segundos muestra qué decir ahora, qué preguntar después y qué evitar.
 Claude solo se consulta cuando alguien toca el botón: la plataforma no permite llamarlo en bucle ni
 con temporizador. Lo que sí corre solo, en la página y sin Claude, es la detección de objeciones
 (precio, postergar, «ya tenemos algo», «mándame información», dudas de confianza): destaca el botón
@@ -207,11 +225,12 @@ Todo esto usa el plan de Claude de quien abre el CRM: no tiene costo aparte.
 ## Datos
 
 Colecciones de la base del artifact (documentos JSON). Montos en CLP sin IVA, enteros; fechas de
-calendario `AAAA-MM-DD` en hora de Chile; marcas de tiempo en ISO.
+calendario `AAAA-MM-DD` en hora de Chile; marcas de tiempo en ISO. En todas las colecciones,
+`responsable` es `lorenzo`, `nicolas` o `null`.
 
 | Colección | Documento | Campos principales |
 |---|---|---|
-| `leads` | un lead | `nombre`, `empresa`, `cargo`, `telefono` (E.164, `+569…`), `correo`, `sitio`, `rubro`, `ciudad`, `origen` (`web`, `agenda`, `instagram`, `linkedin`, `referido`, `evento`, `prospeccion`, `otro`), `etapa` (`nuevo`, `contactado`, `reunion`, `propuesta`, `negociacion`, `ganado`, `perdido`, `pausa`), `prioridad` (`alta`, `media`, `baja`), `trato` (`tu`, `usted`), `necesidad`, `notas`, `responsable` (id de usuario), `proxima` (`{tipo, fecha AAAA-MM-DD, hora, nota}` o `null`), `intentos`, `ultimoContacto`, `ultimoIntento`, `motivoPerdida`, `noContactar`, `noContactarDesde`, `valor`, `caso` (id en `propuestaszh`), `clienteId` (si se convirtió), `creado`, `actualizado`, `creadoPor` |
+| `leads` | un lead | `nombre`, `empresa`, `cargo`, `telefono` (E.164, `+569…`), `correo`, `sitio`, `rubro`, `ciudad`, `origen` (`web`, `agenda`, `instagram`, `linkedin`, `referido`, `evento`, `prospeccion`, `otro`), `etapa` (`nuevo`, `contactado`, `reunion`, `propuesta`, `negociacion`, `ganado`, `perdido`, `pausa`), `prioridad` (`alta`, `media`, `baja`), `trato` (`tu`, `usted`), `necesidad` (lo que pide, confirmado), `dolor` (lo que suponemos), `comoAyudamos`, `notas`, `responsable` (`lorenzo`, `nicolas` o `null`), `proxima` (`{tipo, fecha AAAA-MM-DD, hora, nota}` o `null`), `intentos` (llamadas seguidas sin respuesta), `ultimoContacto`, `ultimoIntento`, `motivoPerdida` (`No responde`, `Mal timing`, `No hay fit`, `Está con la competencia`; vacío = falta; puede quedar un texto antiguo), `motivoDetalle` (lo que dijo), `noContactar`, `noContactarDesde`, `valor`, `caso` (id en `propuestaszh`), `clienteId` (si se convirtió), `creado`, `actualizado`, `creadoPor` |
 | `clientes` | un cliente | `nombre`, `razonSocial`, `rut`, `giro`, `direccion`, `ciudad`, `correoFacturacion`, `sitio`, `rubro`, `contactos[]` (`{id, nombre, cargo, correo, telefono, rol, principal}`, con `rol` = `decisor`, `usuario`, `facturacion`, `tecnico` u `otro`), `responsable`, `trato`, `leadIds[]`, `estado` (`activo`, `archivado`), `notas` |
 | `proyectos` | un proyecto | `clienteId`, `leadId`, `nombre`, `tipo` (`software`, `automatizacion`, `ia`, `web`, `procesos`, `consultoria`, `otro`), `valor`, `estado` (`por_iniciar`, `entender`, `disenar`, `construir`, `probar`, `mejorar`, `cerrado`, `pausado`, `cancelado`), `inicio`, `entregaEstimada`, `produccion` (desde aquí corre la garantía), `garantiaDias`, `cierre`, `hitos[]` (`{id, nombre, fecha, hecho, fechaHecho}`), `enlaces[]` (`{id, titulo, url}`), `caso`, `alcance`, `responsable`, `notas` |
 | `cobros` | un cobro | `clienteId`, `proyectoId`, `mantencionId`, `solicitudId`, `tipo` (`anticipo`, `hito`, `cierre`, `mensualidad`, `evolutivo`, `otro`), `concepto`, `monto`, `fecha` (cuándo facturar), `estado` (`por_facturar`, `facturado`, `pagado`, `anulado`), `factura`, `fechaFactura`, `vence`, `fechaPago`, `notas`, `generado`, `ultimoRecordatorio`. Las mensualidades usan el id `cob-m-<id de la mantención>-<AAAA-MM>` |
@@ -246,7 +265,7 @@ python3 crm/dev/build_preview.py                    # arma crm/dev/preview.html 
 NODE_PATH=$(npm root -g) node crm/dev/smoke.cjs     # leads, llamadas y borradores (capturas en crm/dev/shots)
 NODE_PATH=$(npm root -g) node crm/dev/clientes.cjs  # etapa con clientes: lead ganado, proyecto, cobros, soporte, acta
 NODE_PATH=$(npm root -g) node crm/dev/microfono.cjs # transcribir en vivo, con micrófono simulado
-NODE_PATH=$(npm root -g) node crm/dev/embudo.cjs    # arrastrar en el embudo y en Proyectos (mouse y dedo), montos y filtros
+NODE_PATH=$(npm root -g) node crm/dev/embudo.cjs    # embudo y Proyectos: arrastrar (mouse y dedo), montos, filtros, responsables, no contestó y motivos de pérdida
 ```
 
 `crm/dev/mock-claude.js` imita `window.claude` (base de datos en memoria, Claude con respuestas

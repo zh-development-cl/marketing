@@ -47,23 +47,27 @@ cargada). Todo lo que escribas se ve en vivo en la página. El detalle de campos
   `ct-…`, hitos `hito-…`, enlaces `lnk-…`. Segmentos permitidos: letras, dígitos y `_ - . ~ : @ +`.
 - Todo documento nuevo lleva `creado` y `actualizado` (ahora) y `creadoPor`; cada cambio actualiza
   `actualizado`.
-- `autor` y `creadoPor` de lo que escribes tú: `"claude"`. El `responsable` y la `firma` son ids de
-  usuario (`u_…`): búscalos en la colección `equipo` (cada documento es la firma de un socio, con
-  su `nombre`).
+- `autor` y `creadoPor` de lo que escribes tú: `"claude"`. La `firma` es un id de usuario (`u_…`):
+  búscala en la colección `equipo` (cada documento es la firma de un socio, con su `nombre`).
+- `responsable` (en leads, clientes, proyectos y solicitudes) es `"lorenzo"` o `"nicolas"`: los dos
+  socios son los únicos responsables. Si no sabes quién lo lleva, `null`.
 
 ## Recetas: ventas
 
 **¿Qué hay para hoy?** `query` en `leads` y calcula con la fecha de hoy en Chile: pendientes
 (`proxima.fecha` ≤ hoy, primero las atrasadas), nuevos sin próxima acción (`etapa: "nuevo"`),
 abiertos sin próxima acción y borradores `por_revisar`. Responde con nombres, empresa, qué hay que
-hacer y el teléfono formateado (`+56 9 1234 5678`). Suma lo de clientes (ver más abajo).
+hacer y el teléfono formateado (`+56 9 1234 5678`). Si preguntan por lo de un socio, filtra por
+su `responsable` y suma lo que no tiene responsable. Suma lo de clientes (ver más abajo).
 
 **Cargar leads** (lista, planilla o avisos del formulario o de la agenda de zhdevelopment.cl):
-1. Extrae nombre, empresa, cargo, teléfono, correo, rubro, ciudad, origen y necesidad.
+1. Extrae nombre, empresa, cargo, teléfono, correo, rubro, ciudad, origen y necesidad, y si vienen,
+   el dolor que suponemos (`dolor`) y cómo los ayudaríamos (`comoAyudamos`).
 2. Busca duplicados por `telefono` y por `correo` (`query` con `where`) y sáltalos (avisa cuáles).
 3. `batch` de `set` en `leads` con: `etapa: "nuevo"`, `prioridad: "media"`, `trato: "tu"`,
    `intentos: 0`, `proxima: null` (o `{tipo: "llamar", fecha: hoy, hora: "", nota: ""}` si te
-   piden programar), `creado` y `actualizado` = ahora, `creadoPor: "claude"`.
+   piden programar), `responsable` (`"lorenzo"`, `"nicolas"` o `null`), `creado` y `actualizado` =
+   ahora, `creadoPor: "claude"`.
 
 **Registrar una llamada** (con notas o una transcripción pegada):
 1. Lee el lead y sus `actividades` (`where leadId == id`).
@@ -86,8 +90,17 @@ hacer y el teléfono formateado (`+56 9 1234 5678`). Suma lo de clientes (ver m�
    +1 si no), `proxima`, y la `etapa` si cambia. Cada cambio de etapa agrega una actividad
    `{tipo: "etapa", de, a}`.
 
+**Si no contestó** (no contestó, buzón u ocupado): la actividad `{leadId, tipo: "llamada",
+resultado: "no_contesto" | "buzon" | "ocupado", resumen}` y, en el lead, `intentos` + 1,
+`ultimoIntento` = ahora y `proxima: {tipo: "llamar", fecha: <día hábil siguiente, u otro que
+digan>, hora, nota: "Volver a llamar (N intentos sin respuesta)"}`. La etapa no cambia: la idea es
+volver a llamar en otro momento. Desde el tercer intento, si el socio lo pide, pásalo a perdido con
+`motivoPerdida: "No responde"`.
+
 **Redactar un correo o un WhatsApp:**
-1. Lee el lead (o el cliente), su historial y la firma de quien lo pide (`equipo`).
+1. Lee el lead (o el cliente), su historial y la firma de quien lo pide (`equipo`). El `dolor` y
+   `comoAyudamos` del lead son hipótesis internas: úsalos para enfocar el mensaje, en condicional,
+   nunca como un hecho.
 2. Escribe en español de Chile, tono profesional, claro, directo y cercano; frases cortas; habla
    del problema del cliente, no de tecnología. Nada de «revolucionario», «de última generación»
    ni «chatbot» (di «asistente»). Respeta el `trato` (`tu` o `usted`).
@@ -107,8 +120,11 @@ hacer y el teléfono formateado (`+56 9 1234 5678`). Suma lo de clientes (ver m�
      autor: "claude", creado, actualizado}`.
 5. Dile al usuario que el borrador está en «Borradores por revisar» del CRM.
 
-**Mover de etapa:** `update` de `etapa` (y `motivoPerdida` si es `perdido`; `proxima: null` si se
-cierra) más la actividad `{tipo: "etapa", de, a}`.
+**Mover de etapa:** `update` de `etapa` (`proxima: null` si se cierra) más la actividad `{tipo:
+"etapa", de, a}`. Si es `perdido`, `motivoPerdida` es uno de: `"No responde"`, `"Mal timing"`,
+`"No hay fit"` o `"Está con la competencia"`, y lo que dijo, con sus palabras, va en
+`motivoDetalle`. Si no sabes el motivo, déjalo vacío (`""`): la tarjeta muestra «Falta el motivo»
+para que un socio lo ponga.
 
 **Pasar a propuesta:** cuando un lead llega a reunión o propuesta, el caso comercial se arma en el
 repositorio `zh-development-cl/propuestaszh` con su skill `zh-proposals`; guarda el id del caso en

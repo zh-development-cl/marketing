@@ -336,11 +336,26 @@ body.arrastrando .toasts { bottom: calc(112px + env(safe-area-inset-bottom, 0px)
 .kcard .kcard-act { display: flex; align-items: center; gap: 5px; font-size: 12.5px; }
 .kcard .kcard-act svg { flex: none; }
 .kcard-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 6px; border-top: 1px solid var(--line); }
-.kcard .avatar { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font: 600 10.5px/1 var(--font-text); letter-spacing: 0.02em; }
-.kcard .avatar.vacio { background: var(--sunken); color: var(--fg-3); }
+.avatar { display: inline-grid; place-items: center; flex: none; width: 24px; height: 24px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font: 600 10.5px/1 var(--font-text); letter-spacing: 0.02em; }
+.avatar.r2 { background: var(--ok-soft); color: var(--ok); }
+.avatar.vacio { background: var(--sunken); color: var(--fg-3); }
+.avatar.pick { position: relative; cursor: pointer; }
+.avatar.pick select { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; padding: 0; border: 0; opacity: 0; cursor: pointer; font-size: 16px; }
+.avatar.pick:focus-within { box-shadow: 0 0 0 2px var(--accent); }
+.kcard-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.tagbtn { border: 0; cursor: pointer; }
+.tagbtn:hover { filter: brightness(0.95); }
+.col-sum.motivos { font-size: 12px; }
+.pitch { display: grid; gap: 10px; padding: 14px 16px; border-radius: var(--r-m); background: var(--sunken); }
+.pitch h3 { margin: 0; }
+.pitch p { margin: 4px 0 0; font-size: 14px; line-height: 1.5; color: var(--fg); }
 .kacts { display: inline-flex; gap: 2px; }
 .kact { display: inline-grid; place-items: center; width: 30px; height: 30px; border: 0; border-radius: 8px; background: transparent; color: var(--fg-3); cursor: pointer; }
 .kact:hover { background: var(--sunken); color: var(--fg); }
+/* Cinco acciones en una tarjeta angosta: un poco más juntas. */
+.kcard.lead .kcard-foot { gap: 6px; }
+.kcard.lead .kacts { gap: 0; }
+.kcard.lead .kact { width: 26px; }
 .dropbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 65; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px)); background: var(--surface); border-top: 1px solid var(--line); box-shadow: var(--shadow); }
 .dropzone { display: grid; place-items: center; gap: 6px; min-height: 66px; padding: 8px; border: 2px dashed var(--line); border-radius: var(--r-l); font-size: 13px; color: var(--fg-2); text-align: center; }
 .dropzone.on { border-color: var(--accent); background: var(--accent-soft); }
@@ -380,6 +395,7 @@ body.arrastrando .toasts { bottom: calc(112px + env(safe-area-inset-bottom, 0px)
 .drawer-title p { color: var(--fg-3); font-size: 14px; margin-top: 3px; }
 .drawer-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
 .drawer-meta .select { width: auto; min-height: 32px; padding: 4px 10px; font-size: 13.5px; border-radius: 999px; }
+.drawer-meta .select.vacio { color: var(--fg-3); }
 .drawer-body { overflow-y: auto; padding: 18px 20px 48px; display: grid; grid-auto-rows: max-content; gap: 22px; align-content: start; }
 .drawer section { display: grid; gap: 10px; min-width: 0; }
 .drawer section > h3 { font-size: 15px; }
@@ -651,7 +667,23 @@ const CRITERIOS = [
   ["objeciones", "Objeciones", "respondió dudas y reparos con calma y con preguntas, sin presionar ni inventar"],
   ["cierre", "Cierre", "terminó con un próximo paso concreto: una fecha, una reunión o una propuesta"],
 ];
-const MOTIVOS = ["Precio de implementación", "Costo mensual o mantención", "Eligió otra alternativa", "Sin presupuesto", "No es el momento", "Dejó de responder", "Pidió no ser contactado", "No calza con lo que hacemos", "Otro"];
+/* Por qué se perdió un lead. Lo que dijo, con sus palabras, va aparte (motivoDetalle). */
+const MOTIVOS = ["No responde", "Mal timing", "No hay fit", "Está con la competencia"];
+const MOTIVO_AYUDA = {
+  "No responde": "Lo llamamos varias veces y no contesta.",
+  "Mal timing": "Le interesa, pero no es el momento.",
+  "No hay fit": "No necesita lo que hacemos o no calza con ZH.",
+  "Está con la competencia": "Ya trabaja con otro proveedor o eligió a otro.",
+};
+/* Los dos socios son los únicos responsables de leads, clientes y proyectos. Los alias sirven
+   para reconocer quién abre el CRM por el nombre de su perfil o de su firma. */
+const RESPONSABLES = [["lorenzo", "Lorenzo", ["lorenzo"]], ["nicolas", "Nicolás", ["nicolas", "nico", "nik"]]];
+const respNombre = (id) => { const r = RESPONSABLES.find((x) => x[0] === id); return r ? r[1] : ""; };
+const respTono = (id) => { const i = RESPONSABLES.findIndex((x) => x[0] === id); return i >= 0 ? "r" + (i + 1) : ""; };
+const respDeNombre = (n) => { const w = fold(n).split(/[^a-z]+/); const r = RESPONSABLES.find((x) => x[2].some((a) => w.includes(a))); return r ? r[0] : ""; };
+/* Cuándo volver a intentarlo cuando no contesta. */
+const RELLAMAR = [["luego", "Más tarde"], ["manana", "Mañana"], ["2d", "En 2 días"], ["semana", "En una semana"]];
+const SIN_RESPUESTA_OPC = [["no_contesto", "No contestó"], ["buzon", "Buzón de voz"], ["ocupado", "Ocupado"]];
 const CONTACTOS = new Set(["llamada", "whatsapp", "correo", "reunion"]);
 const REGISTROS = [["nota", "Nota"], ["whatsapp", "WhatsApp"], ["correo", "Correo"], ["reunion", "Reunión"]];
 
@@ -736,6 +768,9 @@ const fmtTs = new Intl.DateTimeFormat("es-CL", { timeZone: TZ, day: "numeric", m
 const fmtTime = new Intl.DateTimeFormat("es-CL", { timeZone: TZ, hour: "2-digit", minute: "2-digit", hour12: false });
 const noDots = (s) => s.replace(/\./g, "");
 const nowISO = () => new Date().toISOString();
+const fmtHM = new Intl.DateTimeFormat("en-GB", { timeZone: TZ, hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+/* «el lunes 19» / «mañana» / «hoy», para los avisos. */
+const cuandoTexto = (key) => { const d = diffDays(todayKey(), key); return d === 0 ? "hoy" : d === 1 ? "mañana" : "el " + noDots(fmtShort.format(keyDate(key))); };
 
 function dayLabel(key) {
   if (!key) return "";
@@ -1056,7 +1091,9 @@ function leadContexto(lead, hist) {
   const L = ["DATOS DEL LEAD"];
   const add = (k, v) => { if (v) L.push(`${k}: ${v}`); };
   add("Nombre", lead.nombre); add("Empresa", lead.empresa); add("Cargo", lead.cargo); add("Rubro", lead.rubro); add("Ciudad", lead.ciudad);
-  add("Cómo llegó", origenLabel(lead.origen)); add("Etapa", etapaLabel(lead.etapa)); add("Qué necesita", lead.necesidad); add("Notas internas (solo contexto)", lead.notas);
+  add("Cómo llegó", origenLabel(lead.origen)); add("Etapa", etapaLabel(lead.etapa)); add("Qué necesita", lead.necesidad);
+  add("Dolor que suponemos (hipótesis sin confirmar: no la afirmes como un hecho)", lead.dolor); add("Cómo podría ayudar ZH (idea interna: propónla en condicional)", lead.comoAyudamos);
+  add("Notas internas (solo contexto)", lead.notas);
   if (lead.proxima && lead.proxima.fecha) add("Próxima acción planificada", `${accionLabel(lead.proxima.tipo)} el ${lead.proxima.fecha}${lead.proxima.nota ? " (" + lead.proxima.nota + ")" : ""}`);
   L.push("", "HISTORIAL (más reciente primero)");
   const hs = (hist || []).filter((a) => a.tipo !== "etapa").slice(0, 10);
@@ -1218,7 +1255,7 @@ function sanitizeAnalisis(r) {
 const ZH_CORTO = "ZH Development hace software a medida, automatización e integración de sistemas e IA aplicada para empresas chilenas. Parte con una llamada de descubrimiento de 30 minutos y después manda una propuesta escrita con alcance, plazo y precio.";
 function promptAyudaVivo(o) {
   const l = o.lead;
-  const datos = [l.nombre && "Lead: " + l.nombre, l.empresa && "Empresa: " + l.empresa, l.cargo && "Cargo: " + l.cargo, l.necesidad && "Lo que busca: " + l.necesidad, "Etapa: " + etapaLabel(l.etapa), "Trato: " + (l.trato === "usted" ? "de usted" : "de tú")].filter(Boolean).join("\n");
+  const datos = [l.nombre && "Lead: " + l.nombre, l.empresa && "Empresa: " + l.empresa, l.cargo && "Cargo: " + l.cargo, l.necesidad && "Lo que busca: " + l.necesidad, l.dolor && "Dolor que suponemos (sin confirmar): " + clip(l.dolor, 500), l.comoAyudamos && "Cómo podemos ayudar: " + clip(l.comoAyudamos, 500), "Etapa: " + etapaLabel(l.etapa), "Trato: " + (l.trato === "usted" ? "de usted" : "de tú")].filter(Boolean).join("\n");
   return `Estás ayudando en vivo a un vendedor de ZH durante una llamada con un lead. ${ZH_CORTO}\n\n${datos}\n\nLo último de la llamada (transcripción automática: no separa quién habla y trae errores):\n${String(o.texto || "").slice(-1800)}${o.notas ? "\n\nNotas del vendedor: " + clip(o.notas, 500) : ""}\n\nMira lo último que dijo o preguntó el lead (una objeción, una duda o un silencio) y dile al vendedor qué decir ahora. Frases cortas y naturales para decir en voz alta, en español de Chile. Habla del problema del lead. No inventes precios, plazos, casos ni clientes. Si preguntan el precio, explica que depende del alcance y que, después de entender bien lo que necesitan, ZH manda una propuesta escrita con alcance, plazo y precio. Si piden que les manden información, propón ver su caso en una reunión de 30 minutos. Nunca presiones.\nResponde solo con JSON: {"detecte": "qué dijo o pidió el lead, en una frase corta", "respuesta": "lo que el vendedor puede decir ahora, en 1 o 2 frases", "pregunta": "una pregunta para seguir, o vacío", "evitar": "algo que no conviene decir ahora, o vacío"}`;
 }
 function sanitizeAyuda(r) {
@@ -1367,6 +1404,7 @@ function makeApi(db, meRef) {
 
 const ICONS = {
   phone: '<path d="M5 4h3l2 5-2.5 1.5a11 11 0 0 0 6 6L15 14l5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/>',
+  phonex: '<path d="M5 4h3l2 5-2.5 1.5a11 11 0 0 0 6 6L15 14l5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/><path d="M15.5 3.5l5 5M20.5 3.5l-5 5"/>',
   chat: '<path d="M20 11.5a8 8 0 0 1-11.7 7.1L4 20l1.3-4A8 8 0 1 1 20 11.5z"/>',
   mail: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/>',
   plus: '<path d="M12 5v14M5 12h14"/>',
@@ -1583,7 +1621,7 @@ function EvalView({ e }) {
 /* ===================================================================== fila de lead */
 
 function LeadRow({ lead, mode }) {
-  const { openLead, cfg } = useCtx();
+  const { openLead, cfg, nameOf } = useCtx();
   const wa = lead.telefono ? waLink(lead.telefono, "", cfg) : null;
   return html`<div class="lrow">
     <button class="lrow-main" onClick=${() => openLead(lead.id)}>
@@ -1593,6 +1631,7 @@ function LeadRow({ lead, mode }) {
       ${mode === "new" && lead.necesidad ? html`<span class="lrow-note">${clip(lead.necesidad, 140)}</span>` : null}
     </button>
     <div class="lrow-side">
+      ${lead.responsable ? html`<span class=${cx("avatar", respTono(lead.responsable))} title=${"Lo lleva " + nameOf(lead.responsable)}>${iniciales(nameOf(lead.responsable)) || "·"}</span>` : null}
       ${lead.noContactar ? html`<span class="tag late">No contactar</span>` : mode === "next" ? html`<${NextTag} proxima=${lead.proxima} />` : mode === "stale" ? html`<span class="tag">${lead.ultimoContacto ? "Último contacto " + ago(lead.ultimoContacto) : "Sin contacto"}</span>` : html`<span class="tag">${origenLabel(lead.origen) || "Nuevo"} · ${ago(lead.creado)}</span>`}
       ${lead.noContactar ? null : html`<div class="lrow-actions">
         ${lead.telefono ? html`<button class="btn small icon" title="Llamar y registrar" aria-label=${"Llamar a " + leadName(lead)} onClick=${() => openLead(lead.id, "llamada")}><${Icon} name="phone" /></button>` : null}
@@ -1606,7 +1645,11 @@ function LeadRow({ lead, mode }) {
 /* ===================================================================== vista: hoy */
 
 function HoyView() {
-  const { leads, acts, drafts, openDraft, openModal, nav, equipo, me, clientes, proyectos, cobros, solicitudes, clientesById, cfg } = useCtx();
+  const { leads: todos, acts, drafts, openDraft, openModal, nav, equipo, me, clientes, proyectos, cobros, solicitudes, clientesById, cfg } = useCtx();
+  const [quien, setQuien] = useState(() => { const v = ls.get("respHoy", ""); return respNombre(v) ? v : ""; });
+  useEffect(() => ls.set("respHoy", quien), [quien]);
+  /* Lo de cada socio, más lo que todavía no tiene responsable. */
+  const leads = quien ? todos.filter((l) => !l.responsable || l.responsable === quien) : todos;
   const t = todayKey();
   const agenda = agendaClientes({ proyectos, cobros, clientesById }, cfg, 7);
   const agendaHoy = agenda.filter((x) => x.fecha <= t);
@@ -1631,7 +1674,7 @@ function HoyView() {
   if (agendaHoy.length) frase.push(`${agendaHoy.length} ${agendaHoy.length === 1 ? "pendiente de clientes" : "pendientes de clientes"}`);
   if (solAbiertas.length) frase.push(`${solAbiertas.length} ${solAbiertas.length === 1 ? "solicitud abierta" : "solicitudes abiertas"}`);
   if (porRevisar.length) frase.push(`${porRevisar.length} ${porRevisar.length === 1 ? "borrador" : "borradores"} por revisar`);
-  const lede = leads.length || clientes.length ? (frase.length ? `Tienes ${frase.join(", ").replace(/, ([^,]*)$/, " y $1")}.` : "Nada pendiente para hoy. Buen momento para prospectar o revisar los leads sin próxima acción.") : "";
+  const lede = todos.length || clientes.length ? (frase.length ? `Tienes ${frase.join(", ").replace(/, ([^,]*)$/, " y $1")}.` : "Nada pendiente para hoy. Buen momento para prospectar o revisar los leads sin próxima acción.") : "";
   const sinFirma = me.id && !(equipo[me.id] && equipo[me.id].nombre);
 
   return html`<div class="main-inner">
@@ -1647,7 +1690,9 @@ function HoyView() {
       </div>
     </header>
 
-    ${!leads.length && !clientes.length ? html`<section class="panel"><div class="panel-head"><h2>Para empezar</h2></div><div class="panel-body">
+    ${todos.length ? html`<div class="toolbar"><${Seg} label="De quién" value=${quien} onChange=${setQuien} options=${[["", "Todo el equipo"], ...RESPONSABLES.map(([id, n]) => [id, n])]} />${quien ? html`<span class="small muted">Lo de ${respNombre(quien)} y lo que no tiene responsable.</span>` : null}</div>` : null}
+
+    ${!todos.length && !clientes.length ? html`<section class="panel"><div class="panel-head"><h2>Para empezar</h2></div><div class="panel-body">
       <ol class="onboard">
         <li><p class="eyebrow">Paso 1</p><h3>Completa tu firma</h3><p>Nombre, cargo y teléfono de negocios. Van al pie de cada correo que redacte Claude.</p><button class="btn small" style="justify-self:start" onClick=${() => nav("ajustes")}>Ir a Ajustes</button></li>
         <li><p class="eyebrow">Paso 2</p><h3>Carga tus leads</h3><p>Uno por uno, desde una planilla CSV o pegando una lista o un correo del formulario: Claude los ordena.</p><button class="btn small" style="justify-self:start" onClick=${() => openModal({ type: "import" })}>Importar leads</button></li>
@@ -1666,7 +1711,7 @@ function HoyView() {
 
     ${sinFirma && leads.length ? html`<div class="note warn"><${Icon} name="info" /><div>Completa tu firma en <button class="btn small ghost" style="min-height:0;padding:0;text-decoration:underline" onClick=${() => nav("ajustes")}>Ajustes</button> para que los correos salgan con tu nombre y teléfono.</div></div>` : null}
 
-    ${leads.length || clientes.length ? html`<div class="cols">
+    ${todos.length || clientes.length ? html`<div class="cols">
       <div class="stack">
         <section class="panel"><div class="panel-head"><h2>Para hoy</h2><span class="eyebrow">${pend.length} ${pend.length === 1 ? "lead" : "leads"}</span></div>
           <div class="panel-body">${pend.length ? html`<div class="lrows">${pend.map((l) => html`<${LeadRow} key=${l.id} lead=${l} mode="next" />`)}</div>` : html`<p class="empty">No hay acciones programadas para hoy.</p>`}</div></section>
@@ -1697,11 +1742,11 @@ function HoyView() {
 /* ===================================================================== vista: leads */
 
 function LeadsView() {
-  const { leads, openLead, openModal, nameOf, me, cfg } = useCtx();
+  const { leads, openLead, openModal, nameOf, me, cfg, team } = useCtx();
   const [q, setQ] = useState(() => ls.get("q", ""));
   const [etapa, setEtapa] = useState(() => ls.get("fEtapa", "abiertos"));
   const [origen, setOrigen] = useState(() => ls.get("fOrigen", ""));
-  const [resp, setResp] = useState(() => ls.get("fResp", ""));
+  const [resp, setResp] = useState(() => { const v = ls.get("fResp", ""); return v === "mios" ? "" : v; });
   const [orden, setOrden] = useState(() => ls.get("fOrden", "proxima"));
   useEffect(() => { ls.set("q", q); ls.set("fEtapa", etapa); ls.set("fOrigen", origen); ls.set("fResp", resp); ls.set("fOrden", orden); }, [q, etapa, origen, resp, orden]);
 
@@ -1712,8 +1757,8 @@ function LeadsView() {
       if (etapa === "abiertos" && !isOpen(l)) return false;
       if (etapa && etapa !== "abiertos" && etapa !== "todos" && l.etapa !== etapa) return false;
       if (origen && l.origen !== origen) return false;
-      if (resp === "mios" && l.responsable !== me.id) return false;
       if (resp === "nadie" && l.responsable) return false;
+      if (resp && resp !== "nadie" && l.responsable !== resp) return false;
       if (qq) {
         const hay = fold([l.nombre, l.empresa, l.cargo, l.correo, l.rubro, l.ciudad, l.necesidad, l.notas].join(" "));
         const phoneHit = qd.length >= 4 && String(l.telefono || "").replace(/\D/g, "").includes(qd);
@@ -1748,7 +1793,7 @@ function LeadsView() {
         <option value="">Todos los orígenes</option>${ORIGENES.map(([v, t]) => html`<option value=${v}>${t}</option>`)}
       </select>
       <select id="f-resp" class="select" aria-label="Responsable" value=${resp} onChange=${(e) => setResp(e.currentTarget.value)}>
-        <option value="">Todo el equipo</option><option value="mios">Asignados a mí</option><option value="nadie">Sin responsable</option>
+        <option value="">Todo el equipo</option>${team.map((u) => html`<option value=${u}>${nameOf(u)}</option>`)}<option value="nadie">Sin responsable</option>
       </select>
       <select id="f-orden" class="select" aria-label="Orden" value=${orden} onChange=${(e) => setOrden(e.currentTarget.value)}>
         <option value="proxima">Por próxima acción</option><option value="contacto">Último contacto</option><option value="creado">Más recientes</option><option value="nombre">Nombre</option>
@@ -1812,7 +1857,7 @@ function useBoardDrag({ enabled, onDrop }) {
   useEffect(() => () => fin(false), []);
   const start = (ev, id, from) => {
     if (!enabled || st.current || ev.button > 0 || ev.isPrimary === false) return;
-    if (ev.target.closest("a, input, select, textarea, .kact")) return;
+    if (ev.target.closest("a, input, select, textarea, .kact, .tagbtn")) return;
     const card = ev.currentTarget;
     const touch = ev.pointerType !== "mouse";
     const s = { id, from, over: from, card, touch, pid: ev.pointerId, x0: ev.clientX, y0: ev.clientY, x: ev.clientX, y: ev.clientY, active: false };
@@ -1895,21 +1940,47 @@ function VistaLeads({ actual }) {
   </div>`;
 }
 
+/* Responsable en la tarjeta: su inicial. Al tocarla se elige otro (un select invisible encima). */
+function RespAvatar({ l }) {
+  const { api, canWrite, nameOf, toast } = useCtx();
+  const v = l.responsable || "";
+  const nombre = v ? nameOf(v) : "";
+  const cambiar = async (nv) => {
+    if (nv === v) return;
+    try {
+      await api.updateLead(l.id, { responsable: nv || null });
+      toast(nv ? `${leadName(l)}: lo lleva ${nameOf(nv)}.` : `${leadName(l)}: sin responsable.`);
+    } catch (e) { toast(dbErrorText(e), "bad"); }
+  };
+  const stop = (e) => e.stopPropagation();
+  return html`<span class=${cx("avatar", !v && "vacio", respTono(v), canWrite && "pick")} title=${nombre ? "Lo lleva " + nombre : "Sin responsable"} onPointerDown=${stop} onClick=${stop}>
+    ${v ? iniciales(nombre) || "·" : "·"}
+    ${canWrite ? html`<select aria-label=${"Responsable de " + leadName(l)} value=${v} onChange=${(e) => cambiar(e.currentTarget.value)}>
+      <option value="">Sin responsable</option>${RESPONSABLES.map(([id, n]) => html`<option value=${id}>${n}</option>`)}${v && !respNombre(v) ? html`<option value=${v}>${nombre}</option>` : null}
+    </select>` : null}
+  </span>`;
+}
+
 function LeadCard({ l, ultima, onPointerDown }) {
-  const { openLead, nameOf, cfg } = useCtx();
+  const { openLead, openModal, canWrite, cfg } = useCtx();
   const abierto = ETAPA[l.etapa || "nuevo"].open;
   const wa = l.telefono && !l.noContactar ? waLink(l.telefono, "", cfg) : null;
   const abrir = () => { if (!recienArrastrado()) openLead(l.id); };
   const accion = (tab) => (e) => { e.stopPropagation(); openLead(l.id, tab); };
-  return html`<div class="kcard lead" role="button" tabindex="0" aria-label=${"Abrir " + leadName(l)} onPointerDown=${onPointerDown} onClick=${abrir} onKeyDown=${(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openLead(l.id); } }}>
+  const ventana = (m) => (e) => { e.stopPropagation(); openModal(m); };
+  return html`<div class="kcard lead" role="button" tabindex="0" aria-label=${"Abrir " + leadName(l)} onPointerDown=${onPointerDown} onClick=${abrir} onKeyDown=${(e) => { if (e.target === e.currentTarget && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); openLead(l.id); } }}>
     <div class="kcard-top"><b>${leadName(l)}</b>${l.prioridad === "alta" ? html`<i class="prio" title="Prioridad alta"></i>` : null}</div>
     ${leadSub(l) ? html`<span class="kcard-sub">${leadSub(l)}</span>` : null}
     ${Number(l.valor) > 0 ? html`<span class="kcard-valor">${money(l.valor)} + IVA</span>` : null}
-    ${l.noContactar ? html`<div><span class="tag late">No contactar</span></div>` : abierto ? html`<div>${l.proxima && l.proxima.fecha ? html`<${NextTag} proxima=${l.proxima} />` : html`<span class="tag warn">Sin próxima acción</span>`}</div>` : l.etapa === "pausa" && l.proxima && l.proxima.fecha ? html`<div><${NextTag} proxima=${l.proxima} /></div>` : null}
+    ${l.noContactar ? html`<div><span class="tag late">No contactar</span></div>`
+      : abierto ? html`<div class="kcard-tags">${l.proxima && l.proxima.fecha ? html`<${NextTag} proxima=${l.proxima} />` : html`<span class="tag warn">Sin próxima acción</span>`}${l.intentos ? html`<span class="tag warn" title="Llamadas seguidas sin respuesta">${l.intentos}\u00a0sin respuesta</span>` : null}</div>`
+      : l.etapa === "perdido" ? html`<div class="kcard-tags">${l.motivoPerdida ? html`<span class="tag late">${l.motivoPerdida}</span>` : canWrite ? html`<button type="button" class="tag warn tagbtn" onClick=${ventana({ type: "lost", lead: l })}>Falta el motivo</button>` : html`<span class="tag warn">Sin motivo</span>`}</div>`
+      : l.etapa === "pausa" && l.proxima && l.proxima.fecha ? html`<div><${NextTag} proxima=${l.proxima} /></div>` : null}
     <span class="kcard-act">${ultima ? html`<${Icon} name=${ACT_ICON[ultima.tipo] || "note"} size=${13} />${clip(actTitulo(ultima), 34)} · ${ago(ultima.fecha)}` : "Sin actividad registrada"}</span>
     <div class="kcard-foot">
-      <span class=${cx("avatar", !l.responsable && "vacio")} title=${l.responsable ? nameOf(l.responsable) : "Sin responsable"}>${l.responsable ? iniciales(nameOf(l.responsable)) || "·" : "·"}</span>
+      <${RespAvatar} l=${l} />
       ${l.noContactar ? null : html`<span class="kacts">
+        ${l.telefono && abierto && canWrite ? html`<button type="button" class="kact" title="No contestó" aria-label=${"No contestó " + leadName(l)} onClick=${ventana({ type: "noContesto", lead: l })}><${Icon} name="phonex" size=${15} /></button>` : null}
         ${l.telefono ? html`<button type="button" class="kact" title="Registrar llamada" aria-label=${"Registrar llamada con " + leadName(l)} onClick=${accion("llamada")}><${Icon} name="phone" size=${15} /></button>` : null}
         ${wa ? html`<a class="kact" href=${wa} target="_blank" rel="noopener" title="Abrir WhatsApp" aria-label=${"WhatsApp a " + leadName(l)} onClick=${(e) => e.stopPropagation()}><${Icon} name="chat" size=${15} /></a>` : null}
         <button type="button" class="kact" title="Redactar con Claude" aria-label=${"Redactar para " + leadName(l)} onClick=${accion("redactar")}><${Icon} name="spark" size=${15} /></button>
@@ -1919,11 +1990,18 @@ function LeadCard({ l, ultima, onPointerDown }) {
   </div>`;
 }
 
+/* Cuántos perdidos hay por cada motivo, para la columna «Perdido». */
+const motivosResumen = (items) => {
+  const c = {};
+  items.forEach((l) => { const m = l.motivoPerdida || "Sin motivo"; c[m] = (c[m] || 0) + 1; });
+  return Object.entries(c).sort((a, b) => b[1] - a[1]).map(([m, n]) => `${n} ${m.toLowerCase()}`).join(" · ");
+};
+
 function EmbudoView() {
-  const { leads, acts, openModal, changeStage, canWrite, nameOf, team, me } = useCtx();
+  const { leads, acts, openModal, changeStage, canWrite, nameOf, team } = useCtx();
   const [verCerrados, setVerCerrados] = useState(() => ls.get("verCerrados", false));
   const [q, setQ] = useState(() => ls.get("qEmb", ""));
-  const [resp, setResp] = useState(() => ls.get("respEmb", ""));
+  const [resp, setResp] = useState(() => { const v = ls.get("respEmb", ""); return v === "mios" ? "" : v; });
   const [orden, setOrden] = useState(() => ls.get("ordenEmb", "proxima"));
   useEffect(() => { ls.set("verCerrados", verCerrados); ls.set("qEmb", q); ls.set("respEmb", resp); ls.set("ordenEmb", orden); }, [verCerrados, q, resp, orden]);
   const { drag, start, boardRef } = useBoardDrag({
@@ -1937,10 +2015,9 @@ function EmbudoView() {
   }, [acts]);
   const qq = fold(q).trim();
   const visibles = leads.filter((l) => {
-    if (resp === "mios" && l.responsable !== me.id) return false;
     if (resp === "sin" && l.responsable) return false;
-    if (resp && resp !== "mios" && resp !== "sin" && l.responsable !== resp) return false;
-    return !qq || fold([l.nombre, l.empresa, l.cargo, l.correo, l.telefono, l.necesidad].join(" ")).includes(qq);
+    if (resp && resp !== "sin" && l.responsable !== resp) return false;
+    return !qq || fold([l.nombre, l.empresa, l.cargo, l.correo, l.telefono, l.necesidad, l.dolor].join(" ")).includes(qq);
   });
   const fechaAct = (l) => String((ultima[l.id] || {}).fecha || l.ultimoContacto || l.actualizado || "");
   const cmp = {
@@ -1953,7 +2030,6 @@ function EmbudoView() {
   const enJuego = sum(abiertos, (l) => l.valor);
   const ponderado = Math.round(sum(abiertos, (l) => (Number(l.valor) || 0) * PROB_ETAPA[l.etapa || "nuevo"]));
   const cols = ETAPAS.filter((e) => e.open || verCerrados);
-  const otros = team.filter((u) => u !== me.id);
   return html`<div class="main-inner">
     <header class="page-head">
       <div><p class="eyebrow">${abiertos.length} ${abiertos.length === 1 ? "abierto" : "abiertos"}${enJuego ? ` · ${money(enJuego)} en juego · ${money(ponderado)} ponderado` : ""}</p><h1>Embudo</h1>
@@ -1966,7 +2042,7 @@ function EmbudoView() {
     <div class="toolbar">
       <label class="search"><span class="sr">Buscar en el embudo</span><${Icon} name="search" /><input id="buscar-emb" class="input" type="search" placeholder="Buscar por nombre, empresa, correo o teléfono" value=${q} onInput=${(e) => setQ(e.currentTarget.value)} /></label>
       <select id="emb-resp" class="select" aria-label="Responsable" value=${resp} onChange=${(e) => setResp(e.currentTarget.value)}>
-        <option value="">Todos los responsables</option><option value="mios">Míos</option>${otros.map((u) => html`<option value=${u}>${nameOf(u)}</option>`)}<option value="sin">Sin responsable</option>
+        <option value="">Todos los responsables</option>${team.map((u) => html`<option value=${u}>${nameOf(u)}</option>`)}<option value="sin">Sin responsable</option>
       </select>
       <select id="emb-orden" class="select" aria-label="Ordenar" value=${orden} onChange=${(e) => setOrden(e.currentTarget.value)}>${ORDEN_EMBUDO.map(([v, t]) => html`<option value=${v}>${t}</option>`)}</select>
       <label class="check"><input type="checkbox" id="ver-cerrados" checked=${verCerrados} onChange=${(e) => setVerCerrados(e.currentTarget.checked)} />Ganados, perdidos y en pausa</label>
@@ -1978,6 +2054,7 @@ function EmbudoView() {
         return html`<div key=${e.id} data-col=${e.id} class=${cx("col", drag && drag.over === e.id && drag.from !== e.id && "drop")}>
           <div class="col-head"><${StagePill} etapa=${e.id} /><span class="count">${items.length}</span></div>
           ${total ? html`<p class="col-sum"><b>${money(total)}</b>${e.open ? ` · ${money(Math.round(total * PROB_ETAPA[e.id]))} ponderado (${Math.round(PROB_ETAPA[e.id] * 100)} %)` : ""}</p>` : null}
+          ${e.id === "perdido" && items.length ? html`<p class="col-sum motivos">${motivosResumen(items)}</p>` : null}
           ${items.map((l) => html`<${LeadCard} key=${l.id} l=${l} ultima=${ultima[l.id]} onPointerDown=${(ev) => start(ev, l.id, e.id)} />`)}
           ${!items.length ? html`<p class="col-empty">${drag ? "Suelta aquí" : "Sin leads"}</p>` : null}
         </div>`;
@@ -2268,7 +2345,11 @@ function LeadDrawer({ id, tab: initialTab, onClose }) {
             ${ETAPAS.map((e) => html`<option value=${e.id}>${e.label}</option>`)}
           </select>
           <${Meter} etapa=${lead.etapa} />
-          ${lead.etapa === "perdido" && lead.motivoPerdida ? html`<span class="tag late">${lead.motivoPerdida}</span>` : null}
+          <label class="sr" for="lead-resp">Responsable</label>
+          <select id="lead-resp" class=${cx("select", !lead.responsable && "vacio")} value=${lead.responsable || ""} disabled=${!canWrite} onChange=${(e) => save({ responsable: e.currentTarget.value || null })}>
+            <option value="">Sin responsable</option>${team.map((u) => html`<option value=${u}>Lo lleva ${nameOf(u)}</option>`)}
+          </select>
+          ${lead.etapa === "perdido" ? (canWrite ? html`<button type="button" class=${cx("tag tagbtn", lead.motivoPerdida ? "late" : "warn")} title="Cambiar el motivo" onClick=${() => openModal({ type: "lost", lead })}>${lead.motivoPerdida || "Falta el motivo"}</button>` : html`<span class="tag late">${lead.motivoPerdida || "Sin motivo"}</span>`) : null}
           ${lead.prioridad === "alta" ? html`<span class="tag warn">Prioridad alta</span>` : null}
           ${lead.intentos ? html`<span class="tag">${lead.intentos} ${lead.intentos === 1 ? "llamada" : "llamadas"} sin respuesta</span>` : null}
           ${lead.caso ? html`<span class="tag" title="Caso en el repositorio propuestaszh">Caso ${lead.caso}</span>` : null}
@@ -2297,6 +2378,12 @@ function LeadDrawer({ id, tab: initialTab, onClose }) {
             </div>
           </div>
         </section>
+
+        ${lead.dolor || lead.comoAyudamos ? html`<section class="pitch">
+          <h3>Dolor y cómo ayudamos</h3>
+          ${lead.dolor ? html`<div><span class="eyebrow">Dolor${isOpen(lead) && RUTA.indexOf(lead.etapa) < 2 ? " · por confirmar" : ""}</span><p>${lead.dolor}</p></div>` : null}
+          ${lead.comoAyudamos ? html`<div><span class="eyebrow">Cómo ayudamos</span><p>${lead.comoAyudamos}</p></div>` : null}
+        </section>` : null}
 
         <${NextAction} lead=${lead} save=${save} canWrite=${canWrite} />
 
@@ -2329,9 +2416,10 @@ function LeadDrawer({ id, tab: initialTab, onClose }) {
             <${TextField} id="l-ciudad" label="Ciudad" value=${lead.ciudad} disabled=${!canWrite} onSave=${(v) => save({ ciudad: v })} />
             <${SelectField} id="l-origen" label="Cómo llegó" value=${lead.origen || ""} disabled=${!canWrite} options=${[["", "Sin dato"], ...ORIGENES]} onSave=${(v) => save({ origen: v })} />
             <${SelectField} id="l-prio" label="Prioridad" value=${lead.prioridad || "media"} disabled=${!canWrite} options=${PRIORIDADES} onSave=${(v) => save({ prioridad: v })} />
-            <${SelectField} id="l-resp" label="Responsable" value=${lead.responsable || ""} disabled=${!canWrite} options=${[["", "Sin responsable"], ...team.map((u) => [u, nameOf(u)])]} onSave=${(v) => save({ responsable: v || null })} />
             <${SelectField} id="l-trato" label="Trato en los mensajes" value=${lead.trato || "tu"} disabled=${!canWrite} options=${[["tu", "Tú"], ["usted", "Usted"]]} onSave=${(v) => save({ trato: v })} />
             <div class="span-2"><${TextField} id="l-nec" label="Qué necesita" multiline value=${lead.necesidad} disabled=${!canWrite} onSave=${(v) => save({ necesidad: v })} /></div>
+            <div class="span-2"><${TextField} id="l-dolor" label="Dolor" multiline value=${lead.dolor} disabled=${!canWrite} onSave=${(v) => save({ dolor: v })} hint="Lo que suponemos que le duele. Es hipótesis hasta que lo confirme en una llamada." /></div>
+            <div class="span-2"><${TextField} id="l-ayuda" label="Cómo ayudamos" multiline value=${lead.comoAyudamos} disabled=${!canWrite} onSave=${(v) => save({ comoAyudamos: v })} hint="El primer proyecto acotado y, si funciona, el segundo paso." /></div>
             <div class="span-2"><${TextField} id="l-notas" label="Notas internas" multiline value=${lead.notas} disabled=${!canWrite} onSave=${(v) => save({ notas: v })} hint="Claude las usa como contexto, pero no las cita en los mensajes." /></div>
             <${TextField} id="l-valor" label="Valor estimado (CLP sin IVA)" mono value=${lead.valor ? String(lead.valor) : ""} disabled=${!canWrite} onSave=${(v) => { const n = Number(String(v).replace(/\D/g, "")); save({ valor: n > 0 ? n : null }); }} hint=${lead.valor ? clp.format(lead.valor) + " + IVA" : "Solo para uso interno"} />
             <${TextField} id="l-caso" label="Caso en propuestaszh" value=${lead.caso} disabled=${!canWrite} onSave=${(v) => save({ caso: v })} hint="Ej.: 2026-cliente-proyecto" />
@@ -2709,7 +2797,7 @@ function CallLogger({ lead, hist, onDone }) {
       else if (contesto && lead.etapa === "nuevo" && toContactado) etapa = "contactado";
       if (etapa !== lead.etapa) { patch.etapa = etapa; await api.addAct({ leadId: lead.id, tipo: "etapa", de: lead.etapa, a: etapa }); }
       if (an && useNext && an.proxima) patch.proxima = { tipo: an.proxima.tipo, fecha: an.proxima.fecha, hora: "", nota: an.proxima.nota };
-      else if (sinResp && retry) patch.proxima = { tipo: (lead.intentos || 0) >= 1 ? "whatsapp" : "llamar", fecha: addBusinessDays(t, 1), hora: "", nota: (lead.intentos || 0) >= 1 ? "No contesta: escribir por WhatsApp" : "Volver a llamar" };
+      else if (sinResp && retry) { const n = (lead.intentos || 0) + 1; patch.proxima = { tipo: "llamar", fecha: addBusinessDays(t, 1), hora: "", nota: `Volver a llamar (${n} ${n === 1 ? "intento" : "intentos"} sin respuesta)` }; }
       if (an && useData) for (const [k, v] of nuevosDatos) patch[k] = k === "correo" ? v.toLowerCase() : v;
       await api.updateLead(lead.id, patch);
       ls.del(llave);
@@ -2763,7 +2851,7 @@ function CallLogger({ lead, hist, onDone }) {
         ${an.interes && an.interes !== "sin_datos" ? html`<p class="small muted">Interés estimado: ${an.interes}</p>` : null}
       </div>` : null}
     ${!an && contesto && lead.etapa === "nuevo" ? html`<label class="check"><input type="checkbox" checked=${toContactado} onChange=${(e) => setToContactado(e.currentTarget.checked)} />Mover a «Contactado»</label>` : null}
-    ${!(an && an.proxima) && sinResp ? html`<label class="check"><input type="checkbox" checked=${retry} onChange=${(e) => setRetry(e.currentTarget.checked)} />${(lead.intentos || 0) >= 1 ? "Programar un WhatsApp para mañana" : "Volver a llamar mañana"} (${dayLabel(addBusinessDays(t, 1))})</label>` : null}
+    ${!(an && an.proxima) && sinResp ? html`<label class="check"><input type="checkbox" checked=${retry} onChange=${(e) => setRetry(e.currentTarget.checked)} />Volver a llamar ${cuandoTexto(addBusinessDays(t, 1))}</label>` : null}
     <div class="actions">
       <button class="btn primary" onClick=${guardar} disabled=${saving || !canWrite}>${saving ? "Guardando…" : "Guardar llamada"}</button>
       <button class="btn ghost" onClick=${cancelar}>Cancelar</button>
@@ -3235,7 +3323,7 @@ function ClientComposer({ cliente, hist, onDone, preset }) {
 
 const REGISTROS_CLIENTE = [["reunion", "Reunión"], ["llamada", "Llamada"], ["nota", "Nota"], ["correo", "Correo"], ["whatsapp", "WhatsApp"]];
 function ClientLogger({ cliente, hist, onDone }) {
-  const { api, toast, sampleState, setSampleState, canWrite, proyectos, mantenciones, cfg, me } = useCtx();
+  const { api, toast, sampleState, setSampleState, canWrite, proyectos, mantenciones, cfg, me, yo } = useCtx();
   const ps = proyectos.filter((p) => p.clienteId === cliente.id);
   const llave = "registro:" + cliente.id;
   const [previo] = useState(() => borradorLocal(llave));
@@ -3272,7 +3360,7 @@ function ClientLogger({ cliente, hist, onDone }) {
         for (let i = 0; i < acta.solicitudes.length; i++) {
           if (!crearSol[i]) continue;
           const s = acta.solicitudes[i];
-          const sid = await api.createSolicitud({ clienteId: cliente.id, proyectoId: pid, titulo: s.titulo, descripcion: s.descripcion, cobertura: s.cobertura, canal: "reunion", tipo: "otro", prioridad: "media", estado: "nueva", responsable: me.id || null });
+          const sid = await api.createSolicitud({ clienteId: cliente.id, proyectoId: pid, titulo: s.titulo, descripcion: s.descripcion, cobertura: s.cobertura, canal: "reunion", tipo: "otro", prioridad: "media", estado: "nueva", responsable: yo || null });
           await api.addAct({ clienteId: cliente.id, proyectoId: pid, solicitudId: sid, tipo: "solicitud", accion: "nueva", resumen: s.titulo });
           n += 1;
         }
@@ -3646,9 +3734,9 @@ function SoporteView() {
 }
 
 function SolicitudModal({ id, clienteId: cid0, proyectoId: pid0 }) {
-  const { solicitudes, clientes, clientesById, proyectos, mantenciones, api, closeModal, toast, canWrite, me, team, nameOf, sampleState, setSampleState, cfg, db, openDraft, openModal } = useCtx();
+  const { solicitudes, clientes, clientesById, proyectos, mantenciones, api, closeModal, toast, canWrite, me, yo, team, nameOf, sampleState, setSampleState, cfg, db, openDraft, openModal } = useCtx();
   const stored = id ? solicitudes.find((s) => s.id === id) : null;
-  const [f, setF] = useState(() => (stored ? { ...stored, horasEstimadas: stored.horasEstimadas || "", horasReales: stored.horasReales || "" } : { clienteId: cid0 || "", proyectoId: pid0 || "", titulo: "", descripcion: "", canal: "correo", tipo: "error", cobertura: "por_definir", prioridad: "media", estado: "nueva", responsable: me.id || "", horasEstimadas: "", horasReales: "", resolucion: "", cotizacion: null }));
+  const [f, setF] = useState(() => (stored ? { ...stored, horasEstimadas: stored.horasEstimadas || "", horasReales: stored.horasReales || "" } : { clienteId: cid0 || "", proyectoId: pid0 || "", titulo: "", descripcion: "", canal: "correo", tipo: "error", cobertura: "por_definir", prioridad: "media", estado: "nueva", responsable: yo || "", horasEstimadas: "", horasReales: "", resolucion: "", cotizacion: null }));
   const [sug, setSug] = useState(null);
   const [busy, setBusy] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -3950,7 +4038,7 @@ function MantencionModal({ id, clienteId: cid0 }) {
 /* ===================================================================== altas: ganado, cliente, proyecto */
 
 function WonModal({ lead }) {
-  const { api, clientes, closeModal, toast, cfg, me, openCliente, canWrite } = useCtx();
+  const { api, clientes, closeModal, toast, cfg, me, yo, openCliente, canWrite } = useCtx();
   const t = todayKey();
   const [modo, setModo] = useState(lead.clienteId ? "existente" : "nuevo");
   const [existente, setExistente] = useState(lead.clienteId || (clientes[0] || {}).id || "");
@@ -3986,10 +4074,10 @@ function WonModal({ lead }) {
           await api.updateCliente(cid, patch);
         } else {
           if (!nombre.trim()) { toast("Escribe el nombre del cliente.", "bad"); setSaving(false); return; }
-          cid = await api.createCliente({ nombre: nombre.trim(), razonSocial: razon.trim(), rut: rut.trim(), rubro: lead.rubro || "", ciudad: lead.ciudad || "", sitio: lead.sitio || "", contactos: contacto ? [contacto] : [], responsable: lead.responsable || me.id || null, trato: lead.trato || "tu", leadIds: [lead.id], estado: "activo", notas: "" });
+          cid = await api.createCliente({ nombre: nombre.trim(), razonSocial: razon.trim(), rut: rut.trim(), rubro: lead.rubro || "", ciudad: lead.ciudad || "", sitio: lead.sitio || "", contactos: contacto ? [contacto] : [], responsable: lead.responsable || yo || null, trato: lead.trato || "tu", leadIds: [lead.id], estado: "activo", notas: "" });
         }
         if (conProyecto) {
-          const pid = await api.createProyecto({ clienteId: cid, leadId: lead.id, nombre: pNombre.trim() || "Proyecto", tipo, valor: v || null, estado: "por_iniciar", inicio: inicio || "", entregaEstimada: entrega || "", produccion: "", garantiaDias: Number(cfg.garantiaDias) || 60, hitos: [], enlaces: [], caso: lead.caso || "", alcance: lead.necesidad || "", responsable: lead.responsable || me.id || null });
+          const pid = await api.createProyecto({ clienteId: cid, leadId: lead.id, nombre: pNombre.trim() || "Proyecto", tipo, valor: v || null, estado: "por_iniciar", inicio: inicio || "", entregaEstimada: entrega || "", produccion: "", garantiaDias: Number(cfg.garantiaDias) || 60, hitos: [], enlaces: [], caso: lead.caso || "", alcance: lead.necesidad || "", responsable: lead.responsable || yo || null });
           if (v) await crearPlanPago(api, { clienteId: cid, proyectoId: pid }, plan, v, fechas);
           await api.addAct({ clienteId: cid, proyectoId: pid, tipo: "proyecto", a: "por_iniciar", resumen: `${pNombre.trim() || "Proyecto"}${v ? ": " + money(v) + " + IVA" : ""}` });
         }
@@ -4044,7 +4132,7 @@ function WonModal({ lead }) {
 }
 
 function NewClienteModal() {
-  const { api, closeModal, toast, me, openCliente, canWrite } = useCtx();
+  const { api, closeModal, toast, me, yo, openCliente, canWrite } = useCtx();
   const [f, setF] = useState({ nombre: "", razonSocial: "", rut: "", rubro: "", cNombre: "", cCargo: "", cCorreo: "", cTel: "" });
   const [saving, setSaving] = useState(false);
   const set = (k) => (e) => setF((x) => ({ ...x, [k]: e.currentTarget.value }));
@@ -4053,7 +4141,7 @@ function NewClienteModal() {
     setSaving(true);
     try {
       const contacto = f.cNombre.trim() || f.cCorreo.trim() || f.cTel.trim() ? [{ id: newId("ct"), nombre: f.cNombre.trim(), cargo: f.cCargo.trim(), correo: f.cCorreo.trim().toLowerCase(), telefono: normPhone(f.cTel), rol: "decisor", principal: true }] : [];
-      const id = await api.createCliente({ nombre: f.nombre.trim(), razonSocial: f.razonSocial.trim(), rut: f.rut.trim(), rubro: f.rubro.trim(), contactos: contacto, responsable: me.id || null, trato: "tu", leadIds: [], estado: "activo", notas: "" });
+      const id = await api.createCliente({ nombre: f.nombre.trim(), razonSocial: f.razonSocial.trim(), rut: f.rut.trim(), rubro: f.rubro.trim(), contactos: contacto, responsable: yo || null, trato: "tu", leadIds: [], estado: "activo", notas: "" });
       toast("Cliente agregado.");
       closeModal();
       openCliente(id);
@@ -4080,7 +4168,7 @@ function NewClienteModal() {
 }
 
 function NewProyectoModal({ clienteId: cid0 }) {
-  const { api, clientes, closeModal, toast, cfg, me, openProyecto, canWrite } = useCtx();
+  const { api, clientes, closeModal, toast, cfg, me, yo, openProyecto, canWrite } = useCtx();
   const t = todayKey();
   const [cid, setCid] = useState(cid0 || (clientes.find((c) => c.estado !== "archivado") || {}).id || "");
   const [nombre, setNombre] = useState("");
@@ -4097,7 +4185,7 @@ function NewProyectoModal({ clienteId: cid0 }) {
     if (!nombre.trim()) { toast("Escribe el nombre del proyecto.", "bad"); return; }
     setSaving(true);
     try {
-      const pid = await api.createProyecto({ clienteId: cid, nombre: nombre.trim(), tipo, valor: v || null, estado: "por_iniciar", inicio: inicio || "", entregaEstimada: entrega || "", produccion: "", garantiaDias: Number(cfg.garantiaDias) || 60, hitos: [], enlaces: [], caso: "", alcance: "", responsable: me.id || null });
+      const pid = await api.createProyecto({ clienteId: cid, nombre: nombre.trim(), tipo, valor: v || null, estado: "por_iniciar", inicio: inicio || "", entregaEstimada: entrega || "", produccion: "", garantiaDias: Number(cfg.garantiaDias) || 60, hitos: [], enlaces: [], caso: "", alcance: "", responsable: yo || null });
       if (v) await crearPlanPago(api, { clienteId: cid, proyectoId: pid }, plan, v, fechas);
       await api.addAct({ clienteId: cid, proyectoId: pid, tipo: "proyecto", a: "por_iniciar", resumen: `${nombre.trim()}${v ? ": " + money(v) + " + IVA" : ""}` });
       toast("Proyecto creado.");
@@ -4147,9 +4235,9 @@ function findDup(leads, l) {
 }
 
 function NewLeadModal() {
-  const { api, leads, closeModal, openLead, toast, me } = useCtx();
+  const { api, leads, closeModal, openLead, toast, yo } = useCtx();
   const t = todayKey();
-  const [f, setF] = useState({ nombre: "", empresa: "", cargo: "", telefono: "", correo: "", origen: "", necesidad: "", notas: "", prioridad: "media", accion: "llamar", fecha: t });
+  const [f, setF] = useState({ nombre: "", empresa: "", cargo: "", telefono: "", correo: "", origen: "", necesidad: "", notas: "", prioridad: "media", accion: "llamar", fecha: t, responsable: yo });
   const [saving, setSaving] = useState(false);
   const set = (k) => (e) => setF((x) => ({ ...x, [k]: e.currentTarget.value }));
   const dup = findDup(leads, f);
@@ -4161,8 +4249,9 @@ function NewLeadModal() {
     try {
       const id = await api.createLead({
         nombre: f.nombre, empresa: f.empresa, cargo: f.cargo, telefono: tel, correo: f.correo.trim().toLowerCase(), origen: f.origen, necesidad: f.necesidad, notas: f.notas,
-        prioridad: f.prioridad, responsable: me.id || null, proxima: f.fecha ? { tipo: f.accion, fecha: f.fecha, hora: "", nota: "" } : null,
+        prioridad: f.prioridad, responsable: f.responsable || null, proxima: f.fecha ? { tipo: f.accion, fecha: f.fecha, hora: "", nota: "" } : null,
       });
+      if (f.responsable) ls.set("respUltimo", f.responsable);
       toast("Lead agregado.");
       closeModal();
       openLead(id);
@@ -4181,6 +4270,7 @@ function NewLeadModal() {
         <label class="field" for="nl-accion"><span>Primera acción</span><select id="nl-accion" class="select" value=${f.accion} onChange=${set("accion")}>${ACCIONES.map(([v, l]) => html`<option value=${v}>${l}</option>`)}</select></label>
         <label class="field" for="nl-fecha"><span>Fecha</span><input id="nl-fecha" class="input" type="date" value=${f.fecha} onInput=${set("fecha")} /></label>
         <label class="field" for="nl-prio"><span>Prioridad</span><select id="nl-prio" class="select" value=${f.prioridad} onChange=${set("prioridad")}>${PRIORIDADES.map(([v, l]) => html`<option value=${v}>${l}</option>`)}</select></label>
+        <label class="field" for="nl-resp"><span>Responsable</span><select id="nl-resp" class="select" value=${f.responsable} onChange=${set("responsable")}><option value="">Sin responsable</option>${RESPONSABLES.map(([v, l]) => html`<option value=${v}>${l}</option>`)}</select></label>
         <label class="field" for="nl-notas"><span>Notas internas</span><input id="nl-notas" class="input" value=${f.notas} onInput=${set("notas")} /></label>
       </div>
       ${dup ? html`<div class="note warn"><${Icon} name="info" /><div>Ya existe <b>${leadName(dup)}</b> con ese teléfono o correo. <button type="button" class="btn small ghost" style="min-height:0;padding:0;text-decoration:underline" onClick=${() => { closeModal(); openLead(dup.id); }}>Abrir ficha</button></div></div>` : null}
@@ -4231,8 +4321,9 @@ function mapCsv(rows) {
 const ORIGEN_IDS = new Set(ORIGENES.map((o) => o[0]));
 
 function ImportModal() {
-  const { api, leads, closeModal, toast, sampleState, setSampleState, me } = useCtx();
+  const { api, leads, closeModal, toast, sampleState, setSampleState, yo } = useCtx();
   const [modo, setModo] = useState(sampleState.fn ? "texto" : "csv");
+  const [resp, setResp] = useState(yo || "");
   const [texto, setTexto] = useState("");
   const [rows, setRows] = useState(null);
   const [sel, setSel] = useState({});
@@ -4272,7 +4363,7 @@ function ImportModal() {
     let n = 0;
     try {
       for (const x of elegidos) {
-        await api.createLead({ ...x.lead, origen: x.lead.origen || origen, responsable: me.id || null });
+        await api.createLead({ ...x.lead, origen: x.lead.origen || origen, responsable: resp || null });
         n += 1;
         setProgress(n);
         await sleep(80);
@@ -4284,6 +4375,7 @@ function ImportModal() {
 
   const foot = rows ? html`<button class="btn ghost" onClick=${() => setRows(null)} disabled=${progress != null}>Volver</button>
       <select id="imp-origen" class="select" style="width:auto" aria-label="Origen por defecto" value=${origen} onChange=${(e) => setOrigen(e.currentTarget.value)}><option value="">Origen: según el texto</option>${ORIGENES.map(([v, l]) => html`<option value=${v}>Origen: ${l}</option>`)}</select>
+      <select id="imp-resp" class="select" style="width:auto" aria-label="Responsable" value=${resp} onChange=${(e) => setResp(e.currentTarget.value)}><option value="">Sin responsable</option>${RESPONSABLES.map(([v, l]) => html`<option value=${v}>Lo lleva ${l}</option>`)}</select>
       <button class="btn primary" onClick=${importar} disabled=${!elegidos.length || progress != null}>${progress != null ? `Agregando ${progress} de ${elegidos.length}…` : `Agregar ${elegidos.length} ${elegidos.length === 1 ? "lead" : "leads"}`}</button>`
     : html`<button class="btn ghost" onClick=${closeModal}>Cancelar</button>`;
 
@@ -4316,22 +4408,94 @@ function ImportModal() {
 
 function LostModal({ lead }) {
   const { api, closeModal, toast } = useCtx();
-  const [motivo, setMotivo] = useState(MOTIVOS[0]);
-  const [detalle, setDetalle] = useState("");
+  const ya = lead.etapa === "perdido";
+  const antes = lead.motivoPerdida && !MOTIVOS.includes(lead.motivoPerdida) ? lead.motivoPerdida : "";
+  const [motivo, setMotivo] = useState(MOTIVOS.includes(lead.motivoPerdida) ? lead.motivoPerdida : "");
+  const [detalle, setDetalle] = useState(lead.motivoDetalle || "");
+  const [saving, setSaving] = useState(false);
   const guardar = async () => {
+    if (!motivo) { toast("Elige el motivo.", "bad"); return; }
+    setSaving(true);
     try {
-      const m = motivo === "Otro" && detalle.trim() ? detalle.trim() : motivo;
-      await api.updateLead(lead.id, { etapa: "perdido", motivoPerdida: m, proxima: null });
-      await api.addAct({ leadId: lead.id, tipo: "etapa", de: lead.etapa, a: "perdido", resumen: detalle.trim() ? `${motivo}: ${detalle.trim()}` : motivo });
-      toast("Lead marcado como perdido.");
+      const d = detalle.trim();
+      if (ya) {
+        await api.updateLead(lead.id, { motivoPerdida: motivo, motivoDetalle: d });
+        await api.addAct({ leadId: lead.id, tipo: "nota", resumen: `Motivo de pérdida: ${motivo}${d ? ". " + d : ""}` });
+      } else {
+        await api.updateLead(lead.id, { etapa: "perdido", motivoPerdida: motivo, motivoDetalle: d, proxima: null });
+        await api.addAct({ leadId: lead.id, tipo: "etapa", de: lead.etapa || "nuevo", a: "perdido", resumen: d ? `${motivo}: ${d}` : motivo });
+      }
+      toast(`${leadName(lead)}: perdido · ${motivo}.`);
       closeModal();
-    } catch (e) { toast(dbErrorText(e), "bad"); }
+    } catch (e) { toast(dbErrorText(e), "bad"); setSaving(false); }
   };
-  return html`<${Modal} title=${"Perdido: " + leadName(lead)} onClose=${closeModal} foot=${html`<button class="btn ghost" onClick=${closeModal}>Cancelar</button><button class="btn primary" onClick=${guardar}>Guardar</button>`}>
+  return html`<${Modal} title=${(ya ? "Motivo de pérdida: " : "Perdido: ") + leadName(lead)} onClose=${closeModal} foot=${html`<button class="btn ghost" onClick=${closeModal}>Cancelar</button><button class="btn primary" onClick=${guardar} disabled=${!motivo || saving}>Guardar</button>`}>
     <div class="modal-body">
-      <div class="field"><span>Motivo</span><${Chips} label="Motivo" value=${motivo} onChange=${setMotivo} options=${MOTIVOS.map((m) => [m, m])} /></div>
-      <label class="field" for="lost-det"><span>Lo que dijo el cliente (si lo tienes, con sus palabras)</span><textarea id="lost-det" class="textarea" rows="3" value=${detalle} onInput=${(e) => setDetalle(e.currentTarget.value)}></textarea>
-        <small class="hint">Ese texto sirve después para el postmortem en propuestaszh.</small></label>
+      <div class="field"><span>Motivo</span><${Chips} label="Motivo" value=${motivo} onChange=${setMotivo} options=${MOTIVOS.map((m) => [m, m])} />
+        <small class="hint">${motivo ? MOTIVO_AYUDA[motivo] : antes ? `Antes decía «${antes}». Elige uno de los cuatro.` : "Elige uno."}</small></div>
+      <label class="field" for="lost-det"><span>Lo que dijo (si lo tienes, con sus palabras)</span><textarea id="lost-det" class="textarea" rows="3" value=${detalle} onInput=${(e) => setDetalle(e.currentTarget.value)}></textarea>
+        <small class="hint">Sirve después para el postmortem en propuestaszh.</small></label>
+    </div>
+  </${Modal}>`;
+}
+
+/* No contestó: queda el intento y cuándo volver a intentarlo, sin abrir la ficha. Después de
+   varios intentos se puede cerrar como perdido por «No responde». */
+function NoContestoModal({ lead }) {
+  const { api, closeModal, toast } = useCtx();
+  const n = (lead.intentos || 0) + 1;
+  const cuando = (c) => {
+    const t = todayKey();
+    if (c === "luego") {
+      const [h, m] = fmtHM.format(new Date()).split(":").map(Number);
+      const q = Math.ceil((h * 60 + m + 120) / 15) * 15;
+      if (q <= 20 * 60 && !isWeekend(t)) return { fecha: t, hora: `${String(Math.floor(q / 60)).padStart(2, "0")}:${String(q % 60).padStart(2, "0")}` };
+      return { fecha: addBusinessDays(t, 1), hora: "10:00" };
+    }
+    return { fecha: addBusinessDays(t, c === "manana" ? 1 : c === "2d" ? 2 : 5), hora: "" };
+  };
+  const [resultado, setResultado] = useState("no_contesto");
+  const [rel, setRel] = useState("manana");
+  const [fecha, setFecha] = useState(() => cuando("manana").fecha);
+  const [hora, setHora] = useState("");
+  const [canal, setCanal] = useState("llamar");
+  const [nota, setNota] = useState("");
+  const [saving, setSaving] = useState(false);
+  const elegir = (c) => { const x = cuando(c); setRel(c); setFecha(x.fecha); setHora(x.hora); };
+  const registro = () => api.addAct({ leadId: lead.id, tipo: "llamada", resultado, linea: ls.get("linea", "negocios"), duracion: null, resumen: nota.trim() });
+  const guardar = async () => {
+    if (!isKey(fecha)) { toast("Elige el día para volver a intentarlo.", "bad"); return; }
+    setSaving(true);
+    try {
+      await registro();
+      const veces = `${n} ${n === 1 ? "intento" : "intentos"} sin respuesta`;
+      await api.updateLead(lead.id, { ultimoIntento: nowISO(), intentos: n, proxima: { tipo: canal, fecha, hora: hora || "", nota: canal === "whatsapp" ? `No contesta (${veces}): escribirle por WhatsApp` : `Volver a llamar (${veces})` } });
+      toast(`${leadName(lead)}: ${canal === "whatsapp" ? "escribirle por WhatsApp" : "volver a llamar"} ${cuandoTexto(fecha)}${hora ? " a las " + hora : ""}.`);
+      closeModal();
+    } catch (e) { toast(dbErrorText(e), "bad"); setSaving(false); }
+  };
+  const perder = async () => {
+    setSaving(true);
+    try {
+      await registro();
+      await api.updateLead(lead.id, { ultimoIntento: nowISO(), intentos: n, etapa: "perdido", motivoPerdida: "No responde", motivoDetalle: "", proxima: null });
+      await api.addAct({ leadId: lead.id, tipo: "etapa", de: lead.etapa || "nuevo", a: "perdido", resumen: `No responde (${n} intentos)` });
+      toast(`${leadName(lead)}: perdido · No responde.`);
+      closeModal();
+    } catch (e) { toast(dbErrorText(e), "bad"); setSaving(false); }
+  };
+  return html`<${Modal} title=${"No contestó: " + leadName(lead)} onClose=${closeModal} foot=${html`${n >= 3 ? html`<button class="btn ghost danger" onClick=${perder} disabled=${saving}>Perdido · No responde</button>` : null}<button class="btn ghost" onClick=${closeModal}>Cancelar</button><button class="btn primary" onClick=${guardar} disabled=${saving}>Guardar</button>`}>
+    <div class="modal-body">
+      <p class="small muted">${n === 1 ? "Primer intento sin respuesta." : `Es el intento ${n} sin respuesta.`} Queda en el historial y la tarjeta sigue en su etapa.</p>
+      <div class="field"><span>Qué pasó</span><${Chips} label="Qué pasó" value=${resultado} onChange=${setResultado} options=${SIN_RESPUESTA_OPC} /></div>
+      <div class="field"><span>¿Cuándo lo volvemos a intentar?</span><${Chips} label="Cuándo" value=${rel} onChange=${elegir} options=${RELLAMAR} /></div>
+      <div class="grid-2">
+        <label class="field" for="nc-fecha"><span>Día</span><input id="nc-fecha" class="input" type="date" value=${fecha} onInput=${(e) => { setRel(""); setFecha(e.currentTarget.value); }} /></label>
+        <label class="field" for="nc-hora"><span>Hora (opcional)</span><input id="nc-hora" class="input" type="time" value=${hora} onInput=${(e) => { setRel(""); setHora(e.currentTarget.value); }} /></label>
+      </div>
+      <div class="field"><span>Entonces</span><${Seg} label="Próxima acción" value=${canal} onChange=${setCanal} options=${[["llamar", "Volver a llamar", "phone"], ["whatsapp", "Escribirle por WhatsApp", "chat"]]} /></div>
+      <label class="field" for="nc-nota"><span>Nota (opcional)</span><input id="nc-nota" class="input" value=${nota} onInput=${(e) => setNota(e.currentTarget.value)} placeholder="Ej.: contestó la secretaria, que llame después de las 15" /></label>
+      ${n >= 3 ? html`<div class="note warn"><${Icon} name="info" /><div>Lleva ${n} intentos sin respuesta. Si prefieres cerrarlo, pásalo a Perdido con el motivo «No responde».</div></div>` : null}
     </div>
   </${Modal}>`;
 }
@@ -4339,7 +4503,7 @@ function LostModal({ lead }) {
 /* ===================================================================== ajustes */
 
 function toCsv(leads, nameOf) {
-  const cols = [["nombre", "Nombre"], ["empresa", "Empresa"], ["cargo", "Cargo"], ["telefono", "Teléfono"], ["correo", "Correo"], ["etapa", "Etapa"], ["origen", "Origen"], ["prioridad", "Prioridad"], ["proxima_tipo", "Próxima acción"], ["proxima_fecha", "Fecha próxima acción"], ["proxima_nota", "Nota próxima acción"], ["ultimoContacto", "Último contacto"], ["responsable", "Responsable"], ["necesidad", "Necesidad"], ["notas", "Notas"], ["creado", "Creado"]];
+  const cols = [["nombre", "Nombre"], ["empresa", "Empresa"], ["cargo", "Cargo"], ["telefono", "Teléfono"], ["correo", "Correo"], ["etapa", "Etapa"], ["origen", "Origen"], ["prioridad", "Prioridad"], ["proxima_tipo", "Próxima acción"], ["proxima_fecha", "Fecha próxima acción"], ["proxima_nota", "Nota próxima acción"], ["ultimoContacto", "Último contacto"], ["intentos", "Llamadas sin respuesta"], ["responsable", "Responsable"], ["necesidad", "Necesidad"], ["dolor", "Dolor"], ["comoAyudamos", "Cómo ayudamos"], ["motivoPerdida", "Motivo de pérdida"], ["notas", "Notas"], ["creado", "Creado"]];
   const val = (l, k) => {
     if (k === "etapa") return etapaLabel(l.etapa);
     if (k === "origen") return origenLabel(l.origen);
@@ -4580,6 +4744,7 @@ function App() {
     if (!uid) return "—";
     if (uid === "claude") return "Claude";
     if (uid === "equipo") return "Equipo";
+    if (respNombre(uid)) return respNombre(uid);
     if (equipo[uid] && equipo[uid].nombre) return equipo[uid].nombre;
     if (profiles[uid] && profiles[uid].name) return profiles[uid].name;
     if (uid === me.id) return "Tú";
@@ -4661,7 +4826,10 @@ function App() {
 
   const canWrite = me.canWrite !== false && !readOnly;
   const leadsById = useMemo(() => Object.fromEntries((leads || []).map((l) => [l.id, l])), [leads]);
-  const team = useMemo(() => { const s = new Set(Object.keys(equipo)); if (me.id) s.add(me.id); (leads || []).forEach((l) => l.responsable && /^u_/.test(l.responsable) && s.add(l.responsable)); return [...s]; }, [equipo, me.id, leads]);
+  /* Responsables: Lorenzo y Nicolás, más algún valor antiguo que siga en los datos (para no perderlo). */
+  const team = useMemo(() => { const s = new Set(RESPONSABLES.map((r) => r[0])); [leads, clientes, proyectos, solicitudes].forEach((arr) => (arr || []).forEach((x) => x.responsable && s.add(x.responsable))); return [...s]; }, [leads, clientes, proyectos, solicitudes]);
+  /* Quién abre el CRM: por el nombre de su firma o de su perfil; si no se reconoce, el último que eligió. */
+  const yo = respDeNombre((equipo[me.id] && equipo[me.id].nombre) || me.name || "") || (respNombre(ls.get("respUltimo", "")) ? ls.get("respUltimo", "") : "");
   const clientesById = useMemo(() => Object.fromEntries((clientes || []).map((c) => [c.id, c])), [clientes]);
   const proyectosById = useMemo(() => Object.fromEntries((proyectos || []).map((p) => [p.id, p])), [proyectos]);
   const hoyKey = todayKey();
@@ -4699,7 +4867,7 @@ function App() {
   }, [wrapApi, sampleState.fn, equipo, me.id, cfg, toast]);
 
   const ctx = {
-    db, api: wrapApi, me, leads: leads || [], leadsById, acts, drafts, equipo, cfg, sampleState, setSampleState, downloads, toast, nameOf, team, borradoresDeTareas,
+    db, api: wrapApi, me, yo, leads: leads || [], leadsById, acts, drafts, equipo, cfg, sampleState, setSampleState, downloads, toast, nameOf, team, borradoresDeTareas,
     clientes: clientes || [], clientesById, proyectos: proyectos || [], proyectosById, cobros: cobros || [], mantenciones: mantenciones || [], solicitudes: solicitudes || [],
     openLead, openCliente, openProyecto, openDraft, openModal, closeModal, nav, changeStage, moveProyecto, canWrite, profileName: me.name,
   };
@@ -4762,6 +4930,7 @@ function App() {
       ${modal.type === "import" ? html`<${ImportModal} />` : null}
       ${modal.type === "draft" ? html`<${DraftEditor} id=${modal.id} />` : null}
       ${modal.type === "lost" ? html`<${LostModal} lead=${modal.lead} />` : null}
+      ${modal.type === "noContesto" ? html`<${NoContestoModal} lead=${modal.lead} />` : null}
       ${modal.type === "won" ? html`<${WonModal} lead=${modal.lead} />` : null}
       ${modal.type === "newCliente" ? html`<${NewClienteModal} />` : null}
       ${modal.type === "newProyecto" ? html`<${NewProyectoModal} clienteId=${modal.clienteId} />` : null}

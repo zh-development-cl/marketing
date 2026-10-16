@@ -25,7 +25,7 @@ const iso = (n) => new Date(Date.now() + n * 864e5).toISOString();
 const SEED = {
   ["equipo/" + ME]: { nombre: "Lorenzo Bozzo", cargo: "Socio fundador", telefono: "+56955551234", correo: "lorenzo@zhdevelopment.cl" },
   "config/general": { agendaUrl: "https://zhdevelopment.cl/#agendar" },
-  "leads/lead-mic": { nombre: "Andrea Fuentes", empresa: "Ferretería Andes", cargo: "", telefono: "+56922223333", correo: "", etapa: "nuevo", prioridad: "media", trato: "tu", intentos: 0, proxima: null, origen: "web", necesidad: "Ordenar el inventario", creado: iso(-2), actualizado: iso(-2), creadoPor: ME },
+  "leads/lead-mic": { nombre: "Andrea Fuentes", empresa: "Ferretería Andes", cargo: "", telefono: "+56922223333", correo: "", etapa: "nuevo", prioridad: "media", trato: "tu", intentos: 0, proxima: null, origen: "web", necesidad: "Ordenar el inventario", dolor: "Cuentan el inventario a mano cada mes", comoAyudamos: "Inventario en línea con alertas de quiebre de stock", creado: iso(-2), actualizado: iso(-2), creadoPor: ME },
   "clientes/cli-mic": { nombre: "Taller Sur", razonSocial: "", rut: "", contactos: [{ id: "ct-1", nombre: "Jorge Pérez", cargo: "Dueño", correo: "jorge@tallersur.cl", telefono: "+56944445555", rol: "decisor", principal: true }], responsable: ME, trato: "tu", leadIds: [], estado: "activo", notas: "", creado: iso(-30), actualizado: iso(-30), creadoPor: ME },
 };
 const FRASES = ["hola andrea te llamo de zh por lo del inventario", "la verdad lo encuentro un poco caro", "nos interesa ver una demo la próxima semana", "mándame la propuesta al correo"];
@@ -92,6 +92,7 @@ const FRASES = ["hola andrea te llamo de zh por lo del inventario", "la verdad l
   const pVivo = (await page.evaluate(() => window.__mockPrompts)).pop();
   ok(opts.length === 1 && opts[0].model === "claude-haiku-5-5" && opts[0].modelTier === "quick" && opts[0].cache === false, "la consulta va a Claude Haiku, rápida y sin caché");
   ok(pVivo.includes("La verdad lo encuentro un poco caro") && pVivo.includes("Ferretería Andes") && pVivo.includes("no separa quién habla"), "Haiku recibe lo último de la llamada y los datos del lead");
+  ok(pVivo.includes("Cuentan el inventario a mano cada mes") && pVivo.includes("Inventario en línea con alertas"), "y el dolor y cómo ayudamos que se prepararon antes de llamar");
   ok((await page.locator(".coach-pista").count()) === 0, "al usar la ayuda se apaga el aviso");
   await shot(page, "m03-apoyo.png");
   await page.getByRole("button", { name: "Detener" }).click();
@@ -113,6 +114,7 @@ const FRASES = ["hola andrea te llamo de zh por lo del inventario", "la verdad l
   const prompts = await page.evaluate(() => window.__mockPrompts);
   const pLlamada = prompts[prompts.length - 1];
   ok(pLlamada.includes("hecha en vivo con el micrófono del computador") && pLlamada.includes("Mándame la propuesta al correo"), "Claude recibe la transcripción y sabe que viene del micrófono, sin separar voces");
+  ok(pLlamada.includes("Dolor que suponemos (hipótesis sin confirmar") && pLlamada.includes("Cuentan el inventario a mano"), "el análisis sabe qué dolor suponíamos, marcado como hipótesis");
   ok(pLlamada.includes('"tareas"') && pLlamada.includes("descubrimiento (hizo preguntas abiertas"), "Claude debe devolver las tareas acordadas y evaluar con los criterios");
   ok((await page.locator(".work .eval-score").innerText()).startsWith("67"), "el puntaje es el promedio de los criterios × 20 (67)");
   ok(await page.locator(".work .crit", { hasText: "Objeciones" }).locator("i.on").count() === 2, "cada criterio muestra su nota");
