@@ -129,11 +129,15 @@ Guion en `guiones-llamadas-2.md`. Pitch: el pedido recurrente entra solo, la cot
 
 Resumen y propuesta en `oportunidad-vinoprint.md`. Lorenzo lo llama mañana viernes a las 10 para proponerle el diagnóstico ese mismo día.
 
-**Jueves en la noche, WhatsApp que cumple el "te hablo hoy" y deja la llamada avisada:**
+**Jueves en la noche, WhatsApp que cumple el "te hablo hoy" y pide la reunión de 30 minutos:**
 
-> Hola César! Lorenzo acá, de ZH Development. Te dije que iba a revisar lo de Twist y lo hice, por eso te escribo tarde
+> César, Lorenzo de ZH. Perdona la hora, me quedé metido en lo de Twist y quería escribirte hoy como quedamos
 >
-> En corto: Twist es un ERP completo, con planes públicos entre 299 y 400 dólares al mes, y lo que tú usas es una parte chica, el cotizador. Eso se puede hacer propio, con tus fórmulas, y sin pagar mensual. Mañana a las 10 te llamo y te cuento cómo lo haríamos, y si puedes vemos el diagnóstico mañana mismo
+> Lo que vi: tienen planes como de 300 a 400 dólares al mes y tú ocupas solo el cotizador. Eso se puede armar aparte, con tus fórmulas, y te olvidas de la mensualidad. ¿Te tinca que lo conversemos media hora por Meet? Puede ser mañana a las 12 o a las 4, o el martes si te acomoda más. Me dices y te mando la invitación al correo
+
+- **Si responde con una hora:** evento de 30 minutos con Meet a cesar.aldana@vinoprint.cl, y un "listo, te llegó la invitación".
+- **Si responde algo vago:** "Dale, te llamo a las 10 y lo cuadramos".
+- **Si no responde:** la llamada de las 10 de abajo, abriendo con "te escribí anoche por lo de Twist".
 
 **La llamada, viernes 10:00.** Sin apertura en frío: ya hablaron.
 
