@@ -1327,6 +1327,7 @@ function leadContexto(lead, hist) {
   add("Cómo llegó", origenLabel(lead.origen)); add("Etapa", etapaLabel(lead.etapa)); add("Qué necesita", lead.necesidad);
   add("Dolor que suponemos (hipótesis sin confirmar: no la afirmes como un hecho)", lead.dolor); add("Cómo podría ayudar ZH (idea interna: propónla en condicional)", lead.comoAyudamos);
   add("Notas internas (solo contexto)", lead.notas);
+  if (Number(lead.inasistencias) > 0) add("Reuniones a las que no se presentó", String(lead.inasistencias));
   add("Guion preparado para hablar con el lead (referencia interna, no lo cites)", clip(lead.guion, 3000));
   if (lead.proxima && lead.proxima.fecha) add("Próxima acción planificada", `${accionLabel(lead.proxima.tipo)} el ${lead.proxima.fecha}${lead.proxima.nota ? " (" + lead.proxima.nota + ")" : ""}`);
   L.push("", "HISTORIAL (más reciente primero)");
@@ -2427,7 +2428,7 @@ function LeadCard({ l, ultima, onPointerDown }) {
       : abierto ? html`<div class="knext vacio">Sin tarea${canWrite ? html` · <button type="button" class="linkbtn tagbtn" onClick=${accion("tareas")}>agregar</button>` : null}</div>`
       : etapa === "perdido" ? html`<div class="kcard-tags">${l.motivoPerdida ? html`<span class="tag late">${l.motivoPerdida}</span>` : canWrite ? html`<button type="button" class="tag warn tagbtn" onClick=${ventana({ type: "lost", lead: l })}>Falta el motivo</button>` : html`<span class="tag warn">Sin motivo</span>`}</div>`
       : etapa === "ganado" ? html`<div class="kcard-tags"><${GanadoTag} l=${l} /></div>` : null}
-    ${l.intentos && abierto && !l.noContactar ? html`<div class="kcard-tags"><span class="tag warn" title="Llamadas seguidas sin respuesta">${l.intentos} sin respuesta</span></div>` : null}
+    ${(l.intentos || l.inasistencias) && abierto && !l.noContactar ? html`<div class="kcard-tags">${l.intentos ? html`<span class="tag warn" title="Llamadas seguidas sin respuesta">${l.intentos} sin respuesta</span>` : null}${l.inasistencias ? html`<span class="tag warn" title="Veces que no se presentó a una reunión">No se presentó${l.inasistencias > 1 ? " ×" + l.inasistencias : ""}</span>` : null}</div>` : null}
     ${ultima ? html`<span class="kcard-act"><${Icon} name=${ACT_ICON[ultima.tipo] || "note"} size=${12} /><span>${actTitulo(ultima)} · ${ago(ultima.fecha)}</span></span>` : null}
     <div class="kcard-foot">
       <${RespAvatar} valor=${l.responsable} quien=${leadTitulo(l)} guardar=${(nv) => api.updateLead(l.id, { responsable: nv })} />
@@ -2817,6 +2818,7 @@ function LeadDrawer({ id, tab: initialTab, onClose }) {
           ${lead.etapa === "perdido" ? (canWrite ? html`<button type="button" class=${cx("tag tagbtn", lead.motivoPerdida ? "late" : "warn")} title="Cambiar el motivo" onClick=${() => openModal({ type: "lost", lead })}>${lead.motivoPerdida || "Falta el motivo"}</button>` : html`<span class="tag late">${lead.motivoPerdida || "Sin motivo"}</span>`) : null}
           ${lead.prioridad === "alta" ? html`<span class="tag warn">Prioridad alta</span>` : null}
           ${lead.intentos ? html`<span class="tag">${lead.intentos} ${lead.intentos === 1 ? "llamada" : "llamadas"} sin respuesta</span>` : null}
+          ${lead.inasistencias ? html`<span class="tag warn">${lead.inasistencias === 1 ? "No se presentó a 1 reunión" : `No se presentó a ${lead.inasistencias} reuniones`}</span>` : null}
           ${lead.caso ? html`<span class="tag" title="Caso en el repositorio propuestaszh">Caso ${lead.caso}</span>` : null}
           ${noc ? html`<span class="tag late">No contactar</span>` : null}
           ${lead.clienteId && clientesById[lead.clienteId] ? html`<button class="btn small" onClick=${() => openCliente(lead.clienteId)}><${Icon} name="building" />Ver cliente</button>` : lead.etapa === "ganado" && canWrite ? html`<button class="btn small primary" onClick=${() => openModal({ type: "won", lead })}><${Icon} name="building" />Convertir en cliente</button>` : null}
@@ -5162,15 +5164,23 @@ function AgendarModal({ lead: lead0, tarea, desdeEtapa }) {
 }
 
 /* Pasada la hora de la reunión: ¿se hizo? «Sí» la da por hecha, pasa el lead a «Reunión
-   concretada» y abre «Registrar reunión» para que Claude arme las tareas que salieron. */
+   concretada» y abre «Registrar reunión» para que Claude arme las tareas que salieron. Si el lead
+   no se presentó, se le escribe para reagendar (con el WhatsApp redactado) o se da por perdido. */
+const fechaTxt = (f, h) => `${fmtLong.format(keyDate(f)).replace(",", "")}${isHora(h) ? " a las " + h : ""}`;
 function ReunionHechaModal({ lead: lead0, tarea }) {
-  const { closeModal, api, toast, marcarTarea, moverEtapa, openLead, yo, canWrite, leadsById } = useCtx();
+  const { closeModal, api, toast, marcarTarea, moverEtapa, openLead, yo, canWrite, leadsById, cerrarTareasDe, redactarTareas, sampleState } = useCtx();
   const lead = leadsById[lead0.id] || lead0;
+  const veces = (Number(lead.inasistencias) || 0) + 1;
+  const cuando = `${cuandoTexto(tarea.fecha)}${isHora(tarea.hora) ? " a las " + tarea.hora : ""}`;
+  const nota = `No se presentó a la reunión del ${fechaTxt(tarea.fecha, tarea.hora)}.`;
   const [modo, setModo] = useState("si");
+  const [tras, setTras] = useState(veces >= 2 ? "perdido" : "reagendar");
+  const [motivo, setMotivo] = useState("No responde");
+  const [detalle, setDetalle] = useState(nota);
   const [fecha, setFecha] = useState(addBusinessDays(todayKey(), 1));
   const [hora, setHora] = useState(isHora(tarea.hora) ? tarea.hora : "11:00");
   const [saving, setSaving] = useState(false);
-  const cuando = `${cuandoTexto(tarea.fecha)}${isHora(tarea.hora) ? " a las " + tarea.hora : ""}`;
+  const conWa = !!(sampleState.fn && lead.telefono && !lead.noContactar);
   const guardar = async () => {
     setSaving(true);
     try {
@@ -5182,30 +5192,53 @@ function ReunionHechaModal({ lead: lead0, tarea }) {
         toast(`${leadTitulo(lead)}: Reunión concretada. Cuenta lo que se habló y Claude arma las tareas.`);
         return;
       }
+      if (modo === "noshow") {
+        await marcarTarea(tarea, "descartada", { resultado: "no_se_presento" });
+        if (tras === "perdido") {
+          await cerrarTareasDe(lead.id);
+          const d = detalle.trim() || nota;
+          await api.updateLead(lead.id, { etapa: "perdido", motivoPerdida: motivo, motivoDetalle: d, proxima: null, inasistencias: veces });
+          await api.addAct({ leadId: lead.id, tipo: "etapa", de: etapaDe(lead), a: "perdido", resumen: `${motivo}: ${d}` });
+          toast(`${leadTitulo(lead)}: perdido · ${motivo}.`);
+        } else {
+          await api.updateLead(lead.id, { inasistencias: veces });
+          await api.addAct({ leadId: lead.id, tipo: "nota", resumen: nota });
+          const tid = await api.createTarea({ leadId: lead.id, tipo: "whatsapp", titulo: "Escribirle para reagendar la reunión", fecha: todayKey(), hora: "", responsable: tarea.responsable || lead.responsable || yo || null, estado: "pendiente", origen: "reunion" });
+          if (conWa) redactarTareas(lead, [{ tipo: "whatsapp", que: "Reagendar la reunión", tareaId: tid, objetivo: "agendar", instrucciones: `${nota} Escríbele con buena onda y sin reproche: que lo esperamos, que entendemos que se le pudo complicar, y propón dos horarios para esta semana o el enlace para agendar. Breve.` }]);
+          toast(`${leadTitulo(lead)}: queda la tarea de escribirle para reagendar.${conWa ? " Claude está redactando el WhatsApp." : ""}`);
+        }
+        closeModal();
+        return;
+      }
       if (modo === "reagendar") {
         if (!isKey(fecha)) { toast("Elige el día nuevo.", "bad"); setSaving(false); return; }
         const datos = { fecha, hora: isHora(hora) ? hora : "" };
         if (tarea.virtual) { await api.createTarea({ leadId: lead.id, tipo: "reunion", titulo: tarea.titulo || "Reunión", ...datos, duracion: DURACION_REUNION, responsable: lead.responsable || yo || null, estado: "pendiente", origen: "manual" }); await api.updateLead(lead.id, { proxima: null }); }
         else await api.updateTarea(tarea.id, datos);
-        const nuevo = `${cuandoTexto(fecha)}${datos.hora ? " a las " + datos.hora : ""}`;
-        await api.addAct({ leadId: lead.id, tipo: "nota", resumen: `La reunión de ${cuando} se cambió para ${nuevo}.` });
-        toast(`${leadTitulo(lead)}: reunión ${nuevo}.`);
+        await api.addAct({ leadId: lead.id, tipo: "nota", resumen: `La reunión del ${fechaTxt(tarea.fecha, tarea.hora)} se cambió para el ${fechaTxt(fecha, datos.hora)}.` });
+        toast(`${leadTitulo(lead)}: reunión ${cuandoTexto(fecha)}${datos.hora ? " a las " + datos.hora : ""}.`);
         closeModal();
         return;
       }
       await marcarTarea(tarea, "descartada");
       await api.createTarea({ leadId: lead.id, tipo: "agendar", titulo: "Reagendar la reunión", fecha: todayKey(), hora: "", responsable: tarea.responsable || lead.responsable || yo || null, estado: "pendiente", origen: "reunion" });
-      await api.addAct({ leadId: lead.id, tipo: "nota", resumen: `No se hizo la reunión de ${cuando}. Queda la tarea de reagendarla.` });
+      await api.addAct({ leadId: lead.id, tipo: "nota", resumen: `No se hizo la reunión del ${fechaTxt(tarea.fecha, tarea.hora)}. Queda la tarea de reagendarla.` });
       toast(`${leadTitulo(lead)}: queda la tarea de reagendar la reunión.`);
       closeModal();
     } catch (e) { toast(dbErrorText(e), "bad"); setSaving(false); }
   };
-  const foot = html`<button class="btn ghost" onClick=${closeModal}>Cancelar</button><button class="btn primary" onClick=${guardar} disabled=${saving || !canWrite}>${saving ? "Guardando…" : modo === "si" ? "Guardar y registrar la reunión" : "Guardar"}</button>`;
+  const foot = html`<button class="btn ghost" onClick=${closeModal}>Cancelar</button><button class="btn primary" onClick=${guardar} disabled=${saving || !canWrite}>${saving ? "Guardando…" : modo === "si" ? "Guardar y registrar la reunión" : modo === "noshow" && tras === "perdido" ? "Pasar a Perdido" : "Guardar"}</button>`;
   return html`<${Modal} title=${"¿Se hizo la reunión con " + leadTitulo(lead) + "?"} onClose=${closeModal} foot=${foot} labelId="hecha-title">
     <div class="modal-body">
       <p class="small muted">${tarea.titulo || "Reunión"} · ${cuando}</p>
-      <${Seg} label="¿Se hizo?" value=${modo} onChange=${setModo} options=${[["si", "Sí, se hizo"], ["reagendar", "La cambiamos"], ["no", "No se hizo"]]} />
+      <${Chips} label="¿Se hizo?" value=${modo} onChange=${setModo} options=${[["si", "Sí, se hizo"], ["noshow", "No se presentó"], ["reagendar", "La cambiamos"], ["no", "No se hizo"]]} />
       ${modo === "si" ? html`<p class="small">El lead pasa a «Reunión concretada» y se abre «Registrar reunión»: graba o pega lo que se habló y Claude crea las tareas, como enviar la propuesta.</p>` : null}
+      ${modo === "noshow" ? html`
+        ${veces >= 2 ? html`<div class="note warn"><${Icon} name="info" /><div>${veces === 2 ? "Es la segunda vez que no se presenta." : `Ya van ${veces} veces que no se presenta.`}</div></div>` : null}
+        <div class="field"><span>¿Qué hacemos?</span><${Chips} label="Qué hacemos" value=${tras} onChange=${setTras} options=${[["reagendar", "Escribirle para reagendar"], ["perdido", "Darlo por perdido"]]} /></div>
+        ${tras === "reagendar" ? html`<p class="small">Queda una tarea para hoy: escribirle por WhatsApp para reagendar${conWa ? ", con el mensaje redactado por Claude" : ""}. El lead sigue en su etapa y la inasistencia queda anotada.</p>` : html`
+          <div class="field"><span>Motivo de pérdida</span><${Chips} label="Motivo" value=${motivo} onChange=${setMotivo} options=${MOTIVOS.map((m) => [m, m])} /></div>
+          <label class="field" for="rh-det"><span>Detalle</span><input id="rh-det" class="input" value=${detalle} onInput=${(e) => setDetalle(e.currentTarget.value)} /></label>`}` : null}
       ${modo === "reagendar" ? html`<div class="grid-2">
         <label class="field" for="rh-fecha"><span>Día nuevo</span><input id="rh-fecha" class="input" type="date" value=${fecha} onInput=${(e) => setFecha(e.currentTarget.value)} /></label>
         <label class="field" for="rh-hora"><span>Hora</span><input id="rh-hora" class="input" type="time" value=${hora} onInput=${(e) => setHora(e.currentTarget.value)} /></label>

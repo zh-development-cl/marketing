@@ -72,7 +72,11 @@ lleva día; `titulo` corto, empezando con un verbo; el detalle interno va en `no
 - **Completar** una tarea: `update` `{estado: "hecha", hecha: ahora, hechaPor: "claude"}`; si ya no
   sirve, `estado: "descartada"`. Nunca se borran. Y lo que corresponde según su tipo:
   - `agendar` → crea la tarea `reunion` con día y hora, y pasa el lead a `reunion_agendada`.
-  - `reunion` (cuando el socio confirma que se hizo) → `reunion_concretada`.
+  - `reunion` (cuando el socio confirma que se hizo) → `reunion_concretada`. Si **no se
+    presentó**: la tarea queda `descartada` con `resultado: "no_se_presento"`, el lead suma
+    `inasistencias` + 1 y una actividad `nota` («No se presentó a la reunión del …»); después, una
+    tarea de `whatsapp` para reagendar o, si el socio lo dice, `perdido` (por defecto con
+    `motivoPerdida: "No responde"` y el detalle en `motivoDetalle`).
   - `propuesta` → `propuesta` y, si no tiene otra tarea, una de `llamar` «Seguimiento de la
     propuesta» a los 3 días hábiles.
 - Lo automático **nunca retrocede** una etapa ni saca un lead de `ganado`; perdido o en pausa solo

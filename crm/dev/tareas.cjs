@@ -53,6 +53,11 @@ const SEED = {
   /* Para las llamadas con otros resultados. */
   "leads/lead-h": lead({ nombre: "Hugo Paz", empresa: "Fletes Paz", telefono: "+56912121212", etapa: "contactado" }),
   "leads/lead-i": lead({ nombre: "Irene Lagos", empresa: "Clínica Lagos", telefono: "+56913131313", etapa: "nuevo" }),
+  /* Para «No se presentó»: una primera vez y una segunda. */
+  "leads/lead-j": lead({ nombre: "Javiera Soto", empresa: "Óptica Central", telefono: "+56914141414", etapa: "reunion_agendada" }),
+  "tareas/tar-r3": tarea({ leadId: "lead-j", tipo: "reunion", titulo: "Reunión de descubrimiento", fecha: addDays(T, -1), hora: "15:00", duracion: 30 }),
+  "leads/lead-k": lead({ nombre: "Karen Mella", empresa: "Bodega Mella", telefono: "+56915151515", etapa: "reunion_agendada", inasistencias: 1 }),
+  "tareas/tar-r4": tarea({ leadId: "lead-k", tipo: "reunion", titulo: "Reunión reagendada", fecha: addDays(T, -3), hora: "10:00", duracion: 30 }),
 };
 
 (async () => {
@@ -119,6 +124,7 @@ const SEED = {
   ok(await card(page, "Imprenta Sur").locator(".knext.ask", { hasText: "¿Se hizo la reunión?" }).isVisible(), "después de la hora de la reunión, la tarjeta pregunta si se hizo");
   ok(await card(page, "Ferretería Este").locator(".knext", { hasText: "Mandarle el resumen por WhatsApp" }).isVisible(), "una «próxima acción» antigua, sin tarea, se ve igual que una tarea");
   ok(await card(page, "Fletes Paz").locator(".knext.vacio", { hasText: "Sin tarea" }).isVisible(), "y sin tareas, avisa");
+  ok(await card(page, "Bodega Mella").locator(".tag", { hasText: "No se presentó" }).isVisible(), "la tarjeta avisa si ya no se presentó a una reunión");
 
   /* ---------------- completar «Agendar» desde la tarjeta ---------------- */
   await card(page, "Viña Norte").locator(".tick").click();
@@ -235,11 +241,39 @@ const SEED = {
   /* ---------------- la reunión que no se hizo ---------------- */
   await tareasHoy.locator(".task", { hasText: "Café Central" }).getByRole("button", { name: "¿Se hizo?" }).click();
   await page.locator("#hecha-title").waitFor();
-  await page.locator(".modal .seg button", { hasText: "No se hizo" }).click();
+  await page.locator(".modal .chip", { hasText: "No se hizo" }).click();
   await page.locator(".modal .btn.primary").click();
   await toast(page, "Café Central: queda la tarea de reagendar la reunión.");
   dump = await store(page);
   ok(dump["tareas/tar-r2"].estado === "descartada" && docs(dump, "tareas").some((x) => x.leadId === "lead-e" && x.tipo === "agendar" && x.titulo === "Reagendar la reunión" && x.fecha === T), "si no se hizo, la reunión se descarta y queda la tarea de reagendarla");
+
+  /* ---------------- no se presentó: reagendar o perdido ---------------- */
+  await tareasHoy.locator(".task", { hasText: "Óptica Central" }).getByRole("button", { name: "¿Se hizo?" }).click();
+  await page.locator("#hecha-title", { hasText: "Óptica Central" }).waitFor();
+  await page.locator(".modal .chip", { hasText: "No se presentó" }).click();
+  ok(await page.locator(".modal .chip[aria-pressed=true]", { hasText: "Escribirle para reagendar" }).isVisible(), "«No se presentó» propone, la primera vez, escribirle para reagendar");
+  await shot(page, "t09-no-se-presento.png");
+  await page.locator(".modal .btn.primary", { hasText: "Guardar" }).click();
+  await toast(page, "Óptica Central: queda la tarea de escribirle para reagendar.");
+  dump = await store(page);
+  ok(dump["tareas/tar-r3"].estado === "descartada" && dump["tareas/tar-r3"].resultado === "no_se_presento" && dump["leads/lead-j"].inasistencias === 1 && dump["leads/lead-j"].etapa === "reunion_agendada", "la reunión queda como «no se presentó», con la inasistencia anotada y el lead en su etapa");
+  ok(docs(dump, "actividades").some((a) => a.leadId === "lead-j" && a.tipo === "nota" && String(a.resumen).startsWith("No se presentó a la reunión del")), "y queda en el historial");
+  await toast(page, "Quedó redactado 1 borrador");
+  dump = await store(page);
+  const wr = docs(dump, "tareas").find((x) => x.leadId === "lead-j" && x.tipo === "whatsapp" && x.titulo === "Escribirle para reagendar la reunión");
+  ok(wr && wr.fecha === T && wr.borradorId && dump["borradores/" + wr.borradorId] && dump["borradores/" + wr.borradorId].objetivo === "agendar", "queda la tarea de escribirle hoy, con el WhatsApp para reagendar redactado por Claude");
+  const pReag = (await page.evaluate(() => window.__mockPrompts)).filter((x) => x.includes("Escribe un mensaje de WhatsApp") && x.includes("No se presentó a la reunión del")).pop();
+  ok(pReag && pReag.includes("sin reproche"), "Claude sabe que no se presentó y escribe sin reproche");
+  await tareasHoy.locator(".task", { hasText: "Bodega Mella" }).getByRole("button", { name: "¿Se hizo?" }).click();
+  await page.locator("#hecha-title", { hasText: "Bodega Mella" }).waitFor();
+  await page.locator(".modal .chip", { hasText: "No se presentó" }).click();
+  ok(await page.locator(".modal .note", { hasText: "Es la segunda vez que no se presenta" }).isVisible() && await page.locator(".modal .chip[aria-pressed=true]", { hasText: "Darlo por perdido" }).isVisible(), "a la segunda vez, avisa y propone darlo por perdido");
+  ok((await page.inputValue("#rh-det")).startsWith("No se presentó a la reunión del"), "con el motivo «No responde» y el detalle ya escritos");
+  await page.locator(".modal .btn.primary", { hasText: "Pasar a Perdido" }).click();
+  await toast(page, "Bodega Mella: perdido · No responde.");
+  dump = await store(page);
+  const lk = dump["leads/lead-k"];
+  ok(lk.etapa === "perdido" && lk.motivoPerdida === "No responde" && lk.motivoDetalle.startsWith("No se presentó") && lk.inasistencias === 2 && lk.proxima === null && dump["tareas/tar-r4"].estado === "descartada", "y lo pasa a Perdido con su motivo, sin tareas pendientes");
 
   /* ---------------- «proxima» antigua: se vuelve tarea al editarla ---------------- */
   await tareasHoy.locator(".task", { hasText: "Ferretería Este" }).locator(".task-meta button", { hasText: "Ferretería Este" }).click();
