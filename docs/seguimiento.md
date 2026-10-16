@@ -7,7 +7,7 @@ Actualizado: 2026-10-14. Las fechas suponen que las llamadas fueron el miércole
 | Empresa | Contacto | Resultado | Próximo paso | Cuándo | Quién |
 |---------|----------|-----------|--------------|--------|-------|
 | Lubri Express | Alex Núñez | Ya trabajan con un equipo de Valdivia. Ofreció referir. | WhatsApp pidiendo referidos | Hoy | Bozzo |
-| VinoPrint | César Aldana | Usa Twist Print, solo cotizaciones, paga mucho, quiere algo propio. Aceptó reunión por WhatsApp el 15. | Diagnóstico por Meet; invitación a cesar.aldana@vinoprint.cl; WhatsApp de confirmación el lunes a las 10. Ver `oportunidad-vinoprint.md` | Lun 19 oct, 11:00 | Bozzo |
+| VinoPrint | César Aldana | Usa Twist Print, solo cotizaciones, paga mucho, quiere algo propio. Aceptó reunión por WhatsApp el 15. | Diagnóstico por Meet; invitación a cesar.aldana@vinoprint.cl; llamada de recordatorio el lunes a las 10:30. Ver `oportunidad-vinoprint.md` | Lun 19 oct, 11:00 | Bozzo |
 | Logística Integral | Pablo Salazar | Pidió que lo llamen. | Llamar | Jue 15 oct, 10:20 | Nik |
 | Gimeco | Felipe Contreras | Hablar en diciembre. | WhatsApp corto hoy; llamar en diciembre | Mar 1 dic | Nik |
 | Flosam | Julio Gutiérrez | Aceptó reunión. No dio su correo. | WhatsApp hoy pidiendo el correo; luego invitación de Meet | Vie 16 oct, 12:00 | Bozzo |
@@ -130,7 +130,7 @@ Guion en `guiones-llamadas-2.md`. Pitch: el pedido recurrente entra solo, la cot
 César aceptó por WhatsApp el jueves 15 en la noche: viaja a Talca el viernes, propuso el lunes a las 11. Resumen, propuesta y las ocho preguntas en `oportunidad-vinoprint.md`.
 
 - Evento en Google Calendar, lunes 19 de octubre, 11:00 a 11:30, con Meet, invitado cesar.aldana@vinoprint.cl. Descripción: "Me muestras cómo cotizas hoy en Twist con un trabajo real, y te digo qué tendría un cotizador propio, en cuánto tiempo y cuánto costaría comparado con lo que pagas."
-- Lunes a las 10, WhatsApp: "César, nos vemos a las 11, ¿sigue en pie?".
+- Lunes a las 10:30, llamada de recordatorio, como le prometió Lorenzo. Si no contesta, WhatsApp: "César, nos vemos a las 11, ¿sigue en pie?".
 - En la reunión: pedirle que comparta pantalla y cotice un trabajo real. Preguntar cuánto paga de Twist y cuántas viñas atiende, incluidas las de Talca.
 
 ### Logística Integral, jueves 15 a las 10:20 (Nik)
