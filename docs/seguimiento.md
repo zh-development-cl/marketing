@@ -10,7 +10,7 @@ Actualizado: 2026-10-14. Las fechas suponen que las llamadas fueron el miércole
 | VinoPrint | César Aldana | Usa Twist Print, solo cotizaciones, paga mucho, quiere algo propio. Aceptó reunión por WhatsApp el 15. | Diagnóstico por Meet; invitación a cesar.aldana@vinoprint.cl; llamada de recordatorio el lunes a las 10:30. Ver `oportunidad-vinoprint.md` | Lun 19 oct, 11:00 | Bozzo |
 | Logística Integral | Pablo Salazar | Pidió que lo llamen. | Llamar | Jue 15 oct, 10:20 | Nik |
 | Gimeco | Felipe Contreras | Hablar en diciembre. | WhatsApp corto hoy; llamar en diciembre | Mar 1 dic | Nik |
-| Flosam | Julio Gutiérrez | Aceptó reunión. No dio su correo. | WhatsApp hoy pidiendo el correo; luego invitación de Meet | Vie 16 oct, 12:00 | Bozzo |
+| Flosam | Julio Gutiérrez | Aceptó reunión. WhatsApp del jueves pidiendo correo, sin leer a las 21:30. | Viernes 9:30: invitación a jgutierrez@flosam.cl y WhatsApp; 11:30 llamada si no lee; fijo de Flosam +56 2 2611 9600 | Vie 16 oct, 12:00 | Bozzo |
 | Natufeed | José Miguel Figueroa | Quiere reunión. | WhatsApp para agendar | Hoy | Nik |
 | Mr Wash | Nicolás Edwards | Ya no trabaja ahí; está en un laboratorio. Puede hacer el nexo. | WhatsApp pidiendo el contacto | Hoy | Bozzo |
 | Megaklean | Harry Winkler | Pidió que lo llamen. | Llamar | Jue 15 oct, 11:00 | Bozzo |
@@ -149,7 +149,12 @@ Versión sin mostrar el correo: "¿me pasas tu correo y te mando la invitación 
 
 **Cuando responda:** evento en Google Calendar con Meet, 12:00 a 12:30. En la descripción: "Me cuentas cómo llevan hoy los containers en arriendo y te muestro cómo quedaría una ficha por container que avisa vencimientos y saca la factura sola. Si puedes, ten a mano la planilla con la que los controlan."
 
-**Si no responde hoy:** mañana en la mañana, mandar la invitación al correo de la base igual y avisar por WhatsApp.
+**Jueves 21:30: no había leído.** Plan del viernes:
+
+1. 9:30: evento de 12:00 a 12:30 con Meet, invitación a jgutierrez@flosam.cl.
+2. 9:35, WhatsApp: "Julio, te mandé la invitación de Meet para hoy a las 12 a jgutierrez@flosam.cl. Si prefieres otro correo me dices. Nos vemos a las 12".
+3. 11:30, si sigue sin leer: llamada al celular; si no contesta, al fijo de Flosam, +56 2 2611 9600.
+4. 12:00: entrar al Meet igual. 12:10 sin él: "Estoy en el Meet, ¿entramos?". 12:20 sin él: "Julio, parece que se te complicó hoy, sin problema. ¿Lo movemos al martes o miércoles a la misma hora?".
 
 **WhatsApp del jueves:**
 
