@@ -315,6 +315,45 @@ table.leads tbody tr:last-child td { border-bottom: 0; }
 .kcard:active { cursor: grabbing; }
 .kcard b { font-size: 14.5px; font-weight: 600; }
 .kcard span { font-size: 13px; color: var(--fg-3); }
+.kcard .tag { font-size: 11px; }
+.kcard { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.kcard.dragging { opacity: 0.35; }
+.kghost { position: fixed; left: 0; top: 0; z-index: 90; margin: 0; pointer-events: none; box-shadow: var(--shadow); opacity: 0.96; cursor: grabbing; }
+body.arrastrando, body.arrastrando * { cursor: grabbing !important; }
+body.arrastrando .board { scroll-snap-type: none; }
+/* Mientras se arrastra, los avisos suben y no tapan las zonas de Ganado, Perdido y En pausa. */
+body.arrastrando .toasts { bottom: calc(112px + env(safe-area-inset-bottom, 0px)); pointer-events: none; }
+.col-sum { margin: -2px 4px 2px; font-size: 12.5px; color: var(--fg-3); font-variant-numeric: tabular-nums; }
+.col-sum b { color: var(--fg-2); font-weight: 600; }
+.col-empty { margin: 0; padding: 6px 4px; font-size: 13px; color: var(--fg-3); }
+.kcard.lead { gap: 5px; }
+.kcard.lead:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.kcard-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.kcard-top b { overflow-wrap: anywhere; }
+.kcard .prio { flex: none; width: 8px; height: 8px; margin-top: 6px; border-radius: 50%; background: var(--bad); }
+.kcard .kcard-sub { overflow-wrap: anywhere; }
+.kcard .kcard-valor { font: 600 13px/1.3 var(--font-text); color: var(--fg); font-variant-numeric: tabular-nums; }
+.kcard .kcard-act { display: flex; align-items: center; gap: 5px; font-size: 12.5px; }
+.kcard .kcard-act svg { flex: none; }
+.kcard-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 6px; border-top: 1px solid var(--line); }
+.kcard .avatar { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font: 600 10.5px/1 var(--font-text); letter-spacing: 0.02em; }
+.kcard .avatar.vacio { background: var(--sunken); color: var(--fg-3); }
+.kacts { display: inline-flex; gap: 2px; }
+.kact { display: inline-grid; place-items: center; width: 30px; height: 30px; border: 0; border-radius: 8px; background: transparent; color: var(--fg-3); cursor: pointer; }
+.kact:hover { background: var(--sunken); color: var(--fg); }
+.dropbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 65; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px)); background: var(--surface); border-top: 1px solid var(--line); box-shadow: var(--shadow); }
+.dropzone { display: grid; place-items: center; gap: 6px; min-height: 66px; padding: 8px; border: 2px dashed var(--line); border-radius: var(--r-l); font-size: 13px; color: var(--fg-2); text-align: center; }
+.dropzone.on { border-color: var(--accent); background: var(--accent-soft); }
+.dropzone.ganado.on { border-color: var(--ok); background: var(--ok-soft); }
+.dropzone.perdido.on { border-color: var(--bad); background: var(--bad-soft); }
+.board.embudo { grid-auto-columns: minmax(208px, 1fr); }
+.board.embudo .kcard { grid-template-columns: minmax(0, 1fr); }
+.board.embudo .tag { white-space: normal; line-height: 1.3; }
+@media (max-width: 760px) {
+  .board.embudo { grid-auto-columns: minmax(250px, 84%); scroll-snap-type: x proximity; }
+  .board.embudo > .col { scroll-snap-align: start; }
+  .dropzone span:last-child { display: none; }
+}
 
 /* ---------- borradores ---------- */
 .dlist { display: grid; }
@@ -573,6 +612,11 @@ const ETAPAS = [
   { id: "pausa", label: "En pausa", tone: "muted", open: false },
 ];
 const ETAPA = Object.fromEntries(ETAPAS.map((e) => [e.id, e]));
+/* Probabilidad de cierre por etapa, para el valor ponderado del embudo. */
+const PROB_ETAPA = { nuevo: 0.05, contactado: 0.1, reunion: 0.25, propuesta: 0.5, negociacion: 0.75, ganado: 1, perdido: 0, pausa: 0 };
+const ORDEN_EMBUDO = [["proxima", "Por próxima acción"], ["actividad", "Por última actividad"], ["valor", "Por valor"], ["creado", "Más nuevos primero"]];
+const CERRADAS = ["ganado", "perdido", "pausa"];
+const SOLTAR_EN = { ganado: "Soltar para marcar como ganado", perdido: "Soltar para marcar como perdido", pausa: "Soltar para dejar en pausa" };
 const RUTA = ["nuevo", "contactado", "reunion", "propuesta", "negociacion"];
 const isOpen = (l) => (ETAPA[l.etapa] || ETAPA.nuevo).open;
 const contactable = (l) => isOpen(l) && !l.noContactar;
@@ -1383,7 +1427,8 @@ function NextTag({ proxima }) {
   if (!proxima || !proxima.fecha) return html`<span class="tag">Sin próxima acción</span>`;
   const d = diffDays(todayKey(), proxima.fecha);
   const cls = d < 0 ? "tag late" : d === 0 ? "tag today" : "tag";
-  const when = d < 0 ? `atrasada ${-d} d` : dayLabel(proxima.fecha);
+  /* La fecha va sin cortes de línea («sáb, 17 oct» no se parte en una tarjeta angosta). */
+  const when = (d < 0 ? `atrasada ${-d} d` : dayLabel(proxima.fecha)).replace(/ /g, "\u00a0");
   return html`<span class=${cls}>${accionLabel(proxima.tipo)} · ${when}</span>`;
 }
 function Thinking({ text }) {
@@ -1685,6 +1730,7 @@ function LeadsView() {
     <header class="page-head">
       <div><p class="eyebrow">${leads.length} en total · ${leads.filter(isOpen).length} abiertos</p><h1>Leads</h1></div>
       <div class="actions">
+        <${VistaLeads} actual="leads" />
         <button class="btn" onClick=${() => openModal({ type: "import" })}><${Icon} name="upload" />Importar</button>
         <button class="btn primary" onClick=${() => openModal({ type: "newLead" })}><${Icon} name="plus" />Nuevo lead</button>
       </div>
@@ -1725,33 +1771,216 @@ function LeadsView() {
 
 /* ===================================================================== vista: embudo */
 
+/* Arrastrar tarjetas entre columnas con mouse, dedo o lápiz (Pointer Events). Con el mouse parte
+   al mover unos píxeles; en pantallas táctiles, al mantener apretada la tarjeta un momento, para no
+   pelear con el scroll. Las columnas llevan data-col; cerca de los bordes el tablero avanza solo. */
+let finArrastre = 0;
+const recienArrastrado = () => Date.now() - finArrastre < 60;
+function useBoardDrag({ enabled, onDrop }) {
+  const [drag, setDrag] = useState(null);
+  const st = useRef(null);
+  const boardRef = useRef(null);
+  const soltar = useRef(onDrop);
+  soltar.current = onDrop;
+  const fin = (commit) => {
+    const s = st.current;
+    st.current = null;
+    if (!s) return;
+    clearTimeout(s.timer);
+    cancelAnimationFrame(s.raf);
+    window.removeEventListener("pointermove", s.move);
+    window.removeEventListener("pointerup", s.up);
+    window.removeEventListener("pointercancel", s.cancel);
+    window.removeEventListener("keydown", s.key);
+    document.removeEventListener("touchmove", s.block);
+    document.removeEventListener("contextmenu", s.noMenu);
+    if (s.ghost) s.ghost.remove();
+    if (s.card) s.card.classList.remove("dragging");
+    document.body.classList.remove("arrastrando");
+    if (!s.active) return;
+    finArrastre = Date.now();
+    /* El clic que el navegador manda justo después de soltar no debe abrir la tarjeta. */
+    const tragar = (e) => { e.stopPropagation(); e.preventDefault(); };
+    window.addEventListener("click", tragar, true);
+    setTimeout(() => window.removeEventListener("click", tragar, true), 0);
+    setDrag(null);
+    if (commit && s.over && s.over !== s.from) soltar.current(s.id, s.over);
+  };
+  useEffect(() => () => fin(false), []);
+  const start = (ev, id, from) => {
+    if (!enabled || st.current || ev.button > 0 || ev.isPrimary === false) return;
+    if (ev.target.closest("a, input, select, textarea, .kact")) return;
+    const card = ev.currentTarget;
+    const touch = ev.pointerType !== "mouse";
+    const s = { id, from, over: from, card, touch, pid: ev.pointerId, x0: ev.clientX, y0: ev.clientY, x: ev.clientX, y: ev.clientY, active: false };
+    st.current = s;
+    const mover = () => {
+      s.ghost.style.transform = `translate(${s.x - s.dx}px, ${s.y - s.dy}px) rotate(2deg)`;
+      const el = document.elementFromPoint(s.x, s.y);
+      const col = el && el.closest("[data-col]");
+      const over = col ? col.getAttribute("data-col") : null;
+      if (over !== s.over) { s.over = over; setDrag((d) => (d ? { ...d, over } : d)); }
+    };
+    const tick = () => {
+      if (st.current !== s) return;
+      const b = boardRef.current;
+      if (b) {
+        const r = b.getBoundingClientRect();
+        if (s.x < r.left + 56) b.scrollLeft -= 16;
+        else if (s.x > r.right - 56) b.scrollLeft += 16;
+      }
+      if (s.y < 48) window.scrollBy(0, -14);
+      else if (s.y > window.innerHeight - 48) window.scrollBy(0, 14);
+      s.raf = requestAnimationFrame(tick);
+    };
+    const activar = () => {
+      if (st.current !== s || s.active) return;
+      s.active = true;
+      const r = card.getBoundingClientRect();
+      s.dx = s.x0 - r.left;
+      s.dy = s.y0 - r.top;
+      const g = card.cloneNode(true);
+      g.classList.add("kghost");
+      g.removeAttribute("data-col");
+      g.style.width = r.width + "px";
+      document.body.appendChild(g);
+      s.ghost = g;
+      card.classList.add("dragging");
+      document.body.classList.add("arrastrando");
+      if (touch && navigator.vibrate) { try { navigator.vibrate(12); } catch (e) { /* sin vibración */ } }
+      setDrag({ id, from, over: from });
+      mover();
+      tick();
+    };
+    s.move = (e) => {
+      if (st.current !== s || e.pointerId !== s.pid) return;
+      s.x = e.clientX;
+      s.y = e.clientY;
+      if (!s.active) {
+        const d = Math.hypot(s.x - s.x0, s.y - s.y0);
+        if (touch) { if (d > 10) fin(false); return; }
+        if (d < 6) return;
+        activar();
+        return;
+      }
+      if (e.cancelable) e.preventDefault();
+      mover();
+    };
+    s.up = (e) => { if (e.pointerId === s.pid) fin(true); };
+    s.cancel = (e) => { if (e.pointerId === s.pid) fin(false); };
+    s.key = (e) => { if (e.key === "Escape") fin(false); };
+    s.block = (e) => { if (s.active && e.cancelable) e.preventDefault(); };
+    s.noMenu = (e) => { if (s.active || s.touch) e.preventDefault(); };
+    window.addEventListener("pointermove", s.move, { passive: false });
+    window.addEventListener("pointerup", s.up);
+    window.addEventListener("pointercancel", s.cancel);
+    window.addEventListener("keydown", s.key);
+    document.addEventListener("touchmove", s.block, { passive: false });
+    document.addEventListener("contextmenu", s.noMenu);
+    if (touch) s.timer = setTimeout(activar, 320);
+  };
+  return { drag, start, boardRef };
+}
+
+const iniciales = (n) => String(n || "").trim().split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join("").toUpperCase();
+
+function VistaLeads({ actual }) {
+  const { nav } = useCtx();
+  return html`<div class="seg" role="group" aria-label="Vista">
+    <button type="button" aria-pressed=${actual === "leads" ? "true" : "false"} onClick=${() => nav("leads")}><${Icon} name="list" />Tabla</button>
+    <button type="button" aria-pressed=${actual === "embudo" ? "true" : "false"} onClick=${() => nav("embudo")}><${Icon} name="stage" />Tablero</button>
+  </div>`;
+}
+
+function LeadCard({ l, ultima, onPointerDown }) {
+  const { openLead, nameOf, cfg } = useCtx();
+  const abierto = ETAPA[l.etapa || "nuevo"].open;
+  const wa = l.telefono && !l.noContactar ? waLink(l.telefono, "", cfg) : null;
+  const abrir = () => { if (!recienArrastrado()) openLead(l.id); };
+  const accion = (tab) => (e) => { e.stopPropagation(); openLead(l.id, tab); };
+  return html`<div class="kcard lead" role="button" tabindex="0" aria-label=${"Abrir " + leadName(l)} onPointerDown=${onPointerDown} onClick=${abrir} onKeyDown=${(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openLead(l.id); } }}>
+    <div class="kcard-top"><b>${leadName(l)}</b>${l.prioridad === "alta" ? html`<i class="prio" title="Prioridad alta"></i>` : null}</div>
+    ${leadSub(l) ? html`<span class="kcard-sub">${leadSub(l)}</span>` : null}
+    ${Number(l.valor) > 0 ? html`<span class="kcard-valor">${money(l.valor)} + IVA</span>` : null}
+    ${l.noContactar ? html`<div><span class="tag late">No contactar</span></div>` : abierto ? html`<div>${l.proxima && l.proxima.fecha ? html`<${NextTag} proxima=${l.proxima} />` : html`<span class="tag warn">Sin próxima acción</span>`}</div>` : null}
+    <span class="kcard-act">${ultima ? html`<${Icon} name=${ACT_ICON[ultima.tipo] || "note"} size=${13} />${clip(actTitulo(ultima), 34)} · ${ago(ultima.fecha)}` : "Sin actividad registrada"}</span>
+    <div class="kcard-foot">
+      <span class=${cx("avatar", !l.responsable && "vacio")} title=${l.responsable ? nameOf(l.responsable) : "Sin responsable"}>${l.responsable ? iniciales(nameOf(l.responsable)) || "·" : "·"}</span>
+      ${l.noContactar ? null : html`<span class="kacts">
+        ${l.telefono ? html`<button type="button" class="kact" title="Registrar llamada" aria-label=${"Registrar llamada con " + leadName(l)} onClick=${accion("llamada")}><${Icon} name="phone" size=${15} /></button>` : null}
+        ${wa ? html`<a class="kact" href=${wa} target="_blank" rel="noopener" title="Abrir WhatsApp" aria-label=${"WhatsApp a " + leadName(l)} onClick=${(e) => e.stopPropagation()}><${Icon} name="chat" size=${15} /></a>` : null}
+        <button type="button" class="kact" title="Redactar con Claude" aria-label=${"Redactar para " + leadName(l)} onClick=${accion("redactar")}><${Icon} name="spark" size=${15} /></button>
+        <button type="button" class="kact" title="Anotar" aria-label=${"Anotar algo de " + leadName(l)} onClick=${accion("otro")}><${Icon} name="note" size=${15} /></button>
+      </span>`}
+    </div>
+  </div>`;
+}
+
 function EmbudoView() {
-  const { leads, openLead, changeStage, canWrite } = useCtx();
-  const [over, setOver] = useState("");
+  const { leads, acts, openModal, changeStage, canWrite, nameOf, team, me } = useCtx();
   const [verCerrados, setVerCerrados] = useState(() => ls.get("verCerrados", false));
-  useEffect(() => ls.set("verCerrados", verCerrados), [verCerrados]);
+  const [q, setQ] = useState(() => ls.get("qEmb", ""));
+  const [resp, setResp] = useState(() => ls.get("respEmb", ""));
+  const [orden, setOrden] = useState(() => ls.get("ordenEmb", "proxima"));
+  useEffect(() => { ls.set("verCerrados", verCerrados); ls.set("qEmb", q); ls.set("respEmb", resp); ls.set("ordenEmb", orden); }, [verCerrados, q, resp, orden]);
+  const { drag, start, boardRef } = useBoardDrag({
+    enabled: canWrite,
+    onDrop: (id, etapa) => { const l = leads.find((x) => x.id === id); if (l && (l.etapa || "nuevo") !== etapa) changeStage(l, etapa); },
+  });
+  const ultima = useMemo(() => {
+    const m = {};
+    for (const a of acts) { if (a.leadId && a.tipo !== "etapa" && (!m[a.leadId] || String(a.fecha) > String(m[a.leadId].fecha))) m[a.leadId] = a; }
+    return m;
+  }, [acts]);
+  const qq = fold(q).trim();
+  const visibles = leads.filter((l) => {
+    if (resp === "mios" && l.responsable !== me.id) return false;
+    if (resp === "sin" && l.responsable) return false;
+    if (resp && resp !== "mios" && resp !== "sin" && l.responsable !== resp) return false;
+    return !qq || fold([l.nombre, l.empresa, l.cargo, l.correo, l.telefono, l.necesidad].join(" ")).includes(qq);
+  });
+  const fechaAct = (l) => String((ultima[l.id] || {}).fecha || l.ultimoContacto || l.actualizado || "");
+  const cmp = {
+    proxima: (a, b) => String((a.proxima && a.proxima.fecha) || "9999").localeCompare(String((b.proxima && b.proxima.fecha) || "9999")) || fechaAct(b).localeCompare(fechaAct(a)),
+    actividad: (a, b) => fechaAct(b).localeCompare(fechaAct(a)),
+    valor: (a, b) => (Number(b.valor) || 0) - (Number(a.valor) || 0) || fechaAct(b).localeCompare(fechaAct(a)),
+    creado: (a, b) => String(b.creado || "").localeCompare(String(a.creado || "")),
+  }[orden] || (() => 0);
+  const abiertos = visibles.filter((l) => ETAPA[l.etapa || "nuevo"].open);
+  const enJuego = sum(abiertos, (l) => l.valor);
+  const ponderado = Math.round(sum(abiertos, (l) => (Number(l.valor) || 0) * PROB_ETAPA[l.etapa || "nuevo"]));
   const cols = ETAPAS.filter((e) => e.open || verCerrados);
+  const otros = team.filter((u) => u !== me.id);
   return html`<div class="main-inner">
     <header class="page-head">
-      <div><p class="eyebrow">Arrastra una tarjeta para cambiar su etapa</p><h1>Embudo</h1></div>
-      <div class="actions"><label class="check"><input type="checkbox" id="ver-cerrados" checked=${verCerrados} onChange=${(e) => setVerCerrados(e.currentTarget.checked)} />Mostrar ganados, perdidos y en pausa</label></div>
+      <div><p class="eyebrow">${abiertos.length} ${abiertos.length === 1 ? "abierto" : "abiertos"}${enJuego ? ` · ${money(enJuego)} en juego · ${money(ponderado)} ponderado` : ""}</p><h1>Embudo</h1>
+        <p class="lede">${canWrite ? (pantallaTactil() ? "Mantén apretada una tarjeta y arrástrala a otra etapa." : "Arrastra las tarjetas de una etapa a otra.") + " Al soltar en «Ganado» se crea el cliente." : "Solo lectura."}</p></div>
+      <div class="actions">
+        <${VistaLeads} actual="embudo" />
+        <button class="btn primary" onClick=${() => openModal({ type: "newLead" })} disabled=${!canWrite}><${Icon} name="plus" />Nuevo lead</button>
+      </div>
     </header>
-    <div class="board">
+    <div class="toolbar">
+      <label class="search"><span class="sr">Buscar en el embudo</span><${Icon} name="search" /><input id="buscar-emb" class="input" type="search" placeholder="Buscar por nombre, empresa, correo o teléfono" value=${q} onInput=${(e) => setQ(e.currentTarget.value)} /></label>
+      <select id="emb-resp" class="select" aria-label="Responsable" value=${resp} onChange=${(e) => setResp(e.currentTarget.value)}>
+        <option value="">Todos los responsables</option><option value="mios">Míos</option>${otros.map((u) => html`<option value=${u}>${nameOf(u)}</option>`)}<option value="sin">Sin responsable</option>
+      </select>
+      <select id="emb-orden" class="select" aria-label="Ordenar" value=${orden} onChange=${(e) => setOrden(e.currentTarget.value)}>${ORDEN_EMBUDO.map(([v, t]) => html`<option value=${v}>${t}</option>`)}</select>
+      <label class="check"><input type="checkbox" id="ver-cerrados" checked=${verCerrados} onChange=${(e) => setVerCerrados(e.currentTarget.checked)} />Ganados, perdidos y en pausa</label>
+    </div>
+    <div class="board embudo" ref=${boardRef}>
       ${cols.map((e) => {
-        const items = leads.filter((l) => (l.etapa || "nuevo") === e.id).sort((a, b) => String(b.actualizado || "").localeCompare(String(a.actualizado || "")));
-        return html`<div key=${e.id} class=${cx("col", over === e.id && "drop")}
-          onDragOver=${(ev) => { if (!canWrite) return; ev.preventDefault(); if (over !== e.id) setOver(e.id); }}
-          onDragLeave=${() => setOver("")}
-          onDrop=${(ev) => { ev.preventDefault(); setOver(""); const id = ev.dataTransfer.getData("text/plain"); const l = leads.find((x) => x.id === id); if (l && l.etapa !== e.id) changeStage(l, e.id); }}>
+        const items = visibles.filter((l) => (l.etapa || "nuevo") === e.id).sort(cmp);
+        const total = sum(items, (l) => l.valor);
+        return html`<div key=${e.id} data-col=${e.id} class=${cx("col", drag && drag.over === e.id && drag.from !== e.id && "drop")}>
           <div class="col-head"><${StagePill} etapa=${e.id} /><span class="count">${items.length}</span></div>
-          ${items.map((l) => html`<button key=${l.id} class="kcard" draggable=${canWrite ? "true" : "false"} onDragStart=${(ev) => { ev.dataTransfer.setData("text/plain", l.id); ev.dataTransfer.effectAllowed = "move"; }} onClick=${() => openLead(l.id)}>
-            <b>${leadName(l)}</b>${leadSub(l) ? html`<span>${leadSub(l)}</span>` : null}
-            <div>${l.noContactar ? html`<span class="tag late">No contactar</span>` : html`<${NextTag} proxima=${l.proxima} />`}</div>
-          </button>`)}
-          ${!items.length ? html`<p class="small muted" style="padding:6px 4px">Sin leads</p>` : null}
+          ${total ? html`<p class="col-sum"><b>${money(total)}</b>${e.open ? ` · ${money(Math.round(total * PROB_ETAPA[e.id]))} ponderado (${Math.round(PROB_ETAPA[e.id] * 100)} %)` : ""}</p>` : null}
+          ${items.map((l) => html`<${LeadCard} key=${l.id} l=${l} ultima=${ultima[l.id]} onPointerDown=${(ev) => start(ev, l.id, e.id)} />`)}
+          ${!items.length ? html`<p class="col-empty">${drag ? "Suelta aquí" : "Sin leads"}</p>` : null}
         </div>`;
       })}
     </div>
+    ${drag && !verCerrados ? html`<div class="dropbar">${CERRADAS.map((id) => html`<div key=${id} data-col=${id} class=${cx("dropzone", id, drag.over === id && "on")}><${StagePill} etapa=${id} /><span>${SOLTAR_EN[id]}</span></div>`)}</div>` : null}
   </div>`;
 }
 
@@ -3199,7 +3428,10 @@ function ClienteDrawer({ id, tab: initialTab, onClose }) {
 
 function ProyectosView() {
   const { proyectos, clientesById, openProyecto, openModal, canWrite, moveProyecto, cfg } = useCtx();
-  const [over, setOver] = useState("");
+  const { drag, start, boardRef } = useBoardDrag({
+    enabled: canWrite,
+    onDrop: (id, fid) => { const p = proyectos.find((x) => x.id === id); if (p && (p.estado || "por_iniciar") !== fid) moveProyecto(p, fid); },
+  });
   const [verCerrados, setVerCerrados] = useState(() => ls.get("verProCerrados", false));
   useEffect(() => ls.set("verProCerrados", verCerrados), [verCerrados]);
   const cols = verCerrados ? FASES.map((f) => f.id) : FASES_TABLERO;
@@ -3215,24 +3447,21 @@ function ProyectosView() {
       </div>
     </header>
     ${!proyectos.length ? html`<section class="panel"><div class="panel-body" style="padding-top:16px"><p class="empty">Todavía no hay proyectos. Se crean al marcar un lead como «Ganado» o con «Nuevo proyecto».</p></div></section>` : html`
-    <div class="board fases">
+    <div class="board fases" ref=${boardRef}>
       ${cols.map((fid) => {
         const items = proyectos.filter((p) => (p.estado || "por_iniciar") === fid).sort((a, b) => String((proximoHito(a) || {}).fecha || "9999").localeCompare(String((proximoHito(b) || {}).fecha || "9999")));
-        return html`<div key=${fid} class=${cx("col", over === fid && "drop")}
-          onDragOver=${(ev) => { if (!canWrite) return; ev.preventDefault(); if (over !== fid) setOver(fid); }}
-          onDragLeave=${() => setOver("")}
-          onDrop=${(ev) => { ev.preventDefault(); setOver(""); const id = ev.dataTransfer.getData("text/plain"); const p = proyectos.find((x) => x.id === id); if (p && p.estado !== fid) moveProyecto(p, fid); }}>
+        return html`<div key=${fid} data-col=${fid} class=${cx("col", drag && drag.over === fid && drag.from !== fid && "drop")}>
           <div class="col-head"><${FasePill} estado=${fid} corto /><span class="count">${items.length}</span></div>
           ${items.map((p) => {
             const h = proximoHito(p);
             const g = garantiaHasta(p, cfg);
-            return html`<button key=${p.id} class="kcard" draggable=${canWrite ? "true" : "false"} onDragStart=${(ev) => { ev.dataTransfer.setData("text/plain", p.id); ev.dataTransfer.effectAllowed = "move"; }} onClick=${() => openProyecto(p.id)}>
+            return html`<button key=${p.id} class="kcard" onPointerDown=${(ev) => start(ev, p.id, fid)} onClick=${() => { if (!recienArrastrado()) openProyecto(p.id); }}>
               <b>${p.nombre || "Proyecto"}</b><span>${clienteName(clientesById[p.clienteId])}</span>
               <${Progress} p=${p} />
               <div class="meta">${p.estado === "mejorar" && g ? html`<span class=${g >= todayKey() ? "tag ok" : "tag late"} title=${"Garantía hasta el " + dayLabel(g).toLowerCase()}>${g >= todayKey() ? "Garantía hasta " + noDots(fmtDiaMes.format(keyDate(g))).replace(/ /g, "\u00a0") : "Garantía terminada"}</span>` : h && h.fecha ? html`<${DueTag} fecha=${h.fecha} label="Hito" />` : isKey(p.entregaEstimada) && p.estado !== "cerrado" ? html`<${DueTag} fecha=${p.entregaEstimada} label="Entrega" />` : null}</div>
             </button>`;
           })}
-          ${!items.length ? html`<p class="small muted" style="padding:6px 4px">Sin proyectos</p>` : null}
+          ${!items.length ? html`<p class="col-empty">${drag ? "Suelta aquí" : "Sin proyectos"}</p>` : null}
         </div>`;
       })}
     </div>`}
@@ -4412,14 +4641,19 @@ function App() {
     generarMensualidades(wrapApi, mantenciones, new Set(cobros.map((x) => x.id)), mk).then((n) => { if (n) toast(`${n} ${n === 1 ? "mensualidad agregada" : "mensualidades agregadas"} a Cobros.`); }, () => {});
   }, [wrapApi, me.canWrite, readOnly, mantenciones, cobros]);
 
+  /* Escape cierra lo que esté encima. Lee el estado del último render (no el del último efecto),
+     para que funcione aunque se apriete justo cuando se abre una ventana. */
+  const abierto = useRef({});
+  abierto.current = { modal, drawer, mas };
   useEffect(() => {
     const onKey = (e) => {
       if (e.key !== "Escape") return;
-      if (modal) { setModal(null); e.preventDefault(); } else if (drawer) { setDrawer(null); e.preventDefault(); } else if (mas) { setMas(false); e.preventDefault(); }
+      const o = abierto.current;
+      if (o.modal) { setModal(null); e.preventDefault(); } else if (o.drawer) { setDrawer(null); e.preventDefault(); } else if (o.mas) { setMas(false); e.preventDefault(); }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [modal, drawer, mas]);
+  }, []);
   useEffect(() => { document.body.style.overflow = drawer || modal ? "hidden" : ""; }, [drawer, modal]);
 
   const canWrite = me.canWrite !== false && !readOnly;

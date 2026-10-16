@@ -18,8 +18,8 @@ revisarlos antes de enviarlos.
 |---|---|
 | Hoy | Lo que toca hoy (y lo atrasado), los leads nuevos sin contactar, los que no tienen próxima acción, los borradores por revisar y la actividad reciente. Con clientes: pagos atrasados, cobros por facturar, hitos y garantías que terminan en los próximos 7 días, y el soporte abierto. |
 | **Ventas** | |
-| Leads | Tabla con búsqueda por nombre, empresa, correo o teléfono, y filtros por etapa, origen y responsable. |
-| Embudo | Tablero por etapa; se arrastra una tarjeta para cambiarla de etapa. |
+| Leads | Tabla con búsqueda por nombre, empresa, correo o teléfono, y filtros por etapa, origen y responsable. «Tabla / Tablero» cambia al embudo. |
+| Embudo | Tablero por etapa, al estilo de HubSpot: las tarjetas se arrastran de una etapa a otra (ver «Embudo»). |
 | **Clientes** | |
 | Clientes | Lista de clientes con sus servicios (proyecto en curso, garantía, mantención), las solicitudes abiertas y lo que falta cobrar. |
 | Proyectos | Tablero por las etapas de trabajo de ZH. |
@@ -52,6 +52,25 @@ se guarda solo si se marca esa opción.
 
 Las etapas son: Por contactar → Contactado → Reunión → Propuesta enviada → Negociación, más
 Ganado, Perdido (con motivo y lo que dijo el cliente) y En pausa.
+
+## Embudo
+
+- **Arrastrar:** con el mouse, se toma la tarjeta y se suelta en otra etapa; en el teléfono o la
+  tablet, se mantiene apretada un momento y se arrastra (deslizar rápido sigue siendo scroll).
+  Cerca de los bordes el tablero avanza solo y Escape cancela. Mientras se arrastra aparecen abajo
+  **Ganado**, **Perdido** y **En pausa**: soltar en Ganado abre «Convertir en cliente» y en Perdido
+  pide el motivo. Cada cambio queda en el historial del lead.
+- **Montos:** cada etapa muestra su total y su valor ponderado, y la cabecera suma lo que está en
+  juego. Probabilidad por etapa: Por contactar 5 %, Contactado 10 %, Reunión 25 %, Propuesta
+  enviada 50 %, Negociación 75 %.
+- **Tarjetas:** nombre, empresa, valor, prioridad alta, próxima acción (o el aviso «Sin próxima
+  acción»), última actividad, iniciales del responsable y accesos a registrar llamada, WhatsApp,
+  redactar con Claude y anotar.
+- **Filtros:** búsqueda (sin importar tildes), responsable (todos, míos, cada socio o sin
+  responsable), orden (próxima acción, última actividad, valor o más nuevos) y mostrar ganados,
+  perdidos y en pausa.
+
+El tablero de Proyectos se arrastra igual.
 
 ## Etapa con clientes
 
@@ -227,6 +246,7 @@ python3 crm/dev/build_preview.py                    # arma crm/dev/preview.html 
 NODE_PATH=$(npm root -g) node crm/dev/smoke.cjs     # leads, llamadas y borradores (capturas en crm/dev/shots)
 NODE_PATH=$(npm root -g) node crm/dev/clientes.cjs  # etapa con clientes: lead ganado, proyecto, cobros, soporte, acta
 NODE_PATH=$(npm root -g) node crm/dev/microfono.cjs # transcribir en vivo, con micrófono simulado
+NODE_PATH=$(npm root -g) node crm/dev/embudo.cjs    # arrastrar en el embudo y en Proyectos (mouse y dedo), montos y filtros
 ```
 
 `crm/dev/mock-claude.js` imita `window.claude` (base de datos en memoria, Claude con respuestas
