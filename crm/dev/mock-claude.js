@@ -131,6 +131,10 @@
 
   const plus = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); };
   function answer(p) {
+    if (p.includes("Estás ayudando en vivo")) return {
+      detecte: "Dice que lo encuentra caro.", respuesta: "Te entiendo. ¿Cuántas horas a la semana se les van hoy en cuadrar el inventario a mano? Con eso vemos si se paga solo.",
+      pregunta: "¿Quién más participa en la decisión?", evitar: "Dar un precio antes de conocer el alcance.",
+    };
     if (p.includes("Clasifica la solicitud de un cliente")) return {
       cobertura: "garantia", motivo: "Es un error del informe entregado y el proyecto sigue en garantía.", tipo: "error", prioridad: "alta", titulo: "El informe mensual no carga",
       resumen: "El informe mensual queda en blanco desde ayer.", pasos: ["Revisar el registro de errores del informe", "Corregir y avisar al cliente"], preguntas: ["¿Desde qué navegador lo abre?"],
@@ -162,6 +166,14 @@
       resumen: "Carolina coordina los despachos con planillas y WhatsApp. Quiere ver el estado de cada pedido sin preguntar.", puntos: ["Tienen 3 bodegas", "Usan una planilla compartida"], necesidades: ["Saber en qué estado está cada despacho"],
       objeciones: ["Les preocupa que el equipo no lo use"], compromisos: ["Enviar un correo con la propuesta de llamada"], proximosPasos: ["Agendar llamada de descubrimiento"], interes: "alto",
       etapaSugerida: "reunion", proxima: { tipo: "reunion", fecha: plus(2), nota: "Llamada de descubrimiento" }, datos: { cargo: "Jefa de operaciones", empresa: "", correo: "", necesidad: "" },
+      tareas: /propuesta al correo/i.test(p)
+        ? [{ quien: "zh", que: "Enviar la propuesta por correo", tipo: "propuesta", fecha: plus(3) }, { quien: "lead", que: "Mandar la planilla de inventario", tipo: "otro", fecha: "" }, { quien: "zh", que: "Agendar la demo", tipo: "reunion", fecha: plus(5) }]
+        : [{ quien: "zh", que: "Agendar llamada de descubrimiento", tipo: "reunion", fecha: plus(2) }],
+      evaluacion: /Transcripción[^:]*:\n\(sin transcripción\)/.test(p) ? null : {
+        criterios: { apertura: { nota: 4, comentario: "Se presentó y dijo para qué llamaba." }, descubrimiento: { nota: 3, comentario: "Preguntó por el problema, pero no por el impacto." }, escucha: { nota: 4, comentario: "Dejó hablar." },
+          valor: { nota: 3, comentario: "Conectó con el inventario." }, objeciones: { nota: 2, comentario: "Ante el precio, cambió de tema." }, cierre: { nota: 4, comentario: "Quedó una demo agendada." } },
+        bien: ["Abrió con el motivo de la llamada"], mejorar: ["Ante «es caro», pregunta cuánto les cuesta hoy el problema"],
+      },
     };
     if (p.includes("Extrae los contactos")) return { leads: [
       { nombre: "Matías Rojas", empresa: "Ferretería Sur", cargo: "Dueño", telefono: "9 8765 4321", correo: "matias@ferreteriasur.cl", origen: "instagram", necesidad: "Cotizaciones por WhatsApp", notas: "" },
@@ -187,7 +199,8 @@
     if (o.onText) o.onText({ text, delta: text });
     return { text, truncated: false, modelTierApplied: o.modelTier || "default" };
   }
-  sample.json = async (input, opts) => { const o = opts || {}; window.__mockPrompts.push(String(input)); await delay(o.signal); return answer(String(input)); };
+  window.__mockOpts = [];
+  sample.json = async (input, opts) => { const o = opts || {}; window.__mockPrompts.push(String(input)); window.__mockOpts.push({ model: o.model || null, modelTier: o.modelTier || null, cache: o.cache }); await delay(o.signal); return answer(String(input)); };
   sample.limits = async () => ({ maxPromptBytes: 262144 });
 
   const downloads = Object.freeze({ save: async ({ filename, data }) => { window.__downloads.push({ filename, size: typeof data === "string" ? data.length : 0, head: typeof data === "string" ? data.slice(0, 400) : "" }); return { status: "saved" }; } });

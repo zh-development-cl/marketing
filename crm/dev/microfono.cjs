@@ -28,7 +28,7 @@ const SEED = {
   "leads/lead-mic": { nombre: "Andrea Fuentes", empresa: "Ferretería Andes", cargo: "", telefono: "+56922223333", correo: "", etapa: "nuevo", prioridad: "media", trato: "tu", intentos: 0, proxima: null, origen: "web", necesidad: "Ordenar el inventario", creado: iso(-2), actualizado: iso(-2), creadoPor: ME },
   "clientes/cli-mic": { nombre: "Taller Sur", razonSocial: "", rut: "", contactos: [{ id: "ct-1", nombre: "Jorge Pérez", cargo: "Dueño", correo: "jorge@tallersur.cl", telefono: "+56944445555", rol: "decisor", principal: true }], responsable: ME, trato: "tu", leadIds: [], estado: "activo", notas: "", creado: iso(-30), actualizado: iso(-30), creadoPor: ME },
 };
-const FRASES = ["hola andrea te llamo de zh por lo del inventario", "nos interesa ver una demo la próxima semana", "mándame la propuesta al correo"];
+const FRASES = ["hola andrea te llamo de zh por lo del inventario", "la verdad lo encuentro un poco caro", "nos interesa ver una demo la próxima semana", "mándame la propuesta al correo"];
 
 (async () => {
   fs.mkdirSync(OUT, { recursive: true });
@@ -78,10 +78,26 @@ const FRASES = ["hola andrea te llamo de zh por lo del inventario", "nos interes
   ok(true, "si el navegador corta la sesión tras un silencio, se retoma sola");
   ok((await page.evaluate(() => window.__srLang)) === "es-CL", "transcribe en español de Chile");
   ok(await page.locator(".live.on", { hasText: "Escuchando" }).isVisible(), "sigue escuchando después del corte");
+
+  /* apoyo en vivo: la objeción destaca el botón y Haiku sugiere qué decir */
+  ok(await page.locator(".coach-pista", { hasText: "Parece una objeción de precio" }).isVisible(), "detecta la objeción de precio sin llamar a Claude");
+  ok(await page.locator(".coach .btn.pulse").isVisible(), "y destaca el botón «¿Qué le respondo?»");
+  const antes = (await page.evaluate(() => window.__mockPrompts)).length;
+  ok(antes === 0, "mientras nadie toca el botón, no se consulta a Claude");
+  await page.getByRole("button", { name: "¿Qué le respondo?" }).click();
+  await page.locator(".coach-say").waitFor();
+  ok((await page.locator(".coach-say").innerText()).includes("¿Cuántas horas a la semana"), "muestra qué decirle al lead");
+  ok(await page.locator(".coach-card", { hasText: "Después pregunta" }).isVisible() && await page.locator(".coach-card", { hasText: "Evita" }).isVisible(), "y qué preguntar después y qué evitar");
+  const opts = await page.evaluate(() => window.__mockOpts);
+  const pVivo = (await page.evaluate(() => window.__mockPrompts)).pop();
+  ok(opts.length === 1 && opts[0].model === "claude-haiku-5-5" && opts[0].modelTier === "quick" && opts[0].cache === false, "la consulta va a Claude Haiku, rápida y sin caché");
+  ok(pVivo.includes("La verdad lo encuentro un poco caro") && pVivo.includes("Ferretería Andes") && pVivo.includes("no separa quién habla"), "Haiku recibe lo último de la llamada y los datos del lead");
+  ok((await page.locator(".coach-pista").count()) === 0, "al usar la ayuda se apaga el aviso");
+  await shot(page, "m03-apoyo.png");
   await page.getByRole("button", { name: "Detener" }).click();
   await page.getByRole("button", { name: "Transcribir en vivo" }).waitFor();
   const trans = await page.inputValue("#c-trans");
-  ok(trans === "Hola andrea te llamo de zh por lo del inventario\nNos interesa ver una demo la próxima semana\nMándame la propuesta al correo", "cada frase queda en su línea, con mayúscula y sin repetirse");
+  ok(trans === "Hola andrea te llamo de zh por lo del inventario\nLa verdad lo encuentro un poco caro\nNos interesa ver una demo la próxima semana\nMándame la propuesta al correo", "cada frase queda en su línea, con mayúscula y sin repetirse");
   ok((await page.inputValue("#c-dur")) === "", "una prueba de segundos no inventa la duración");
 
   /* si se cierra la ficha a mitad de camino, lo transcrito no se pierde */
@@ -97,8 +113,19 @@ const FRASES = ["hola andrea te llamo de zh por lo del inventario", "nos interes
   const prompts = await page.evaluate(() => window.__mockPrompts);
   const pLlamada = prompts[prompts.length - 1];
   ok(pLlamada.includes("hecha en vivo con el micrófono del computador") && pLlamada.includes("Mándame la propuesta al correo"), "Claude recibe la transcripción y sabe que viene del micrófono, sin separar voces");
+  ok(pLlamada.includes('"tareas"') && pLlamada.includes("descubrimiento (hizo preguntas abiertas"), "Claude debe devolver las tareas acordadas y evaluar con los criterios");
+  ok((await page.locator(".work .eval-score").innerText()).startsWith("67"), "el puntaje es el promedio de los criterios × 20 (67)");
+  ok(await page.locator(".work .crit", { hasText: "Objeciones" }).locator("i.on").count() === 2, "cada criterio muestra su nota");
+  ok(await page.locator(".work .analysis", { hasText: "Tareas de ZH" }).locator("li", { hasText: "Enviar la propuesta por correo" }).isVisible(), "lista las tareas de ZH");
+  ok(await page.locator(".work .analysis", { hasText: "Tareas del lead" }).locator("li", { hasText: "Mandar la planilla de inventario" }).isVisible(), "y las del lead");
+  const chk = page.locator(".work .suggest label", { hasText: "Dejar redactado el correo: Enviar la propuesta por correo" }).locator("input");
+  ok(await chk.isChecked(), "propone dejar redactado el correo acordado");
+  ok((await page.locator(".work .suggest label", { hasText: "Dejar redactado" }).count()) === 1, "solo para los correos y WhatsApp de ZH");
+  await page.locator(".work .eval").scrollIntoViewIfNeeded();
+  await shot(page, "m04-evaluacion.png");
   await page.getByRole("button", { name: "Guardar llamada" }).click();
   await toast(page, "Llamada registrada.");
+  await toast(page, "Quedó redactado 1 borrador");
   await page.waitForTimeout(250);
   ok((await page.evaluate(() => localStorage.getItem("zhcrm:llamada:lead-mic"))) === null, "al guardar la llamada se borra lo recuperable");
   let dump = await store(page);
@@ -106,10 +133,18 @@ const FRASES = ["hola andrea te llamo de zh por lo del inventario", "nos interes
   ok(diag && diag.ok === true && diag.paso === "texto" && diag.politica === true && typeof diag.navegador === "string", "la base anota que el micrófono y la transcripción funcionaron");
   const llamada = Object.entries(dump).find(([k, v]) => k.startsWith("actividades/") && v.tipo === "llamada");
   ok(llamada && llamada[1].transcripcion === null && llamada[1].analisis, "por defecto se guardan las notas y el análisis, sin la transcripción completa");
-
-  /* ---------------- reunión con un cliente ---------------- */
+  ok(llamada && llamada[1].analisis.evaluacion && llamada[1].analisis.evaluacion.puntaje === 67 && llamada[1].analisis.tareas.length === 3, "la llamada guarda el puntaje y las tareas");
+  const borr = Object.entries(dump).filter(([k]) => k.startsWith("borradores/")).map(([, v]) => v);
+  ok(borr.length === 1 && borr[0].leadId === "lead-mic" && borr[0].canal === "correo" && borr[0].objetivo === "propuesta" && borr[0].generadoPor === "claude" && borr[0].estado === "por_revisar", "el correo acordado queda redactado por Claude en «Borradores por revisar»");
+  ok(borr[0] && borr[0].instrucciones.includes("Enviar la propuesta por correo") && borr[0].instrucciones.includes("Mandar la planilla de inventario"), "el borrador sabe lo que quedó en hacer cada uno");
+  const pBorr = (await page.evaluate(() => window.__mockPrompts)).filter((x) => x.includes("Quedó acordado en la llamada de hoy")).pop();
+  ok(pBorr && pBorr.includes("Análisis: Carolina coordina"), "Claude redacta con la llamada recién guardada en el historial");
   await page.keyboard.press("Escape");
   await page.locator(".scrim").first().waitFor({ state: "detached" });
+  await page.locator(".side .nav button", { hasText: "Hoy" }).click();
+  ok(await page.locator(".summary .stat", { hasText: "tu puntaje en llamadas (1)" }).filter({ hasText: "67" }).isVisible(), "Hoy muestra tu puntaje promedio en llamadas");
+
+  /* ---------------- reunión con un cliente ---------------- */
   await page.locator(".side .nav button", { hasText: "Clientes" }).click();
   await page.locator("table.leads tbody tr", { hasText: "Taller Sur" }).click();
   await page.locator("#cli-title", { hasText: "Taller Sur" }).waitFor();

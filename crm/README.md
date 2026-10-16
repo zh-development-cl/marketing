@@ -33,9 +33,11 @@ próxima acción con atajos (hoy, mañana, en 3 días hábiles, en una semana); 
 
 - **Registrar llamada:** resultado (contestó, no contestó, buzón, ocupado, pidió que llamemos
   después, número equivocado), línea (negocios o personal), duración, notas y transcripción
-  (pegada o subida como `.txt`, `.vtt` o `.srt`). «Analizar con Claude» devuelve el resumen, las
-  necesidades, las objeciones, lo que prometimos y los próximos pasos, y propone etapa, próxima
-  acción y datos nuevos (por ejemplo, el cargo) para aplicarlos al guardar. Si no contesta,
+  (en vivo desde el computador, pegada o subida como `.txt`, `.vtt` o `.srt`). «Analizar con
+  Claude» devuelve el resumen, las necesidades, las objeciones, las tareas acordadas y, con
+  transcripción, el puntaje de la llamada, y propone etapa, próxima acción, datos nuevos (por
+  ejemplo, el cargo) y los borradores de lo acordado para aplicarlos al guardar (ver «Llamadas y
+  transcripción»). Si no contesta,
   propone volver a llamar al día hábil siguiente y, desde el segundo intento, escribir por WhatsApp.
 - **Redactar con Claude:** canal (WhatsApp o correo), objetivo (primer contacto, seguimiento,
   agendar reunión, enviar propuesta, recordatorio, reactivar, agradecer u otro), trato (tú o
@@ -157,6 +159,32 @@ También se puede dictar las notas justo al cortar (micrófono del teclado del t
 transcripción hecha en otra herramienta. Las demás opciones, sus costos y lo legal están en
 `docs/crm-telefonia-whatsapp.md`.
 
+### Apoyo en vivo
+
+Mientras el CRM escucha una llamada con un lead, aparece **«¿Qué le respondo?»**. Cada toque manda
+a Claude Haiku (`claude-haiku-5-5`, el modelo rápido, sin caché) lo último de la transcripción y los
+datos del lead, y en uno o dos segundos muestra qué decir ahora, qué preguntar después y qué evitar.
+Claude solo se consulta cuando alguien toca el botón: la plataforma no permite llamarlo en bucle ni
+con temporizador. Lo que sí corre solo, en la página y sin Claude, es la detección de objeciones
+(precio, postergar, «ya tenemos algo», «mándame información», dudas de confianza): destaca el botón
+y dice de qué se trata.
+
+### Al cortar: tareas y puntaje
+
+«Analizar con Claude» devuelve, además del resumen:
+
+- **Las tareas acordadas**, de ZH y del lead, con fecha si se dijo. Los correos y WhatsApp que quedó
+  en mandar ZH se pueden dejar redactados: al guardar, Claude los escribe en segundo plano (aunque se
+  cierre la ficha) y quedan en «Borradores por revisar», con lo que quedó en hacer el lead. La
+  primera tarea de ZH es la próxima acción.
+- **El desempeño de quien llamó**, solo si hay transcripción: nota de 1 a 5 en apertura,
+  descubrimiento, escucha, propuesta de valor, objeciones y cierre, con un comentario por criterio,
+  lo que salió bien y qué mejorar. El puntaje lo calcula la página (promedio × 20, de 20 a 100) para
+  que se pueda comparar entre llamadas. Queda en el historial, y en Hoy cada socio ve el promedio de
+  sus llamadas de los últimos 30 días.
+
+Todo esto usa el plan de Claude de quien abre el CRM: no tiene costo aparte.
+
 ## Datos
 
 Colecciones de la base del artifact (documentos JSON). Montos en CLP sin IVA, enteros; fechas de
@@ -170,7 +198,7 @@ calendario `AAAA-MM-DD` en hora de Chile; marcas de tiempo en ISO.
 | `cobros` | un cobro | `clienteId`, `proyectoId`, `mantencionId`, `solicitudId`, `tipo` (`anticipo`, `hito`, `cierre`, `mensualidad`, `evolutivo`, `otro`), `concepto`, `monto`, `fecha` (cuándo facturar), `estado` (`por_facturar`, `facturado`, `pagado`, `anulado`), `factura`, `fechaFactura`, `vence`, `fechaPago`, `notas`, `generado`, `ultimoRecordatorio`. Las mensualidades usan el id `cob-m-<id de la mantención>-<AAAA-MM>` |
 | `mantenciones` | un plan mensual | `clienteId`, `proyectoId`, `plan`, `monto` (al mes), `incluye`, `inicio`, `diaCobro` (1-28), `estado` (`activa`, `pausada`, `terminada`), `fin`, `notas` |
 | `solicitudes` | un pedido de un cliente | `clienteId`, `proyectoId`, `titulo`, `descripcion`, `canal` (`correo`, `whatsapp`, `llamada`, `reunion`, `otro`), `tipo` (`error`, `cambio`, `consulta`, `acceso`, `otro`), `cobertura` (`garantia`, `mantencion`, `evolutivo`, `por_definir`), `prioridad` (`alta`, `media`, `baja`), `estado` (`nueva`, `en_curso`, `esperando_cliente`, `resuelta`, `descartada`), `responsable`, `horasEstimadas`, `horasReales`, `cotizacion` (`{monto, estado, cobroId}`, con `estado` = `por_enviar`, `enviada`, `aprobada` o `rechazada`), `resolucion`, `analisis`, `resuelta` (ISO) |
-| `actividades` | un contacto o cambio | `leadId` o `clienteId` (más `proyectoId`, `cobroId`, `solicitudId`), `tipo` (`llamada`, `whatsapp`, `correo`, `reunion`, `nota`, `etapa`, `cliente`, `proyecto`, `cobro`, `solicitud`), `fecha` (ISO), `autor`, `resultado`, `linea`, `duracion`, `resumen`, `transcripcion`, `grabacionAvisada`, `analisis`, `acta` (en reuniones con cliente: `{resumen, acuerdos[], pendientesZH[], pendientesCliente[], solicitudes[], proximaReunion}`), `accion` (en cobros y solicitudes), `de`, `a`, `borradorId` |
+| `actividades` | un contacto o cambio | `leadId` o `clienteId` (más `proyectoId`, `cobroId`, `solicitudId`), `tipo` (`llamada`, `whatsapp`, `correo`, `reunion`, `nota`, `etapa`, `cliente`, `proyecto`, `cobro`, `solicitud`), `fecha` (ISO), `autor`, `resultado`, `linea`, `duracion`, `resumen`, `transcripcion`, `grabacionAvisada`, `analisis`, `acta` (en reuniones con cliente: `{resumen, acuerdos[], pendientesZH[], pendientesCliente[], solicitudes[], proximaReunion}`), en llamadas `analisis` (`resumen`, `necesidades`, `objeciones`, `proxima`, `tareas[]` con `{quien: zh|lead, que, tipo, fecha}` y `evaluacion` con `{puntaje, criterios: {apertura, descubrimiento, escucha, valor, objeciones, cierre: {nota, comentario}}, bien[], mejorar[]}`), `accion` (en cobros y solicitudes), `de`, `a`, `borradorId` |
 | `borradores` | un correo o WhatsApp | `leadId`, o `clienteId` con `contactoId`, `proyectoId`, `cobroId` y `solicitudId`; `canal` (`correo`, `whatsapp`), `estado` (`por_revisar`, `listo`, `enviado`, `descartado`), `objetivo` (a clientes: `avance`, `entrega`, `cobro`, `solicitud`, `reunion`, `feedback`, `mantencion`, `libre`), `instrucciones`, `firma` (id de usuario), `generadoPor`; correo: `plantilla` (`carta`, `destacado`), `asunto`, `preheader`, `etiqueta`, `titular`, `saludo`, `parrafos[]`, `puntos[]`, `cta {texto, url}`, `cierre`, `posdata`; WhatsApp: `texto` |
 | `equipo` | uno por usuario (id `u_…`) | `nombre`, `cargo`, `telefono`, `correo` (la firma) |
 | `diagnostico` | `microfono-<id de usuario>` | último resultado de «Transcribir en vivo»: `ok`, `paso`, `tipo`, `error`, `politica`, `enMarco`, `navegador`, `fecha` |

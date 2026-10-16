@@ -72,8 +72,15 @@ hacer y el teléfono formateado (`+56 9 1234 5678`). Suma lo de clientes (ver m�
    `etapaSugerida` y `proxima`. Una transcripción de «Transcribir en vivo» (el micrófono del
    computador con el celular en altavoz) no separa quién habla y trae errores: deduce por el
    contexto qué dijo cada uno y no uses lo que no se entienda.
+   Con transcripción, el `analisis` lleva también `tareas` (`[{quien: "zh" | "lead", que, tipo:
+   correo | whatsapp | propuesta | llamada | reunion | otro, fecha}]`, solo lo acordado) y
+   `evaluacion` de quien llamó: `criterios` con `{nota: 1-5 o null, comentario}` para `apertura`,
+   `descubrimiento`, `escucha`, `valor`, `objeciones` y `cierre`; `bien` y `mejorar` (hasta 3
+   cada uno); `puntaje` = promedio de las notas × 20, redondeado (no lo inventes). Con solo notas,
+   `evaluacion: null`.
 3. `set` en `actividades`: `{leadId, tipo: "llamada", fecha, autor: "claude", resultado, linea,
-   duracion, resumen, transcripcion, analisis}`. Guarda `transcripcion` solo si el usuario pide
+   duracion, resumen, transcripcion, analisis}`. Si quedó acordado un correo o un WhatsApp de ZH,
+   déjalo redactado en `borradores` (receta «Redactar») con lo acordado en `instrucciones`. Guarda `transcripcion` solo si el usuario pide
    conservarla; si no, `null` (quedan las notas y el análisis).
 4. `update` del lead: `ultimoContacto` (si contestó), `ultimoIntento`, `intentos` (0 si contestó;
    +1 si no), `proxima`, y la `etapa` si cambia. Cada cambio de etapa agrega una actividad

@@ -501,6 +501,29 @@ details.data .grid-2 { margin-top: 14px; }
 .live-meter span { display: block; height: 100%; background: var(--ok); transform: scaleX(0); transform-origin: left center; transition: transform 0.12s linear; }
 .live-text { margin: 0; color: var(--fg-3); font-style: italic; overflow-wrap: anywhere; }
 .live-pasos { margin: 4px 0 0; padding-left: 18px; font-size: 13px; }
+.coach { display: grid; gap: 8px; padding-top: 8px; border-top: 1px dashed var(--line); }
+.coach-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+.coach-pista { color: var(--warn); font-weight: 500; }
+.coach-card { display: grid; gap: 6px; padding: 10px 12px; border-radius: var(--r-m); background: var(--accent-soft); }
+.coach-say { margin: 0; font-size: 16px; line-height: 1.45; font-weight: 500; color: var(--fg); }
+.btn.pulse { animation: glow 1.2s ease-in-out infinite; }
+@keyframes glow { 0%, 100% { box-shadow: 0 0 0 0 var(--warn-soft); } 50% { box-shadow: 0 0 0 5px var(--warn-soft); } }
+.eval { display: grid; gap: 10px; padding-top: 10px; border-top: 1px dashed var(--line); }
+.eval-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.eval-score { font: 600 26px/1 var(--font-text); font-variant-numeric: tabular-nums; }
+.eval-score small { margin-left: 2px; font-size: 13px; font-weight: 500; color: var(--fg-3); }
+.eval-score.ok { color: var(--ok); }
+.eval-score.warn { color: var(--warn); }
+.eval-score.bad { color: var(--bad); }
+.crits { display: grid; gap: 6px; }
+.crit { display: grid; grid-template-columns: 150px auto minmax(0, 1fr); gap: 4px 12px; align-items: center; font-size: 13.5px; }
+.crit-label { font-weight: 500; color: var(--fg); }
+.crit-dots { display: inline-flex; gap: 3px; }
+.crit-dots i { width: 14px; height: 6px; border-radius: 3px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); }
+.crit-dots i.on { background: var(--accent); box-shadow: none; }
+.crit-note { color: var(--fg-2); }
+.analysis .eval-nota { margin: 0; font-size: 12.5px; color: var(--fg-3); }
+@container (max-width: 560px) { .crit { grid-template-columns: minmax(0, 1fr) auto; } .crit-note { grid-column: 1 / -1; } }
 table.leads td.amount-cell { text-align: right; }
 table.leads th.r { text-align: right; }
 </style>
@@ -569,6 +592,19 @@ const OBJETIVOS = [
   ["libre", "Otro", "lo que digan las instrucciones"],
 ];
 const PRIORIDADES = [["alta", "Alta"], ["media", "Media"], ["baja", "Baja"]];
+/* Apoyo en vivo: el modelo rápido responde en uno o dos segundos. */
+const HAIKU = "claude-haiku-5-5";
+const TIPOS_TAREA = ["correo", "whatsapp", "propuesta", "llamada", "reunion", "otro"];
+const TAREA_MENSAJE = new Set(["correo", "whatsapp", "propuesta"]);
+/* Criterios con que Claude evalúa a quien llamó (nota de 1 a 5 cada uno). */
+const CRITERIOS = [
+  ["apertura", "Apertura", "se presentó, dijo para qué llamaba y preguntó si era buen momento"],
+  ["descubrimiento", "Descubrimiento", "hizo preguntas abiertas sobre el problema, cómo lo resuelven hoy, cuánto les afecta y quién decide"],
+  ["escucha", "Escucha", "dejó hablar al lead, no lo interrumpió y retomó lo que dijo"],
+  ["valor", "Propuesta de valor", "conectó lo que hace ZH con el problema del lead, en simple y sin prometer de más"],
+  ["objeciones", "Objeciones", "respondió dudas y reparos con calma y con preguntas, sin presionar ni inventar"],
+  ["cierre", "Cierre", "terminó con un próximo paso concreto: una fecha, una reunión o una propuesta"],
+];
 const MOTIVOS = ["Precio de implementación", "Costo mensual o mantención", "Eligió otra alternativa", "Sin presupuesto", "No es el momento", "Dejó de responder", "Pidió no ser contactado", "No calza con lo que hacemos", "Otro"];
 const CONTACTOS = new Set(["llamada", "whatsapp", "correo", "reunion"]);
 const REGISTROS = [["nota", "Nota"], ["whatsapp", "WhatsApp"], ["correo", "Correo"], ["reunion", "Reunión"]];
@@ -1008,7 +1044,7 @@ function promptRevision(o) {
   return `${ZH_CONTEXTO}\n\n${ZH_TONO}\n\nFecha de hoy: ${todayKey()} (hora de Chile).\n\n${o.contexto || leadContexto(o.lead, o.hist)}\n\nEste es el borrador actual de ${o.canal === "whatsapp" ? "un mensaje de WhatsApp" : "un correo"} (JSON):\n${JSON.stringify(actual, null, 1)}\n\nCambios que pide quien escribe: ${o.pedido}\n\nAplica los cambios y conserva lo demás. Responde solo con el borrador completo en el mismo formato JSON.`;
 }
 function promptLlamada(o) {
-  return `${ZH_CONTEXTO}\n\nEres el asistente comercial de ZH. Analiza esta llamada con un lead y deja lo necesario para el seguimiento. Usa solo lo que está en las notas o en la transcripción: no inventes. Fecha de hoy: ${todayKey()} (hora de Chile).\n\n${leadContexto(o.lead, o.hist)}\n\nLLAMADA\nResultado: ${resultadoLabel(o.resultado) || "sin registrar"}\nNotas de quien llamó: ${o.notas || "(sin notas)"}\nTranscripción${o.enVivo ? " (hecha en vivo con el micrófono del computador y el celular en altavoz: no separa quién habla y puede traer palabras mal reconocidas; deduce por el contexto qué dijo el lead y qué dijo quien llamó, y no uses lo que no se entienda)" : ""}:\n${o.transcripcion ? clip(o.transcripcion, 90000) : "(sin transcripción)"}\n\nResponde solo con JSON con esta forma:\n{"resumen": "2 o 3 frases", "puntos": ["lo más importante que se dijo"], "necesidades": ["qué necesita o qué le duele, con sus palabras si es posible"], "objeciones": ["dudas o reparos"], "compromisos": ["lo que prometimos hacer nosotros"], "proximosPasos": ["acciones concretas"], "interes": "alto | medio | bajo | sin_datos", "etapaSugerida": "nuevo | contactado | reunion | propuesta | negociacion | ganado | perdido | pausa", "proxima": {"tipo": "llamar | whatsapp | correo | reunion | otro", "fecha": "AAAA-MM-DD", "nota": "qué hacer"}, "datos": {"cargo": "", "empresa": "", "correo": "", "necesidad": ""}}\nEn "datos" pon solo lo que se dijo explícitamente; deja vacío lo demás. Si no hay una próxima acción clara, usa null en "proxima".`;
+  return `${ZH_CONTEXTO}\n\nEres el asistente comercial de ZH. Analiza esta llamada con un lead y deja lo necesario para el seguimiento. Usa solo lo que está en las notas o en la transcripción: no inventes. Fecha de hoy: ${todayKey()} (hora de Chile).\n\n${leadContexto(o.lead, o.hist)}\n\nLLAMADA\nResultado: ${resultadoLabel(o.resultado) || "sin registrar"}\nNotas de quien llamó: ${o.notas || "(sin notas)"}\nTranscripción${o.enVivo ? " (hecha en vivo con el micrófono del computador y el celular en altavoz: no separa quién habla y puede traer palabras mal reconocidas; deduce por el contexto qué dijo el lead y qué dijo quien llamó, y no uses lo que no se entienda)" : ""}:\n${o.transcripcion ? clip(o.transcripcion, 90000) : "(sin transcripción)"}\n\nResponde solo con JSON con esta forma:\n{"resumen": "2 o 3 frases", "puntos": ["lo más importante que se dijo"], "necesidades": ["qué necesita o qué le duele, con sus palabras si es posible"], "objeciones": ["dudas o reparos"], "compromisos": ["lo que prometimos hacer nosotros"], "proximosPasos": ["acciones concretas"], "interes": "alto | medio | bajo | sin_datos", "etapaSugerida": "nuevo | contactado | reunion | propuesta | negociacion | ganado | perdido | pausa", "proxima": {"tipo": "llamar | whatsapp | correo | reunion | otro", "fecha": "AAAA-MM-DD", "nota": "qué hacer"}, "datos": {"cargo": "", "empresa": "", "correo": "", "necesidad": ""}, "tareas": [{"quien": "zh | lead", "que": "acción concreta", "tipo": "correo | whatsapp | propuesta | llamada | reunion | otro", "fecha": "AAAA-MM-DD o vacío"}], "evaluacion": {"criterios": {${CRITERIOS.map((c) => `"${c[0]}": {"nota": "1 a 5, o null", "comentario": "por qué, en una frase"}`).join(", ")}}, "bien": ["lo que hizo bien"], "mejorar": ["consejo para la próxima"]}}\nEn "datos" pon solo lo que se dijo explícitamente; deja vacío lo demás. Si no hay una próxima acción clara, usa null en "proxima".\nEn "tareas" van solo los compromisos que quedaron acordados en la llamada, con quién los hace: "zh" es quien llamó y "lead" es el lead. Pon "fecha" solo si se dijo o se deduce con claridad ("el viernes" es la fecha de ese viernes). "proxima" es la primera tarea de ZH.\nEn "evaluacion" evalúa a quien llamó por ZH, solo si hay transcripción; con solo notas, usa null. Nota de 1 a 5 por criterio, o null si no se puede juzgar: ${CRITERIOS.map((c) => `${c[0]} (${c[2]})`).join("; ")}. "bien": hasta 3 cosas concretas que hizo bien. "mejorar": hasta 3 consejos concretos para la próxima llamada, con una frase de ejemplo cuando sirva. Sé justo: si la transcripción no separa voces, deduce por el contexto quién habla y no castigues lo que no se puede saber.`;
 }
 function promptImportar(texto) {
   return `Extrae los contactos comerciales (leads) del texto de abajo. Puede ser una lista, una planilla pegada, correos o mensajes (por ejemplo, avisos del formulario o de la agenda de zhdevelopment.cl). No inventes datos: deja vacío lo que no aparezca. Copia los teléfonos tal como aparecen. "origen" solo si se deduce con claridad: web, agenda, instagram, linkedin, referido, evento, prospeccion u otro. "necesidad": qué pide o qué problema tiene, en una frase, solo si aparece.\nResponde solo con JSON: {"leads": [{"nombre": "", "empresa": "", "cargo": "", "telefono": "", "correo": "", "rubro": "", "ciudad": "", "origen": "", "necesidad": "", "notas": ""}]}\n\nTEXTO:\n${clip(texto, 100000)}`;
@@ -1099,6 +1135,20 @@ function sanitizeEmail(r) {
     cierre: String(o.cierre || "").trim(), posdata: String(o.posdata || "").trim(),
   };
 }
+function sanitizeEvaluacion(e) {
+  if (!e || typeof e !== "object") return null;
+  const src = e.criterios && typeof e.criterios === "object" ? e.criterios : {};
+  const criterios = {};
+  for (const [k] of CRITERIOS) {
+    const c = src[k] && typeof src[k] === "object" ? src[k] : {};
+    const n = Math.round(Number(c.nota));
+    criterios[k] = { nota: n >= 1 && n <= 5 ? n : null, comentario: clip(String(c.comentario || "").trim(), 240) };
+  }
+  const notas = Object.values(criterios).map((c) => c.nota).filter((n) => n != null);
+  if (notas.length < 3) return null;
+  /* El puntaje lo calcula la página (promedio de las notas × 20) para que sea comparable entre llamadas. */
+  return { puntaje: Math.round((sum(notas) / notas.length) * 20), criterios, bien: strArr(e.bien, 3), mejorar: strArr(e.mejorar, 3) };
+}
 function sanitizeAnalisis(r) {
   const o = r && typeof r === "object" ? r : {};
   const p = o.proxima && typeof o.proxima === "object" && isKey(o.proxima.fecha) ? {
@@ -1111,8 +1161,33 @@ function sanitizeAnalisis(r) {
     interes: ["alto", "medio", "bajo", "sin_datos"].includes(o.interes) ? o.interes : "sin_datos",
     etapaSugerida: ETAPA[o.etapaSugerida] ? o.etapaSugerida : "", proxima: p,
     datos: { cargo: String(d.cargo || "").trim(), empresa: String(d.empresa || "").trim(), correo: String(d.correo || "").trim(), necesidad: String(d.necesidad || "").trim() },
+    tareas: (Array.isArray(o.tareas) ? o.tareas : []).filter((x) => x && String(x.que || "").trim()).slice(0, 8).map((x) => ({
+      quien: x.quien === "lead" ? "lead" : "zh", que: clip(String(x.que).trim(), 200), tipo: TIPOS_TAREA.includes(x.tipo) ? x.tipo : "otro", fecha: isKey(x.fecha) ? x.fecha : "",
+    })),
+    evaluacion: sanitizeEvaluacion(o.evaluacion),
   };
 }
+
+/* Apoyo en vivo: con lo último que se dijo, qué responderle al lead ahora. */
+const ZH_CORTO = "ZH Development hace software a medida, automatización e integración de sistemas e IA aplicada para empresas chilenas. Parte con una llamada de descubrimiento de 30 minutos y después manda una propuesta escrita con alcance, plazo y precio.";
+function promptAyudaVivo(o) {
+  const l = o.lead;
+  const datos = [l.nombre && "Lead: " + l.nombre, l.empresa && "Empresa: " + l.empresa, l.cargo && "Cargo: " + l.cargo, l.necesidad && "Lo que busca: " + l.necesidad, "Etapa: " + etapaLabel(l.etapa), "Trato: " + (l.trato === "usted" ? "de usted" : "de tú")].filter(Boolean).join("\n");
+  return `Estás ayudando en vivo a un vendedor de ZH durante una llamada con un lead. ${ZH_CORTO}\n\n${datos}\n\nLo último de la llamada (transcripción automática: no separa quién habla y trae errores):\n${String(o.texto || "").slice(-1800)}${o.notas ? "\n\nNotas del vendedor: " + clip(o.notas, 500) : ""}\n\nMira lo último que dijo o preguntó el lead (una objeción, una duda o un silencio) y dile al vendedor qué decir ahora. Frases cortas y naturales para decir en voz alta, en español de Chile. Habla del problema del lead. No inventes precios, plazos, casos ni clientes. Si preguntan el precio, explica que depende del alcance y que, después de entender bien lo que necesitan, ZH manda una propuesta escrita con alcance, plazo y precio. Si piden que les manden información, propón ver su caso en una reunión de 30 minutos. Nunca presiones.\nResponde solo con JSON: {"detecte": "qué dijo o pidió el lead, en una frase corta", "respuesta": "lo que el vendedor puede decir ahora, en 1 o 2 frases", "pregunta": "una pregunta para seguir, o vacío", "evitar": "algo que no conviene decir ahora, o vacío"}`;
+}
+function sanitizeAyuda(r) {
+  const o = r && typeof r === "object" ? r : {};
+  return { detecte: clip(String(o.detecte || "").trim(), 200), respuesta: clip(String(o.respuesta || "").trim(), 400), pregunta: clip(String(o.pregunta || "").trim(), 240), evitar: clip(String(o.evitar || "").trim(), 200) };
+}
+/* Señales de objeción en lo último que se dijo: solo destacan el botón, sin llamar a Claude. */
+const OBJECIONES = [
+  [/\b(caro|cara|carisimo|precio|cuanto (sale|cuesta|cobran|vale)|presupuesto|plata|costo)\b/, "Parece una objeción de precio."],
+  [/\b(lo (voy a |vamos a )?pensar|mas adelante|ahora no|no es el momento|el proximo ano|no tengo tiempo|no tenemos tiempo)\b/, "Parece que quiere postergarlo."],
+  [/\b(ya tenemos|otro proveedor|otra empresa|ya trabajamos con|no lo necesitamos|no nos hace falta)\b/, "Dice que ya tiene algo o que no lo necesita."],
+  [/\b(mandame|mandenme|enviame|envienme|me mandas|me envias) (la |una |un )?(informacion|info|presentacion|un correo|algo)\b/, "Pide que le manden información."],
+  [/\b(no los conozco|referencias|garantia|y si no funciona|seguridad de los datos)\b/, "Tiene dudas de confianza."],
+];
+const pistaObjecion = (t) => { const f = fold(t); const m = OBJECIONES.find(([re]) => re.test(f)); return m ? m[1] : ""; };
 
 /* ===================================================================== textos de error */
 
@@ -1424,7 +1499,7 @@ function Feed({ items, showLead, limit }) {
         <p class="feed-meta">${ago(a.fecha)}${a.autor ? " · " + nameOf(a.autor) : ""}${a.linea ? " · línea " + a.linea : ""}</p>
         ${a.resumen ? html`<p class="feed-text">${showLead ? clip(a.resumen.replace(/\s+/g, " "), 160) : clip(a.resumen, 2000)}</p>` : null}
         ${a.acta && !showLead ? html`<details style="margin-top:6px"><summary class="small" style="cursor:pointer;color:var(--accent)">Acta de la reunión</summary><${ActaView} a=${a.acta} /></details>` : null}
-        ${an && an.resumen && !showLead ? html`<details style="margin-top:6px"><summary class="small" style="cursor:pointer;color:var(--accent)">Análisis de Claude${an.interes && an.interes !== "sin_datos" ? " · interés " + an.interes : ""}</summary><${AnalysisView} a=${an} /></details>` : null}
+        ${an && an.resumen && !showLead ? html`<details style="margin-top:6px"><summary class="small" style="cursor:pointer;color:var(--accent)">Análisis de Claude${an.interes && an.interes !== "sin_datos" ? " · interés " + an.interes : ""}${an.evaluacion ? ` · desempeño ${an.evaluacion.puntaje}/100` : ""}</summary><${AnalysisView} a=${an} /></details>` : null}
         ${a.transcripcion && !showLead ? html`<details style="margin-top:6px"><summary class="small" style="cursor:pointer;color:var(--fg-3)">Transcripción (${Math.round(a.transcripcion.length / 1000)} mil caracteres)</summary><p class="feed-text">${a.transcripcion}</p></details>` : null}
       </div>
     </div>`;
@@ -1433,9 +1508,28 @@ function Feed({ items, showLead, limit }) {
 
 function AnalysisView({ a }) {
   const block = (t, arr) => (arr && arr.length ? html`<div><h4>${t}</h4><ul>${arr.map((x) => html`<li>${x}</li>`)}</ul></div>` : null);
+  const tareas = a.tareas || [];
+  const lista = (t, arr) => (arr.length ? html`<div><h4>${t}</h4><ul>${arr.map((x) => html`<li>${x.que}${x.fecha ? html` <span class="muted">· ${dayLabel(x.fecha).toLowerCase()}</span>` : null}</li>`)}</ul></div>` : null);
   return html`<div class="analysis" style="margin-top:8px">
     ${a.resumen ? html`<div><h4>Resumen</h4><p>${a.resumen}</p></div>` : null}
-    <div class="grid-2">${block("Lo importante", a.puntos)}${block("Necesidades", a.necesidades)}${block("Objeciones", a.objeciones)}${block("Lo que prometimos", a.compromisos)}${block("Próximos pasos", a.proximosPasos)}</div>
+    <div class="grid-2">${block("Lo importante", a.puntos)}${block("Necesidades", a.necesidades)}${block("Objeciones", a.objeciones)}${tareas.length ? html`${lista("Tareas de ZH", tareas.filter((x) => x.quien === "zh"))}${lista("Tareas del lead", tareas.filter((x) => x.quien === "lead"))}` : html`${block("Lo que prometimos", a.compromisos)}${block("Próximos pasos", a.proximosPasos)}`}</div>
+    ${a.evaluacion ? html`<${EvalView} e=${a.evaluacion} />` : null}
+  </div>`;
+}
+function EvalView({ e }) {
+  const tono = e.puntaje >= 75 ? "ok" : e.puntaje >= 50 ? "warn" : "bad";
+  return html`<div class="eval">
+    <div class="eval-head"><h4>Desempeño de quien llamó</h4><span class=${"eval-score " + tono}>${e.puntaje}<small>/100</small></span></div>
+    <div class="crits">${CRITERIOS.map(([k, label]) => {
+      const c = e.criterios[k] || {};
+      return html`<div class="crit" key=${k}>
+        <span class="crit-label">${label}</span>
+        <span class="crit-dots" role="img" aria-label=${c.nota ? `${c.nota} de 5` : "sin datos"}>${[1, 2, 3, 4, 5].map((i) => html`<i class=${c.nota && i <= c.nota ? "on" : ""}></i>`)}</span>
+        <span class="crit-note">${c.nota ? c.comentario : "No se puede juzgar con esta transcripción."}</span>
+      </div>`;
+    })}</div>
+    <div class="grid-2">${e.bien.length ? html`<div><h4>Lo que salió bien</h4><ul>${e.bien.map((x) => html`<li>${x}</li>`)}</ul></div>` : null}${e.mejorar.length ? html`<div><h4>Para la próxima</h4><ul>${e.mejorar.map((x) => html`<li>${x}</li>`)}</ul></div>` : null}</div>
+    <p class="eval-nota">Puntaje estimado por Claude con la transcripción: el promedio de los criterios, de 20 a 100.</p>
   </div>`;
 }
 
@@ -1480,6 +1574,8 @@ function HoyView() {
   const porRevisar = drafts.filter((d) => d.estado === "por_revisar");
   const semana = acts.filter((a) => CONTACTOS.has(a.tipo) && Date.now() - Date.parse(a.fecha) < 7 * 864e5).length;
   const proximos = abiertos.filter((l) => l.proxima && l.proxima.fecha && l.proxima.fecha > t && diffDays(t, l.proxima.fecha) <= 7).sort(byNext);
+  const evaluadas = acts.filter((a) => a.tipo === "llamada" && a.autor === me.id && a.analisis && a.analisis.evaluacion && Date.now() - Date.parse(a.fecha) < 30 * 864e5);
+  const promedio = evaluadas.length ? Math.round(sum(evaluadas, (a) => a.analisis.evaluacion.puntaje) / evaluadas.length) : null;
 
   const frase = [];
   if (pend.length) frase.push(`${pend.length} ${pend.length === 1 ? "pendiente" : "pendientes"} para hoy${late ? ` (${late} ${late === 1 ? "atrasado" : "atrasados"})` : ""}`);
@@ -1515,6 +1611,7 @@ function HoyView() {
       <span class=${cx("stat", !sinPlan.length && "zero")} role="listitem"><b>${sinPlan.length}</b>sin próxima acción</span>
       <span class=${cx("stat", !porRevisar.length && "zero")} role="listitem"><b>${porRevisar.length}</b>borradores por revisar</span>
       <span class=${cx("stat", !semana && "zero")} role="listitem"><b>${semana}</b>contactos en 7 días</span>
+      ${promedio != null ? html`<span class="stat" role="listitem" title="Promedio del puntaje que Claude le dio a tus llamadas de los últimos 30 días"><b>${promedio}</b>tu puntaje en llamadas (${evaluadas.length})</span>` : null}
       ${clientes.length ? html`<span class=${cx("stat", !solAbiertas.length && "zero")} role="listitem"><button onClick=${() => nav("soporte")}><b>${solAbiertas.length}</b> solicitudes abiertas</button></span>` : null}
       ${vencidos.length ? html`<span class="stat alert" role="listitem"><button onClick=${() => nav("cobros")}><b>${money(sum(vencidos, (x) => x.monto))}</b> vencido</button></span>` : null}
     </div>`}
@@ -2078,7 +2175,7 @@ const politicaMic = () => { try { const p = document.permissionsPolicy || docume
 const mmss = (s) => `${Math.floor(s / 60)}:${pad2(s % 60)}`;
 const pantallaTactil = () => { try { return matchMedia("(pointer: coarse)").matches; } catch (e) { return false; } };
 
-function LiveTranscriber({ onText, onStart, onStop }) {
+function LiveTranscriber({ onText, onStart, onStop, children }) {
   const { api } = useCtx();
   const [fase, setFase] = useState("listo");
   const [interim, setInterim] = useState("");
@@ -2259,11 +2356,52 @@ function LiveTranscriber({ onText, onStart, onStop }) {
       <button type="button" class="btn small" onClick=${detener} disabled=${fase === "cerrando"}><${Icon} name="stop" />Detener</button>
     </div>
     ${interim ? html`<p class="live-text">${interim}</p>` : html`<p class="small muted" style="margin:0">${fase === "iniciando" ? "Si el navegador pregunta, permite usar el micrófono." : "Pon el celular en altavoz cerca del computador. No cierres esta pestaña: el audio no se guarda, solo el texto."}</p>`}
+    ${fase === "escuchando" ? children : null}
+  </div>`;
+}
+
+/* «¿Qué le respondo?»: una consulta a Claude Haiku por cada toque, nunca en bucle. */
+function AyudaEnVivo({ lead, texto, notas, pista, onUsada }) {
+  const { sampleState, setSampleState } = useCtx();
+  const [r, setR] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const ctl = useRef(null);
+  useEffect(() => () => { if (ctl.current) ctl.current.abort(); }, []);
+  if (!sampleState.fn) return null;
+  const pedir = async () => {
+    if (busy) return;
+    ctl.current = new AbortController();
+    setBusy(true);
+    setError("");
+    try {
+      const v = sanitizeAyuda(await sampleState.fn.json(promptAyudaVivo({ lead, texto, notas }), { model: HAIKU, modelTier: "quick", cache: false, signal: ctl.current.signal }));
+      if (!v.respuesta) throw { code: "empty_completion" };
+      setR(v);
+      if (onUsada) onUsada();
+    } catch (e) {
+      if (e && e.code === "cancelled") return;
+      if (e && CLAUDE_OFF.has(e.code)) setSampleState({ fn: null, off: true });
+      setError(e && e.code === "rate_limited" ? "Claude está ocupado. Prueba de nuevo en unos segundos." : sampleErrorText(e));
+    } finally { setBusy(false); }
+  };
+  return html`<div class="coach">
+    <div class="coach-row">
+      <button type="button" class=${cx("btn small claude", pista && !busy && "pulse")} onClick=${pedir} disabled=${busy || !String(texto || "").trim()}><${Icon} name="spark" />${busy ? "Pensando…" : "¿Qué le respondo?"}</button>
+      <span class=${cx("small", pista ? "coach-pista" : "muted")}>${pista || "Tócalo cuando el lead ponga una objeción o haga una pregunta."}</span>
+    </div>
+    ${error ? html`<p class="small" style="margin:0;color:var(--bad)">${error}</p>` : null}
+    ${r ? html`<div class="coach-card">
+      ${r.detecte ? html`<p class="small muted" style="margin:0">${r.detecte}</p>` : null}
+      <p class="coach-say">«${r.respuesta}»</p>
+      ${r.pregunta ? html`<p class="small" style="margin:0"><b>Después pregunta:</b> «${r.pregunta}»</p>` : null}
+      ${r.evitar ? html`<p class="small muted" style="margin:0">Evita: ${r.evitar}</p>` : null}
+    </div>` : null}
   </div>`;
 }
 
 function CallLogger({ lead, hist, onDone }) {
-  const { api, toast, sampleState, setSampleState, cfg, canWrite } = useCtx();
+  const { api, toast, sampleState, setSampleState, cfg, canWrite, borradoresDeTareas } = useCtx();
   const llave = "llamada:" + lead.id;
   const [previo] = useState(() => borradorLocal(llave));
   const [resultado, setResultado] = useState("");
@@ -2282,7 +2420,11 @@ function CallLogger({ lead, hist, onDone }) {
   const [toContactado, setToContactado] = useState(true);
   const [guardarTrans, setGuardarTrans] = useState(() => ls.get("guardarTrans", false));
   const [enVivo, setEnVivo] = useState(() => !!(previo && previo.enVivo));
+  const [pista, setPista] = useState("");
+  const [borr, setBorr] = useState({});
   const ctl = useRef(null);
+  const pistaT = useRef(null);
+  useEffect(() => () => clearTimeout(pistaT.current), []);
   useEffect(() => ls.set("linea", linea), [linea]);
   useEffect(() => { if (notas.trim() || trans.trim()) ls.set(llave, { notas, trans, duracion, enVivo, t: Date.now() }); else ls.del(llave); }, [notas, trans, duracion, enVivo]);
   const cancelar = () => { ls.del(llave); onDone(); };
@@ -2310,6 +2452,7 @@ function CallLogger({ lead, hist, onDone }) {
       const r = await sampleState.fn.json(promptLlamada({ lead, hist, resultado, notas, transcripcion: trans, enVivo }), { modelTier: "default", cache: false, signal: ctl.current.signal });
       const s = sanitizeAnalisis(r);
       setAn(s);
+      setBorr(Object.fromEntries(s.tareas.map((x, i) => [i, x.quien === "zh" && TAREA_MENSAJE.has(x.tipo)])));
       setUseStage(!!s.etapaSugerida && s.etapaSugerida !== lead.etapa);
       setUseNext(!!s.proxima);
       setUseData(Object.values(s.datos).some(Boolean));
@@ -2338,7 +2481,12 @@ function CallLogger({ lead, hist, onDone }) {
       if (an && useData) for (const [k, v] of nuevosDatos) patch[k] = k === "correo" ? v.toLowerCase() : v;
       await api.updateLead(lead.id, patch);
       ls.del(llave);
-      toast("Llamada registrada.");
+      /* Los correos y WhatsApp acordados quedan redactados en «Borradores»; Claude sigue aunque se cierre la ficha. */
+      const jobs = an && sampleState.fn ? an.tareas.filter((x, i) => borr[i] && x.quien === "zh" && TAREA_MENSAJE.has(x.tipo)) : [];
+      if (jobs.length && borradoresDeTareas) {
+        toast(`Llamada registrada. Claude está redactando ${jobs.length === 1 ? "el borrador" : `los ${jobs.length} borradores`} de lo acordado.`);
+        borradoresDeTareas({ ...lead, ...patch }, jobs, an.tareas.filter((x) => x.quien === "lead"), [{ tipo: "llamada", fecha: now, resultado, resumen: notas || an.resumen, analisis: an }, ...hist]);
+      } else toast("Llamada registrada.");
       onDone();
     } catch (e) { toast(dbErrorText(e), "bad"); } finally { setSaving(false); }
   };
@@ -2350,7 +2498,14 @@ function CallLogger({ lead, hist, onDone }) {
       <span class="small muted" style="flex-basis:100%">${cfg.whatsappNegocios ? `Llama desde la línea de negocios (${fmtPhone(normPhone(cfg.whatsappNegocios))}).` : "Llama desde la línea de negocios."} Si el botón no abre el teléfono, marca el número a mano.</span>
     </div>` : null}
     ${previo ? html`<div class="note"><${Icon} name="info" /><div>Recuperé lo que quedó sin guardar de esta llamada.</div></div>` : null}
-    <${LiveTranscriber} onStart=${() => setShowTrans(true)} onText=${(x) => { setEnVivo(true); setTrans((t) => (t.trim() ? t.replace(/\s+$/, "") + "\n" : "") + x); }} onStop=${(segundos) => { if (segundos >= 30) setDuracion((d) => d || String(Math.max(1, Math.round(segundos / 60)))); }} />
+    <${LiveTranscriber} onStart=${() => setShowTrans(true)} onText=${(x) => {
+      setEnVivo(true);
+      setTrans((t) => (t.trim() ? t.replace(/\s+$/, "") + "\n" : "") + x);
+      const p = pistaObjecion(x);
+      if (p) { setPista(p); clearTimeout(pistaT.current); pistaT.current = setTimeout(() => setPista(""), 45000); }
+    }} onStop=${(segundos) => { if (segundos >= 30) setDuracion((d) => d || String(Math.max(1, Math.round(segundos / 60)))); }}>
+      <${AyudaEnVivo} lead=${lead} texto=${trans} notas=${notas} pista=${pista} onUsada=${() => setPista("")} />
+    </${LiveTranscriber}>
     <div class="field"><span>Resultado</span><${Chips} label="Resultado" value=${resultado} onChange=${setResultado} options=${RESULTADOS} /></div>
     <div class="grid-2">
       <div class="field"><span>Línea</span><${Seg} label="Línea" value=${linea} onChange=${setLinea} options=${[["negocios", "Negocios"], ["personal", "Personal"]]} /></div>
@@ -2372,6 +2527,7 @@ function CallLogger({ lead, hist, onDone }) {
         ${an.etapaSugerida && an.etapaSugerida !== lead.etapa ? html`<label class="check"><input type="checkbox" checked=${useStage} onChange=${(e) => setUseStage(e.currentTarget.checked)} />Mover a «${etapaLabel(an.etapaSugerida)}»</label>` : null}
         ${an.proxima ? html`<label class="check"><input type="checkbox" checked=${useNext} onChange=${(e) => setUseNext(e.currentTarget.checked)} />Próxima acción: ${accionLabel(an.proxima.tipo)} · ${dayLabel(an.proxima.fecha)}${an.proxima.nota ? " · " + an.proxima.nota : ""}</label>` : null}
         ${nuevosDatos.length ? html`<label class="check"><input type="checkbox" checked=${useData} onChange=${(e) => setUseData(e.currentTarget.checked)} />Completar datos: ${nuevosDatos.map(([k, v]) => `${k} «${v}»`).join(", ")}</label>` : null}
+        ${sampleState.fn ? an.tareas.map((x, i) => (x.quien === "zh" && TAREA_MENSAJE.has(x.tipo) ? html`<label class="check" key=${"tarea" + i}><input type="checkbox" checked=${!!borr[i]} onChange=${(e) => { const v = e.currentTarget.checked; setBorr((b) => ({ ...b, [i]: v })); }} />Dejar redactado el ${x.tipo === "whatsapp" ? "WhatsApp" : "correo"}: ${x.que}</label>` : null)) : null}
         ${an.interes && an.interes !== "sin_datos" ? html`<p class="small muted">Interés estimado: ${an.interes}</p>` : null}
       </div>` : null}
     ${!an && contesto && lead.etapa === "nuevo" ? html`<label class="check"><input type="checkbox" checked=${toContactado} onChange=${(e) => setToContactado(e.currentTarget.checked)} />Mover a «Contactado»</label>` : null}
@@ -4281,8 +4437,32 @@ function App() {
     cobros: (cobros || []).filter((x) => pagoVencido(x, cfg) || facturaAtrasada(x)).length,
   };
 
+  /* Redacta, uno tras otro, los correos y WhatsApp que quedaron acordados en una llamada. */
+  const borradoresDeTareas = useCallback(async (lead, tareas, delLead, hist) => {
+    const fn = sampleState.fn;
+    if (!wrapApi || !fn) return;
+    let n = 0;
+    for (const t of tareas) {
+      const canal = t.tipo === "whatsapp" ? "whatsapp" : "correo";
+      const objetivo = t.tipo === "propuesta" || /propuesta|cotizaci/i.test(t.que) ? "propuesta" : /reuni|agend|demo/i.test(t.que) ? "agendar" : "seguimiento";
+      const instrucciones = `Quedó acordado en la llamada de hoy: ${t.que}${t.fecha ? ` (para el ${dayLabel(t.fecha).toLowerCase()})` : ""}.${delLead.length ? ` Lo que quedó en hacer ${firstName(lead.nombre) || "el lead"}: ${delLead.map((x) => x.que).join("; ")}.` : ""}`;
+      try {
+        const r = await fn.json(promptBorrador({ canal, objetivo, instrucciones, trato: lead.trato || "tu", firma: equipo[me.id] || {}, cfg, lead, hist }), { modelTier: "default", cache: false });
+        let data = { leadId: lead.id, canal, objetivo, instrucciones, firma: me.id || null, generadoPor: "claude" };
+        if (canal === "whatsapp") data.texto = String((r && r.texto) || "").trim();
+        else data = { ...data, ...sanitizeEmail(r), plantilla: "carta" };
+        await wrapApi.createDraft(data);
+        n += 1;
+      } catch (e) {
+        if (e && CLAUDE_OFF.has(e.code)) { setSampleState({ fn: null, off: true }); break; }
+      }
+    }
+    if (n) toast(`${n === 1 ? "Quedó redactado 1 borrador" : `Quedaron redactados ${n} borradores`} de lo acordado con ${leadName(lead)}. Revísalos en «Borradores».`);
+    else toast("Claude no pudo redactar los borradores de lo acordado. Puedes hacerlo desde «Redactar con Claude».", "bad");
+  }, [wrapApi, sampleState.fn, equipo, me.id, cfg, toast]);
+
   const ctx = {
-    db, api: wrapApi, me, leads: leads || [], leadsById, acts, drafts, equipo, cfg, sampleState, setSampleState, downloads, toast, nameOf, team,
+    db, api: wrapApi, me, leads: leads || [], leadsById, acts, drafts, equipo, cfg, sampleState, setSampleState, downloads, toast, nameOf, team, borradoresDeTareas,
     clientes: clientes || [], clientesById, proyectos: proyectos || [], proyectosById, cobros: cobros || [], mantenciones: mantenciones || [], solicitudes: solicitudes || [],
     openLead, openCliente, openProyecto, openDraft, openModal, closeModal, nav, changeStage, moveProyecto, canWrite, profileName: me.name,
   };
