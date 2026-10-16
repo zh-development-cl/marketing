@@ -94,8 +94,11 @@ fit** o **está con la competencia**, más lo que dijo, si se tiene.
   responsable), orden (próxima acción, última actividad, valor o más nuevos) y mostrar perdidos y
   en pausa.
 
-Las seis columnas caben en una pantalla de 1360 px. Si la tarjeta queda angosta, muestra solo las
-acciones de llamar; redactar y anotar siguen en la ficha. El tablero de Proyectos se arrastra igual.
+Las seis columnas caben en una pantalla de 1360 px y cada columna tiene el alto de la pantalla: se
+ven las primeras tarjetas (unas tres) y el resto se desliza dentro de la columna; abajo, «N más ↓»
+dice cuántas quedan y baja la lista. Si la tarjeta queda angosta, muestra solo las acciones de
+llamar; redactar y anotar siguen en la ficha. Los tableros de clientes y de Proyectos funcionan
+igual.
 
 ## Embudo de clientes
 

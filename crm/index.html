@@ -326,6 +326,12 @@ body.arrastrando .toasts { bottom: calc(112px + env(safe-area-inset-bottom, 0px)
 .col-sum { margin: -2px 4px 2px; font-size: 12.5px; color: var(--fg-3); font-variant-numeric: tabular-nums; }
 .col-sum b { color: var(--fg-2); font-weight: 600; }
 .col-empty { margin: 0; padding: 6px 4px; font-size: 13px; color: var(--fg-3); }
+/* Columnas con el alto de la pantalla: las tarjetas que no caben se deslizan dentro de la columna. */
+.board > .col { display: flex; flex-direction: column; max-height: max(440px, calc(100vh - 230px)); max-height: max(440px, calc(100dvh - 230px)); }
+.col-lista { position: relative; display: grid; gap: 8px; align-content: start; flex: 1 1 auto; min-height: 0; overflow-y: auto; scrollbar-width: thin; margin: 0 -6px; padding: 0 6px 6px; }
+.col-lista.mas { -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 40px), transparent); mask-image: linear-gradient(to bottom, #000 calc(100% - 40px), transparent); }
+.col-mas { flex: none; align-self: center; margin-top: 2px; padding: 5px 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--fg-2); font: 500 12.5px/1.2 var(--font-text); cursor: pointer; }
+.col-mas:hover { color: var(--fg); border-color: var(--fg-3); }
 .kcard.lead { gap: 5px; }
 .kcard.lead:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 .kcard-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
@@ -1954,6 +1960,32 @@ function useBoardDrag({ enabled, onDrop }) {
   return { drag, start, boardRef };
 }
 
+/* Tarjetas de una columna: se ven las que caben en la pantalla y el resto se desliza dentro de la
+   columna. Abajo, «N más ↓» dice cuántas quedan y baja la lista. */
+function ColLista({ n, children }) {
+  const ref = useRef(null);
+  const [ocultas, setOcultas] = useState(0);
+  const medir = () => {
+    const el = ref.current;
+    if (!el) return;
+    const fondo = el.scrollTop + el.clientHeight;
+    let k = 0;
+    for (const c of el.children) if (c.offsetTop + c.offsetHeight / 2 > fondo + 1) k += 1;
+    setOcultas(k);
+  };
+  useEffect(() => {
+    medir();
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === "undefined") return undefined;
+    const ro = new ResizeObserver(medir);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [n]);
+  const bajar = () => { const el = ref.current; if (el) el.scrollBy({ top: Math.round(el.clientHeight * 0.8), behavior: "smooth" }); };
+  return html`<div class=${cx("col-lista", ocultas && "mas")} ref=${ref} onScroll=${medir}>${children}</div>
+    ${ocultas ? html`<button type="button" class="col-mas" onClick=${bajar}>${ocultas} más ↓</button>` : null}`;
+}
+
 const iniciales = (n) => String(n || "").trim().split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join("").toUpperCase();
 
 function VistaLeads({ actual }) {
@@ -2010,7 +2042,7 @@ function LeadCard({ l, ultima, onPointerDown }) {
       : l.etapa === "perdido" ? html`<div class="kcard-tags">${l.motivoPerdida ? html`<span class="tag late">${l.motivoPerdida}</span>` : canWrite ? html`<button type="button" class="tag warn tagbtn" onClick=${ventana({ type: "lost", lead: l })}>Falta el motivo</button>` : html`<span class="tag warn">Sin motivo</span>`}</div>`
       : l.etapa === "ganado" ? html`<div class="kcard-tags"><${GanadoTag} l=${l} /></div>`
       : l.etapa === "pausa" && l.proxima && l.proxima.fecha ? html`<div><${NextTag} proxima=${l.proxima} /></div>` : null}
-    <span class="kcard-act">${ultima ? html`<${Icon} name=${ACT_ICON[ultima.tipo] || "note"} size=${13} />${clip(actTitulo(ultima), 34)} · ${ago(ultima.fecha)}` : "Sin actividad registrada"}</span>
+    ${ultima ? html`<span class="kcard-act"><${Icon} name=${ACT_ICON[ultima.tipo] || "note"} size=${13} />${clip(actTitulo(ultima), 34)} · ${ago(ultima.fecha)}</span>` : null}
     <div class="kcard-foot">
       <${RespAvatar} valor=${l.responsable} quien=${leadName(l)} guardar=${(nv) => api.updateLead(l.id, { responsable: nv })} />
       ${l.noContactar ? null : html`<span class="kacts">
@@ -2091,8 +2123,10 @@ function EmbudoView() {
           ${total ? html`<p class="col-sum"><b>${money(total)}</b>${e.open ? ` · ${money(Math.round(total * PROB_ETAPA[e.id]))} ponderado (${Math.round(PROB_ETAPA[e.id] * 100)} %)` : ""}</p>` : null}
           ${e.id === "perdido" && items.length ? html`<p class="col-sum motivos">${motivosResumen(items)}</p>` : null}
           ${e.id === "ganado" ? html`<p class="col-sum"><button type="button" class="linkbtn" onClick=${() => nav("embudoClientes")}>Ver el embudo de clientes →</button></p>` : null}
-          ${items.map((l) => html`<${LeadCard} key=${l.id} l=${l} ultima=${ultima[l.id]} onPointerDown=${(ev) => start(ev, l.id, e.id)} />`)}
-          ${!items.length ? html`<p class="col-empty">${drag ? "Suelta aquí" : "Sin leads"}</p>` : null}
+          <${ColLista} n=${items.length}>
+            ${items.map((l) => html`<${LeadCard} key=${l.id} l=${l} ultima=${ultima[l.id]} onPointerDown=${(ev) => start(ev, l.id, e.id)} />`)}
+            ${!items.length ? html`<p class="col-empty">${drag ? "Suelta aquí" : "Sin leads"}</p>` : null}
+          </${ColLista}>
         </div>`;
       })}
     </div>
@@ -3346,8 +3380,10 @@ function EmbudoClientesView() {
         return html`<div key=${e.id} data-col=${e.id} class=${cx("col", drag && drag.over === e.id && drag.from !== e.id && "drop")}>
           <div class="col-head"><${EtapaClientePill} etapa=${e.id} /><span class="count">${items.length}</span></div>
           ${s ? html`<p class="col-sum">${s}</p>` : null}
-          ${items.map((x) => html`<${ClienteCard} key=${x.c.id} c=${x.c} r=${x.r} etapa=${x.etapa} onPointerDown=${(ev) => start(ev, x.c.id, x.etapa)} />`)}
-          ${!items.length ? html`<p class="col-empty">${drag ? "Suelta aquí" : "Sin clientes"}</p>` : null}
+          <${ColLista} n=${items.length}>
+            ${items.map((x) => html`<${ClienteCard} key=${x.c.id} c=${x.c} r=${x.r} etapa=${x.etapa} onPointerDown=${(ev) => start(ev, x.c.id, x.etapa)} />`)}
+            ${!items.length ? html`<p class="col-empty">${drag ? "Suelta aquí" : "Sin clientes"}</p>` : null}
+          </${ColLista}>
         </div>`;
       })}
     </div>`}
@@ -3726,7 +3762,7 @@ function ProyectosView() {
         const items = proyectos.filter((p) => (p.estado || "por_iniciar") === fid).sort((a, b) => String((proximoHito(a) || {}).fecha || "9999").localeCompare(String((proximoHito(b) || {}).fecha || "9999")));
         return html`<div key=${fid} data-col=${fid} class=${cx("col", drag && drag.over === fid && drag.from !== fid && "drop")}>
           <div class="col-head"><${FasePill} estado=${fid} corto /><span class="count">${items.length}</span></div>
-          ${items.map((p) => {
+          <${ColLista} n=${items.length}>${items.map((p) => {
             const h = proximoHito(p);
             const g = garantiaHasta(p, cfg);
             return html`<button key=${p.id} class="kcard" onPointerDown=${(ev) => start(ev, p.id, fid)} onClick=${() => { if (!recienArrastrado()) openProyecto(p.id); }}>
@@ -3735,7 +3771,7 @@ function ProyectosView() {
               <div class="meta">${p.estado === "mejorar" && g ? html`<span class=${g >= todayKey() ? "tag ok" : "tag late"} title=${"Garantía hasta el " + dayLabel(g).toLowerCase()}>${g >= todayKey() ? "Garantía hasta " + noDots(fmtDiaMes.format(keyDate(g))).replace(/ /g, "\u00a0") : "Garantía terminada"}</span>` : h && h.fecha ? html`<${DueTag} fecha=${h.fecha} label="Hito" />` : isKey(p.entregaEstimada) && p.estado !== "cerrado" ? html`<${DueTag} fecha=${p.entregaEstimada} label="Entrega" />` : null}</div>
             </button>`;
           })}
-          ${!items.length ? html`<p class="col-empty">${drag ? "Suelta aquí" : "Sin proyectos"}</p>` : null}
+          ${!items.length ? html`<p class="col-empty">${drag ? "Suelta aquí" : "Sin proyectos"}</p>` : null}</${ColLista}>
         </div>`;
       })}
     </div>`}

@@ -351,6 +351,25 @@ const SEED = {
   ok(await page.locator("table.leads tbody tr", { hasText: "Taller Sur" }).locator(".stage", { hasText: "En desarrollo" }).isVisible(), "la tabla de clientes muestra la etapa");
   await page.close();
 
+  /* ---------------- columnas largas: se deslizan por dentro ---------------- */
+  const muchos = { ...SEED };
+  for (let i = 1; i <= 9; i++) muchos[`leads/lead-m${i}`] = base({ nombre: `Contacto ${i}`, empresa: `Empresa ${i}`, telefono: `+5691111020${i}`, etapa: "nuevo", responsable: null, creado: iso(-50 - i), actualizado: iso(-50 - i) });
+  const larga = await open({ name: "columna larga", seed: muchos });
+  await larga.locator(".side .nav button", { hasText: /^Embudo de leads/ }).click();
+  await larga.locator("h1", { hasText: "Embudo de leads" }).waitFor();
+  const cn = larga.locator('.board [data-col="nuevo"]');
+  const medida = await cn.locator(".col-lista").evaluate((el) => ({ sh: el.scrollHeight, ch: el.clientHeight }));
+  ok(medida.sh > medida.ch, "una columna con muchas tarjetas no se alarga: el resto queda dentro de la columna");
+  const alto = await cn.evaluate((el) => el.getBoundingClientRect().height);
+  ok(alto <= 900, `y la columna cabe en la pantalla (${Math.round(alto)} px)`);
+  const mas = cn.locator(".col-mas");
+  ok(await mas.isVisible() && /^\d+ más/.test(await mas.innerText()), "abajo dice cuántas tarjetas más hay");
+  await shot(larga, "e07-columna-larga.png");
+  await mas.click();
+  const bajo = await larga.waitForFunction(() => document.querySelector('.board [data-col="nuevo"] .col-lista').scrollTop > 0, null, { timeout: 5000 }).then(() => true, () => false);
+  ok(bajo, "y al tocarlo la columna se desliza hacia abajo");
+  await larga.close();
+
   /* ---------------- teléfono ---------------- */
   const phone = await open({ name: "teléfono", viewport: { width: 390, height: 844 }, touch: true, seed: SEED });
   await phone.locator(".tabs button", { hasText: /^Más/ }).click();
