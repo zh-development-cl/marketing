@@ -7,7 +7,7 @@ Actualizado: 2026-10-14. Las fechas suponen que las llamadas fueron el miércole
 | Empresa | Contacto | Resultado | Próximo paso | Cuándo | Quién |
 |---------|----------|-----------|--------------|--------|-------|
 | Lubri Express | Alex Núñez | Ya trabajan con un equipo de Valdivia. Ofreció referir. | WhatsApp pidiendo referidos | Hoy | Bozzo |
-| VinoPrint | César Aldana | Llamada hecha el 15 por Lorenzo. Usa Twist Print, solo cotizaciones, paga mucho, quiere algo propio. Dio correo. | Llamar para proponer diagnóstico el mismo día; ver `oportunidad-vinoprint.md` | Vie 16 oct, 10:00 | Bozzo |
+| VinoPrint | César Aldana | Usa Twist Print, solo cotizaciones, paga mucho, quiere algo propio. Aceptó reunión por WhatsApp el 15. | Diagnóstico por Meet; invitación a cesar.aldana@vinoprint.cl; WhatsApp de confirmación el lunes a las 10. Ver `oportunidad-vinoprint.md` | Lun 19 oct, 11:00 | Bozzo |
 | Logística Integral | Pablo Salazar | Pidió que lo llamen. | Llamar | Jue 15 oct, 10:20 | Nik |
 | Gimeco | Felipe Contreras | Hablar en diciembre. | WhatsApp corto hoy; llamar en diciembre | Mar 1 dic | Nik |
 | Flosam | Julio Gutiérrez | Aceptó reunión. No dio su correo. | WhatsApp hoy pidiendo el correo; luego invitación de Meet | Vie 16 oct, 12:00 | Bozzo |
@@ -125,31 +125,13 @@ Y de ahí a las partes 5, 6 y 7 del guion de esa empresa, y a pedir los 20 minut
 
 Guion en `guiones-llamadas-2.md`. Pitch: el pedido recurrente entra solo, la cotización sale de la lista en minutos, fichas y certificados viajan con cada despacho. Pregunta de seguimiento: cuántas cotizaciones salen a la semana.
 
-### VinoPrint: llamada del viernes 10:00 para agendar el diagnóstico (Bozzo)
+### VinoPrint: diagnóstico lunes 19 a las 11:00 (Bozzo)
 
-Resumen y propuesta en `oportunidad-vinoprint.md`. Lorenzo lo llama mañana viernes a las 10 para proponerle el diagnóstico ese mismo día.
+César aceptó por WhatsApp el jueves 15 en la noche: viaja a Talca el viernes, propuso el lunes a las 11. Resumen, propuesta y las ocho preguntas en `oportunidad-vinoprint.md`.
 
-**Jueves en la noche, WhatsApp que cumple el "te hablo hoy" y pide la reunión de 30 minutos:**
-
-> César, Lorenzo de ZH. Perdona la hora, me quedé metido en lo de Twist y quería escribirte hoy como quedamos
->
-> Lo que vi: tienen planes como de 300 a 400 dólares al mes y tú ocupas solo el cotizador. Eso se puede armar aparte, con tus fórmulas, y te olvidas de la mensualidad. ¿Te tinca que lo conversemos media hora por Meet? Puede ser mañana a las 12 o a las 4, o el martes si te acomoda más. Me dices y te mando la invitación al correo
-
-- **Si responde con una hora:** evento de 30 minutos con Meet a cesar.aldana@vinoprint.cl, y un "listo, te llegó la invitación".
-- **Si responde algo vago:** "Dale, te llamo a las 10 y lo cuadramos".
-- **Si no responde:** la llamada de las 10 de abajo, abriendo con "te escribí anoche por lo de Twist".
-
-**La llamada, viernes 10:00.** Sin apertura en frío: ya hablaron.
-
-> "Hola César, Lorenzo de ZH Development. Te llamo como te escribí. ¿Te acomoda hacer el diagnóstico hoy? Son 30 minutos por Meet, y lo único que necesito es que compartas pantalla y cotices un trabajo real en Twist. ¿A las 12 o a las 4?"
-
-- **Si dice que sí:** "Perfecto, te mando la invitación ahora a cesar.aldana@vinoprint.cl mientras hablamos… ¿te llegó?". Evento de 30 minutos con Meet.
-- **Si hoy no puede:** "Sin problema. ¿Martes a las 4 o miércoles a las 11?". Invitación en la misma llamada.
-- **Si pregunta qué le vamos a mostrar:** "Primero quiero ver cómo cotizas tú. Con eso te digo qué tendría un cotizador propio, en cuánto tiempo, y cuánto costaría comparado con lo que pagas en Twist."
-
-**Si no contesta a las 10:** WhatsApp a las 10:05: "César, te llamé recién. ¿Hacemos el diagnóstico hoy a las 12 o a las 4? Te mando la invitación al correo". Segundo intento de llamada a las 12.
-
-**Antes de la reunión:** leer las ocho preguntas de `oportunidad-vinoprint.md` y tener a mano el dato de los planes de Twist (US$ 299 a 400 al mes).
+- Evento en Google Calendar, lunes 19 de octubre, 11:00 a 11:30, con Meet, invitado cesar.aldana@vinoprint.cl. Descripción: "Me muestras cómo cotizas hoy en Twist con un trabajo real, y te digo qué tendría un cotizador propio, en cuánto tiempo y cuánto costaría comparado con lo que pagas."
+- Lunes a las 10, WhatsApp: "César, nos vemos a las 11, ¿sigue en pie?".
+- En la reunión: pedirle que comparta pantalla y cotice un trabajo real. Preguntar cuánto paga de Twist y cuántas viñas atiende, incluidas las de Talca.
 
 ### Logística Integral, jueves 15 a las 10:20 (Nik)
 

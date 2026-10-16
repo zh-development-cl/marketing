@@ -66,4 +66,4 @@ Con las respuestas sale la propuesta escrita: alcance, plazo y precio cerrado.
 
 ## Siguiente paso
 
-Lorenzo lo llama el viernes 16 a las 10:00 para proponer el diagnóstico ese mismo día, y manda la invitación a cesar.aldana@vinoprint.cl durante la llamada. Guion en `seguimiento.md`.
+Diagnóstico agendado: lunes 19 de octubre a las 11:00 por Meet, invitación a cesar.aldana@vinoprint.cl. César viaja a Talca, zona de viñas: preguntar cuántas atiende.
