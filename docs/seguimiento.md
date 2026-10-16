@@ -11,7 +11,7 @@ Actualizado: 2026-10-14. Las fechas suponen que las llamadas fueron el miércole
 | Logística Integral | Pablo Salazar | Pidió que lo llamen. | Llamar | Jue 15 oct, 10:20 | Nik |
 | Gimeco | Felipe Contreras | Hablar en diciembre. | WhatsApp corto hoy; llamar en diciembre | Mar 1 dic | Nik |
 | Flosam | Julio Gutiérrez | Aceptó reunión. WhatsApp del jueves pidiendo correo, sin leer a las 21:30. | Viernes 9:30: invitación a jgutierrez@flosam.cl y WhatsApp; 11:30 llamada si no lee; fijo de Flosam +56 2 2611 9600 | Vie 16 oct, 12:00 | Bozzo |
-| Natufeed | José Miguel Figueroa | Quiere reunión. | WhatsApp para agendar | Hoy | Nik |
+| Natufeed | José Miguel Figueroa | Quiere reunión. WhatsApp del 14 con dos horarios, sin leer al 15 en la noche. | Viernes: 9:30 WhatsApp con lunes 16 o martes 10; mismo texto por correo a jmfigueroa@natufeed.cl; 12:00 llamada si no responde | Vie 16 oct | Nik |
 | Mr Wash | Nicolás Edwards | Ya no trabaja ahí; está en un laboratorio. Puede hacer el nexo. | WhatsApp pidiendo el contacto | Hoy | Bozzo |
 | Megaklean | Harry Winkler | Pidió que lo llamen. | Llamar | Jue 15 oct, 11:00 | Bozzo |
 | R-Log | Walther Rauff | Pidió información por correo. | Correo a wrauff@r-log.cl con copia a jmora@r-log.cl | Hoy | Bozzo |
