@@ -349,6 +349,8 @@ body.arrastrando .toasts { bottom: calc(112px + env(safe-area-inset-bottom, 0px)
 .pitch { display: grid; gap: 10px; padding: 14px 16px; border-radius: var(--r-m); background: var(--sunken); }
 .pitch h3 { margin: 0; }
 .pitch p { margin: 4px 0 0; font-size: 14px; line-height: 1.5; color: var(--fg); }
+.pitch .guion summary { cursor: pointer; color: var(--accent); font-size: 13.5px; font-weight: 600; }
+.pitch .guion p { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 13.5px; color: var(--fg-2); max-height: 420px; overflow: auto; }
 .kacts { display: inline-flex; gap: 2px; }
 .kact { display: inline-grid; place-items: center; width: 30px; height: 30px; border: 0; border-radius: 8px; background: transparent; color: var(--fg-3); cursor: pointer; }
 .kact:hover { background: var(--sunken); color: var(--fg); }
@@ -1094,6 +1096,7 @@ function leadContexto(lead, hist) {
   add("Cómo llegó", origenLabel(lead.origen)); add("Etapa", etapaLabel(lead.etapa)); add("Qué necesita", lead.necesidad);
   add("Dolor que suponemos (hipótesis sin confirmar: no la afirmes como un hecho)", lead.dolor); add("Cómo podría ayudar ZH (idea interna: propónla en condicional)", lead.comoAyudamos);
   add("Notas internas (solo contexto)", lead.notas);
+  add("Guion preparado para hablar con el lead (referencia interna, no lo cites)", clip(lead.guion, 3000));
   if (lead.proxima && lead.proxima.fecha) add("Próxima acción planificada", `${accionLabel(lead.proxima.tipo)} el ${lead.proxima.fecha}${lead.proxima.nota ? " (" + lead.proxima.nota + ")" : ""}`);
   L.push("", "HISTORIAL (más reciente primero)");
   const hs = (hist || []).filter((a) => a.tipo !== "etapa").slice(0, 10);
@@ -1255,7 +1258,7 @@ function sanitizeAnalisis(r) {
 const ZH_CORTO = "ZH Development hace software a medida, automatización e integración de sistemas e IA aplicada para empresas chilenas. Parte con una llamada de descubrimiento de 30 minutos y después manda una propuesta escrita con alcance, plazo y precio.";
 function promptAyudaVivo(o) {
   const l = o.lead;
-  const datos = [l.nombre && "Lead: " + l.nombre, l.empresa && "Empresa: " + l.empresa, l.cargo && "Cargo: " + l.cargo, l.necesidad && "Lo que busca: " + l.necesidad, l.dolor && "Dolor que suponemos (sin confirmar): " + clip(l.dolor, 500), l.comoAyudamos && "Cómo podemos ayudar: " + clip(l.comoAyudamos, 500), "Etapa: " + etapaLabel(l.etapa), "Trato: " + (l.trato === "usted" ? "de usted" : "de tú")].filter(Boolean).join("\n");
+  const datos = [l.nombre && "Lead: " + l.nombre, l.empresa && "Empresa: " + l.empresa, l.cargo && "Cargo: " + l.cargo, l.necesidad && "Lo que busca: " + l.necesidad, l.dolor && "Dolor que suponemos (sin confirmar): " + clip(l.dolor, 500), l.comoAyudamos && "Cómo podemos ayudar: " + clip(l.comoAyudamos, 500), l.guion && "Guion que preparamos (úsalo de referencia, sobre todo sus respuestas a objeciones; no lo leas literal):\n" + clip(l.guion, 2500), "Etapa: " + etapaLabel(l.etapa), "Trato: " + (l.trato === "usted" ? "de usted" : "de tú")].filter(Boolean).join("\n");
   return `Estás ayudando en vivo a un vendedor de ZH durante una llamada con un lead. ${ZH_CORTO}\n\n${datos}\n\nLo último de la llamada (transcripción automática: no separa quién habla y trae errores):\n${String(o.texto || "").slice(-1800)}${o.notas ? "\n\nNotas del vendedor: " + clip(o.notas, 500) : ""}\n\nMira lo último que dijo o preguntó el lead (una objeción, una duda o un silencio) y dile al vendedor qué decir ahora. Frases cortas y naturales para decir en voz alta, en español de Chile. Habla del problema del lead. No inventes precios, plazos, casos ni clientes. Si preguntan el precio, explica que depende del alcance y que, después de entender bien lo que necesitan, ZH manda una propuesta escrita con alcance, plazo y precio. Si piden que les manden información, propón ver su caso en una reunión de 30 minutos. Nunca presiones.\nResponde solo con JSON: {"detecte": "qué dijo o pidió el lead, en una frase corta", "respuesta": "lo que el vendedor puede decir ahora, en 1 o 2 frases", "pregunta": "una pregunta para seguir, o vacío", "evitar": "algo que no conviene decir ahora, o vacío"}`;
 }
 function sanitizeAyuda(r) {
@@ -2379,10 +2382,11 @@ function LeadDrawer({ id, tab: initialTab, onClose }) {
           </div>
         </section>
 
-        ${lead.dolor || lead.comoAyudamos ? html`<section class="pitch">
-          <h3>Dolor y cómo ayudamos</h3>
+        ${lead.dolor || lead.comoAyudamos || lead.guion ? html`<section class="pitch">
+          <h3>${lead.dolor || lead.comoAyudamos ? "Dolor y cómo ayudamos" : "Preparación"}</h3>
           ${lead.dolor ? html`<div><span class="eyebrow">Dolor${isOpen(lead) && RUTA.indexOf(lead.etapa) < 2 ? " · por confirmar" : ""}</span><p>${lead.dolor}</p></div>` : null}
           ${lead.comoAyudamos ? html`<div><span class="eyebrow">Cómo ayudamos</span><p>${lead.comoAyudamos}</p></div>` : null}
+          ${lead.guion ? html`<details class="guion"><summary>Guion y preparación</summary><p>${lead.guion}</p></details>` : null}
         </section>` : null}
 
         <${NextAction} lead=${lead} save=${save} canWrite=${canWrite} />
@@ -2420,6 +2424,7 @@ function LeadDrawer({ id, tab: initialTab, onClose }) {
             <div class="span-2"><${TextField} id="l-nec" label="Qué necesita" multiline value=${lead.necesidad} disabled=${!canWrite} onSave=${(v) => save({ necesidad: v })} /></div>
             <div class="span-2"><${TextField} id="l-dolor" label="Dolor" multiline value=${lead.dolor} disabled=${!canWrite} onSave=${(v) => save({ dolor: v })} hint="Lo que suponemos que le duele. Es hipótesis hasta que lo confirme en una llamada." /></div>
             <div class="span-2"><${TextField} id="l-ayuda" label="Cómo ayudamos" multiline value=${lead.comoAyudamos} disabled=${!canWrite} onSave=${(v) => save({ comoAyudamos: v })} hint="El primer proyecto acotado y, si funciona, el segundo paso." /></div>
+            <div class="span-2"><${TextField} id="l-guion" label="Guion y preparación" multiline rows=${6} value=${lead.guion} disabled=${!canWrite} onSave=${(v) => save({ guion: v })} hint="Qué decir en la llamada, respuestas a sus objeciones y el WhatsApp si no contesta. El apoyo en vivo lo usa de referencia." /></div>
             <div class="span-2"><${TextField} id="l-notas" label="Notas internas" multiline value=${lead.notas} disabled=${!canWrite} onSave=${(v) => save({ notas: v })} hint="Claude las usa como contexto, pero no las cita en los mensajes." /></div>
             <${TextField} id="l-valor" label="Valor estimado (CLP sin IVA)" mono value=${lead.valor ? String(lead.valor) : ""} disabled=${!canWrite} onSave=${(v) => { const n = Number(String(v).replace(/\D/g, "")); save({ valor: n > 0 ? n : null }); }} hint=${lead.valor ? clp.format(lead.valor) + " + IVA" : "Solo para uso interno"} />
             <${TextField} id="l-caso" label="Caso en propuestaszh" value=${lead.caso} disabled=${!canWrite} onSave=${(v) => save({ caso: v })} hint="Ej.: 2026-cliente-proyecto" />
@@ -4576,8 +4581,8 @@ function AjustesView() {
       } else if (tipo === "cobros") {
         await downloads.save({ filename: `crm-zh-cobros-${todayKey()}.csv`, data: cobrosCsv(cobros, clientesById, proyectosById, cfg) });
       } else {
-        const [a, b, e, g, cl, pr, co, ma, so] = await Promise.all([getAll(db, "actividades", "fecha"), getAll(db, "borradores", "creado"), db.collection("equipo").get(), db.doc("config/general").get(), getAll(db, "clientes", "creado"), getAll(db, "proyectos", "creado"), getAll(db, "cobros", "creado"), getAll(db, "mantenciones", "creado"), getAll(db, "solicitudes", "creado")]);
-        const dump = { exportado: nowISO(), leads, actividades: a, borradores: b, clientes: cl, proyectos: pr, cobros: co, mantenciones: ma, solicitudes: so, equipo: e.docs.map((d) => ({ id: d.id, ...d.data() })), config: g.exists ? g.data() : {} };
+        const [a, b, e, g, cl, pr, co, ma, so, ar] = await Promise.all([getAll(db, "actividades", "fecha"), getAll(db, "borradores", "creado"), db.collection("equipo").get(), db.doc("config/general").get(), getAll(db, "clientes", "creado"), getAll(db, "proyectos", "creado"), getAll(db, "cobros", "creado"), getAll(db, "mantenciones", "creado"), getAll(db, "solicitudes", "creado"), getAll(db, "archivo", "guardado")]);
+        const dump = { exportado: nowISO(), leads, actividades: a, borradores: b, clientes: cl, proyectos: pr, cobros: co, mantenciones: ma, solicitudes: so, archivo: ar, equipo: e.docs.map((d) => ({ id: d.id, ...d.data() })), config: g.exists ? g.data() : {} };
         await downloads.save({ filename: `crm-zh-respaldo-${todayKey()}.json`, data: JSON.stringify(dump, null, 2) });
       }
     } catch (e) { if (e && e.code !== "declined") toast(e && e.code === "rate_limited" ? "Ya hay una descarga esperando tu confirmación." : "No se pudo preparar la descarga.", "bad"); }

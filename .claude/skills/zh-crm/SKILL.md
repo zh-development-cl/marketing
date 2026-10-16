@@ -62,7 +62,8 @@ su `responsable` y suma lo que no tiene responsable. Suma lo de clientes (ver m�
 
 **Cargar leads** (lista, planilla o avisos del formulario o de la agenda de zhdevelopment.cl):
 1. Extrae nombre, empresa, cargo, teléfono, correo, rubro, ciudad, origen y necesidad, y si vienen,
-   el dolor que suponemos (`dolor`) y cómo los ayudaríamos (`comoAyudamos`).
+   el dolor que suponemos (`dolor`), cómo los ayudaríamos (`comoAyudamos`) y el guion de la llamada
+   (`guion`: qué decir, respuestas a sus objeciones y el WhatsApp si no contesta), en texto plano.
 2. Busca duplicados por `telefono` y por `correo` (`query` con `where`) y sáltalos (avisa cuáles).
 3. `batch` de `set` en `leads` con: `etapa: "nuevo"`, `prioridad: "media"`, `trato: "tu"`,
    `intentos: 0`, `proxima: null` (o `{tipo: "llamar", fecha: hoy, hora: "", nota: ""}` si te
@@ -125,6 +126,11 @@ volver a llamar en otro momento. Desde el tercer intento, si el socio lo pide, p
 `"No hay fit"` o `"Está con la competencia"`, y lo que dijo, con sus palabras, va en
 `motivoDetalle`. Si no sabes el motivo, déjalo vacío (`""`): la tarjeta muestra «Falta el motivo»
 para que un socio lo ponga.
+
+**Archivo:** la colección `archivo` guarda documentos completos que salieron del repositorio por
+tener datos de contacto (el playbook de llamadas, los guiones y la investigación de la prospección
+de octubre de 2026). Léelos con `ArtifactData` cuando pidan ese material; no los copies al
+repositorio.
 
 **Pasar a propuesta:** cuando un lead llega a reunión o propuesta, el caso comercial se arma en el
 repositorio `zh-development-cl/propuestaszh` con su skill `zh-proposals`; guarda el id del caso en

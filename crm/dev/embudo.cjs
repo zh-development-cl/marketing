@@ -35,7 +35,7 @@ const SEED = {
   "config/general": { agendaUrl: "https://zhdevelopment.cl/#agendar" },
   "leads/lead-a": base({ nombre: "Paula Rojas", empresa: "Panadería Sol", telefono: "+56911110001", etapa: "nuevo", prioridad: "alta", responsable: LO, creado: iso(-9), actualizado: iso(-9) }),
   "leads/lead-b": base({ nombre: "Tomás Vera", empresa: "Viña Cerro", telefono: "+56911110002", etapa: "contactado", valor: 3000000, responsable: NI, proxima: { tipo: "llamar", fecha: T, hora: "", nota: "Confirmar reunión" }, creado: iso(-8), actualizado: iso(-1) }),
-  "leads/lead-c": base({ nombre: "Isabel Mora", empresa: "Clínica Mar", telefono: "+56911110003", etapa: "propuesta", valor: 8000000, responsable: LO, dolor: "Agendan las horas por teléfono y anotan en un cuaderno", comoAyudamos: "Agenda en línea con recordatorio por WhatsApp", proxima: { tipo: "correo", fecha: addDays(T, 3), hora: "", nota: "" }, creado: iso(-20), actualizado: iso(-2) }),
+  "leads/lead-c": base({ nombre: "Isabel Mora", empresa: "Clínica Mar", telefono: "+56911110003", etapa: "propuesta", valor: 8000000, responsable: LO, dolor: "Agendan las horas por teléfono y anotan en un cuaderno", comoAyudamos: "Agenda en línea con recordatorio por WhatsApp", guion: "Parte 4: Vi que agendan las horas por teléfono.\nObjeción propia: «Ya tenemos un sistema» → Lo conectamos con lo que ya usan.\nWhatsApp si no contesta: Hola Isabel, te llamé recién.", proxima: { tipo: "correo", fecha: addDays(T, 3), hora: "", nota: "" }, creado: iso(-20), actualizado: iso(-2) }),
   "leads/lead-f": base({ nombre: "Luis Soto", empresa: "Imprenta Norte", telefono: "+56911110006", etapa: "propuesta", valor: 2000000, responsable: LO, proxima: { tipo: "llamar", fecha: addDays(T, 1), hora: "", nota: "" }, creado: iso(-3), actualizado: iso(-3) }),
   "leads/lead-d": base({ nombre: "Carlos Díaz", empresa: "Transportes Río", telefono: "+56911110004", etapa: "negociacion", valor: 5000000, responsable: LO, proxima: { tipo: "reunion", fecha: addDays(T, 2), hora: "", nota: "" }, creado: iso(-30), actualizado: iso(-4) }),
   "leads/lead-e": base({ nombre: "Rosa Pinto", empresa: "Ferretería Ola", telefono: "+56911110005", etapa: "perdido", motivoPerdida: "No es el momento", responsable: LO, creado: iso(-40), actualizado: iso(-10) }),
@@ -212,7 +212,9 @@ const SEED = {
   await page.selectOption("#lead-resp", LO);
   await page.waitForFunction(() => window.__mockStore.get("leads/lead-c").responsable === "lorenzo", null, { timeout: 5000 });
   ok(true, "el responsable se cambia desde la ficha");
-  ok((await page.locator("#l-dolor").count()) === 1 && (await page.locator("#l-ayuda").count()) === 1, "y en «Datos del lead» se editan el dolor y cómo ayudamos");
+  ok((await page.locator("#l-dolor").count()) === 1 && (await page.locator("#l-ayuda").count()) === 1 && (await page.locator("#l-guion").count()) === 1, "y en «Datos del lead» se editan el dolor, cómo ayudamos y el guion");
+  await page.locator(".pitch details.guion summary").click();
+  ok((await page.locator(".pitch details.guion p").innerText()).includes("WhatsApp si no contesta: Hola Isabel"), "el guion se abre en la ficha, completo");
   await page.keyboard.press("Escape");
   await page.locator(".scrim").first().waitFor({ state: "detached" });
   await card(page, "Luis Soto").locator('.kact[title="Registrar llamada"]').click();

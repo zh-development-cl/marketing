@@ -29,7 +29,7 @@ revisarlos antes de enviarlos.
 | Ajustes | Firma de cada socio, WhatsApp de negocios, enlace para agendar, cuenta de Gmail, garantía y plazo de pago por defecto, exportación. |
 
 **Ficha del lead** (se abre al tocar un lead): arriba, la etapa y quién lo lleva; teléfono y
-correo con copiar, llamar y WhatsApp; el dolor y cómo ayudamos, si están; próxima acción con atajos
+correo con copiar, llamar y WhatsApp; el dolor, cómo ayudamos y el guion, si están; próxima acción con atajos
 (hoy, mañana, en 3 días hábiles, en una semana); y tres herramientas:
 
 - **Registrar llamada:** resultado (contestó, no contestó, buzón, ocupado, pidió que llamemos
@@ -50,9 +50,11 @@ correo con copiar, llamar y WhatsApp; el dolor y cómo ayudamos, si están; pró
 reconoce quién lo abre por el nombre de su firma o de su perfil y lo propone al crear un lead; si no
 lo reconoce, propone al último que se eligió.
 
-**Dolor y cómo ayudamos:** lo que suponemos que le duele al lead (hipótesis hasta que lo confirme)
-y el primer proyecto que le ofreceríamos. Se editan en «Datos del lead» y Claude los usa en el
-apoyo en vivo, el análisis de la llamada y los borradores, sin afirmarlos como un hecho.
+**Dolor, cómo ayudamos y guion:** lo que suponemos que le duele al lead (hipótesis hasta que lo
+confirme), el primer proyecto que le ofreceríamos y el guion de la llamada (qué decir, respuestas a
+sus objeciones y el WhatsApp si no contesta), que en la ficha se abre en «Guion y preparación». Se
+editan en «Datos del lead» y Claude los usa en el apoyo en vivo, el análisis de la llamada y los
+borradores, sin afirmar el dolor como un hecho.
 
 En «Datos del lead», **«Pidió no ser contactado»** deja registrada la fecha, saca al lead de las
 listas de trabajo y bloquea llamar, escribir y redactar (ver `docs/crm-telefonia-whatsapp.md`).
@@ -230,7 +232,7 @@ calendario `AAAA-MM-DD` en hora de Chile; marcas de tiempo en ISO. En todas las 
 
 | Colección | Documento | Campos principales |
 |---|---|---|
-| `leads` | un lead | `nombre`, `empresa`, `cargo`, `telefono` (E.164, `+569…`), `correo`, `sitio`, `rubro`, `ciudad`, `origen` (`web`, `agenda`, `instagram`, `linkedin`, `referido`, `evento`, `prospeccion`, `otro`), `etapa` (`nuevo`, `contactado`, `reunion`, `propuesta`, `negociacion`, `ganado`, `perdido`, `pausa`), `prioridad` (`alta`, `media`, `baja`), `trato` (`tu`, `usted`), `necesidad` (lo que pide, confirmado), `dolor` (lo que suponemos), `comoAyudamos`, `notas`, `responsable` (`lorenzo`, `nicolas` o `null`), `proxima` (`{tipo, fecha AAAA-MM-DD, hora, nota}` o `null`), `intentos` (llamadas seguidas sin respuesta), `ultimoContacto`, `ultimoIntento`, `motivoPerdida` (`No responde`, `Mal timing`, `No hay fit`, `Está con la competencia`; vacío = falta; puede quedar un texto antiguo), `motivoDetalle` (lo que dijo), `noContactar`, `noContactarDesde`, `valor`, `caso` (id en `propuestaszh`), `clienteId` (si se convirtió), `creado`, `actualizado`, `creadoPor` |
+| `leads` | un lead | `nombre`, `empresa`, `cargo`, `telefono` (E.164, `+569…`), `correo`, `sitio`, `rubro`, `ciudad`, `origen` (`web`, `agenda`, `instagram`, `linkedin`, `referido`, `evento`, `prospeccion`, `otro`), `etapa` (`nuevo`, `contactado`, `reunion`, `propuesta`, `negociacion`, `ganado`, `perdido`, `pausa`), `prioridad` (`alta`, `media`, `baja`), `trato` (`tu`, `usted`), `necesidad` (lo que pide, confirmado), `dolor` (lo que suponemos), `comoAyudamos`, `guion`, `notas`, `responsable` (`lorenzo`, `nicolas` o `null`), `proxima` (`{tipo, fecha AAAA-MM-DD, hora, nota}` o `null`), `intentos` (llamadas seguidas sin respuesta), `ultimoContacto`, `ultimoIntento`, `motivoPerdida` (`No responde`, `Mal timing`, `No hay fit`, `Está con la competencia`; vacío = falta; puede quedar un texto antiguo), `motivoDetalle` (lo que dijo), `noContactar`, `noContactarDesde`, `valor`, `caso` (id en `propuestaszh`), `clienteId` (si se convirtió), `creado`, `actualizado`, `creadoPor` |
 | `clientes` | un cliente | `nombre`, `razonSocial`, `rut`, `giro`, `direccion`, `ciudad`, `correoFacturacion`, `sitio`, `rubro`, `contactos[]` (`{id, nombre, cargo, correo, telefono, rol, principal}`, con `rol` = `decisor`, `usuario`, `facturacion`, `tecnico` u `otro`), `responsable`, `trato`, `leadIds[]`, `estado` (`activo`, `archivado`), `notas` |
 | `proyectos` | un proyecto | `clienteId`, `leadId`, `nombre`, `tipo` (`software`, `automatizacion`, `ia`, `web`, `procesos`, `consultoria`, `otro`), `valor`, `estado` (`por_iniciar`, `entender`, `disenar`, `construir`, `probar`, `mejorar`, `cerrado`, `pausado`, `cancelado`), `inicio`, `entregaEstimada`, `produccion` (desde aquí corre la garantía), `garantiaDias`, `cierre`, `hitos[]` (`{id, nombre, fecha, hecho, fechaHecho}`), `enlaces[]` (`{id, titulo, url}`), `caso`, `alcance`, `responsable`, `notas` |
 | `cobros` | un cobro | `clienteId`, `proyectoId`, `mantencionId`, `solicitudId`, `tipo` (`anticipo`, `hito`, `cierre`, `mensualidad`, `evolutivo`, `otro`), `concepto`, `monto`, `fecha` (cuándo facturar), `estado` (`por_facturar`, `facturado`, `pagado`, `anulado`), `factura`, `fechaFactura`, `vence`, `fechaPago`, `notas`, `generado`, `ultimoRecordatorio`. Las mensualidades usan el id `cob-m-<id de la mantención>-<AAAA-MM>` |
@@ -240,6 +242,7 @@ calendario `AAAA-MM-DD` en hora de Chile; marcas de tiempo en ISO. En todas las 
 | `borradores` | un correo o WhatsApp | `leadId`, o `clienteId` con `contactoId`, `proyectoId`, `cobroId` y `solicitudId`; `canal` (`correo`, `whatsapp`), `estado` (`por_revisar`, `listo`, `enviado`, `descartado`), `objetivo` (a clientes: `avance`, `entrega`, `cobro`, `solicitud`, `reunion`, `feedback`, `mantencion`, `libre`), `instrucciones`, `firma` (id de usuario), `generadoPor`; correo: `plantilla` (`carta`, `destacado`), `asunto`, `preheader`, `etiqueta`, `titular`, `saludo`, `parrafos[]`, `puntos[]`, `cta {texto, url}`, `cierre`, `posdata`; WhatsApp: `texto` |
 | `equipo` | uno por usuario (id `u_…`) | `nombre`, `cargo`, `telefono`, `correo` (la firma) |
 | `diagnostico` | `microfono-<id de usuario>` | último resultado de «Transcribir en vivo»: `ok`, `paso`, `tipo`, `error`, `politica`, `enMarco`, `navegador`, `fecha` |
+| `archivo` | un documento guardado | `titulo`, `ruta`, `rama`, `commit`, `contenido`, `guardado`, `nota`: copias de documentos que salieron del repositorio público por tener datos de contacto (por ejemplo, el playbook y los guiones de la prospección de octubre de 2026). No se ven en la página; entran en el respaldo JSON |
 | `config` | `general` | `whatsappNegocios`, `agendaUrl`, `gmailCuenta`, `abrirWhatsapp` (`app`, `web`), `garantiaDias` (60 si no está), `plazoPago` (30 si no está) |
 
 Borrar un cliente borra sus proyectos, cobros, mantenciones, solicitudes, borradores e historial
