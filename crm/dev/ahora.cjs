@@ -109,7 +109,7 @@ const SEED = {
   const prox = lista.locator(".hoy-proximos");
   ok(!(await prox.evaluate((d) => d.open)) && (await prox.locator("summary").innerText()).includes("Próximos 7 días · 1"), "los próximos 7 días van plegados, con cuántos hay");
   await prox.locator("summary").click();
-  ok(await lista.locator(".hoy-proximos .task", { hasText: "Seguimiento de la propuesta" }).isVisible(), "al abrirlos aparece lo que viene");
+  ok(await visto(lista.locator(".hoy-proximos .task", { hasText: "Seguimiento de la propuesta" })), "al abrirlos aparece lo que viene");
   ok((await page.locator(".hoy-cols > .stack:last-child > .panel h2").allInnerTexts()).join("|") === "Esta semana|Actividad reciente", "al lado, solo «Esta semana» y la actividad (el calendario, si está conectado)");
   await shot(page, "h01-hoy.png");
   await page.reload();

@@ -46,6 +46,15 @@ buscador. Se usan con el mouse (también apretando, deslizando y soltando) o con
 flechas, Enter, Escape o las primeras letras. Un clic afuera solo cierra el menú. En el teléfono
 queda el selector del sistema, que ahí es más cómodo.
 
+**Aspecto y movimiento:** el menú lateral va sobre el mismo papel que la página (en modo oscuro,
+sobre la tinta) y la sección elegida queda como una pastilla blanca; el contenido va en paneles
+blancos con bordes y sombras leves. Cada vista entra con un fundido corto y las tarjetas de los
+tableros aparecen escalonadas. La ficha es una hoja flotante que entra desde la derecha y sale más
+rápido; las ventanas y los avisos aparecen y se desvanecen. La pastilla de los selectores (Tabla /
+Tablero, socio, período) y la raya de las pestañas se deslizan a lo elegido, y los plegables se
+abren con su alto. Si el sistema pide reducir el movimiento, no hay animaciones. En el teléfono, las
+barras de arriba y de abajo son esmeriladas.
+
 **Ficha del lead** (se abre al tocar un lead): arriba, la empresa, la persona, la etapa y quién lo
 lleva. Después, **una tarjeta con lo de ahora**: «En qué va» y «Qué hacer», el teléfono y el correo
 con copiar, llamar y WhatsApp, y los botones del resultado de una llamada. «En qué va» y «Qué hacer»
@@ -553,7 +562,11 @@ archivos o las fallas al subir; los recordatorios en pantalla dependen de la hor
 salvo con `window.__MOCK_RECORDATORIOS = true`), con `window.__MOCK_MIC` el micrófono y el reconocimiento de voz, y
 con `window.__MOCK_MCP` el conector de Google Calendar (eventos con la forma de `list_events`,
 `create_event` y `update_event`, y los casos sin permiso o sin conector). Las pruebas van a cada vista
-por el menú, como una persona, con `irA(page, vista)` de `crm/dev/ir.cjs`. Para probar sin red, `VENDOR_DIR` apunta a una carpeta con
+por el menú, como una persona, con `irA(page, vista)` de `crm/dev/ir.cjs`. Al cerrarse, la ficha y
+las ventanas quedan un momento en pantalla para la salida (dentro de `.capa.saliendo`, sin recibir
+clics): después de cerrar una, las pruebas esperan a que se vaya (`waitFor({ state: "detached" })`)
+antes de contar o tocar lo de la página; y después de abrir un plegable, a que aparezca lo de adentro.
+Para probar sin red, `VENDOR_DIR` apunta a una carpeta con
 `preact.umd.min.js`, `hooks.umd.min.js` y `htm.umd.min.js` de cdnjs. Las pruebas usan datos
 inventados.
 

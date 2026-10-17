@@ -5,16 +5,18 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@500;600&family=Funnel+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
 <style>
 /* CRM ZH · ZH Development SpA
-   Layout: barra lateral en tinta (escritorio) o barra inferior (teléfono); el trabajo del día en
-   paneles sobre papel; la ficha del lead se abre como cajón a la derecha y los borradores en un
-   editor con vista previa. Tokens tomados de la landing (tinta, papel y señal azul). */
+   Layout: menú lateral sobre el mismo papel que la página (escritorio) o barra inferior (teléfono);
+   el trabajo del día en paneles blancos; la ficha del lead se abre como una hoja flotante a la
+   derecha y los borradores en un editor con vista previa. Tokens tomados de la landing (tinta,
+   papel y señal azul). Movimiento: entradas cortas que frenan suave (--ease) y salidas más
+   rápidas (--ease-in); sin movimiento si el sistema pide reducirlo. */
 :root {
-  --bg: #F3F5F8;
+  --bg: #F6F7F9;
   --surface: #FFFFFF;
-  --surface-2: #F8F9FB;
-  --sunken: #ECEFF4;
-  --line: #E1E6EE;
-  --line-2: #CAD2DE;
+  --surface-2: #FAFBFC;
+  --sunken: #EFF1F5;
+  --line: #E6E9EF;
+  --line-2: #D3D9E2;
   --fg: #0B0F17;
   --fg-2: #3A4557;
   --fg-3: #5D6777;
@@ -24,12 +26,14 @@
   --btn-hover: #1F55D9;
   --on-btn: #FFFFFF;
   --focus: #245CE4;
-  --side-bg: #07090F;
-  --side-fg: #EDF0F5;
-  --side-fg-2: #A3ADBE;
-  --side-line: rgba(255, 255, 255, 0.08);
-  --side-tint: rgba(255, 255, 255, 0.07);
-  --side-accent: #8FB0FF;
+  --side-bg: #F6F7F9;
+  --side-fg: #0B0F17;
+  --side-fg-2: #5D6777;
+  --side-line: #E6E9EF;
+  --side-tint: rgba(11, 15, 23, 0.045);
+  --side-active: #FFFFFF;
+  --side-active-shadow: 0 1px 2px rgba(11, 15, 23, 0.07), 0 0 0 1px rgba(11, 15, 23, 0.04);
+  --side-accent: #245CE4;
   --ok: #17784A;
   --ok-soft: #E1F3E8;
   --warn: #8F5A00;
@@ -37,21 +41,36 @@
   --bad: #B3261E;
   --bad-soft: #FCE8E6;
   --bubble: #E3F0FF;
-  --shadow: 0 1px 2px rgba(11, 15, 23, 0.06), 0 12px 32px rgba(11, 15, 23, 0.12);
-  --scrim: rgba(7, 9, 15, 0.42);
+  --shadow: 0 2px 6px rgba(11, 15, 23, 0.05), 0 22px 48px -14px rgba(11, 15, 23, 0.26);
+  --panel-shadow: 0 1px 2px rgba(11, 15, 23, 0.035);
+  --btn-shadow: 0 1px 2px rgba(36, 92, 228, 0.28);
+  --seg-pill: #FFFFFF;
+  --seg-shadow: 0 1px 2px rgba(11, 15, 23, 0.1), 0 0 0 1px rgba(11, 15, 23, 0.03);
+  --ring: rgba(36, 92, 228, 0.16);
+  --scrim: rgba(11, 15, 23, 0.3);
+  /* Los avisos van oscuros en los dos temas. */
+  --toast-bg: #111620;
+  --toast-fg: #F6F7F9;
+  --toast-accent: #8FB0FF;
+  --toast-bad: #FF8F86;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --t1: 0.14s;
+  --t2: 0.22s;
+  --t3: 0.34s;
   --font-display: "Funnel Display", "Funnel Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-text: "Funnel Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  --r-s: 8px;
+  --r-s: 10px;
   --r-m: 12px;
   --r-l: 16px;
   /* La flecha de los select (dibujada con el gris de texto suave de cada tema). */
   --chev: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.75 4.5 6 7.75 9.25 4.5' fill='none' stroke='%235D6777' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   /* Embudo: fondo de las columnas, sombra de las tarjetas y un azul por etapa (más intenso cuanto
      más cerca del cierre). */
-  --col-bg: #EBEEF4;
-  --card-shadow: 0 1px 2px rgba(11, 15, 23, 0.05);
-  --card-shadow-hover: 0 2px 6px rgba(11, 15, 23, 0.07), 0 10px 24px rgba(11, 15, 23, 0.08);
+  --col-bg: #EEF1F5;
+  --card-shadow: 0 1px 2px rgba(11, 15, 23, 0.04);
+  --card-shadow-hover: 0 1px 2px rgba(11, 15, 23, 0.04), 0 8px 22px -8px rgba(11, 15, 23, 0.18);
   --st-nuevo: #98A2B3;
   --st-contactado: #8AA9F2;
   --st-reunion_agendada: #6690EE;
@@ -67,11 +86,12 @@
     --bg: #07090F; --surface: #0D1119; --surface-2: #10151F; --sunken: #151B27; --line: #1C2331; --line-2: #2C3547;
     --fg: #EDF0F5; --fg-2: #AEB7C6; --fg-3: #8591A6; --accent: #8FB0FF; --accent-soft: rgba(143, 176, 255, 0.13);
     --btn: #306BFF; --btn-hover: #4A7DFF; --on-btn: #FFFFFF; --focus: #8FB0FF;
-    --side-bg: #04060A; --side-line: rgba(255, 255, 255, 0.07);
+    --side-bg: #07090F; --side-fg: #EDF0F5; --side-fg-2: #A3ADBE; --side-line: rgba(255, 255, 255, 0.07); --side-tint: rgba(255, 255, 255, 0.05); --side-active: rgba(255, 255, 255, 0.08); --side-active-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05); --side-accent: #8FB0FF;
     --ok: #63D394; --ok-soft: rgba(99, 211, 148, 0.13); --warn: #F2B85B; --warn-soft: rgba(242, 184, 91, 0.13);
     --bad: #FF8F86; --bad-soft: rgba(255, 143, 134, 0.13); --bubble: #13284A;
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 16px 40px rgba(0, 0, 0, 0.55); --scrim: rgba(0, 0, 0, 0.62);
-    --col-bg: #0A0D14; --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.45); --card-shadow-hover: 0 6px 18px rgba(0, 0, 0, 0.5);
+    --shadow: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 24px 56px -12px rgba(0, 0, 0, 0.75); --panel-shadow: none; --btn-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --seg-pill: #222A3A; --seg-shadow: 0 1px 2px rgba(0, 0, 0, 0.45); --ring: rgba(143, 176, 255, 0.24); --scrim: rgba(0, 0, 0, 0.55); --toast-bg: #1A2130; --toast-fg: #EDF0F5;
+    --col-bg: #0A0D14; --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.45); --card-shadow-hover: 0 10px 24px -8px rgba(0, 0, 0, 0.65);
     --st-nuevo: #667085; --st-contactado: #4F6FB8; --st-reunion_agendada: #6489E8; --st-reunion_concretada: #7C9EF4; --st-propuesta: #98B4FF; --st-negociacion: #BFD0FF;
     --st-ganado: #63D394; --st-perdido: #FF8F86; --st-pausa: #8591A6; --chev: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.75 4.5 6 7.75 9.25 4.5' fill='none' stroke='%238591A6' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
     color-scheme: dark;
@@ -81,11 +101,12 @@
   --bg: #07090F; --surface: #0D1119; --surface-2: #10151F; --sunken: #151B27; --line: #1C2331; --line-2: #2C3547;
   --fg: #EDF0F5; --fg-2: #AEB7C6; --fg-3: #8591A6; --accent: #8FB0FF; --accent-soft: rgba(143, 176, 255, 0.13);
   --btn: #306BFF; --btn-hover: #4A7DFF; --on-btn: #FFFFFF; --focus: #8FB0FF;
-  --side-bg: #04060A; --side-line: rgba(255, 255, 255, 0.07);
+  --side-bg: #07090F; --side-fg: #EDF0F5; --side-fg-2: #A3ADBE; --side-line: rgba(255, 255, 255, 0.07); --side-tint: rgba(255, 255, 255, 0.05); --side-active: rgba(255, 255, 255, 0.08); --side-active-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05); --side-accent: #8FB0FF;
   --ok: #63D394; --ok-soft: rgba(99, 211, 148, 0.13); --warn: #F2B85B; --warn-soft: rgba(242, 184, 91, 0.13);
   --bad: #FF8F86; --bad-soft: rgba(255, 143, 134, 0.13); --bubble: #13284A;
-  --shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 16px 40px rgba(0, 0, 0, 0.55); --scrim: rgba(0, 0, 0, 0.62);
-  --col-bg: #0A0D14; --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.45); --card-shadow-hover: 0 6px 18px rgba(0, 0, 0, 0.5);
+  --shadow: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 24px 56px -12px rgba(0, 0, 0, 0.75); --panel-shadow: none; --btn-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --seg-pill: #222A3A; --seg-shadow: 0 1px 2px rgba(0, 0, 0, 0.45); --ring: rgba(143, 176, 255, 0.24); --scrim: rgba(0, 0, 0, 0.55); --toast-bg: #1A2130; --toast-fg: #EDF0F5;
+  --col-bg: #0A0D14; --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.45); --card-shadow-hover: 0 10px 24px -8px rgba(0, 0, 0, 0.65);
   --st-nuevo: #667085; --st-contactado: #4F6FB8; --st-reunion_agendada: #6489E8; --st-reunion_concretada: #7C9EF4; --st-propuesta: #98B4FF; --st-negociacion: #BFD0FF;
   --st-ganado: #63D394; --st-perdido: #FF8F86; --st-pausa: #8591A6; --chev: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.75 4.5 6 7.75 9.25 4.5' fill='none' stroke='%238591A6' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   color-scheme: dark;
@@ -93,6 +114,7 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 html, body { height: 100%; }
+html { scrollbar-color: var(--line-2) transparent; }
 body {
   background: var(--bg);
   color: var(--fg);
@@ -104,9 +126,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; }
 a { color: var(--accent); }
 h1, h2, h3, p { margin: 0; }
-h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.015em; text-wrap: balance; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.02em; text-wrap: balance; }
 :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
-.eyebrow { font: 500 12px/1.35 var(--font-mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--fg-3); }
+.eyebrow { font: 500 11.5px/1.35 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--fg-3); }
 .mono { font-family: var(--font-mono); }
 .num { font-variant-numeric: tabular-nums; }
 .muted { color: var(--fg-3); }
@@ -116,7 +138,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing:
 
 /* ---------- arranque ---------- */
 .boot { min-height: 100%; display: grid; place-items: center; padding-block: 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
-.boot-card { max-width: 30rem; display: grid; gap: 14px; }
+.boot-card { max-width: 30rem; display: grid; gap: 14px; animation: vista-in 0.5s var(--ease) backwards; }
 .boot-card svg { width: 44px; height: 44px; }
 .boot-card h1 { font-size: 28px; line-height: 1.15; }
 .boot-card p:last-child { color: var(--fg-2); }
@@ -126,7 +148,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing:
 .side {
   position: sticky; top: 0; height: 100vh; height: 100dvh; overflow-y: auto;
   background: var(--side-bg); color: var(--side-fg); border-right: 1px solid var(--side-line);
-  display: flex; flex-direction: column; gap: 28px; padding: 22px 14px 18px;
+  display: flex; flex-direction: column; gap: 22px; padding: 20px 12px 16px;
 }
 .brand { display: flex; align-items: center; gap: 10px; padding: 0 8px; }
 .brand svg { width: 30px; height: 30px; flex: none; }
@@ -135,12 +157,14 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing:
 .brand-txt { display: grid; gap: 5px; min-width: 0; }
 .nav { display: grid; gap: 2px; }
 .nav button {
-  display: flex; align-items: center; gap: 12px; width: 100%; padding: 9px 10px; border: 0; border-radius: 10px;
-  background: transparent; color: var(--side-fg-2); font-size: 15px; font-weight: 500; text-align: left;
+  display: flex; align-items: center; gap: 12px; width: 100%; padding: 8px 10px; border: 0; border-radius: 10px;
+  background: transparent; color: var(--side-fg-2); font-size: 14.5px; font-weight: 500; text-align: left;
+  transition: background-color var(--t1) ease, color var(--t1) ease, box-shadow var(--t2) ease;
 }
 .nav button:hover { background: var(--side-tint); color: var(--side-fg); }
-.nav button[aria-current="page"] { background: var(--side-tint); color: var(--side-fg); }
-.nav button svg { width: 18px; height: 18px; flex: none; }
+.nav button[aria-current="page"] { background: var(--side-active); box-shadow: var(--side-active-shadow); color: var(--side-fg); font-weight: 600; }
+.nav button svg { width: 18px; height: 18px; flex: none; transition: color var(--t1) ease; }
+.nav button[aria-current="page"] svg { color: var(--side-accent); }
 .nav .count { margin-left: auto; font: 500 12px/1 var(--font-mono); color: var(--side-fg-2); font-variant-numeric: tabular-nums; }
 .nav button[aria-current="page"] .count { color: var(--side-accent); }
 .side-foot { margin-top: auto; display: grid; gap: 10px; padding: 0 8px; }
@@ -158,7 +182,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing:
   .side { display: none; }
   .topbar {
     display: flex; align-items: center; gap: 10px; position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
-    background: var(--side-bg); color: var(--side-fg); padding-block: 10px;
+    background: var(--side-bg); color: var(--side-fg); border-bottom: 1px solid var(--line); padding-block: 10px;
     padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
   }
   .topbar .brand { padding: 0; }
@@ -169,11 +193,17 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing:
     background: var(--surface); border-top: 1px solid var(--line);
     padding-bottom: env(safe-area-inset-bottom, 0px); padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px);
   }
-  .tabs button { display: grid; justify-items: center; gap: 3px; padding: 9px 2px 8px; border: 0; background: transparent; color: var(--fg-3); font-size: 11.5px; font-weight: 500; position: relative; }
-  .tabs button svg { width: 20px; height: 20px; }
-  .tabs button[aria-current="page"] { color: var(--accent); }
-  .tabs .dot { position: absolute; top: 6px; left: calc(50% + 8px); min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; background: var(--btn); color: var(--on-btn); font: 600 10px/16px var(--font-text); }
+  .tabs button { display: grid; justify-items: center; gap: 4px; padding: 8px 2px 7px; border: 0; background: transparent; color: var(--fg-3); font-size: 11.5px; font-weight: 500; position: relative; transition: color var(--t1) ease; }
+  .tabs button svg { box-sizing: content-box; width: 20px; height: 20px; padding: 3px 16px; border-radius: 999px; transition: background-color var(--t2) var(--ease), color var(--t1) ease; }
+  .tabs button[aria-current="page"] { color: var(--fg); font-weight: 600; }
+  .tabs button[aria-current="page"] svg { background: var(--accent-soft); color: var(--accent); }
+  .tabs .dot { position: absolute; top: 5px; left: calc(50% + 12px); min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; background: var(--btn); color: var(--on-btn); font: 600 10px/16px var(--font-text); }
   .main { padding-block: 18px 104px; }
+}
+/* En el teléfono, las barras dejan ver lo que pasa por debajo, esmerilado. */
+@supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) and (background: color-mix(in srgb, red 50%, blue)) {
+  .topbar { background: color-mix(in srgb, var(--side-bg) 86%, transparent); -webkit-backdrop-filter: saturate(1.8) blur(20px); backdrop-filter: saturate(1.8) blur(20px); }
+  .tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); -webkit-backdrop-filter: saturate(1.8) blur(20px); backdrop-filter: saturate(1.8) blur(20px); }
 }
 
 /* ---------- piezas comunes ---------- */
@@ -181,10 +211,13 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing:
   display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 36px; padding: 0 14px;
   border: 1px solid var(--line-2); border-radius: 999px; background: var(--surface); color: var(--fg);
   font-size: 14px; font-weight: 500; line-height: 1; white-space: nowrap; text-decoration: none;
+  transition: background-color var(--t1) ease, border-color var(--t1) ease, color var(--t1) ease, box-shadow var(--t2) ease, transform var(--t1) var(--ease);
 }
-.btn:hover { border-color: var(--fg-3); }
+.btn:hover { background-color: var(--surface-2); border-color: var(--fg-3); }
+@supports (border-color: color-mix(in srgb, red 50%, blue)) { .btn:hover { border-color: color-mix(in srgb, var(--fg-3) 50%, var(--line-2)); } }
+.btn:active { transform: scale(0.97); }
 .btn svg { width: 16px; height: 16px; flex: none; }
-.btn.primary { background: var(--btn); border-color: var(--btn); color: var(--on-btn); }
+.btn.primary { background: var(--btn); border-color: var(--btn); color: var(--on-btn); box-shadow: var(--btn-shadow); }
 .btn.primary:hover { background: var(--btn-hover); border-color: var(--btn-hover); }
 .btn.claude { background: var(--accent-soft); border-color: transparent; color: var(--accent); }
 .btn.claude:hover { border-color: var(--accent); }
@@ -199,7 +232,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing:
 .btn[disabled], .btn[aria-disabled="true"] { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
 .side .btn:not(.primary) { background: transparent; border-color: var(--side-line); color: var(--side-fg); }
 
-.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-l); min-width: 0; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-l); box-shadow: var(--panel-shadow); min-width: 0; }
 .panel-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 12px; padding: 16px 18px 6px; }
 .panel-head h2 { font-size: 17px; }
 .panel-body { padding: 4px 18px 16px; }
@@ -207,7 +240,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing:
 
 .page-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 14px 20px; }
 .page-head > div:first-child { display: grid; gap: 6px; min-width: 0; }
-.page-head h1 { font-size: clamp(27px, 1.6vw + 18px, 34px); line-height: 1.1; }
+.page-head h1 { font-size: clamp(27px, 1.6vw + 18px, 34px); line-height: 1.1; letter-spacing: -0.025em; }
 .page-head .lede { color: var(--fg-2); max-width: 46rem; }
 .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 
@@ -234,8 +267,9 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing:
 .tag.warn { background: var(--warn-soft); color: var(--warn); }
 
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.chip { min-height: 32px; padding: 0 12px; border: 1px solid var(--line-2); border-radius: 999px; background: var(--surface); font-size: 13.5px; font-weight: 500; color: var(--fg-2); }
-.chip:hover { border-color: var(--fg-3); }
+.chip { min-height: 32px; padding: 0 12px; border: 1px solid var(--line-2); border-radius: 999px; background: var(--surface); font-size: 13.5px; font-weight: 500; color: var(--fg-2); transition: background-color var(--t1) ease, border-color var(--t1) ease, color var(--t1) ease, transform var(--t1) var(--ease); }
+.chip:hover { background: var(--surface-2); border-color: var(--fg-3); }
+.chip:active { transform: scale(0.97); }
 .chip[aria-pressed="true"] { background: var(--fg); border-color: var(--fg); color: var(--surface); }
 
 .field { display: grid; gap: 6px; min-width: 0; }
@@ -244,9 +278,12 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing:
 .input, .select, .textarea {
   width: 100%; min-height: 38px; padding: 8px 11px; border: 1px solid var(--line-2); border-radius: var(--r-s);
   background: var(--surface); color: var(--fg); font-size: 14.5px;
+  transition: border-color var(--t1) ease, box-shadow var(--t2) ease, background-color var(--t1) ease;
 }
 .textarea { min-height: 92px; line-height: 1.5; resize: vertical; }
-.input:focus, .select:focus, .textarea:focus { outline: 2px solid var(--focus); outline-offset: -1px; border-color: transparent; }
+.input:hover:not(:focus):not([disabled]), .textarea:hover:not(:focus):not([disabled]) { border-color: var(--fg-3); }
+@supports (border-color: color-mix(in srgb, red 50%, blue)) { .input:hover:not(:focus):not([disabled]), .textarea:hover:not(:focus):not([disabled]) { border-color: color-mix(in srgb, var(--fg-3) 55%, var(--line-2)); } }
+.input:focus, .select:focus, .textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--ring); }
 .input[disabled], .select[disabled], .textarea[disabled] { opacity: 0.6; }
 .input.mono { font-family: var(--font-mono); font-size: 14px; }
 .input[type=file] { padding: 5px 6px; color: var(--fg-2); font-size: 13.5px; cursor: pointer; }
@@ -255,14 +292,14 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing:
 .select[disabled] { cursor: default; }
 .select:hover:not([disabled]) { border-color: var(--fg-3); }
 @supports (border-color: color-mix(in srgb, red 50%, blue)) { .select:hover:not([disabled]) { border-color: color-mix(in srgb, var(--fg-3) 55%, var(--line-2)); } }
-.select[data-abierto] { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
-.menu-sel { position: fixed; z-index: 95; display: flex; flex-direction: column; max-width: min(380px, calc(100vw - 16px)); padding: 6px; border: 1px solid var(--line); border-radius: var(--r-m); background: var(--surface); box-shadow: var(--shadow); color: var(--fg); font: 400 14px/1.35 var(--font-text); transform-origin: top left; animation: menu-sel-in 0.13s cubic-bezier(0.2, 0.7, 0.3, 1); }
+.select[data-abierto] { border-color: var(--accent); box-shadow: 0 0 0 3px var(--ring); }
+.menu-sel { position: fixed; z-index: 95; display: flex; flex-direction: column; max-width: min(380px, calc(100vw - 16px)); padding: 6px; border: 1px solid var(--line); border-radius: var(--r-m); background: var(--surface); box-shadow: var(--shadow); color: var(--fg); font: 400 14px/1.35 var(--font-text); transform-origin: top left; animation: menu-sel-in var(--t2) var(--ease); }
 .menu-sel[data-lado="arriba"] { transform-origin: bottom left; }
-@keyframes menu-sel-in { from { opacity: 0; transform: translateY(-4px) scale(0.98); } }
+@keyframes menu-sel-in { from { opacity: 0; transform: translateY(-4px) scale(0.97); } }
 @media (prefers-reduced-motion: reduce) { .menu-sel { animation: none; } }
 .menu-sel-tit { flex: none; margin: 5px 10px 6px; font: 500 10.5px/1 var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--fg-3); }
 .menu-sel-buscar { flex: none; display: flex; align-items: center; gap: 8px; margin: 0 0 6px; padding: 0 10px; border: 1px solid var(--line-2); border-radius: var(--r-s); background: var(--surface-2); color: var(--fg-3); }
-.menu-sel-buscar:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.menu-sel-buscar:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--ring); }
 .menu-sel-buscar input { flex: 1; min-width: 0; height: 34px; padding: 0; border: 0; background: transparent; color: var(--fg); font: inherit; outline: none; }
 .menu-sel-lista { position: relative; flex: 1 1 auto; min-height: 0; margin: 0; padding: 0; overflow-y: auto; list-style: none; outline: none; scrollbar-width: thin; }
 .menu-sel-lista [role="option"] { display: flex; align-items: center; gap: 10px; min-height: 36px; padding: 6px 10px; border-radius: var(--r-s); cursor: pointer; -webkit-user-select: none; user-select: none; }
@@ -323,24 +360,35 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing:
 .hoy-proximos > summary { display: flex; align-items: center; gap: 8px; list-style: none; cursor: pointer; }
 .hoy-proximos > summary::-webkit-details-marker { display: none; }
 .hoy-proximos > summary .task-group { margin: 0; }
-.hoy-proximos > summary::after { content: ""; width: 7px; height: 7px; border-right: 1.6px solid var(--fg-3); border-bottom: 1.6px solid var(--fg-3); transform: rotate(45deg) translateY(-2px); transition: transform 0.15s ease; }
+.hoy-proximos > summary::after { content: ""; width: 7px; height: 7px; border-right: 1.6px solid var(--fg-3); border-bottom: 1.6px solid var(--fg-3); transform: rotate(45deg) translateY(-2px); transition: transform var(--t3) var(--ease); }
 .hoy-proximos[open] > summary::after { transform: rotate(-135deg) translateY(-1px); }
 .hoy-proximos > .tasks, .hoy-proximos > .irows { margin-top: 10px; }
 @media (max-width: 1100px) { .hoy-cols { grid-template-columns: minmax(0, 1fr); } }
 /* Pestañas de una sección (Hoy y Clientes): arriba del contenido, con una raya bajo la elegida. */
 .subnav-wrap { margin-bottom: 20px; }
-.subnav { display: flex; gap: 24px; overflow-x: auto; border-bottom: 1px solid var(--line); scrollbar-width: none; }
+.subnav { position: relative; display: flex; gap: 24px; overflow-x: auto; border-bottom: 1px solid var(--line); scrollbar-width: none; }
 .subnav::-webkit-scrollbar { display: none; }
-.subnav button { position: relative; flex: none; display: inline-flex; align-items: center; gap: 7px; padding: 2px 1px 12px; border: 0; background: none; color: var(--fg-3); font: 500 14.5px/1.2 var(--font-text); cursor: pointer; }
+.subnav button { position: relative; flex: none; display: inline-flex; align-items: center; gap: 7px; padding: 2px 1px 12px; border: 0; background: none; color: var(--fg-3); font: 500 14.5px/1.2 var(--font-text); cursor: pointer; transition: color var(--t1) ease; }
 .subnav button:hover { color: var(--fg); }
 .subnav button[aria-current="page"] { color: var(--fg); font-weight: 600; }
 .subnav button[aria-current="page"]::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; border-radius: 2px; background: var(--accent); }
 .subnav .count { min-width: 20px; padding: 2px 6px; border-radius: 999px; background: var(--sunken); color: var(--fg-2); font: 600 11px/1.2 var(--font-mono); text-align: center; font-variant-numeric: tabular-nums; }
 .subnav button[aria-current="page"] .count { background: var(--accent-soft); color: var(--accent); }
-.seg { display: inline-flex; padding: 3px; border-radius: 999px; background: var(--sunken); gap: 2px; }
-.seg button { min-height: 30px; padding: 0 14px; border: 0; border-radius: 999px; background: transparent; color: var(--fg-2); font-size: 13.5px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; }
+/* La raya bajo la pestaña elegida: la ubica useIndicador (--x y --w) y se desliza al cambiar. */
+.subnav-raya { position: absolute; left: 0; bottom: 0; width: var(--w, 0px); height: 2px; border-radius: 2px; background: var(--accent); transform: translateX(var(--x, 0px)); opacity: 0; pointer-events: none; }
+.subnav[data-ind] .subnav-raya { opacity: 1; }
+.subnav[data-ind] button[aria-current="page"]::after { content: none; }
+.subnav[data-anima] .subnav-raya { transition: transform var(--t3) var(--ease), width var(--t3) var(--ease); }
+.seg { position: relative; isolation: isolate; display: inline-flex; padding: 3px; border-radius: 999px; background: var(--sunken); gap: 2px; }
+.seg button { min-height: 30px; padding: 0 14px; border: 0; border-radius: 999px; background: transparent; color: var(--fg-2); font-size: 13.5px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; transition: color var(--t2) ease; }
+.seg button:hover { color: var(--fg); }
 .seg button svg { width: 15px; height: 15px; }
-.seg button[aria-pressed="true"] { background: var(--surface); color: var(--fg); box-shadow: 0 1px 2px rgba(11, 15, 23, 0.12); }
+.seg button[aria-pressed="true"] { background: var(--seg-pill); color: var(--fg); box-shadow: var(--seg-shadow); }
+/* La pastilla de lo elegido, aparte de los botones para que se deslice (useIndicador). */
+.seg-fondo { position: absolute; z-index: -1; top: 3px; bottom: 3px; left: 0; width: var(--w, 0px); border-radius: 999px; background: var(--seg-pill); box-shadow: var(--seg-shadow); transform: translateX(var(--x, 0px)); opacity: 0; pointer-events: none; }
+.seg[data-ind] .seg-fondo { opacity: 1; }
+.seg[data-ind] button[aria-pressed="true"] { background: transparent; box-shadow: none; }
+.seg[data-anima] .seg-fondo { transition: transform var(--t3) var(--ease), width var(--t3) var(--ease); }
 
 .note { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: var(--r-m); background: var(--sunken); color: var(--fg-2); font-size: 13.5px; }
 .note svg { width: 16px; height: 16px; flex: none; margin-top: 2px; }
@@ -400,6 +448,7 @@ table.leads { width: 100%; border-collapse: collapse; font-size: 14px; }
 table.leads th { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); font: 500 11px/1.2 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--fg-3); white-space: nowrap; }
 table.leads td { padding: 11px 12px; border-bottom: 1px solid var(--line); vertical-align: middle; }
 table.leads tbody tr { cursor: pointer; }
+table.leads td { transition: background-color var(--t1) ease; }
 table.leads tbody tr:hover td { background: var(--surface-2); }
 table.leads tbody tr:last-child td { border-bottom: 0; }
 .cell-name { display: grid; gap: 2px; min-width: 170px; }
@@ -436,7 +485,7 @@ body.arrastrando .toasts { bottom: calc(112px + env(safe-area-inset-bottom, 0px)
 .board > .col { display: flex; flex-direction: column; max-height: max(440px, calc(100vh - 230px)); max-height: max(440px, calc(100dvh - 230px)); }
 .col-lista { position: relative; display: grid; gap: 8px; align-content: start; flex: 1 1 auto; min-height: 0; overflow-y: auto; scrollbar-width: thin; margin: 0 -6px; padding: 0 6px 6px; }
 .col-lista.mas { -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 40px), transparent); mask-image: linear-gradient(to bottom, #000 calc(100% - 40px), transparent); }
-.col-mas { flex: none; align-self: center; margin-top: 2px; padding: 5px 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--fg-2); font: 500 12.5px/1.2 var(--font-text); cursor: pointer; }
+.col-mas { flex: none; align-self: center; margin-top: 2px; padding: 5px 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--fg-2); font: 500 12.5px/1.2 var(--font-text); cursor: pointer; transition: color var(--t1) ease, border-color var(--t1) ease; }
 .col-mas:hover { color: var(--fg); border-color: var(--fg-3); }
 .kcard.lead { gap: 5px; }
 .kcard.lead:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
@@ -464,7 +513,7 @@ body.arrastrando .toasts { bottom: calc(112px + env(safe-area-inset-bottom, 0px)
 .pitch h3 { margin: 0; }
 details.pitch > summary { display: flex; align-items: center; justify-content: space-between; gap: 10px; list-style: none; cursor: pointer; }
 details.pitch > summary::-webkit-details-marker { display: none; }
-details.pitch > summary::after { content: ""; flex: none; width: 8px; height: 8px; margin-right: 4px; border-right: 1.6px solid var(--fg-3); border-bottom: 1.6px solid var(--fg-3); transform: rotate(45deg) translateY(-2px); transition: transform 0.15s ease; }
+details.pitch > summary::after { content: ""; flex: none; width: 8px; height: 8px; margin-right: 4px; border-right: 1.6px solid var(--fg-3); border-bottom: 1.6px solid var(--fg-3); transform: rotate(45deg) translateY(-2px); transition: transform var(--t3) var(--ease); }
 details.pitch[open] > summary::after { transform: rotate(-135deg) translateY(-2px); }
 .pitch > div, .pitch > details.guion { margin-top: 10px; }
 /* Arriba de la ficha: en qué va, qué hacer, el contacto y el resultado de la llamada, en una tarjeta. */
@@ -484,7 +533,7 @@ details.pitch[open] > summary::after { transform: rotate(-135deg) translateY(-2p
 .pitch .guion summary { cursor: pointer; color: var(--accent); font-size: 13.5px; font-weight: 600; }
 .pitch .guion p { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 13.5px; color: var(--fg-2); max-height: 420px; overflow: auto; }
 .kacts { display: inline-flex; gap: 2px; }
-.kact { display: inline-grid; place-items: center; width: 30px; height: 30px; border: 0; border-radius: 8px; background: transparent; color: var(--fg-3); cursor: pointer; }
+.kact { display: inline-grid; place-items: center; width: 30px; height: 30px; border: 0; border-radius: 8px; background: transparent; color: var(--fg-3); cursor: pointer; transition: background-color var(--t1) ease, color var(--t1) ease; }
 .kact:hover { background: var(--sunken); color: var(--fg); }
 /* Cinco acciones en una tarjeta angosta: un poco más juntas. */
 .kcard.lead .kcard-foot { gap: 6px; }
@@ -547,9 +596,10 @@ details.pitch[open] > summary::after { transform: rotate(-135deg) translateY(-2p
 @media (max-width: 560px) { .next-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .next-row > :last-child { grid-column: 1 / -1; } }
 .work { border: 1px solid var(--line); border-radius: var(--r-l); overflow: hidden; }
 .work-tabs { display: flex; flex-wrap: wrap; gap: 2px; padding: 6px; background: var(--sunken); }
-.work-tabs button { flex: none; display: inline-flex; align-items: center; gap: 7px; min-height: 34px; padding: 0 12px; border: 0; border-radius: 10px; background: transparent; color: var(--fg-2); font-size: 14px; font-weight: 500; }
+.work-tabs button { flex: none; display: inline-flex; align-items: center; gap: 7px; min-height: 34px; padding: 0 12px; border: 0; border-radius: 10px; background: transparent; color: var(--fg-2); font-size: 14px; font-weight: 500; transition: background-color var(--t1) ease, color var(--t1) ease, box-shadow var(--t2) ease; }
 .work-tabs button svg { width: 16px; height: 16px; }
-.work-tabs button[aria-pressed="true"] { background: var(--surface); color: var(--fg); box-shadow: 0 1px 2px rgba(11, 15, 23, 0.1); }
+.work-tabs button:hover { color: var(--fg); }
+.work-tabs button[aria-pressed="true"] { background: var(--seg-pill); color: var(--fg); box-shadow: var(--seg-shadow); }
 .work-body { padding: 14px; display: grid; gap: 14px; }
 .analysis { display: grid; gap: 10px; padding: 14px; border-radius: var(--r-m); background: var(--accent-soft); }
 .analysis h4 { margin: 0; font: 500 11.5px/1.3 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
@@ -597,9 +647,11 @@ details.data .grid-2 { margin-top: 14px; }
 
 .toasts { position: fixed; z-index: 70; left: 50%; transform: translateX(-50%); bottom: calc(24px + env(safe-area-inset-bottom, 0px)); width: min(460px, calc(100% - 32px)); display: grid; gap: 8px; }
 .toasts.raised { bottom: calc(108px + env(safe-area-inset-bottom, 0px)); }
-.toast { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px 12px 16px; border-radius: 12px; background: var(--fg); color: var(--surface); box-shadow: var(--shadow); font-size: 14px; }
-.toast.bad { background: var(--bad); color: #FFFFFF; }
-.toast button { all: unset; cursor: pointer; font-weight: 600; text-decoration: underline; }
+.toast { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px 12px 16px; border-radius: 14px; background: var(--toast-bg); color: var(--toast-fg); box-shadow: var(--shadow); font-size: 14px; }
+.toast.bad { box-shadow: var(--shadow), inset 3px 0 0 var(--toast-bad); }
+.toast button { all: unset; cursor: pointer; font-weight: 600; color: var(--toast-accent); }
+.toast button:hover { text-decoration: underline; }
+.toast button:focus-visible { outline: 2px solid var(--toast-accent); outline-offset: 2px; border-radius: 4px; }
 .toast-acts { display: inline-flex; gap: 14px; flex: none; }
 @media (max-width: 900px) { .toasts { bottom: calc(86px + env(safe-area-inset-bottom, 0px)); } .toasts.raised { bottom: calc(96px + env(safe-area-inset-bottom, 0px)); } }
 
@@ -640,7 +692,7 @@ details.data .grid-2 { margin-top: 14px; }
 .drawer.wide { width: min(780px, 100%); }
 .dtabs { display: flex; gap: 2px; overflow-x: auto; margin: 0 -20px -14px; padding: 0 14px; border-top: 1px solid var(--line); scrollbar-width: none; }
 .dtabs::-webkit-scrollbar { display: none; }
-.dtabs button { flex: none; display: inline-flex; align-items: center; gap: 6px; padding: 11px 8px 10px; border: 0; border-bottom: 2px solid transparent; background: none; color: var(--fg-3); font-size: 14px; font-weight: 500; white-space: nowrap; }
+.dtabs button { flex: none; display: inline-flex; align-items: center; gap: 6px; padding: 11px 8px 10px; border: 0; border-bottom: 2px solid transparent; background: none; color: var(--fg-3); font-size: 14px; font-weight: 500; white-space: nowrap; transition: color var(--t1) ease, border-color var(--t2) var(--ease); }
 .dtabs button:hover { color: var(--fg); }
 .dtabs button[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--accent); }
 .dtabs .count { font: 500 11.5px/1 var(--font-mono); color: var(--fg-3); }
@@ -666,7 +718,7 @@ details.data .grid-2 { margin-top: 14px; }
 .avisos-aj { display: grid; gap: 12px; justify-items: start; }
 .recs { position: fixed; z-index: 75; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); right: max(16px, env(safe-area-inset-right, 0px)); width: min(360px, calc(100% - 32px)); display: grid; gap: 8px; }
 body.arrastrando .recs { visibility: hidden; }
-.recs.con-ficha { right: calc(min(620px, 100%) + 16px); }
+.recs.con-ficha { right: calc(min(620px, 100%) + 26px); }
 .rec { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: start; padding: 12px 8px 12px 14px; border: 1px solid var(--line-2); border-left: 3px solid var(--accent); border-radius: var(--r-m); background: var(--surface); box-shadow: var(--shadow); }
 .rec-ico { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); }
 .rec-main { min-width: 0; }
@@ -734,7 +786,7 @@ body.arrastrando .recs { visibility: hidden; }
 table.leads td.amount-cell { text-align: right; }
 table.leads th.r { text-align: right; }
 /* ---------- menú lateral: completo o solo íconos ---------- */
-.side-toggle { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 10px; border: 0; border-radius: 10px; background: transparent; color: var(--side-fg-2); font-size: 13.5px; font-weight: 500; text-align: left; }
+.side-toggle { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 10px; border: 0; border-radius: 10px; background: transparent; color: var(--side-fg-2); font-size: 13.5px; font-weight: 500; text-align: left; transition: background-color var(--t1) ease, color var(--t1) ease; }
 .side-toggle:hover { background: var(--side-tint); color: var(--side-fg); }
 .side-toggle svg { width: 18px; height: 18px; flex: none; }
 .nav .lbl-c { display: none; }
@@ -763,7 +815,7 @@ table.leads th.r { text-align: right; }
 .col-title i { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--dot, var(--accent)); }
 .col-head .count { flex: none; min-width: 22px; padding: 3px 7px; border-radius: 999px; background: var(--surface); color: var(--fg-3); font: 600 11.5px/1 var(--font-text); text-align: center; }
 .col-sum { margin: 0 6px 2px; font-size: 12px; }
-.kcard { border-radius: 10px; box-shadow: var(--card-shadow); transition: box-shadow 0.15s ease, border-color 0.15s ease; }
+.kcard { border-radius: 12px; box-shadow: var(--card-shadow); transition: box-shadow var(--t2) ease, border-color var(--t2) ease; }
 .kcard:hover { border-color: var(--line-2); box-shadow: var(--card-shadow-hover); }
 .kcard.lead { gap: 6px; padding: 10px 10px 8px; }
 .kcard .kcard-titulo { font: 600 14px/1.3 var(--font-text); overflow-wrap: anywhere; }
@@ -849,12 +901,12 @@ body.arrastrando .board .col.cerrada.vacia .col-empty { display: block; }
 .avatar.vacio.pick:hover, .avatar.vacio.pick:focus-within { border-color: var(--accent); color: var(--accent); }
 
 /* ---------- tareas ---------- */
-.tick { flex: none; display: inline-grid; place-items: center; width: 18px; height: 18px; margin-top: 1px; padding: 0; border: 1.5px solid currentColor; border-radius: 50%; background: var(--surface); color: var(--fg-3); cursor: pointer; }
-.tick svg { opacity: 0; transition: opacity 0.12s ease; }
+.tick { flex: none; display: inline-grid; place-items: center; width: 18px; height: 18px; margin-top: 1px; padding: 0; border: 1.5px solid currentColor; border-radius: 50%; background: var(--surface); color: var(--fg-3); cursor: pointer; transition: background-color var(--t1) ease, border-color var(--t1) ease, color var(--t1) ease; }
+.tick svg { opacity: 0; transform: scale(0.6); transition: opacity var(--t1) ease, transform var(--t2) var(--ease); }
 .tick:hover:not([disabled]), .tick:focus-visible { border-color: var(--ok); color: var(--ok); }
-.tick:hover:not([disabled]) svg, .tick:focus-visible svg { opacity: 1; }
+.tick:hover:not([disabled]) svg, .tick:focus-visible svg { opacity: 1; transform: none; }
 .tick.on { border-color: var(--ok); background: var(--ok); color: #FFFFFF; }
-.tick.on svg { opacity: 1; }
+.tick.on svg { opacity: 1; transform: none; }
 .tick[disabled] { cursor: default; }
 .knext .tick { color: inherit; }
 .sec-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
@@ -938,10 +990,12 @@ kbd { display: inline-grid; place-items: center; min-width: 20px; height: 20px; 
 .cmdk-foot { display: flex; flex-wrap: wrap; gap: 6px 16px; padding: 9px 14px; border-top: 1px solid var(--line); background: var(--surface-2); font-size: 12px; color: var(--fg-3); }
 .cmdk-foot span { display: inline-flex; align-items: center; gap: 4px; }
 @media (max-width: 600px) { .cmdk-wrap { padding-top: calc(env(safe-area-inset-top, 0px) + 12px); } .cmdk { max-height: 82vh; } .cmdk-foot { display: none; } }
-.nav .nav-buscar { margin-bottom: 6px; border: 1px solid var(--side-line); }
+.nav .nav-buscar { margin-bottom: 6px; border: 1px solid var(--side-line); background: var(--side-active); }
+.nav .nav-buscar:hover { background: var(--side-active); border-color: var(--line-2); }
 .nav .nav-buscar kbd { margin-left: auto; border-color: var(--side-line); background: transparent; color: var(--side-fg-2); }
 .app.mini .nav .nav-buscar kbd { display: none; }
 .btn.ghost-dark { background: transparent; border-color: transparent; color: var(--side-fg); }
+.btn.ghost-dark:hover { background: var(--side-tint); border-color: transparent; }
 
 /* ---------- métricas ---------- */
 .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
@@ -1056,8 +1110,8 @@ details.prep p { margin: 6px 0 4px; padding: 10px 12px; border-radius: var(--r-s
 
 /* ---------- registrar: automático, progreso y resumen ---------- */
 .switch { display: inline-flex; align-items: center; gap: 10px; font-size: 13.5px; color: var(--fg-2); cursor: pointer; }
-.switch input { appearance: none; -webkit-appearance: none; position: relative; flex: none; width: 34px; height: 20px; margin: 0; border-radius: 999px; background: var(--line-2); cursor: pointer; transition: background 0.15s ease; }
-.switch input::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #FFFFFF; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25); transition: transform 0.15s ease; }
+.switch input { appearance: none; -webkit-appearance: none; position: relative; flex: none; width: 34px; height: 20px; margin: 0; border-radius: 999px; background: var(--line-2); cursor: pointer; transition: background-color var(--t2) ease; }
+.switch input::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #FFFFFF; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25); transition: transform var(--t2) var(--ease); }
 .switch input:checked { background: var(--btn); }
 .switch input:checked::after { transform: translateX(14px); }
 .switch input:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
@@ -1066,6 +1120,61 @@ details.prep p { margin: 6px 0 4px; padding: 10px 12px; border-radius: var(--r-s
 .done-card h4 { margin: 0; display: flex; align-items: center; gap: 8px; font: 600 14.5px/1.3 var(--font-text); color: var(--ok); }
 .done-card ul { margin: 0; padding-left: 18px; display: grid; gap: 3px; font-size: 13.5px; }
 .done-card p { font-size: 13.5px; }
+
+/* ---------- movimiento y capas ---------- */
+/* Cada vista entra con un fundido corto; las tarjetas de los tableros, un poco escalonadas. */
+.main > .main-inner:not(.subnav-wrap) { animation: vista-in var(--t3) var(--ease); }
+.board .kcard { animation: tarjeta-in var(--t3) var(--ease) backwards; }
+.col-lista > :nth-child(2) { animation-delay: 20ms; }
+.col-lista > :nth-child(3) { animation-delay: 40ms; }
+.col-lista > :nth-child(4) { animation-delay: 60ms; }
+.col-lista > :nth-child(5) { animation-delay: 80ms; }
+.col-lista > :nth-child(6) { animation-delay: 100ms; }
+.col-lista > :nth-child(n+7) { animation-delay: 120ms; }
+/* Ficha, ventanas y buscador: entran deslizándose y salen más rápido. Al cerrarse quedan un
+   momento dentro de .capa.saliendo (useSalida) para la salida. */
+.scrim { animation: aparecer var(--t2) ease; }
+.drawer { animation: ficha-in 0.42s var(--ease); }
+.modal, .cmdk { animation: ventana-in var(--t3) var(--ease); }
+.capa.saliendo { pointer-events: none; }
+.capa.saliendo .scrim { animation: desaparecer 0.22s var(--ease-in) forwards; }
+.capa.saliendo .drawer { animation: ficha-out 0.24s var(--ease-in) forwards; }
+.capa.saliendo .modal, .capa.saliendo .cmdk { animation: ventana-out 0.17s var(--ease-in) forwards; }
+/* En pantallas anchas la ficha es una hoja flotante, separada de los bordes. */
+@media (min-width: 641px) {
+  .drawer { top: 10px; right: 10px; bottom: 10px; width: min(620px, calc(100% - 20px)); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
+  .drawer.wide { width: min(780px, calc(100% - 20px)); }
+  .modal { border: 1px solid var(--line); border-radius: 18px; }
+  .cmdk { border-radius: 18px; }
+}
+.toast { animation: toast-in var(--t3) var(--ease); }
+.toast.saliendo { animation: toast-out 0.18s var(--ease-in) forwards; pointer-events: none; }
+.recs > .rec { animation: toast-in var(--t3) var(--ease); }
+/* Los plegables se abren y cierran con su alto, donde el navegador lo permite. */
+@supports (interpolate-size: allow-keywords) and selector(::details-content) {
+  :root { interpolate-size: allow-keywords; }
+  details::details-content { block-size: 0; overflow-y: clip; transition: block-size var(--t3) var(--ease), content-visibility var(--t3) allow-discrete; }
+  details[open]::details-content { block-size: auto; }
+}
+/* Mientras cargan los datos: la forma de la página, con un brillo que pasa. */
+.esqueleto { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+.esqueleto .panel { display: grid; gap: 14px; padding: 20px 18px 22px; }
+.esqueleto i { display: block; height: 12px; border-radius: 6px; background: linear-gradient(90deg, var(--sunken) 30%, var(--surface-2) 50%, var(--sunken) 70%) 0 0 / 300% 100%; animation: brillo 1.6s ease-in-out infinite; }
+.esqueleto i:first-child { width: 38%; height: 16px; margin-bottom: 4px; }
+.esqueleto i:nth-child(3) { width: 86%; }
+.esqueleto i:nth-child(4) { width: 64%; }
+@media (max-width: 1100px) { .esqueleto { grid-template-columns: minmax(0, 1fr); } }
+@keyframes vista-in { from { opacity: 0; transform: translateY(6px); } }
+@keyframes tarjeta-in { from { opacity: 0; transform: translateY(5px) scale(0.985); } }
+@keyframes aparecer { from { opacity: 0; } }
+@keyframes desaparecer { to { opacity: 0; } }
+@keyframes ficha-in { from { transform: translateX(calc(100% + 16px)); } }
+@keyframes ficha-out { to { transform: translateX(calc(100% + 16px)); } }
+@keyframes ventana-in { from { opacity: 0; transform: translateY(10px) scale(0.98); } 45% { opacity: 1; } }
+@keyframes ventana-out { to { opacity: 0; transform: translateY(6px) scale(0.985); } }
+@keyframes toast-in { from { opacity: 0; transform: translateY(12px) scale(0.96); } }
+@keyframes toast-out { to { opacity: 0; transform: translateY(8px) scale(0.98); } }
+@keyframes brillo { from { background-position: 100% 0; } to { background-position: 0 0; } }
 </style>
 
 <div id="app" class="boot">
@@ -1091,7 +1200,7 @@ if (!window.preact || !window.preactHooks || !window.htm) {
 }
 
 const { h, render, createContext } = window.preact;
-const { useState, useEffect, useMemo, useRef, useContext, useCallback, useErrorBoundary } = window.preactHooks;
+const { useState, useEffect, useLayoutEffect, useMemo, useRef, useContext, useCallback, useErrorBoundary } = window.preactHooks;
 const html = window.htm.bind(h);
 
 /* ===================================================================== constantes */
@@ -2353,8 +2462,79 @@ function Chips({ options, value, onChange, label }) {
     ${options.map(([v, t]) => html`<button type="button" class="chip" aria-pressed=${value === v ? "true" : "false"} onClick=${() => onChange(v)}>${t}</button>`)}
   </div>`;
 }
-function Seg({ options, value, onChange, label }) {
-  return html`<div class="seg" role="group" aria-label=${label || ""}>
+/* La pastilla de Seg y la raya de las pestañas se deslizan a la opción elegida: se mide el botón y
+   su posición y ancho quedan en --x y --w del contenedor. La primera vez se ubica sin animar; con
+   «clave», parte desde donde quedó la última vez (Tabla ↔ Tablero cambia de vista y se vuelve a
+   montar). Si el contenedor cambia de tamaño (por ejemplo, al llegar las fuentes), se reubica sin
+   animar. */
+const posIndicador = new Map();
+function ponerIndicador(el, b, animar, clave) {
+  if (!b || !b.offsetWidth) { delete el.dataset.ind; return; }
+  const x = b.offsetLeft + "px", w = b.offsetWidth + "px";
+  if (clave) posIndicador.set(clave, [x, w]);
+  if ("ind" in el.dataset && el.style.getPropertyValue("--x") === x && el.style.getPropertyValue("--w") === w) return;
+  if (animar) el.dataset.anima = ""; else delete el.dataset.anima;
+  el.style.setProperty("--x", x);
+  el.style.setProperty("--w", w);
+  el.dataset.ind = "";
+}
+function useIndicador(ref, selector, valor, clave) {
+  const previo = useRef(undefined);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const b = el.querySelector(selector);
+    const antes = previo.current === undefined && clave ? posIndicador.get(clave) : null;
+    if (antes && b) {
+      el.style.setProperty("--x", antes[0]);
+      el.style.setProperty("--w", antes[1]);
+      delete el.dataset.anima;
+      el.dataset.ind = "";
+      void el.offsetWidth;
+      ponerIndicador(el, b, true, clave);
+    } else ponerIndicador(el, b, previo.current !== undefined && previo.current !== valor, clave);
+    previo.current = valor;
+  });
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver !== "function") return undefined;
+    let primera = true;
+    const ro = new ResizeObserver(() => {
+      if (primera) { primera = false; return; }
+      ponerIndicador(el, el.querySelector(selector), false, clave);
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+}
+
+/* Lo que se cerró (la ficha, una ventana) sigue en pantalla «ms» más, para animar su salida.
+   Devuelve [lo que hay que mostrar, si está saliendo]. Sin movimiento, se va de inmediato. */
+const sinMovimiento = (() => { try { return window.matchMedia("(prefers-reduced-motion: reduce)"); } catch (e) { return null; } })();
+function useSalida(valor, ms) {
+  const ultimo = useRef(null);
+  const [, refrescar] = useState(0);
+  const quieto = !!(sinMovimiento && sinMovimiento.matches);
+  useEffect(() => {
+    if (valor) { ultimo.current = valor; return undefined; }
+    if (ultimo.current == null) return undefined;
+    const t = setTimeout(() => { ultimo.current = null; refrescar((n) => n + 1); }, quieto ? 0 : ms);
+    return () => clearTimeout(t);
+  }, [valor]);
+  if (valor) return [valor, false];
+  if (quieto || ultimo.current == null) return [null, false];
+  return [ultimo.current, true];
+}
+/* Cada ventana nueva se monta de cero (con su estado limpio), aunque llegue mientras sale la anterior. */
+const idsCapa = new WeakMap();
+let nCapa = 0;
+const claveCapa = (o) => { if (!idsCapa.has(o)) idsCapa.set(o, ++nCapa); return idsCapa.get(o); };
+
+function Seg({ options, value, onChange, label, recordar }) {
+  const ref = useRef(null);
+  useIndicador(ref, 'button[aria-pressed="true"]', value, recordar ? "seg:" + options.map((o) => o[0]).join("|") : null);
+  return html`<div class="seg" role="group" aria-label=${label || ""} ref=${ref}>
+    <span class="seg-fondo" aria-hidden="true"></span>
     ${options.map(([v, t, ic]) => html`<button type="button" aria-pressed=${value === v ? "true" : "false"} onClick=${() => onChange(v)}>${ic ? html`<${Icon} name=${ic} />` : null}${t}</button>`)}
   </div>`;
 }
@@ -3729,10 +3909,7 @@ const iniciales = (n) => String(n || "").trim().split(/\s+/).filter(Boolean).sli
 
 function VistaLeads({ actual }) {
   const { nav } = useCtx();
-  return html`<div class="seg" role="group" aria-label="Vista">
-    <button type="button" aria-pressed=${actual === "leads" ? "true" : "false"} onClick=${() => nav("leads")}><${Icon} name="list" />Tabla</button>
-    <button type="button" aria-pressed=${actual === "embudo" ? "true" : "false"} onClick=${() => nav("embudo")}><${Icon} name="stage" />Tablero</button>
-  </div>`;
+  return html`<${Seg} label="Vista" value=${actual} onChange=${(v) => nav(v)} recordar options=${[["leads", "Tabla", "list"], ["embudo", "Tablero", "stage"]]} />`;
 }
 
 /* Responsable en una tarjeta: su inicial. Al tocarla se elige otro (un select invisible encima). */
@@ -5198,10 +5375,7 @@ function ClientesView() {
 
 function VistaClientes({ actual }) {
   const { nav } = useCtx();
-  return html`<div class="seg" role="group" aria-label="Vista">
-    <button type="button" aria-pressed=${actual === "clientes" ? "true" : "false"} onClick=${() => nav("clientes")}><${Icon} name="list" />Tabla</button>
-    <button type="button" aria-pressed=${actual === "embudoClientes" ? "true" : "false"} onClick=${() => nav("embudoClientes")}><${Icon} name="stage" />Tablero</button>
-  </div>`;
+  return html`<${Seg} label="Vista" value=${actual} onChange=${(v) => nav(v)} recordar options=${[["clientes", "Tabla", "list"], ["embudoClientes", "Tablero", "stage"]]} />`;
 }
 
 function EtapaClientePill({ etapa }) {
@@ -7355,6 +7529,16 @@ const MAC = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent || 
 /* ¿El foco está en un campo de texto? (los atajos de una tecla no se activan mientras se escribe). */
 const escribiendo = (el) => !!(el && el.closest && el.closest("input, textarea, select, [contenteditable=''], [contenteditable=true]"));
 
+/* Pestañas de la sección (Hoy y Clientes), con la raya que se desliza a la elegida. */
+function Subnav({ seccion, view, counts, ir }) {
+  const ref = useRef(null);
+  useIndicador(ref, '[aria-current="page"]', view);
+  return html`<nav class="subnav" aria-label=${"Pestañas de " + (SECCIONES.find((s) => s[0] === seccion) || [])[1]} ref=${ref}>
+    ${PESTANAS[seccion].map(([v, l, marca]) => html`<button key=${v} type="button" aria-current=${marca.includes(view) ? "page" : "false"} onClick=${() => ir(v)}>${l}${counts[v] ? html`<span class="count">${counts[v]}</span>` : null}</button>`)}
+    <span class="subnav-raya" aria-hidden="true"></span>
+  </nav>`;
+}
+
 function App() {
   const [db, setDb] = useState(undefined);
   const [userApi, setUserApi] = useState(null);
@@ -7391,13 +7575,19 @@ function App() {
   const [mini, setMini] = useState(() => { const v = ls.get("menuMini", null); return v == null ? window.innerWidth < 1500 : !!v; });
   const alternarMenu = () => { const v = !mini; ls.set("menuMini", v); setMini(v); };
 
-  /* Un aviso a la vez; «accion» agrega un botón (por ejemplo «Deshacer»). */
+  /* Un aviso a la vez; «accion» agrega un botón (por ejemplo «Deshacer»). Al irse, se desvanece. */
+  const quitarToast = useCallback((id) => {
+    setToasts((t) => t.map((x) => (x.id === id ? { ...x, saliendo: true } : x)));
+    setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), 180);
+  }, []);
   const toast = useCallback((msg, tone, accion) => {
     if (!msg) return;
     const id = Math.random().toString(36).slice(2);
     setToasts([{ id, msg, tone: tone || "", accion: accion || null }]);
-    setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), tone === "bad" ? 7000 : accion ? 9000 : 4200);
+    setTimeout(() => quitarToast(id), tone === "bad" ? 7000 : accion ? 9000 : 4200);
   }, []);
+  const [drawerVisto, drawerSale] = useSalida(drawer, 240);
+  const [modalVisto, modalSale] = useSalida(modal, 170);
 
   useEffect(() => {
     let alive = true;
@@ -8210,7 +8400,8 @@ function App() {
   if (dbError && dbError.code !== "unavailable") {
     body = html`<div class="main-inner"><div class="note bad"><${Icon} name="info" /><div>${dbErrorText(dbError)}</div></div></div>`;
   } else if (db === undefined || leads === null) {
-    body = html`<div class="main-inner"><header class="page-head"><div><p class="eyebrow">CRM · ZH Development</p><h1>Cargando los leads…</h1></div></header></div>`;
+    body = html`<div class="main-inner"><header class="page-head"><div><p class="eyebrow">CRM · ZH Development</p><h1>Cargando los leads…</h1></div></header>
+      <div class="esqueleto" aria-hidden="true"><div class="panel"><i></i><i></i><i></i><i></i></div><div class="panel"><i></i><i></i><i></i></div></div></div>`;
   } else if (view === "leads") body = html`<${LeadsView} />`;
   else if (view === "embudo") body = html`<${EmbudoView} />`;
   else if (view === "clientes") body = html`<${ClientesView} />`;
@@ -8247,41 +8438,39 @@ function App() {
       </header>
       <main class="main" id="main">
         ${!canWrite && leads ? html`<div class="main-inner" style="margin-bottom:16px"><div class="note"><${Icon} name="info" /><div>Tienes acceso de solo lectura: puedes ver los leads, pero no cambiarlos.</div></div></div>` : null}
-        ${PESTANAS[seccionDe(view)] && leads ? html`<div class="main-inner subnav-wrap"><nav class="subnav" aria-label=${"Pestañas de " + (SECCIONES.find((s) => s[0] === seccionDe(view)) || [])[1]}>
-          ${PESTANAS[seccionDe(view)].map(([v, l, marca]) => html`<button key=${v} type="button" aria-current=${marca.includes(view) ? "page" : "false"} onClick=${() => ir(v)}>${l}${counts[v] ? html`<span class="count">${counts[v]}</span>` : null}</button>`)}
-        </nav></div>` : null}
+        ${PESTANAS[seccionDe(view)] && leads ? html`<div class="main-inner subnav-wrap"><${Subnav} key=${seccionDe(view)} seccion=${seccionDe(view)} view=${view} counts=${counts} ir=${ir} /></div>` : null}
         <${Boundary} name="esta sección">${body}</${Boundary}>
       </main>
       <nav class="tabs" aria-label="Secciones">
         ${SECCIONES.map(([s, l, ic]) => html`<button key=${s} aria-current=${seccionDe(view) === s ? "page" : "false"} onClick=${() => ir(s)}><${Icon} name=${ic} size=${20} />${l}${(s === "hoy" || s === "clientes") && cuentaSeccion[s] ? html`<span class="dot">${cuentaSeccion[s]}</span>` : null}</button>`)}
       </nav>
     </div>
-    ${drawer && wrapApi ? html`<${Boundary} name="la ficha">
-      ${drawer.kind === "cliente" ? html`<${ClienteDrawer} id=${drawer.id} tab=${drawer.tab} onClose=${closeDrawer} />` : drawer.kind === "proyecto" ? html`<${ProyectoDrawer} id=${drawer.id} onClose=${closeDrawer} />` : html`<${LeadDrawer} id=${drawer.id} tab=${drawer.tab} onClose=${closeDrawer} />`}
-    </${Boundary}>` : null}
-    ${modal && wrapApi ? html`<${Boundary} name="esta ventana">
-      ${modal.type === "buscar" ? html`<${Buscador} />` : null}
-      ${modal.type === "newLead" ? html`<${NewLeadModal} preset=${modal.preset} />` : null}
-      ${modal.type === "import" ? html`<${ImportModal} />` : null}
-      ${modal.type === "draft" ? html`<${DraftEditor} id=${modal.id} />` : null}
-      ${modal.type === "lost" ? html`<${LostModal} lead=${modal.lead} />` : null}
-      ${modal.type === "noContesto" ? html`<${NoContestoModal} lead=${modal.lead} />` : null}
-      ${modal.type === "otroDia" ? html`<${OtroDiaModal} lead=${modal.lead} />` : null}
-      ${modal.type === "plan" ? html`<${PlanModal} />` : null}
-      ${modal.type === "agendar" ? html`<${AgendarModal} lead=${modal.lead} tarea=${modal.tarea} desdeEtapa=${!!modal.desdeEtapa} />` : null}
-      ${modal.type === "reunionHecha" ? html`<${ReunionHechaModal} lead=${modal.lead} tarea=${modal.tarea} />` : null}
-      ${modal.type === "propuesta" ? html`<${PropuestaModal} lead=${modal.lead} tarea=${modal.tarea} desdeEtapa=${!!modal.desdeEtapa} editar=${!!modal.editar} />` : null}
-      ${modal.type === "propuestaCliente" ? html`<${PropuestaClienteModal} cliente=${modal.cliente} de=${modal.de} />` : null}
-      ${modal.type === "won" ? html`<${WonModal} lead=${modal.lead} />` : null}
-      ${modal.type === "newCliente" ? html`<${NewClienteModal} />` : null}
-      ${modal.type === "newProyecto" ? html`<${NewProyectoModal} clienteId=${modal.clienteId} />` : null}
-      ${modal.type === "solicitud" ? html`<${SolicitudModal} id=${modal.id} clienteId=${modal.clienteId} proyectoId=${modal.proyectoId} />` : null}
-      ${modal.type === "cobro" ? html`<${CobroModal} id=${modal.id} clienteId=${modal.clienteId} proyectoId=${modal.proyectoId} />` : null}
-      ${modal.type === "mantencion" ? html`<${MantencionModal} id=${modal.id} clienteId=${modal.clienteId} />` : null}
-      ${modal.type === "composeCliente" ? html`<${ComposeClienteModal} clienteId=${modal.clienteId} preset=${modal.preset} />` : null}
-    </${Boundary}>` : null}
+    ${drawerVisto && wrapApi ? html`<div class=${cx("capa", drawerSale && "saliendo")} inert=${drawerSale} aria-hidden=${drawerSale ? "true" : null}><${Boundary} name="la ficha">
+      ${drawerVisto.kind === "cliente" ? html`<${ClienteDrawer} id=${drawerVisto.id} tab=${drawerVisto.tab} onClose=${closeDrawer} />` : drawerVisto.kind === "proyecto" ? html`<${ProyectoDrawer} id=${drawerVisto.id} onClose=${closeDrawer} />` : html`<${LeadDrawer} id=${drawerVisto.id} tab=${drawerVisto.tab} onClose=${closeDrawer} />`}
+    </${Boundary}></div>` : null}
+    ${modalVisto && wrapApi ? html`<div key=${claveCapa(modalVisto)} class=${cx("capa", modalSale && "saliendo")} inert=${modalSale} aria-hidden=${modalSale ? "true" : null}><${Boundary} name="esta ventana">
+      ${modalVisto.type === "buscar" ? html`<${Buscador} />` : null}
+      ${modalVisto.type === "newLead" ? html`<${NewLeadModal} preset=${modalVisto.preset} />` : null}
+      ${modalVisto.type === "import" ? html`<${ImportModal} />` : null}
+      ${modalVisto.type === "draft" ? html`<${DraftEditor} id=${modalVisto.id} />` : null}
+      ${modalVisto.type === "lost" ? html`<${LostModal} lead=${modalVisto.lead} />` : null}
+      ${modalVisto.type === "noContesto" ? html`<${NoContestoModal} lead=${modalVisto.lead} />` : null}
+      ${modalVisto.type === "otroDia" ? html`<${OtroDiaModal} lead=${modalVisto.lead} />` : null}
+      ${modalVisto.type === "plan" ? html`<${PlanModal} />` : null}
+      ${modalVisto.type === "agendar" ? html`<${AgendarModal} lead=${modalVisto.lead} tarea=${modalVisto.tarea} desdeEtapa=${!!modalVisto.desdeEtapa} />` : null}
+      ${modalVisto.type === "reunionHecha" ? html`<${ReunionHechaModal} lead=${modalVisto.lead} tarea=${modalVisto.tarea} />` : null}
+      ${modalVisto.type === "propuesta" ? html`<${PropuestaModal} lead=${modalVisto.lead} tarea=${modalVisto.tarea} desdeEtapa=${!!modalVisto.desdeEtapa} editar=${!!modalVisto.editar} />` : null}
+      ${modalVisto.type === "propuestaCliente" ? html`<${PropuestaClienteModal} cliente=${modalVisto.cliente} de=${modalVisto.de} />` : null}
+      ${modalVisto.type === "won" ? html`<${WonModal} lead=${modalVisto.lead} />` : null}
+      ${modalVisto.type === "newCliente" ? html`<${NewClienteModal} />` : null}
+      ${modalVisto.type === "newProyecto" ? html`<${NewProyectoModal} clienteId=${modalVisto.clienteId} />` : null}
+      ${modalVisto.type === "solicitud" ? html`<${SolicitudModal} id=${modalVisto.id} clienteId=${modalVisto.clienteId} proyectoId=${modalVisto.proyectoId} />` : null}
+      ${modalVisto.type === "cobro" ? html`<${CobroModal} id=${modalVisto.id} clienteId=${modalVisto.clienteId} proyectoId=${modalVisto.proyectoId} />` : null}
+      ${modalVisto.type === "mantencion" ? html`<${MantencionModal} id=${modalVisto.id} clienteId=${modalVisto.clienteId} />` : null}
+      ${modalVisto.type === "composeCliente" ? html`<${ComposeClienteModal} clienteId=${modalVisto.clienteId} preset=${modalVisto.preset} />` : null}
+    </${Boundary}></div>` : null}
     ${wrapApi ? html`<${Recordatorios} conFicha=${!!drawer} />` : null}
-    <div class=${cx("toasts", modal && "raised")} aria-live="polite">${toasts.map((t) => html`<div key=${t.id} class=${cx("toast", t.tone === "bad" && "bad")}><span>${t.msg}</span><span class="toast-acts">${t.accion ? html`<button onClick=${() => { setToasts((x) => x.filter((y) => y.id !== t.id)); t.accion.fn(); }}>${t.accion.label}</button>` : null}<button aria-label="Cerrar aviso" onClick=${() => setToasts((x) => x.filter((y) => y.id !== t.id))}>OK</button></span></div>`)}</div>
+    <div class=${cx("toasts", modal && "raised")} aria-live="polite">${toasts.map((t) => html`<div key=${t.id} class=${cx("toast", t.tone === "bad" && "bad", t.saliendo && "saliendo")}><span>${t.msg}</span><span class="toast-acts">${t.accion ? html`<button onClick=${() => { quitarToast(t.id); t.accion.fn(); }}>${t.accion.label}</button>` : null}<button aria-label="Cerrar aviso" onClick=${() => quitarToast(t.id)}>OK</button></span></div>`)}</div>
   </${Ctx.Provider}>`;
 }
 

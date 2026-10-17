@@ -85,6 +85,7 @@ const SEED = {
   const panel = page.locator(".lo-que-toca");
   await panel.locator('.hoy-grupo[aria-label="Clientes"]').waitFor();
   if (await page.locator(".hoy-proximos:not([open])").count()) await page.locator(".hoy-proximos > summary").click();
+  await page.locator(".hoy-proximos > :not(summary)").first().waitFor();
   ok(await panel.locator(".irow", { hasText: "Termina la garantía" }).isVisible(), "Hoy avisa que termina la garantía");
   ok(await panel.locator('.hoy-grupo[aria-label="Clientes"] .irow', { hasText: "Pago atrasado: factura 115" }).isVisible(), "Hoy muestra el pago atrasado en el grupo Clientes");
   ok(await panel.locator(".hoy-proximos .irow", { hasText: "Capacitación al equipo" }).isVisible(), "y el hito de la semana en «Próximos 7 días»");
@@ -189,6 +190,7 @@ const SEED = {
   const pSol = prompts.find((p) => p.includes("Clasifica la solicitud de un cliente"));
   ok(pSol && pSol.includes("El informe mensual no carga") && pSol.includes("garantia: corrección de errores"), "Claude recibe la solicitud y la política P-007");
   await page.keyboard.press("Escape");
+  await page.locator(".drawer").waitFor({ state: "detached" });
 
   /* ---------------- soporte: resolver ---------------- */
   await side(page, "Soporte");

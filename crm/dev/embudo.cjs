@@ -218,6 +218,7 @@ const SEED = {
   ok(true, "un clic abre la ficha del lead");
   ok(!(await page.locator("details.pitch").evaluate((d) => d.open)), "con la reunión hecha, el dolor y el guion quedan plegados");
   await page.locator("details.pitch > summary").click();
+  await page.locator(".pitch > div").first().waitFor();
   const pitch = await page.locator(".pitch").innerText();
   ok(pitch.includes("Agendan las horas por teléfono") && pitch.includes("Agenda en línea con recordatorio"), "la ficha muestra el dolor y cómo ayudamos");
   ok((await page.locator("#lead-resp").evaluate((el) => el.options[el.selectedIndex].text)) === "Lo lleva Lorenzo", "y arriba, quién lo lleva");
@@ -228,6 +229,7 @@ const SEED = {
   ok(true, "el responsable se cambia desde la ficha");
   ok((await page.locator("#l-dolor").count()) === 1 && (await page.locator("#l-ayuda").count()) === 1 && (await page.locator("#l-guion").count()) === 1, "y en «Datos del lead» se editan el dolor, cómo ayudamos y el guion");
   await page.locator(".pitch details.guion summary").click();
+  await page.locator(".pitch details.guion p").waitFor();
   ok((await page.locator(".pitch details.guion p").innerText()).includes("WhatsApp si no contesta: Hola Isabel"), "el guion se abre en la ficha, completo");
   await page.keyboard.press("Escape");
   await page.locator(".scrim").first().waitFor({ state: "detached" });

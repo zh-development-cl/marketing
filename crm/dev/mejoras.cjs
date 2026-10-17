@@ -149,7 +149,7 @@ const SEED = {
   await page.fill("#buscar-global", "metricas");
   ok(await visto(page.locator(".cmdk-item", { hasText: "Ir a Métricas" })), "busca también entre las acciones y las secciones");
   await page.keyboard.press("Escape");
-  ok((await page.locator(".cmdk").count()) === 0, "Escape lo cierra");
+  ok(await page.locator(".cmdk").waitFor({ state: "detached", timeout: 2000 }).then(() => true, () => false), "Escape lo cierra");
   await page.locator(".nav-buscar").click();
   await page.fill("#buscar-global", "nuevo lead");
   await page.keyboard.press("ArrowDown");
