@@ -1,10 +1,11 @@
 /* Regreso de conectar la cuenta de ZH: muestra una vez la llave para pegarla en Vercel. Solo la ve
    quien entró con esa cuenta y aceptó los permisos. */
-import { html, base, esc } from "../../lib/http.js";
+import { html, base, esc, configurado, faltaHtml } from "../../lib/http.js";
 import { verificar } from "../../lib/jwt.js";
 import { canjearCodigo, correoDeIdToken, ALCANCES_DATOS } from "../../lib/google.js";
 
 export async function GET(req) {
+  if (!configurado()) return faltaHtml();
   const q = new URL(req.url).searchParams;
   if (!verificar(q.get("state"), "conectar")) return html("<h1>El enlace venció</h1><p>Vuelve a la página de inicio de zh-reuniones y toca «Conectar la cuenta de Google de ZH».</p>", 400);
   if (q.get("error") || !q.get("code")) return html("<h1>No se autorizó</h1><p>Google no dio los permisos. Vuelve a intentar y acepta todos los que pide.</p>", 400);

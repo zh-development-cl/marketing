@@ -235,6 +235,18 @@ test("conectar la cuenta de ZH: solo esa cuenta y con todos los permisos", async
   assert.equal(vencido.status, 400);
 });
 
+test("sin el cliente de Google, avisa qué falta en vez de fallar", async () => {
+  const secreto = process.env.GOOGLE_CLIENT_SECRET;
+  process.env.GOOGLE_CLIENT_SECRET = "";
+  try {
+    const r = await postJson(register, "/api/oauth/register", { redirect_uris: [CLAUDE] });
+    assert.equal(r.status, 503);
+    assert.match((await r.json()).error_description, /GOOGLE_CLIENT_ID y GOOGLE_CLIENT_SECRET/);
+    assert.equal((await get(conectar, "/api/google/conectar")).status, 503);
+    assert.equal((await rpc("cualquiera", "tools/list", {})).status, 401);
+  } finally { process.env.GOOGLE_CLIENT_SECRET = secreto; }
+});
+
 test("la página de inicio dice qué falta y la dirección del conector", async () => {
   const r = await inicio.GET(new Request(H + "/"));
   const t = await r.text();

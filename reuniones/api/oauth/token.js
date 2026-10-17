@@ -1,6 +1,6 @@
 /* Llaves de acceso: el código (con su verificador PKCE) o la llave de renovación dan una llave de
    una hora y otra de renovación de 60 días. Quien sale del equipo deja de poder renovar. */
-import { json, equipo } from "../../lib/http.js";
+import { json, equipo, configurado, faltaJson } from "../../lib/http.js";
 import { firmar, verificar, sha256b64u } from "../../lib/jwt.js";
 
 const emitir = (correo, cliente, recurso) => json({
@@ -13,6 +13,7 @@ const emitir = (correo, cliente, recurso) => json({
 const malo = (descripcion) => json({ error: "invalid_grant", error_description: descripcion }, 400);
 
 export async function POST(req) {
+  if (!configurado()) return faltaJson();
   const tipo = req.headers.get("content-type") || "";
   const d = tipo.includes("application/json") ? await req.json().catch(() => ({})) : Object.fromEntries(new URLSearchParams(await req.text()));
   if (d.grant_type === "authorization_code") {

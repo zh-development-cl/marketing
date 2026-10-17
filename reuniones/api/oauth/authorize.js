@@ -1,9 +1,10 @@
 /* Autorización (OAuth 2.1 con PKCE): se entra con Google y solo el equipo de ZH recibe el código. */
-import { html, base, redirect } from "../../lib/http.js";
+import { html, base, redirect, configurado, faltaHtml } from "../../lib/http.js";
 import { firmar, verificar } from "../../lib/jwt.js";
 import { urlAutorizar, ALCANCES_LOGIN } from "../../lib/google.js";
 
 export function GET(req) {
+  if (!configurado()) return faltaHtml();
   const q = new URL(req.url).searchParams;
   const clienteId = q.get("client_id") || "";
   const regreso = q.get("redirect_uri") || "";

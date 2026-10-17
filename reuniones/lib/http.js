@@ -28,3 +28,9 @@ export const base = (req) => {
 export const correos = (v) => String(v || "").split(/[\s,;]+/).map((x) => x.trim().toLowerCase()).filter((x) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(x));
 /* Quienes pueden usar el conector: EQUIPO (los socios) más la cuenta de Google de ZH. */
 export const equipo = () => [...new Set([...correos(process.env.EQUIPO), ...correos(process.env.GOOGLE_CUENTA)])];
+
+/* Sin el cliente de Google no se puede firmar ni iniciar sesión: se avisa en vez de fallar. */
+export const configurado = () => !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
+const FALTA = "Falta configurar el cliente de Google de ZH Reuniones en Vercel (GOOGLE_CLIENT_ID y GOOGLE_CLIENT_SECRET).";
+export const faltaJson = () => json({ error: "temporarily_unavailable", error_description: FALTA }, 503);
+export const faltaHtml = () => html(`<h1>Todavía no está listo</h1><p>${FALTA}</p>`, 503);

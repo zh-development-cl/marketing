@@ -1,9 +1,10 @@
 /* Regreso del inicio de sesión con Google: si la cuenta es del equipo, se entrega el código. */
-import { html, base, redirect, esc, equipo } from "../../lib/http.js";
+import { html, base, redirect, esc, equipo, configurado, faltaHtml } from "../../lib/http.js";
 import { firmar, verificar } from "../../lib/jwt.js";
 import { canjearCodigo, correoDeIdToken } from "../../lib/google.js";
 
 export async function GET(req) {
+  if (!configurado()) return faltaHtml();
   const q = new URL(req.url).searchParams;
   const est = verificar(q.get("state"), "estado");
   if (!est) return html("<h1>El enlace venció</h1><p>Vuelve a conectar ZH Reuniones desde claude.ai.</p>", 400);
