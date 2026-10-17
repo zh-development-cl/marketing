@@ -18,7 +18,7 @@ revisarlos antes de enviarlos.
 |---|---|
 | Hoy | Las tareas del día: atrasadas, de hoy y de los próximos 7 días, cada una con su círculo para completarla y su botón (llamar, revisar el borrador, agendar, «Unirse a Meet», «¿Se hizo?»), con un filtro para ver lo de Lorenzo o lo de Nicolás; **Avisos** arriba (la reunión de las próximas dos horas con su Meet, las invitaciones rechazadas y los pagos vencidos, cada uno con su botón; ver «Avisos y recordatorios»); **Esta semana**: las llamadas y las reuniones agendadas desde el lunes, contra la meta (ver «Propuestas, estancados, metas y archivos»); **Estancados**: los que llevan 7 días o más en la misma etapa después de la reunión; el **Calendario** de `contacto@zhdevelopment.cl` (hoy y los próximos 7 días, con el lead de cada reunión, Meet, la respuesta a la invitación y «Crear lead» para quien todavía no es lead); los leads por contactar, los que no tienen tarea, los borradores por revisar y la actividad reciente. Con clientes: pagos atrasados, cobros por facturar, hitos y garantías que terminan en los próximos 7 días, y el soporte abierto. |
 | **Ventas** | |
-| Llamar en serie | Las llamadas de hoy, una tras otra: primero las tareas de llamar atrasadas y de hoy, después los leads nuevos sin tarea (prioridad alta primero), solo con teléfono. Cada una muestra el teléfono grande, la tarea, el dolor, cómo ayudamos, el guion y los últimos contactos; «Contestó: registrar» abre el registro de la llamada (con «Transcribir en vivo»), «No contestó» deja el intento y la próxima tarea, y al terminar pasa sola a la siguiente. «Saltar», la lista «Después» y el filtro por socio. En el teléfono está en la barra de abajo. |
+| Llamar en serie | Las llamadas de hoy, una tras otra: primero las tareas de llamar atrasadas y de hoy, después los leads nuevos sin tarea (prioridad alta primero), solo con teléfono. Cada una muestra el teléfono grande, la tarea, el dolor, cómo ayudamos, el guion y los últimos contactos; «Contestó: registrar» abre el registro de la llamada (con «Transcribir en vivo»), «No contestó» deja el intento y el paso que sigue, «Pidió otro día» deja la llamada para el día y la hora que pidió, y al terminar pasa sola a la siguiente. «Saltar», la lista «Después» y el filtro por socio. En el teléfono está en la barra de abajo. |
 | Leads | Tabla con búsqueda por nombre, empresa, correo o teléfono, y filtros por etapa, origen y responsable. «Tabla / Tablero» cambia al embudo. Con la casilla de cada fila se eligen varios para asignarlos a un socio, moverlos a Por contactar, Contactado, En pausa o Perdido (con su motivo) o agregarles una tarea. |
 | Embudo de leads | Tablero por etapa, al estilo de HubSpot: las tarjetas se arrastran de una etapa a otra, hasta «Ganado» (ver «Embudo de leads»). |
 | **Clientes** | |
@@ -29,7 +29,7 @@ revisarlos antes de enviarlos.
 | Cobros | Anticipos, pagos por hito, evolutivos y mensualidades: por facturar, facturado, vencido y pagado. |
 | Borradores | Correos y WhatsApp redactados con Claude o a mano, con vista previa y acciones de envío. |
 | Métricas | El embudo de hoy con su valor y el pronóstico ponderado por etapa; en el período elegido (7, 30 o 90 días, o 12 meses): llamadas y cuántas contestaron, reuniones, ganados, hasta dónde llegaron los leads nuevos, por qué se perdieron, la actividad de cada socio, el puntaje de las llamadas por criterio (y dónde mejorar) y, con clientes, lo vencido, lo por cobrar en 30 días y lo pagado. **Resumen con Claude**: para la reunión de los socios, un titular, lo que va bien, lo que preocupa y tres acciones para la próxima semana, solo con los datos del CRM (se puede copiar). |
-| Ajustes | Firma de cada socio, metas de la semana (llamadas y reuniones agendadas por socio), avisos de este navegador (recordatorios en pantalla y sonido), WhatsApp de negocios, enlace para agendar, cuenta de Google de ZH (`contacto@zhdevelopment.cl`: su calendario es el que lee y escribe el CRM, y Gmail se abre en ella), correos del equipo (se invitan a las reuniones y nunca se confunden con un lead), estado de Google Calendar, garantía y plazo de pago por defecto, exportación. |
+| Ajustes | Firma de cada socio, metas de la semana (llamadas y reuniones agendadas por socio), avisos de este navegador (recordatorios en pantalla y sonido), WhatsApp de la empresa (opcional: si no está, cada firma usa el teléfono de su socio), enlace para agendar, cuenta de Google de ZH (`contacto@zhdevelopment.cl`: su calendario es el que lee y escribe el CRM, y Gmail se abre en ella), correos del equipo (se invitan a las reuniones y nunca se confunden con un lead), estado de Google Calendar, garantía y plazo de pago por defecto, exportación. |
 
 **Buscar** (⌘K o Ctrl+K, «/» o el botón «Buscar» del menú): leads, clientes, proyectos y acciones
 (nuevo lead, importar, ir a una sección), por palabras sueltas, sin tildes o por los dígitos del
@@ -47,7 +47,9 @@ herramientas:
   que corresponde y los borradores de los correos y WhatsApp acordados. Arriba de la ficha queda
   un resumen de lo que cambió. Con notas en vez de grabación, «Analizar y guardar» hace lo mismo.
   Sin «Automático», «Analizar con Claude» muestra el análisis para elegir qué aplicar antes de
-  guardar. Si no contesta, deja la tarea de volver a llamar el día hábil siguiente.
+  guardar. Si no contesta, deja la tarea de volver a llamar el día hábil siguiente; si pidió que
+  lo llamemos después, se elige el día y la hora y queda la tarea «Volver a llamar (lo pidió)»
+  (ver «Llamadas: qué hacer según cómo salió»).
 - **Registrar reunión:** igual que la llamada, para la reunión de descubrimiento o de seguimiento
   (por Meet o en persona): al guardar, el lead pasa a «Reunión concretada» y Claude saca las tareas,
   como enviar la propuesta o el resumen.
@@ -56,6 +58,12 @@ herramientas:
   trato (tú o usted), diseño del correo e instrucciones libres. Claude recibe los datos del lead y
   su historial, el contexto de ZH y las reglas de tono; no inventa precios, plazos ni casos.
 - **Nota:** notas, o WhatsApp y correos mandados por fuera (cumplen la tarea de ese mensaje).
+
+**El teléfono** de la ficha es el del lead: cada socio lo llama desde su celular (no hay una línea
+de la empresa). En el computador, «Llamar» abre la app de teléfono si está enlazada con el
+celular; si no, se marca a mano o se copia. Debajo, mientras el lead esté abierto, tres atajos:
+**«No contestó»**, **«Pidió otro día»** y **«Me llamó y no contesté»** (ver «Llamadas: qué hacer
+según cómo salió»).
 
 **Responsables:** solo Lorenzo y Nicolás, en leads, clientes, proyectos y solicitudes. El CRM
 reconoce quién lo abre por el nombre de su firma o de su perfil y lo propone al crear un lead; si no
@@ -155,8 +163,9 @@ Calendar, y su cuenta conectada tiene que tener acceso a ese calendario.
   de facturar o el vencimiento de un cobro, y un hito de un proyecto. Con hora queda de 15 minutos
   a esa hora; sin hora, de todo el día y sin ocupar la agenda. Se invita, sin mandarle correo, al
   socio que lo lleva (con el correo de su firma en Ajustes), así su Google Calendar le avisa en el
-  teléfono aunque el CRM esté cerrado. Al crear una tarea con hora (en la ficha o en «No contestó»)
-  viene marcada la casilla «Anotar en Google Calendar». Si después cambia el día, la hora o el
+  teléfono aunque el CRM esté cerrado. Al crear una tarea con hora en la ficha, o la de llamar a
+  quien pidió que lo llamemos otro día, viene marcada la casilla «Anotar en Google Calendar»; en
+  «No contestó» viene sin marcar, para no llenar el calendario de intentos. Si después cambia el día, la hora o el
   título en el CRM, se cambia allá; al revés no: moverlo en Google Calendar no mueve la tarea. Lo
   anotado lleva en la descripción «Anotado desde el CRM de ZH Development.», y por eso nunca se toma
   por una reunión ni sale repetido en Hoy → Calendario.
@@ -189,35 +198,40 @@ el CRM cerrado, se anota en Google Calendar (ver arriba).
 
 ## Embudo de leads
 
+- **Columnas:** cada etapa es un carril con su color (una franja arriba y el fondo apenas teñido)
+  y cuántos leads tiene. Las seis etapas abiertas van una al lado de la otra, con su total y su
+  ponderado, y en la última columna, apiladas, las cerradas: **Ganado**, **Perdido** y **En pausa**,
+  siempre a la vista, con su número junto al título, tarjetas cortas y lo último arriba. Si no
+  caben, cada una cede alto según cuántas tarjetas tiene (Perdido, que suele ser la más larga, cede
+  más) y el resto se desliza dentro; una cerrada sin leads deja solo su título.
 - **Arrastrar:** con el mouse, se toma la tarjeta y se suelta en otra etapa; en el teléfono o la
   tablet, se mantiene apretada un momento y se arrastra (deslizar rápido sigue siendo scroll).
-  Cerca de los bordes el tablero avanza solo y Escape cancela. **Ganado** es la última columna,
-  después de Negociación: soltar ahí abre «Convertir en cliente». Mientras se arrastra aparecen
-  abajo **Perdido** (pide el motivo) y **En pausa**. Cada cambio queda en el historial del lead.
+  Cerca de los bordes el tablero avanza solo y Escape cancela. Soltar en **Ganado** abre
+  «Convertir en cliente» y en **Perdido** pide el motivo. Mientras se arrastra aparecen también
+  abajo Perdido y En pausa, por si el tablero está corrido. Cada cambio queda en el historial del
+  lead.
 - **Ganados:** cada tarjeta dice a qué cliente pasó y en qué etapa va («Cliente · En desarrollo»,
   que abre su ficha), o trae «Convertir en cliente» si se marcó como ganado sin crearlo. La columna
   tiene el enlace al embudo de clientes.
-- **Montos:** cada etapa muestra su total y su valor ponderado, y la cabecera suma lo que está en
-  juego. Probabilidad por etapa: Por contactar 5 %, Contactado 10 %, Reunión agendada 20 %, Reunión
+- **Montos:** cada etapa abierta muestra su total y su valor ponderado, y la cabecera suma lo que
+  está en juego. Probabilidad por etapa: Por contactar 5 %, Contactado 10 %, Reunión agendada 20 %, Reunión
   concretada 35 %, Propuesta enviada 50 %, Negociación 75 %.
 - **Tarjetas:** la empresa y debajo la persona, valor, prioridad alta, la próxima tarea con su
   círculo para completarla (azul si es hoy, rojo si está atrasada, amarillo si hay que contar si se
   hizo la reunión; o «Sin tarea · agregar»), cuántas veces no contestó, desde los 7 días en la
   misma etapa «N d en la etapa» («Enviada hace N d» en una propuesta; amarillo desde 14, rojo desde
   21), última actividad, la inicial
-  de quién lo lleva y accesos a «No contestó», registrar llamada, WhatsApp y redactar. Tocando la
-  inicial se cambia el responsable (Lorenzo, Nicolás o nadie) sin abrir la ficha.
-- **No contestó:** el teléfono tachado abre una ventana corta: qué pasó (no contestó, buzón de voz u
-  ocupado), cuándo volver a intentarlo (más tarde, mañana, en 2 días, en una semana, u otro día y
-  hora) y si se vuelve a llamar o se le escribe por WhatsApp. La llamada queda en el historial, suma
-  el intento, cumple la tarea de llamar que tocaba y deja la nueva; la tarjeta sigue en su etapa.
-  Si se le escribe por WhatsApp, Claude deja redactado el mensaje (en Borradores, unido a la tarea,
-  para revisarlo). Desde el tercer intento ofrece pasarla a Perdido con el motivo «No responde».
-- **Perdidos:** con «Perdidos y en pausa», la columna Perdido muestra cuántos hay por
-  motivo y cada tarjeta, el suyo. «Falta el motivo» abre la ventana para ponerlo.
+  de quién lo lleva (un «+» punteado si no lo lleva nadie) y accesos a «No contestó», registrar
+  llamada, WhatsApp y redactar. Tocando la inicial se cambia el responsable (Lorenzo, Nicolás o
+  nadie) sin abrir la ficha.
+- **No contestó:** el teléfono tachado abre la ventana que propone qué hacer según el intento (ver
+  «Llamadas: qué hacer según cómo salió»); la tarjeta sigue en su etapa y cuenta las veces que no
+  contestó.
+- **Perdidos:** el carril muestra cuántos hay por motivo (los tres más comunes y «Otros») y cada
+  tarjeta, su motivo y hace cuánto fue lo último. «Falta el motivo» abre la ventana para ponerlo.
 - **Filtros:** búsqueda (sin importar tildes), responsable (todos, Lorenzo, Nicolás o sin
-  responsable), orden (próxima tarea, última actividad, valor, más tiempo en la etapa o más
-  nuevos) y mostrar perdidos y en pausa.
+  responsable) y orden (próxima tarea, última actividad, valor, más tiempo en la etapa o más
+  nuevos). Las etapas cerradas van siempre por lo último que pasó.
 
 El menú lateral se contrae a solo íconos (el botón de abajo; por defecto en pantallas de menos de
 1500 px) y así las siete columnas caben en una pantalla de 1360 px. Cada columna tiene el alto de la pantalla: se
@@ -351,9 +365,39 @@ cliente) y, en un lead, si se quiere, programa una llamada de seguimiento a los 
 
 «Abrir en WhatsApp» abre `wa.me` (o WhatsApp Web, según Ajustes) con el número del lead o del
 contacto del cliente y el texto listo; se revisa y se envía desde WhatsApp. El mensaje sale de la
-cuenta de WhatsApp que esté abierta en ese dispositivo, así que en el computador conviene tener
-WhatsApp Web o la app de escritorio con la sesión de **WhatsApp Business del número de
-negocios**. Ver `docs/crm-telefonia-whatsapp.md`.
+cuenta de WhatsApp que esté abierta en ese dispositivo: en el computador, WhatsApp Web o la app
+de escritorio con la sesión de quien escribe. Ver `docs/crm-telefonia-whatsapp.md`.
+
+## Llamadas: qué hacer según cómo salió
+
+Cada socio llama desde su celular; el CRM muestra el número del lead y deja registrado lo que
+pasó. Según cómo salió la llamada:
+
+- **No contestó** (en la tarjeta del embudo, en la ficha o en Llamar en serie): una ventana corta
+  que propone el paso que toca según el intento, con la secuencia a la vista:
+  1. Primer intento: llamarlo el día hábil siguiente a otra hora del día (a las 16:00 si se
+     llamó en la mañana; a las 10:00 si fue en la tarde).
+  2. Segundo: escribirle hoy por WhatsApp (Claude lo deja redactado en Borradores, unido a la
+     tarea) y, si no responde, llamarlo 2 días hábiles después.
+  3. Tercero: un último llamado en una semana.
+  4. Cuarto: cerrarlo como Perdido por «No responde» (es la acción principal; «Seguir
+     intentando» deja otro llamado en una semana).
+
+  Todo se puede cambiar: qué pasó (no contestó, buzón de voz u ocupado), cuándo (más tarde,
+  mañana, en 2 días, en una semana, u otro día y hora) y si se llama o se escribe. La llamada
+  queda en el historial, suma el intento, cumple la tarea de llamar que tocaba y deja la nueva;
+  la tarjeta sigue en su etapa. Desde el tercer intento también se puede pasar a Perdido.
+- **Pidió que lo llamemos otro día** («llámame el lunes a las 10»): «Pidió otro día», en la ficha
+  y en Llamar en serie, pide el día (atajos «Mañana», «En 2 días», «El lunes» y «En una
+  semana») y la hora (10:00 por defecto, con las horas frecuentes a un toque). La llamada queda
+  en el historial como «Pidió que llamemos después», se cumple la tarea de llamar de hoy, un lead
+  por contactar pasa a Contactado y queda la tarea «Volver a llamar (lo pidió)», con su
+  recordatorio en pantalla a esa hora y, si se deja marcado, en Google Calendar. Si se quiere,
+  Claude redacta un WhatsApp corto que le confirma el día y la hora. Lo mismo pasa al marcar
+  «Pidió que llamemos después» en «Registrar llamada».
+- **Me llamó y no contesté:** en la ficha, deja una nota en el historial y la tarea «Devolverle
+  la llamada» para dentro de 5 minutos, a cargo de quien la anota, con su recordatorio en
+  pantalla.
 
 ## Llamadas y transcripción
 
@@ -408,7 +452,9 @@ El análisis de Claude devuelve, además del resumen:
   que se pueda comparar entre llamadas. Queda en el historial, y en Hoy cada socio ve el promedio de
   sus llamadas de los últimos 30 días.
 
-Todo esto usa el plan de Claude de quien abre el CRM: no tiene costo aparte.
+Todo esto usa el plan de Claude de quien abre el CRM: no tiene costo aparte y no usa una clave de
+la API ni créditos de la Claude Platform (para usarlos haría falta un servidor propio, porque en
+la página la clave quedaría a la vista).
 
 ## Datos
 
@@ -426,7 +472,7 @@ calendario `AAAA-MM-DD` en hora de Chile; marcas de tiempo en ISO. En todas las 
 | `cobros` | un cobro | `clienteId`, `proyectoId`, `mantencionId`, `solicitudId`, `tipo` (`anticipo`, `hito`, `cierre`, `mensualidad`, `evolutivo`, `otro`), `concepto`, `monto`, `fecha` (cuándo facturar), `estado` (`por_facturar`, `facturado`, `pagado`, `anulado`), `factura`, `fechaFactura`, `vence`, `fechaPago`, `notas`, `generado`, `ultimoRecordatorio`, `calendario` (si se anotó: `{id, link, fecha, hora, que}`, con `que` = `facturar` o `vence`). Las mensualidades usan el id `cob-m-<id de la mantención>-<AAAA-MM>` |
 | `mantenciones` | un plan mensual | `clienteId`, `proyectoId`, `plan`, `monto` (al mes), `incluye`, `inicio`, `diaCobro` (1-28), `estado` (`activa`, `pausada`, `terminada`), `fin`, `notas` |
 | `solicitudes` | un pedido de un cliente | `clienteId`, `proyectoId`, `titulo`, `descripcion`, `canal` (`correo`, `whatsapp`, `llamada`, `reunion`, `otro`), `tipo` (`error`, `cambio`, `consulta`, `acceso`, `otro`), `cobertura` (`garantia`, `mantencion`, `evolutivo`, `por_definir`), `prioridad` (`alta`, `media`, `baja`), `estado` (`nueva`, `en_curso`, `esperando_cliente`, `resuelta`, `descartada`), `responsable`, `horasEstimadas`, `horasReales`, `cotizacion` (`{monto, estado, cobroId}`, con `estado` = `por_enviar`, `enviada`, `aprobada` o `rechazada`), `resolucion`, `analisis`, `resuelta` (ISO) |
-| `actividades` | un contacto o cambio | `leadId` o `clienteId` (más `proyectoId`, `cobroId`, `solicitudId`), `tipo` (`llamada`, `whatsapp`, `correo`, `reunion`, `nota`, `etapa`, `cliente`, `proyecto`, `cobro`, `solicitud`), `fecha` (ISO), `autor`, `resultado`, `linea`, `duracion`, `resumen`, `transcripcion`, `grabacionAvisada`, `analisis`, `acta` (en reuniones con cliente: `{resumen, acuerdos[], pendientesZH[], pendientesCliente[], solicitudes[], proximaReunion}`), en llamadas y reuniones con leads `analisis` (`resumen`, `necesidades`, `objeciones`, `etapaSugerida`, `reunion` (`{fecha, hora, duracion, titulo}` o `null`), `tareas[]` con `{quien: zh|lead, que, tipo, fecha, hora}` y `evaluacion` con `{puntaje, criterios: {apertura, descubrimiento, escucha, valor, objeciones, cierre: {nota, comentario}}, bien[], mejorar[]}`), `accion` (en cobros y solicitudes), `de`, `a`, `borradorId` |
+| `actividades` | un contacto o cambio | `leadId` o `clienteId` (más `proyectoId`, `cobroId`, `solicitudId`), `tipo` (`llamada`, `whatsapp`, `correo`, `reunion`, `nota`, `etapa`, `cliente`, `proyecto`, `cobro`, `solicitud`), `fecha` (ISO), `autor`, `resultado` (en llamadas: `contesto`, `no_contesto`, `buzon`, `ocupado`, `volver` = pidió que llamemos después, `equivocado`), `linea` (solo en llamadas antiguas: ya no se usa), `duracion`, `resumen`, `transcripcion`, `grabacionAvisada`, `analisis`, `acta` (en reuniones con cliente: `{resumen, acuerdos[], pendientesZH[], pendientesCliente[], solicitudes[], proximaReunion}`), en llamadas y reuniones con leads `analisis` (`resumen`, `necesidades`, `objeciones`, `etapaSugerida`, `reunion` (`{fecha, hora, duracion, titulo}` o `null`), `tareas[]` con `{quien: zh|lead, que, tipo, fecha, hora}` y `evaluacion` con `{puntaje, criterios: {apertura, descubrimiento, escucha, valor, objeciones, cierre: {nota, comentario}}, bien[], mejorar[]}`), `accion` (en cobros y solicitudes), `de`, `a`, `borradorId` |
 | `borradores` | un correo o WhatsApp | `leadId`, o `clienteId` con `contactoId`, `proyectoId`, `cobroId` y `solicitudId`; `canal` (`correo`, `whatsapp`), `estado` (`por_revisar`, `listo`, `enviado`, `descartado`), `objetivo` (a clientes: `avance`, `entrega`, `cobro`, `solicitud`, `reunion`, `feedback`, `mantencion`, `libre`), `instrucciones`, `firma` (id de usuario), `generadoPor`, `tareaId` (la tarea que cumple al enviarse); correo: `plantilla` (`carta`, `destacado`), `asunto`, `preheader`, `etiqueta`, `titular`, `saludo`, `parrafos[]`, `puntos[]`, `cta {texto, url}`, `cierre`, `posdata`; WhatsApp: `texto` |
 | `equipo` | uno por usuario (id `u_…`) | `nombre`, `cargo`, `telefono`, `correo` (la firma) |
 | `diagnostico` | `microfono-<id de usuario>` | último resultado de «Transcribir en vivo»: `ok`, `paso`, `tipo`, `error`, `politica`, `enMarco`, `navegador`, `fecha` |
@@ -456,12 +502,12 @@ python3 crm/dev/build_preview.py                    # arma crm/dev/preview.html 
 NODE_PATH=$(npm root -g) node crm/dev/smoke.cjs     # leads, llamadas y borradores (capturas en crm/dev/shots)
 NODE_PATH=$(npm root -g) node crm/dev/clientes.cjs  # etapa con clientes: lead ganado, proyecto, cobros, soporte, acta
 NODE_PATH=$(npm root -g) node crm/dev/microfono.cjs # transcribir en vivo, con micrófono simulado
-NODE_PATH=$(npm root -g) node crm/dev/embudo.cjs    # embudos de leads y de clientes, y Proyectos: arrastrar (mouse y dedo), montos, filtros, responsables, no contestó y motivos de pérdida
+NODE_PATH=$(npm root -g) node crm/dev/embudo.cjs    # embudos de leads y de clientes, y Proyectos: carriles, arrastrar (mouse y dedo), montos, filtros, responsables, no contestó y motivos de pérdida
 NODE_PATH=$(npm root -g) node crm/dev/tareas.cjs    # tareas y flujo automático: grabar y guardar solo, agendar, ¿se hizo?, propuesta y deshacer, menú contraído
 NODE_PATH=$(npm root -g) node crm/dev/calendario.cjs # Google Calendar: unir eventos con leads, reservas de la web, mover, invitaciones, crear y mover eventos, permisos
 NODE_PATH=$(npm root -g) node crm/dev/mejoras.cjs   # buscar, llamar en serie, horarios libres, recordatorio, preparar con Claude, métricas, selección múltiple
 NODE_PATH=$(npm root -g) node crm/dev/seguimiento.cjs # propuesta enviada, días en la etapa y estancados, archivos, metas, WhatsApp de «No contestó» y resumen con Claude
-NODE_PATH=$(npm root -g) node crm/dev/avisos.cjs    # avisos de Hoy, recordatorios en pantalla y anotar en Google Calendar tareas, cobros e hitos
+NODE_PATH=$(npm root -g) node crm/dev/avisos.cjs    # avisos de Hoy, recordatorios en pantalla, anotar en Google Calendar tareas, cobros e hitos, y qué hacer según cómo salió la llamada
 ```
 
 `crm/dev/mock-claude.js` imita `window.claude` (base de datos en memoria, Claude con respuestas

@@ -3,6 +3,9 @@
 Investigación al 14-10-2026, con fuentes al final. Lo que no se pudo confirmar dice **por
 confirmar**. La parte legal resume lo que dicen las fuentes; no es asesoría legal.
 
+> **17-10-2026:** por ahora cada socio llama desde su celular; no hay una línea de negocios. Lo
+> que sigue sobre el número de negocios queda como opción para más adelante.
+
 ## Resumen
 
 | Tema | Qué hacer ahora | Si después quieren que sea automático |
@@ -174,7 +177,7 @@ reproduce un aviso obligatorio a las dos personas.
 
 1. **Antes de llamar:** en **Hoy** está la lista de a quién llamar, con lo atrasado primero. En la
    ficha, «Registrar llamada» muestra el número grande con «Copiar» y «Llamar».
-2. **Durante la llamada:** llamas desde la línea de negocios.
+2. **Durante la llamada:** llamas desde tu celular.
 3. **Al cortar:**
    - Dictas tus notas en «Registrar llamada» o, si tienes una transcripción, la pegas o subes un
      `.txt`, `.vtt` o `.srt`.

@@ -76,6 +76,10 @@ const SEED = {
   /* Una llamada de Nicolás que ya pasó: sale en Hoy, pero no le salta a Lorenzo. */
   "leads/lead-f": lead({ nombre: "Javiera Soto", empresa: "Óptica Central", telefono: "+56914141414", etapa: "contactado", responsable: "nicolas" }),
   "tareas/tar-f1": tarea({ leadId: "lead-f", tipo: "llamar", titulo: "Llamar a Javiera", fecha: enMin(-2).fecha, hora: enMin(-2).hora, responsable: "nicolas" }),
+  /* Para la secuencia de «No contestó» (segundo y cuarto intento) y el registro de la llamada. */
+  "leads/lead-g": lead({ nombre: "Gabriela Rivas", empresa: "Panadería Rivas", telefono: "+56988889999", etapa: "contactado", intentos: 1 }),
+  "leads/lead-h": lead({ nombre: "Hugo Paz", empresa: "Fletes Paz", telefono: "+56912121212", etapa: "contactado", intentos: 3 }),
+  "leads/lead-i": lead({ nombre: "Irene Lagos", empresa: "Clínica Lagos", telefono: "+56913131313", etapa: "nuevo" }),
   /* Un cliente con un pago vencido, una factura por vencer y un hito. */
   "clientes/cli-a": { nombre: "Clínica Norte", razonSocial: "Clínica Norte SpA", contactos: [{ id: "ct-1", nombre: "Daniela Soto", cargo: "Administradora", correo: "dsoto@clinicanorte.cl", telefono: "+56911112222", rol: "decisor", principal: true }], responsable: "lorenzo", trato: "tu", leadIds: [], estado: "activo", notas: "", creado: iso(-90), actualizado: iso(-5), creadoPor: ME },
   "proyectos/pro-a": { clienteId: "cli-a", nombre: "Agenda y fichas", tipo: "software", valor: 6000000, estado: "construir", inicio: addDays(T, -60), entregaEstimada: addDays(T, 30), produccion: "", garantiaDias: 60, hitos: [{ id: "h1", nombre: "Capacitación al equipo", fecha: addDays(T, 5), hecho: false }], enlaces: [], caso: "", alcance: "", responsable: "lorenzo", creado: iso(-60), actualizado: iso(-5), creadoPor: ME },
@@ -242,13 +246,80 @@ const SEED = {
   await nav(page, /^Embudo de leads/);
   await page.locator(".kcard.lead", { hasText: "Viña Norte" }).locator('.kact[title="No contestó"]').click();
   await page.locator(".modal", { hasText: "No contestó: Bruno Díaz" }).waitFor();
-  ok((await page.locator(".modal .check", { hasText: "Anotar en Google Calendar" }).count()) === 0, "sin hora, «No contestó» no ofrece anotar");
+  ok(await visto(page.locator(".modal .cadencia li.actual", { hasText: "Llamar mañana, a otra hora" })), "«No contestó» muestra la secuencia y marca el paso que toca");
+  ok(["10:00", "16:00"].includes(await page.inputValue("#nc-hora")) && (await page.inputValue("#nc-fecha")) === habil(T, 1), "el primer intento propone mañana, a otra hora del día");
   await page.locator(".modal .chip", { hasText: "Más tarde" }).click();
   const casNC = page.locator(".modal .check", { hasText: "Anotar en Google Calendar" }).locator("input");
-  ok(await visto(casNC) && await casNC.isChecked(), "con hora («Más tarde»), ofrece anotarlo, marcado");
+  ok(await visto(casNC) && !(await casNC.isChecked()), "con hora, ofrece anotarlo en el calendario, sin marcar (un reintento no llena el calendario)");
+  await casNC.check();
   await page.locator(".modal .btn.primary", { hasText: "Guardar" }).click();
   ok(await toast(page, "Quedó anotado en Google Calendar"), "el aviso dice que quedó en el calendario");
   ok(await esperar(page, () => [...window.__mockStore].some(([k, v]) => k.startsWith("tareas/") && v.leadId === "lead-b" && v.origen === "no_contesto" && v.calendario && v.calendario.id)), "y la tarea nueva guarda su evento");
+
+  /* ---------------- no contestó: segundo y cuarto intento ---------------- */
+  await page.locator(".kcard.lead", { hasText: "Panadería Rivas" }).locator('.kact[title="No contestó"]').click();
+  await page.locator(".modal", { hasText: "No contestó: Gabriela Rivas" }).waitFor();
+  ok(await visto(page.locator(".modal .cadencia li.actual", { hasText: "WhatsApp y llamar en 2 días" })) && (await page.locator(".modal .cadencia li.hecho").count()) === 1, "al segundo intento, toca el WhatsApp");
+  ok((await page.inputValue("#nc-fecha")) === T && await page.locator(".modal .seg button[aria-pressed=true]", { hasText: "Escribirle por WhatsApp" }).isVisible(), "propone escribirle hoy por WhatsApp");
+  ok(await page.locator(".modal .check", { hasText: "volver a llamarlo 2 días hábiles después" }).locator("input").isChecked(), "y dejar el llamado siguiente");
+  await page.locator(".modal .btn.primary", { hasText: "Guardar" }).click();
+  ok(await toast(page, "escribirle por WhatsApp hoy y llamarlo el "), "el aviso dice las dos cosas: el WhatsApp de hoy y el llamado siguiente");
+  ok(await esperar(page, (o) => { const ts = [...window.__mockStore].filter(([k, v]) => k.startsWith("tareas/") && v.leadId === "lead-g" && v.estado === "pendiente").map(([, v]) => v); return ts.some((t) => t.tipo === "whatsapp" && t.fecha === o.t) && ts.some((t) => t.tipo === "llamar" && t.fecha === o.d); }, { t: T, d: habil(T, 2) }), "quedan el WhatsApp de hoy y el llamado en 2 días hábiles");
+  await page.locator(".kcard.lead", { hasText: "Fletes Paz" }).locator('.kact[title="No contestó"]').click();
+  await page.locator(".modal", { hasText: "No contestó: Hugo Paz" }).waitFor();
+  ok(await visto(page.locator(".modal .cadencia li.fin.actual", { hasText: "Perdido · No responde" })), "al cuarto intento, la secuencia llega a Perdido");
+  ok(await page.locator(".modal .btn.primary.danger", { hasText: "Perdido · No responde" }).isVisible() && await page.locator(".modal .btn", { hasText: "Seguir intentando" }).isVisible(), "y lo propone como acción principal, con «Seguir intentando» al lado");
+  await shot(page, "a06-no-contesto-4.png");
+  await page.keyboard.press("Escape");
+  await page.locator(".modal").waitFor({ state: "detached" });
+
+  /* ---------------- pidió que lo llamemos otro día ---------------- */
+  await page.locator(".kcard.lead", { hasText: "Taller Norte" }).locator(".kcard-titulo").click();
+  await page.locator("#lead-title", { hasText: "Taller Norte" }).waitFor();
+  ok(await visto(page.locator(".drawer .quick-acts button", { hasText: "Me llamó y no contesté" })), "la ficha trae el resultado rápido de una llamada");
+  await page.locator(".drawer .quick-acts button", { hasText: "Pidió otro día" }).click();
+  await page.locator("#otro-title", { hasText: "Pidió que lo llamemos otro día: Diego Ruiz" }).waitFor();
+  await page.locator(".modal .chip", { hasText: "El lunes" }).click();
+  const lunes = await page.inputValue("#od-fecha");
+  ok(new Date(lunes + "T12:00:00Z").getUTCDay() === 1 && lunes > T, "«El lunes» pone el próximo lunes");
+  await page.locator(".modal .horas .btn", { hasText: "10:00" }).click();
+  await page.fill("#od-nota", "Está en terreno toda la semana");
+  ok(await page.locator(".modal .check", { hasText: "Anotar en Google Calendar" }).locator("input").isChecked(), "con hora, viene marcado anotarlo en el calendario");
+  await page.locator(".modal .check", { hasText: "Claude redacta un WhatsApp para confirmarle" }).locator("input").check();
+  await shot(page, "a07-otro-dia.png");
+  await page.locator(".modal .btn.primary", { hasText: "Guardar" }).click();
+  ok(await toast(page, "Taller Norte: llamarlo el lun") && await toast(page, "a las 10:00. Quedó anotado en Google Calendar."), "el aviso dice cuándo y que quedó en el calendario");
+  ok(await esperar(page, (o) => [...window.__mockStore].some(([k, v]) => k.startsWith("tareas/") && v.leadId === "lead-d" && v.titulo === "Volver a llamar (lo pidió)" && v.fecha === o && v.hora === "10:00" && v.calendario && v.calendario.id), lunes), "queda la llamada de ese día a esa hora, anotada en el calendario");
+  dump = await store(page);
+  ok(dump["tareas/tar-d1"].estado === "hecha" && dump["leads/lead-d"].intentos === 0 && !!dump["leads/lead-d"].ultimoContacto, "la llamada de hoy queda hecha y cuenta como contacto");
+  ok(docs(dump, "actividades").some((a) => a.leadId === "lead-d" && a.tipo === "llamada" && a.resultado === "volver" && /^Pidió que lo llamemos (el lun, \d+ \w+|mañana) a las 10:00\. Está en terreno/.test(a.resumen)), "y en el historial: «Pidió que lo llamemos…», con la nota");
+  ok(await esperar(page, () => [...window.__mockStore].some(([k, v]) => k.startsWith("borradores/") && v.leadId === "lead-d" && v.canal === "whatsapp" && v.tareaId)), "Claude deja el WhatsApp de confirmación, unido a su tarea");
+  ok(await page.evaluate(() => window.__mockPrompts.some((p) => p.includes("pidió que lo llamemos el lun") && p.includes("Sin presionar"))), "con el día y la hora que pidió");
+
+  /* ---------------- me llamó y no contesté ---------------- */
+  await page.locator(".drawer .quick-acts button", { hasText: "Me llamó y no contesté" }).click();
+  ok(await toast(page, "Taller Norte: quedó la tarea de devolverle la llamada"), "«Me llamó y no contesté» deja la tarea de devolverle la llamada");
+  ok(await esperar(page, (o) => [...window.__mockStore].some(([k, v]) => k.startsWith("tareas/") && v.leadId === "lead-d" && v.titulo === "Devolverle la llamada" && v.fecha === o && v.responsable === "lorenzo"), T), "para hoy, para quien la perdió");
+  await cerrarFicha(page);
+
+  /* ---------------- registrar la llamada: pidió que llamemos después ---------------- */
+  await page.locator(".kcard.lead", { hasText: "Clínica Lagos" }).locator(".kcard-titulo").click();
+  await page.locator("#lead-title", { hasText: "Clínica Lagos" }).waitFor();
+  await page.locator(".drawer .cline .btn.primary", { hasText: "Registrar llamada" }).click();
+  ok((await page.locator(".drawer .work").innerText()).includes("Es el número del lead: llámalo desde tu celular") && (await page.locator(".drawer .work .field", { hasText: "Línea" }).count()) === 0, "registrar la llamada ya no habla de una línea de negocios");
+  await page.locator(".drawer .work .chip", { hasText: "Pidió que llamemos después" }).click();
+  await page.locator(".drawer .volver-box").waitFor();
+  await page.locator(".drawer .volver-box .chip", { hasText: "Mañana" }).click();
+  await page.locator(".drawer .volver-box .horas .btn", { hasText: "16:00" }).click();
+  await page.locator(".drawer .work .btn.primary", { hasText: "Guardar llamada" }).click();
+  ok(await toast(page, "Llamada guardada · 1 tarea nueva · Contactado."), "al guardar, queda la tarea y el lead pasa a «Contactado»");
+  ok(await esperar(page, (o) => [...window.__mockStore].some(([k, v]) => k.startsWith("tareas/") && v.leadId === "lead-i" && v.titulo === "Volver a llamar (lo pidió)" && v.fecha === o && v.hora === "16:00" && v.calendario && v.calendario.id), habil(T, 1)), "la llamada que pidió, con su día y hora, anotada en el calendario");
+  await cerrarFicha(page);
+
+  /* ---------------- Llamar en serie: también «Pidió otro día» ---------------- */
+  await nav(page, /^Llamar en serie/);
+  await page.locator("h1", { hasText: "Llamar en serie" }).waitFor();
+  ok(!(await page.locator(".llamar-card").count()) || await visto(page.locator(".llamar-acciones .btn", { hasText: "Pidió otro día" })), "«Llamar en serie» trae «Pidió otro día» junto a «No contestó»");
 
   /* ---------------- un cobro y un hito ---------------- */
   await nav(page, /^Cobros/);

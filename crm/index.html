@@ -189,6 +189,8 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing:
 .btn.ghost { background: transparent; border-color: transparent; }
 .btn.ghost:hover { background: var(--sunken); }
 .btn.danger { color: var(--bad); }
+.btn.danger.primary { background: var(--bad); border-color: var(--bad); color: var(--bg); }
+.btn.danger.primary:hover { background: var(--bad); border-color: var(--bad); filter: brightness(1.08); }
 .btn.small { min-height: 30px; padding: 0 11px; font-size: 13px; }
 .btn.icon { width: 36px; padding: 0; }
 .btn.small.icon { width: 30px; }
@@ -403,7 +405,7 @@ body.arrastrando .toasts { bottom: calc(112px + env(safe-area-inset-bottom, 0px)
 .board.embudo .tag { white-space: normal; line-height: 1.3; }
 @media (max-width: 760px) {
   .board.embudo { grid-auto-columns: minmax(250px, 84%); scroll-snap-type: x proximity; }
-  .board.embudo > .col { scroll-snap-align: start; }
+  .board.embudo > .col, .board.embudo > .col-par { scroll-snap-align: start; }
   .dropzone span:last-child { display: none; }
 }
 
@@ -689,6 +691,73 @@ table.leads th.r { text-align: right; }
 .knext-txt { display: grid; gap: 1px; min-width: 0; }
 .kcard .knext-txt b { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; font-size: 12.5px; font-weight: 600; line-height: 1.3; color: inherit; }
 .kcard .knext-txt span { font-size: 11.5px; color: inherit; opacity: 0.85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ---------- tableros: carriles con el color de su etapa ---------- */
+.board { align-items: start; }
+body.arrastrando .board { align-items: stretch; }
+.board .col { --st: var(--line-2); position: relative; display: flex; flex-direction: column; gap: 6px; min-height: 0; padding: 0 6px 6px; border: 1px solid var(--line); border-radius: 14px; background: var(--col-bg); box-shadow: inset 0 3px 0 var(--st); }
+.board .col-head { padding: 13px 4px 0; }
+.board .col-title { font-size: 13.5px; }
+.board .col-sum { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 7px; margin: 0 4px 4px; font-size: 12px; line-height: 1.35; color: var(--fg-3); font-variant-numeric: tabular-nums; }
+.board .col-sum b { color: var(--fg-2); font-weight: 600; }
+.board .col-sum .count, .board .col-head .count { flex: none; min-width: 22px; padding: 3px 7px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--fg-2); font: 600 11.5px/1 var(--font-text); text-align: center; }
+.col-link { margin: -2px 4px 4px; }
+.board .col-empty { margin: 0; padding: 16px 10px; border: 1.5px dashed var(--line-2); border-radius: 10px; color: var(--fg-3); font-size: 12.5px; text-align: center; }
+.board .col.drop { outline: 2px solid var(--accent); outline-offset: -2px; }
+.board .col.drop .col-empty { border-style: solid; background: var(--surface); color: var(--fg); }
+@supports (background: color-mix(in srgb, red 50%, blue)) {
+  .board .col { border-color: color-mix(in srgb, var(--st) 20%, var(--line)); background: color-mix(in srgb, var(--st) 6%, var(--bg)); }
+  .board .col-empty { border-color: color-mix(in srgb, var(--st) 40%, var(--line)); }
+  .board.embudo .col.drop { outline-color: var(--st); }
+}
+/* Ganado, Perdido y En pausa: apilados en la última columna. Si no caben, cada uno cede alto según
+   cuánto tiene (Perdido, que suele ser el más largo, cede más), sin bajar de una tarjeta. */
+.col-par { display: flex; flex-direction: column; gap: 10px; min-width: 0; max-height: max(440px, calc(100vh - 230px)); max-height: max(440px, calc(100dvh - 230px)); }
+.col-par > .col { flex: 0 1 auto; min-height: 160px; }
+.col-par > .col.perdido { flex-shrink: 4; min-height: 210px; }
+.col-par > .col.vacia { flex: none; min-height: 0; }
+.board .col.cerrada .col-head { padding: 10px 4px 2px; }
+.board .col.cerrada .col-empty { padding: 9px 10px; }
+.board .col.cerrada.vacia .col-empty { display: none; }
+body.arrastrando .board .col.cerrada.vacia .col-empty { display: block; }
+.col-motivos { display: flex; flex-wrap: wrap; gap: 3px; margin: 0 4px 2px; }
+.col-motivos span { display: inline-flex; align-items: center; gap: 5px; max-width: 100%; padding: 0 7px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); font-size: 11px; line-height: 18px; color: var(--fg-2); }
+.col-motivos em { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-style: normal; }
+.col-motivos b { color: var(--fg); font-weight: 600; font-variant-numeric: tabular-nums; }
+.kcard.lead.compacto { gap: 5px; padding: 9px 10px; }
+.kcard.compacto .kcard-titulo { font-size: 13.5px; }
+.kcard.compacto .kcard-tags { align-items: center; }
+.kcard .kcard-cuando { font-size: 11.5px; color: var(--fg-3); }
+.kcard.compacto .tagbtn { text-align: left; }
+/* La próxima tarea: el aviso va en la fecha y en el círculo, no en toda la caja. */
+.knext.late, .knext.today, .knext.ask { color: var(--fg); }
+.kcard .knext.late .knext-txt span, .knext.late .knext-txt span { color: var(--bad); opacity: 1; }
+.kcard .knext.today .knext-txt span, .knext.today .knext-txt span { color: var(--accent); opacity: 1; }
+.kcard .knext.ask .knext-txt span, .knext.ask .knext-txt span { color: var(--warn); opacity: 1; }
+.knext.late .tick { color: var(--bad); }
+.knext.today .tick { color: var(--accent); }
+.knext.ask .tick { color: var(--warn); }
+@supports (background: color-mix(in srgb, red 50%, blue)) {
+  .knext.late { border-color: color-mix(in srgb, var(--bad) 28%, var(--line)); background: color-mix(in srgb, var(--bad) 6%, var(--surface)); }
+  .knext.today { border-color: color-mix(in srgb, var(--accent) 30%, var(--line)); background: color-mix(in srgb, var(--accent) 7%, var(--surface)); }
+  .knext.ask { border-color: color-mix(in srgb, var(--warn) 34%, var(--line)); background: color-mix(in srgb, var(--warn) 8%, var(--surface)); }
+}
+/* La secuencia de «No contestó» y el resultado rápido de una llamada. */
+.cadencia { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin: 0; padding: 0; list-style: none; }
+.cadencia li { display: grid; align-content: start; gap: 4px; padding: 8px 9px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); color: var(--fg-3); font-size: 12px; line-height: 1.3; }
+.cadencia li b { font: 600 11px/1 var(--font-mono); }
+.cadencia li.hecho { opacity: 0.55; }
+.cadencia li.actual { border-color: var(--accent); background: var(--accent-soft); color: var(--fg); }
+.cadencia li.actual b { color: var(--accent); }
+.cadencia li.fin.actual { border-color: var(--bad); background: var(--bad-soft); }
+.cadencia li.fin.actual b { color: var(--bad); }
+.cuando-llamar { display: grid; gap: 12px; }
+.horas { display: flex; flex-wrap: wrap; gap: 6px; }
+.quick-acts { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 10px; }
+@media (max-width: 600px) { .cadencia { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+/* Sin responsable: un círculo punteado para asignarlo. */
+.avatar.vacio { border: 1.5px dashed var(--line-2); background: transparent; color: var(--fg-3); }
+.avatar.vacio.pick:hover, .avatar.vacio.pick:focus-within { border-color: var(--accent); color: var(--accent); }
 
 /* ---------- tareas ---------- */
 .tick { flex: none; display: inline-grid; place-items: center; width: 18px; height: 18px; margin-top: 1px; padding: 0; border: 1.5px solid currentColor; border-radius: 50%; background: var(--surface); color: var(--fg-3); cursor: pointer; }
@@ -2253,7 +2322,7 @@ function Feed({ items, showLead, limit }) {
       <span class=${cx("feed-ico", a.autor === "claude" && "claude")}><${Icon} name=${ACT_ICON[a.tipo] || "note"} /></span>
       <div style="min-width:0">
         <p class="feed-title">${showLead && lead ? html`<button onClick=${() => openLead(lead.id)}>${leadTitulo(lead)}</button> · ` : showLead && cli ? html`<button onClick=${() => openCliente(cli.id)}>${clienteName(cli)}</button> · ` : null}${actTitulo(a)}</p>
-        <p class="feed-meta">${ago(a.fecha)}${a.autor ? " · " + nameOf(a.autor) : ""}${a.linea ? " · línea " + a.linea : ""}</p>
+        <p class="feed-meta">${ago(a.fecha)}${a.autor ? " · " + nameOf(a.autor) : ""}</p>
         ${a.resumen ? html`<p class="feed-text">${showLead ? clip(a.resumen.replace(/\s+/g, " "), 160) : clip(a.resumen, 2000)}</p>` : null}
         ${a.acta && !showLead ? html`<details style="margin-top:6px"><summary class="small" style="cursor:pointer;color:var(--accent)">Acta de la reunión</summary><${ActaView} a=${a.acta} /></details>` : null}
         ${an && an.resumen && !showLead ? html`<details style="margin-top:6px"><summary class="small" style="cursor:pointer;color:var(--accent)">Análisis de Claude${an.interes && an.interes !== "sin_datos" ? " · interés " + an.interes : ""}${an.evaluacion ? ` · desempeño ${an.evaluacion.puntaje}/100` : ""}</summary><${AnalysisView} a=${an} /></details>` : null}
@@ -2793,6 +2862,7 @@ function LlamarView() {
           <div class="llamar-acciones">
             <button type="button" class="btn primary" disabled=${!canWrite} onClick=${() => setRegistrando(true)}><${Icon} name="phone" />Contestó: registrar</button>
             <button type="button" class="btn" disabled=${!canWrite} onClick=${() => openModal({ type: "noContesto", lead: cur.lead })}><${Icon} name="phonex" />No contestó</button>
+            <button type="button" class="btn" disabled=${!canWrite} onClick=${() => openModal({ type: "otroDia", lead: cur.lead })}><${Icon} name="cal" />Pidió otro día</button>
             <span class="grow"></span>
             <button type="button" class="btn ghost" onClick=${() => openLead(cur.lead.id)}>Abrir ficha</button>
             <button type="button" class="btn ghost" onClick=${saltar}><${Icon} name="next" />Saltar</button>
@@ -2804,7 +2874,7 @@ function LlamarView() {
           <div class="panel-body">${resto.length ? html`<div class="cola">${resto.slice(0, 10).map((x) => html`<button type="button" key=${x.lead.id} class="cola-item" onClick=${() => { setElegido(x.lead.id); window.scrollTo({ top: 0 }); }}>
             <b>${leadTitulo(x.lead)}</b><span>${x.tarea ? `${x.tarea.titulo || "Llamar"} · ${cuandoTarea(x.tarea).txt}` : "Por contactar"}${x.lead.intentos ? ` · ${x.lead.intentos} sin respuesta` : ""}</span></button>`)}</div>
             ${resto.length > 10 ? html`<p class="small muted">Y ${resto.length - 10} más.</p>` : null}` : html`<p class="empty">Es la última de hoy.</p>`}</div></section>
-        <section class="panel"><div class="panel-body"><p class="small muted">«No contestó» deja el intento y la próxima tarea sin abrir la ficha. Para grabar y que Claude analice la llamada, usa «Contestó: registrar» y «Transcribir en vivo».</p></div></section>
+        <section class="panel"><div class="panel-body"><p class="small muted">«No contestó» deja el intento y propone el paso que sigue (mañana a otra hora, después un WhatsApp, un último llamado y, al cuarto, perdido). «Pidió otro día» deja la llamada para el día y la hora que pidió. Para grabar y que Claude analice la llamada, usa «Contestó: registrar» y «Transcribir en vivo».</p></div></section>
       </aside>
     </div>`}
   </div>`;
@@ -3215,7 +3285,7 @@ function HoyView() {
 
     ${!todos.length && !clientes.length ? html`<section class="panel"><div class="panel-head"><h2>Para empezar</h2></div><div class="panel-body">
       <ol class="onboard">
-        <li><p class="eyebrow">Paso 1</p><h3>Completa tu firma</h3><p>Nombre, cargo y teléfono de negocios. Van al pie de cada correo que redacte Claude.</p><button class="btn small" style="justify-self:start" onClick=${() => nav("ajustes")}>Ir a Ajustes</button></li>
+        <li><p class="eyebrow">Paso 1</p><h3>Completa tu firma</h3><p>Nombre, cargo y teléfono. Van al pie de cada correo que redacte Claude.</p><button class="btn small" style="justify-self:start" onClick=${() => nav("ajustes")}>Ir a Ajustes</button></li>
         <li><p class="eyebrow">Paso 2</p><h3>Carga tus leads</h3><p>Uno por uno, desde una planilla CSV o pegando una lista o un correo del formulario: Claude los ordena.</p><button class="btn small" style="justify-self:start" onClick=${() => openModal({ type: "import" })}>Importar leads</button></li>
         <li><p class="eyebrow">Paso 3</p><h3>Llama y graba</h3><p>Transcribe la llamada en vivo: al detener, Claude la analiza, crea las tareas y mueve la etapa.</p><button class="btn small" style="justify-self:start" onClick=${() => openModal({ type: "newLead" })}>Agregar un lead</button></li>
       </ol>
@@ -3580,8 +3650,8 @@ function RespAvatar({ valor, quien, guardar }) {
     } catch (e) { toast(dbErrorText(e), "bad"); }
   };
   const stop = (e) => e.stopPropagation();
-  return html`<span class=${cx("avatar", !v && "vacio", respTono(v), canWrite && "pick")} title=${nombre ? "Lo lleva " + nombre : "Sin responsable"} onPointerDown=${stop} onClick=${stop}>
-    ${v ? iniciales(nombre) || "·" : "·"}
+  return html`<span class=${cx("avatar", !v && "vacio", respTono(v), canWrite && "pick")} title=${nombre ? "Lo lleva " + nombre : canWrite ? "Sin responsable: toca para asignarlo" : "Sin responsable"} onPointerDown=${stop} onClick=${stop}>
+    ${v ? iniciales(nombre) || "·" : html`<${Icon} name="plus" size=${11} />`}
     ${canWrite ? html`<select aria-label=${"Responsable de " + quien} value=${v} onChange=${(e) => cambiar(e.currentTarget.value)}>
       <option value="">Sin responsable</option>${RESPONSABLES.map(([id, n]) => html`<option value=${id}>${n}</option>`)}${v && !respNombre(v) ? html`<option value=${v}>${nombre}</option>` : null}
     </select>` : null}
@@ -3597,9 +3667,22 @@ function GanadoTag({ l }) {
   return html`<button type="button" class="tag ok tagbtn" title=${"Abrir el cliente " + clienteName(c)} onClick=${(e) => { e.stopPropagation(); openCliente(c.id); }}>Cliente · ${etapaClienteLabel(etapaDeCliente(c, r))}</button>`;
 }
 
-function LeadCard({ l, ultima, onPointerDown }) {
+function LeadCard({ l, ultima, onPointerDown, compacto }) {
   const { api, openLead, openModal, canWrite, cfg, siguienteDe, diasEnEtapa } = useCtx();
   const etapa = etapaDe(l);
+  /* En las etapas cerradas, la tarjeta es corta: el nombre y lo que importa (el cliente, el motivo o
+     cuándo retomarlo). Se sigue pudiendo arrastrar para reabrirlo. */
+  if (compacto) {
+    const sigC = etapa === "pausa" ? siguienteDe(l) : null;
+    const persona = leadPersona(l);
+    return html`<div class="kcard lead compacto" role="button" tabindex="0" aria-label=${"Abrir " + leadTitulo(l)} onPointerDown=${onPointerDown} onClick=${() => { if (!recienArrastrado()) openLead(l.id); }} onKeyDown=${(e) => { if (e.target === e.currentTarget && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); openLead(l.id); } }}>
+      <div class="kcard-top"><b class="kcard-titulo">${leadTitulo(l)}</b>${l.prioridad === "alta" && etapa !== "perdido" ? html`<i class="prio" title="Prioridad alta"></i>` : null}</div>
+      ${persona && etapa !== "perdido" ? html`<span class="kcard-sub">${persona}</span>` : null}
+      ${etapa === "perdido" ? html`<div class="kcard-tags">${l.motivoPerdida ? html`<span class="tag late">${l.motivoPerdida}</span>` : canWrite ? html`<button type="button" class="tag warn tagbtn" onClick=${(e) => { e.stopPropagation(); openModal({ type: "lost", lead: l }); }}>Falta el motivo</button>` : html`<span class="tag warn">Sin motivo</span>`}${ultima ? html`<span class="kcard-cuando">${ago(ultima.fecha)}</span>` : null}</div>`
+        : etapa === "ganado" ? html`<div class="kcard-tags"><${GanadoTag} l=${l} />${Number(l.valor) > 0 ? html`<span class="kcard-valor">${money(l.valor)}</span>` : null}</div>`
+        : sigC ? html`<${SigLinea} t=${sigC} />` : html`<div class="kcard-tags"><span class="tag">Sin fecha para retomar</span></div>`}
+    </div>`;
+  }
   const abierto = ETAPA[etapa].open;
   const dias = abierto && !l.noContactar ? diasEnEtapa(l) : null;
   const avisoDias = dias != null && dias >= DIAS_AVISO;
@@ -3632,20 +3715,13 @@ function LeadCard({ l, ultima, onPointerDown }) {
   </div>`;
 }
 
-/* Cuántos perdidos hay por cada motivo, para la columna «Perdido». */
-const motivosResumen = (items) => {
-  const c = {};
-  items.forEach((l) => { const m = l.motivoPerdida || "Sin motivo"; c[m] = (c[m] || 0) + 1; });
-  return Object.entries(c).sort((a, b) => b[1] - a[1]).map(([m, n]) => `${n} ${m.toLowerCase()}`).join(" · ");
-};
 
 function EmbudoView() {
   const { leads, acts, openModal, changeStage, canWrite, nameOf, team, nav, siguienteDe, diasEnEtapa } = useCtx();
-  const [verCerrados, setVerCerrados] = useState(() => ls.get("verCerrados", false));
   const [q, setQ] = useState(() => ls.get("qEmb", ""));
   const [resp, setResp] = useState(() => { const v = ls.get("respEmb", ""); return v === "mios" ? "" : v; });
   const [orden, setOrden] = useState(() => ls.get("ordenEmb", "proxima"));
-  useEffect(() => { ls.set("verCerrados", verCerrados); ls.set("qEmb", q); ls.set("respEmb", resp); ls.set("ordenEmb", orden); }, [verCerrados, q, resp, orden]);
+  useEffect(() => { ls.set("qEmb", q); ls.set("respEmb", resp); ls.set("ordenEmb", orden); }, [q, resp, orden]);
   const { drag, start, boardRef } = useBoardDrag({
     enabled: canWrite,
     onDrop: (id, etapa) => { const l = leads.find((x) => x.id === id); if (l && etapaDe(l) !== etapa) changeStage(l, etapa); },
@@ -3672,8 +3748,28 @@ function EmbudoView() {
   const abiertos = visibles.filter(isOpen);
   const enJuego = sum(abiertos, (l) => l.valor);
   const ponderado = Math.round(sum(abiertos, (l) => (Number(l.valor) || 0) * PROB_ETAPA[etapaDe(l)]));
-  /* «Ganado» va siempre al final; Perdido y En pausa, solo si se piden (o como zonas al arrastrar). */
-  const cols = ETAPAS.filter((e) => e.open || e.id === "ganado" || verCerrados);
+  /* Las etapas abiertas, cada una en su carril; al final, Ganado, Perdido y En pausa apilados en
+     una columna, con tarjetas cortas y los más recientes arriba. */
+  const cols = ETAPAS.filter((e) => e.open);
+  const cerradas = ETAPAS.filter((e) => !e.open);
+  const recientes = (a, b) => fechaAct(b).localeCompare(fechaAct(a));
+  const carril = (e, cerrada) => {
+    const items = visibles.filter((l) => etapaDe(l) === e.id).sort(cerrada ? recientes : cmp);
+    const total = sum(items, (l) => l.valor);
+    const motivos = e.id === "perdido" ? Object.entries(items.reduce((m, l) => { const k = l.motivoPerdida || "Sin motivo"; m[k] = (m[k] || 0) + 1; return m; }, {})).sort((a, b) => b[1] - a[1]) : [];
+    return html`<div key=${e.id} data-col=${e.id} class=${cx("col", e.id, cerrada && "cerrada", !items.length && "vacia", drag && drag.over === e.id && drag.from !== e.id && "drop")} style=${"--st: var(--st-" + e.id + ")"}>
+      <div class="col-head"><span class="col-title" style=${"--dot: var(--st-" + e.id + ")"}><i></i>${e.label}</span>${cerrada ? html`<span class="count" title=${`${items.length} ${items.length === 1 ? "lead" : "leads"}${total ? " · " + money(total) : ""}`}>${items.length}</span>` : null}</div>
+      ${cerrada ? null : html`<p class="col-sum"><span class="count">${items.length}</span>${total
+        ? html`<span title=${`Ponderado con ${Math.round(PROB_ETAPA[e.id] * 100)} % de probabilidad de cierre`}><b>${money(total)}</b> · ${money(Math.round(total * PROB_ETAPA[e.id]))} ponderado</span>`
+        : html`<span>${items.length === 1 ? "lead" : "leads"}</span>`}</p>`}
+      ${e.id === "ganado" ? html`<p class="col-link"><button type="button" class="linkbtn" onClick=${() => nav("embudoClientes")}>Embudo de clientes →</button></p>` : null}
+      ${motivos.length ? html`<div class="col-motivos" aria-label="Perdidos por motivo">${motivos.slice(0, 3).map(([m, n]) => html`<span key=${m} title=${`${m}: ${n}`}><em>${m}</em><b>${n}</b></span>`)}${motivos.length > 3 ? html`<span title=${motivos.slice(3).map(([m, n]) => `${m}: ${n}`).join("\n")}><em>Otros</em><b>${sum(motivos.slice(3), (x) => x[1])}</b></span>` : null}</div>` : null}
+      <${ColLista} n=${items.length}>
+        ${items.map((l) => html`<${LeadCard} key=${l.id} l=${l} ultima=${ultima[l.id]} compacto=${cerrada} onPointerDown=${(ev) => start(ev, l.id, e.id)} />`)}
+        ${!items.length ? html`<p class="col-empty">${drag ? "Suelta aquí" : cerrada ? "Ninguno" : "Sin leads"}</p>` : null}
+      </${ColLista}>
+    </div>`;
+  };
   return html`<div class="main-inner ancho">
     <header class="page-head">
       <div><p class="eyebrow">${abiertos.length} ${abiertos.length === 1 ? "abierto" : "abiertos"}${enJuego ? ` · ${money(enJuego)} en juego · ${money(ponderado)} ponderado` : ""}</p><h1>Embudo de leads</h1>
@@ -3689,25 +3785,12 @@ function EmbudoView() {
         <option value="">Todos los responsables</option>${team.map((u) => html`<option value=${u}>${nameOf(u)}</option>`)}<option value="sin">Sin responsable</option>
       </select>
       <select id="emb-orden" class="select" aria-label="Ordenar" value=${orden} onChange=${(e) => setOrden(e.currentTarget.value)}>${ORDEN_EMBUDO.map(([v, t]) => html`<option value=${v}>${t}</option>`)}</select>
-      <label class="check"><input type="checkbox" id="ver-cerrados" checked=${verCerrados} onChange=${(e) => setVerCerrados(e.currentTarget.checked)} />Perdidos y en pausa</label>
     </div>
     <div class="board embudo" ref=${boardRef}>
-      ${cols.map((e) => {
-        const items = visibles.filter((l) => etapaDe(l) === e.id).sort(cmp);
-        const total = sum(items, (l) => l.valor);
-        return html`<div key=${e.id} data-col=${e.id} class=${cx("col", drag && drag.over === e.id && drag.from !== e.id && "drop")}>
-          <div class="col-head"><span class="col-title" style=${"--dot: var(--st-" + e.id + ")"}><i></i>${e.label}</span><span class="count">${items.length}</span></div>
-          ${total ? html`<p class="col-sum" title=${e.open ? `Ponderado con ${Math.round(PROB_ETAPA[e.id] * 100)} % de probabilidad de cierre` : ""}><b>${money(total)}</b>${e.open ? ` · ${money(Math.round(total * PROB_ETAPA[e.id]))} ponderado` : ""}</p>` : null}
-          ${e.id === "perdido" && items.length ? html`<p class="col-sum motivos">${motivosResumen(items)}</p>` : null}
-          ${e.id === "ganado" ? html`<p class="col-sum"><button type="button" class="linkbtn" onClick=${() => nav("embudoClientes")}>Ver el embudo de clientes →</button></p>` : null}
-          <${ColLista} n=${items.length}>
-            ${items.map((l) => html`<${LeadCard} key=${l.id} l=${l} ultima=${ultima[l.id]} onPointerDown=${(ev) => start(ev, l.id, e.id)} />`)}
-            ${!items.length ? html`<p class="col-empty">${drag ? "Suelta aquí" : "Sin leads"}</p>` : null}
-          </${ColLista}>
-        </div>`;
-      })}
+      ${cols.map((e) => carril(e, false))}
+      <div class="col-par">${cerradas.map((e) => carril(e, true))}</div>
     </div>
-    ${drag && !verCerrados ? html`<div class="dropbar">${CERRADAS.filter((id) => id !== "ganado").map((id) => html`<div key=${id} data-col=${id} class=${cx("dropzone", id, drag.over === id && "on")}><${StagePill} etapa=${id} /><span>${SOLTAR_EN[id]}</span></div>`)}</div>` : null}
+    ${drag ? html`<div class="dropbar">${CERRADAS.filter((id) => id !== "ganado").map((id) => html`<div key=${id} data-col=${id} class=${cx("dropzone", id, drag.over === id && "on")}><${StagePill} etapa=${id} /><span>${SOLTAR_EN[id]}</span></div>`)}</div>` : null}
   </div>`;
 }
 
@@ -3919,7 +4002,7 @@ function DraftEditor({ id }) {
           <${TextLocal} id="d-ps" label="Posdata (opcional)" value=${d.posdata} onInput=${(v) => set({ posdata: v })} onBlur=${() => save()} />
         ` : html`
           ${cli && contactos.length > 1 ? html`<label class="field" for="d-para-wa"><span>Para</span><select id="d-para-wa" class="select" value=${(dest.contacto || {}).id || ""} onChange=${(e) => { set({ contactoId: e.currentTarget.value }); save({ contactoId: e.currentTarget.value }); }}>${contactos.map((x) => html`<option value=${x.id}>${x.nombre || "Sin nombre"}${x.telefono ? " · " + fmtPhone(x.telefono) : ""}</option>`)}</select></label>` : null}
-          ${!tel ? html`<div class="note warn"><${Icon} name="info" /><div>${cli ? "Este contacto no tiene teléfono. Agrégalo en los datos del cliente" : "Este lead no tiene teléfono. Agrégalo en su ficha"} para abrir el chat.</div></div>` : html`<p class="small muted">Para: <span class="mono">${fmtPhone(tel)}</span> · se abre la cuenta de WhatsApp que tengas iniciada (usa la de negocios)</p>`}
+          ${!tel ? html`<div class="note warn"><${Icon} name="info" /><div>${cli ? "Este contacto no tiene teléfono. Agrégalo en los datos del cliente" : "Este lead no tiene teléfono. Agrégalo en su ficha"} para abrir el chat.</div></div>` : html`<p class="small muted">Para: <span class="mono">${fmtPhone(tel)}</span> · se abre el WhatsApp que tengas iniciado</p>`}
           <label class="field" for="d-texto"><span>Mensaje <span class=${cx("counter", len > 700 && "over")}>${len} caracteres</span></span>
             <textarea id="d-texto" class="textarea" rows="10" value=${d.texto || ""} onInput=${(e) => set({ texto: e.currentTarget.value })} onBlur=${() => save()}></textarea>
             <small class="hint">WhatsApp: *negrita*, _cursiva_. El enlace abre el chat con este texto: revísalo y envíalo desde WhatsApp.</small></label>
@@ -3949,7 +4032,7 @@ function TextLocal({ id, label, value, onInput, onBlur, multiline, rows, hint, c
 /* ===================================================================== ficha del lead */
 
 function LeadDrawer({ id, tab: initialTab, onClose }) {
-  const { leads, db, api, cfg, toast, changeStage, openModal, canWrite, nameOf, team, drafts, clientesById, openCliente } = useCtx();
+  const { leads, db, api, cfg, toast, changeStage, openModal, canWrite, nameOf, team, drafts, clientesById, openCliente, devolverLlamada } = useCtx();
   const lead = leads.find((l) => l.id === id);
   const [hist, setHist] = useState([]);
   const [tab, setTab] = useState(initialTab === "tareas" ? "" : initialTab || "");
@@ -4036,6 +4119,11 @@ function LeadDrawer({ id, tab: initialTab, onClose }) {
               ${noc ? null : html`<button class="btn small claude" onClick=${() => setTab("redactar")}><${Icon} name="spark" />Redactar</button>`}
             </div>
           </div>
+          ${lead.telefono && !noc && canWrite && isOpen(lead) ? html`<div class="quick-acts" role="group" aria-label="Resultado rápido de una llamada">
+            <button type="button" class="btn small" onClick=${() => openModal({ type: "noContesto", lead })}><${Icon} name="phonex" />No contestó</button>
+            <button type="button" class="btn small" onClick=${() => openModal({ type: "otroDia", lead })}><${Icon} name="cal" />Pidió otro día</button>
+            <button type="button" class="btn small ghost" title="Queda la tarea de devolverle la llamada, hoy" onClick=${() => devolverLlamada(lead)}><${Icon} name="phone" />Me llamó y no contesté</button>
+          </div>` : null}
         </section>
 
         <${PropuestaBox} lead=${lead} />
@@ -4360,13 +4448,16 @@ function AyudaEnVivo({ lead, texto, notas, pista, onUsada }) {
    día), la etapa que corresponde y los borradores de los mensajes. Sin «Automático», muestra el
    análisis para revisar antes de guardar. */
 function RegistroContacto({ lead, hist, onDone, modo }) {
-  const { api, toast, sampleState, setSampleState, cfg, canWrite, redactarTareas, tareasPorLead, yo, me, changeStage } = useCtx();
+  const { api, toast, sampleState, setSampleState, cfg, canWrite, redactarTareas, tareasPorLead, yo, me, changeStage, calListo, anotarTarea } = useCtx();
   const esReunion = modo === "reunion";
   const nombreReg = esReunion ? "reunión" : "llamada";
   const llave = (esReunion ? "reunion:" : "llamada:") + lead.id;
   const [previo] = useState(() => borradorLocal(llave));
   const [resultado, setResultado] = useState(esReunion ? "realizada" : "");
-  const [linea, setLinea] = useState(() => ls.get("linea", "negocios"));
+  /* «Pidió que llamemos después»: cuándo, y si se anota en el calendario. */
+  const [volverF, setVolverF] = useState(() => addBusinessDays(todayKey(), 1));
+  const [volverH, setVolverH] = useState("10:00");
+  const [volverCal, setVolverCal] = useState(true);
   const [duracion, setDuracion] = useState(() => (previo && previo.duracion) || "");
   const [notas, setNotasE] = useState(() => (previo && previo.notas) || "");
   const [trans, setTransE] = useState(() => (previo && previo.trans) || "");
@@ -4394,7 +4485,6 @@ function RegistroContacto({ lead, hist, onDone, modo }) {
   const ctl = useRef(null);
   const pistaT = useRef(null);
   useEffect(() => () => clearTimeout(pistaT.current), []);
-  useEffect(() => ls.set("linea", linea), [linea]);
   useEffect(() => { if (notas.trim() || trans.trim()) ls.set(llave, { notas, trans, duracion, enVivo, t: Date.now() }); else ls.del(llave); }, [notas, trans, duracion, enVivo]);
   useEffect(() => ls.set("guardarTrans", guardarTrans), [guardarTrans]);
   const cancelar = () => { if (ctl.current) ctl.current.abort(); ls.del(llave); onDone(null); };
@@ -4445,7 +4535,7 @@ function RegistroContacto({ lead, hist, onDone, modo }) {
       const tx = transRef.current;
       const transcripcion = tx.length > 180000 ? tx.slice(0, 180000) + "\n[transcripción recortada]" : tx;
       const sinR = SIN_RESPUESTA.has(res);
-      const actId = await api.addAct({ leadId: lead.id, tipo: esReunion ? "reunion" : "llamada", ...(esReunion ? {} : { resultado: res, linea }), duracion: Number(dur) > 0 ? Number(dur) : null, resumen: nt || (a ? a.resumen : ""), transcripcion: guardarTrans && transcripcion.trim() ? transcripcion : null, analisis: a || null });
+      const actId = await api.addAct({ leadId: lead.id, tipo: esReunion ? "reunion" : "llamada", ...(esReunion ? {} : { resultado: res }), duracion: Number(dur) > 0 ? Number(dur) : null, resumen: nt || (a ? a.resumen : ""), transcripcion: guardarTrans && transcripcion.trim() ? transcripcion : null, analisis: a || null });
       const de = etapaDe(lead);
       const patch = {};
       if (!esReunion) { patch.ultimoIntento = now; patch.intentos = sinR ? (lead.intentos || 0) + 1 : 0; }
@@ -4476,8 +4566,11 @@ function RegistroContacto({ lead, hist, onDone, modo }) {
       if (a) a.tareas.forEach((x, i) => { if (x.quien === "zh" && (esAuto || selT[i])) nuevas.push({ ...base, tipo: x.tipo, titulo: x.que, fecha: x.fecha || fechaPorDefecto(x.tipo), hora: x.hora || "" }); });
       const n = (lead.intentos || 0) + 1;
       if (!esReunion && sinR && retry && !nuevas.some((x) => x.tipo === "llamar" || x.tipo === "whatsapp")) nuevas.push({ ...base, tipo: "llamar", titulo: `Volver a llamar (${n} ${n === 1 ? "intento" : "intentos"} sin respuesta)`, fecha: addBusinessDays(hoy, 1), hora: "" });
+      /* Si pidió que lo llamemos después, queda esa llamada (salvo que Claude ya la haya sacado de la conversación). */
+      const pedida = !esReunion && res === "volver" && isKey(volverF) && !nuevas.some((x) => x.tipo === "llamar") ? nuevas.push({ ...base, tipo: "llamar", titulo: "Volver a llamar (lo pidió)", fecha: volverF, hora: isHora(volverH) ? volverH : "" }) - 1 : -1;
       const ids = [];
       for (const x of nuevas) ids.push(await api.createTarea(x));
+      if (pedida >= 0 && volverCal && calListo && isHora(volverH)) await anotarTarea({ id: ids[pedida], ...nuevas[pedida] }, lead, true);
       ls.del(llave);
       /* Los correos y WhatsApp acordados quedan redactados, cada uno unido a su tarea. */
       const jobs = (esAuto || conBorr) && sampleState.fn && !lead.noContactar ? nuevas.map((x, i) => ({ tipo: x.tipo, que: x.titulo, fecha: x.fecha, tareaId: ids[i] })).filter((x) => TAREA_MENSAJE.has(x.tipo)) : [];
@@ -4517,8 +4610,9 @@ function RegistroContacto({ lead, hist, onDone, modo }) {
   return html`<div class="work-body">
     ${!esReunion && lead.telefono ? html`<div class="cline" style="background:var(--surface-2)">
       <span class="value" style="font-size:18px">${fmtPhone(lead.telefono)}</span>
+      <button type="button" class="btn small" onClick=${async () => toast((await copyText(lead.telefono)) ? "Número copiado." : "No se pudo copiar.")}><${Icon} name="copy" />Copiar</button>
       <a class="btn small" href=${"tel:" + lead.telefono}><${Icon} name="phone" />Llamar</a>
-      <span class="small muted" style="flex-basis:100%">${cfg.whatsappNegocios ? `Llama desde la línea de negocios (${fmtPhone(normPhone(cfg.whatsappNegocios))}).` : "Llama desde la línea de negocios."} Si el botón no abre el teléfono, marca el número a mano.</span>
+      <span class="small muted" style="flex-basis:100%">Es el número del lead: llámalo desde tu celular. En el computador, «Llamar» abre la app de teléfono si la tienes enlazada; si no, márcalo a mano.</span>
     </div>` : null}
     ${esReunion ? html`<p class="small muted">Si la reunión es por Meet en este computador, toca «Transcribir en vivo» y deja esta pestaña abierta. También puedes pegar tus notas o la transcripción de Meet.</p>` : null}
     ${previo ? html`<div class="note"><${Icon} name="info" /><div>Recuperé lo que quedó sin guardar de esta ${nombreReg}.</div></div>` : null}
@@ -4537,8 +4631,11 @@ function RegistroContacto({ lead, hist, onDone, modo }) {
     </${LiveTranscriber}>
     ${fase ? html`<div class="progreso" role="status"><${Thinking} text=${fase === "analizando" ? `Claude está leyendo la ${nombreReg} y armando las tareas…` : "Guardando…"} />${fase === "analizando" ? html`<button class="btn small ghost" onClick=${() => ctl.current && ctl.current.abort()}>Detener</button>` : null}</div>` : null}
     ${esReunion ? null : html`<div class="field"><span>Resultado</span><${Chips} label="Resultado" value=${resultado} onChange=${setResultado} options=${RESULTADOS} /></div>`}
+    ${!esReunion && resultado === "volver" ? html`<div class="box volver-box">
+      <${CuandoLlamar} fecha=${volverF} hora=${volverH} onFecha=${setVolverF} onHora=${setVolverH} idp="rv" />
+      ${calListo && isHora(volverH) ? html`<label class="check"><input type="checkbox" checked=${volverCal} onChange=${(e) => setVolverCal(e.currentTarget.checked)} />Anotar en Google Calendar, para que avise a esa hora</label>` : null}
+    </div>` : null}
     <div class="grid-2">
-      ${esReunion ? null : html`<div class="field"><span>Línea</span><${Seg} label="Línea" value=${linea} onChange=${setLinea} options=${[["negocios", "Negocios"], ["personal", "Personal"]]} /></div>`}
       <label class="field" for="c-dur"><span>Duración (minutos)</span><input id="c-dur" class="input mono" inputmode="numeric" value=${duracion} onInput=${(e) => setDuracion(e.currentTarget.value.replace(/[^\d]/g, ""))} /></label>
     </div>
     <label class="field" for="c-notas"><span>Notas de la ${nombreReg}</span><textarea id="c-notas" class="textarea" rows="4" placeholder=${esReunion ? "Qué se habló, qué necesitan, qué quedamos en hacer" : "Qué se habló, qué necesita, qué quedamos en hacer"} value=${notas} onInput=${(e) => ponerNotas(e.currentTarget.value)}></textarea>
@@ -5030,7 +5127,7 @@ function EmbudoClientesView() {
         const s = resumen(e.id, items);
         return html`<div key=${e.id} data-col=${e.id} class=${cx("col", drag && drag.over === e.id && drag.from !== e.id && "drop")}>
           <div class="col-head"><${EtapaClientePill} etapa=${e.id} /><span class="count">${items.length}</span></div>
-          ${s ? html`<p class="col-sum">${s}</p>` : null}
+          ${s ? html`<p class="col-sum"><span>${s}</span></p>` : null}
           <${ColLista} n=${items.length}>
             ${items.map((x) => html`<${ClienteCard} key=${x.c.id} c=${x.c} r=${x.r} etapa=${x.etapa} onPointerDown=${(ev) => start(ev, x.c.id, x.etapa)} />`)}
             ${!items.length ? html`<p class="col-empty">${drag ? "Suelta aquí" : "Sin clientes"}</p>` : null}
@@ -6612,13 +6709,47 @@ function ReunionHechaModal({ lead: lead0, tarea }) {
   </${Modal}>`;
 }
 
-/* No contestó: queda el intento y cuándo volver a intentarlo, sin abrir la ficha. Después de
-   varios intentos se puede cerrar como perdido por «No responde». */
+/* Qué hacer cuando no contesta, según el intento: mañana a otra hora del día; después, un WhatsApp
+   y otro llamado en 2 días hábiles; un último llamado en una semana; y, al cuarto, cerrarlo como
+   perdido por «No responde». «No contestó» propone el paso que toca; todo se puede cambiar. */
+const otraHora = () => (Number(fmtHM.format(new Date()).slice(0, 2)) < 13 ? "16:00" : "10:00");
+const CADENCIA = [["1", "Llamar mañana, a otra hora"], ["2", "WhatsApp y llamar en 2 días"], ["3", "Último llamado en una semana"], ["4", "Perdido · No responde"]];
+function cadencia(n) {
+  const t = todayKey();
+  if (n <= 1) return { paso: 1, rel: "manana", fecha: addBusinessDays(t, 1), canal: "llamar", hora: otraHora(), texto: "Primer intento: lo volvemos a llamar mañana, a otra hora del día." };
+  if (n === 2) return { paso: 2, rel: "", fecha: t, canal: "whatsapp", hora: "", texto: "Segundo intento: le escribimos por WhatsApp hoy y, si no responde, lo llamamos en 2 días hábiles." };
+  if (n === 3) return { paso: 3, rel: "semana", fecha: addBusinessDays(t, 5), canal: "llamar", hora: otraHora(), texto: "Tercer intento: un último llamado en una semana." };
+  return { paso: 4, rel: "semana", fecha: addBusinessDays(t, 5), canal: "llamar", hora: otraHora(), texto: `Lleva ${n} intentos sin respuesta: lo recomendable es cerrarlo como perdido por «No responde».` };
+}
+/* Cuándo volver a llamar a alguien que lo pidió: atajos de día y de hora, más el día y la hora a mano. */
+const DIAS_LLAMAR = [["manana", "Mañana"], ["2d", "En 2 días"], ["lunes", "El lunes"], ["semana", "En una semana"]];
+const HORAS_LLAMAR = ["09:00", "10:00", "11:00", "12:00", "15:00", "16:00", "17:00"];
+const proxLunes = (k) => { let d = addDays(k, 1); while (keyDate(d).getUTCDay() !== 1) d = addDays(d, 1); return d; };
+const diaLlamar = (c, hoy) => (c === "manana" ? addBusinessDays(hoy, 1) : c === "2d" ? addBusinessDays(hoy, 2) : c === "lunes" ? proxLunes(hoy) : addDays(hoy, 7));
+function CuandoLlamar({ fecha, hora, onFecha, onHora, idp }) {
+  const hoy = todayKey();
+  /* El fin de semana, «Mañana» y «El lunes» caen el mismo día: se marca el que se tocó. */
+  const [tocado, setTocado] = useState("");
+  const rel = tocado && diaLlamar(tocado, hoy) === fecha ? tocado : (DIAS_LLAMAR.find(([c]) => diaLlamar(c, hoy) === fecha) || [""])[0];
+  return html`<div class="cuando-llamar">
+    <div class="field"><span>¿Qué día?</span><${Chips} label="Qué día" value=${rel} onChange=${(c) => { setTocado(c); onFecha(diaLlamar(c, hoy)); }} options=${DIAS_LLAMAR} /></div>
+    <div class="grid-2">
+      <label class="field" for=${idp + "-fecha"}><span>Día</span><input id=${idp + "-fecha"} class="input" type="date" value=${fecha} onInput=${(e) => onFecha(e.currentTarget.value)} /></label>
+      <label class="field" for=${idp + "-hora"}><span>Hora</span><input id=${idp + "-hora"} class="input" type="time" value=${hora} onInput=${(e) => onHora(e.currentTarget.value)} /></label>
+    </div>
+    <div class="horas" role="group" aria-label="Horas frecuentes">${HORAS_LLAMAR.map((h) => html`<button type="button" key=${h} class=${cx("btn small", hora === h && "on")} onClick=${() => onHora(h)}>${h}</button>`)}</div>
+  </div>`;
+}
+
+/* No contestó: queda el intento y cuándo volver a intentarlo, sin abrir la ficha. Propone el paso
+   de la secuencia que toca; desde el tercero se puede cerrar como perdido por «No responde». */
 function NoContestoModal({ lead }) {
   const { api, closeModal, toast, tareasPorLead, me, yo, cerrarTareasDe, sampleState, redactarTareas, calListo, anotarTarea } = useCtx();
   const [conClaude, setConClaude] = useState(true);
-  const [anotar, setAnotar] = useState(true);
+  const [anotar, setAnotar] = useState(false);
   const n = (lead.intentos || 0) + 1;
+  const [plan] = useState(() => cadencia(n));
+  const [tambien, setTambien] = useState(plan.paso === 2);
   const cuando = (c) => {
     const t = todayKey();
     if (c === "luego") {
@@ -6630,14 +6761,14 @@ function NoContestoModal({ lead }) {
     return { fecha: addBusinessDays(t, c === "manana" ? 1 : c === "2d" ? 2 : 5), hora: "" };
   };
   const [resultado, setResultado] = useState("no_contesto");
-  const [rel, setRel] = useState("manana");
-  const [fecha, setFecha] = useState(() => cuando("manana").fecha);
-  const [hora, setHora] = useState("");
-  const [canal, setCanal] = useState("llamar");
+  const [rel, setRel] = useState(plan.rel);
+  const [fecha, setFecha] = useState(plan.fecha);
+  const [hora, setHora] = useState(plan.hora);
+  const [canal, setCanal] = useState(plan.canal);
   const [nota, setNota] = useState("");
   const [saving, setSaving] = useState(false);
   const elegir = (c) => { const x = cuando(c); setRel(c); setFecha(x.fecha); setHora(x.hora); };
-  const registro = () => api.addAct({ leadId: lead.id, tipo: "llamada", resultado, linea: ls.get("linea", "negocios"), duracion: null, resumen: nota.trim() });
+  const registro = () => api.addAct({ leadId: lead.id, tipo: "llamada", resultado, duracion: null, resumen: nota.trim() });
   const guardar = async () => {
     if (!isKey(fecha)) { toast("Elige el día para volver a intentarlo.", "bad"); return; }
     setSaving(true);
@@ -6651,9 +6782,12 @@ function NoContestoModal({ lead }) {
       const nuevaT = { leadId: lead.id, tipo: canal, titulo: canal === "whatsapp" ? `No contesta (${veces}): escribirle por WhatsApp` : `Volver a llamar (${veces})`, fecha, hora: hora || "", responsable: lead.responsable || yo || null, estado: "pendiente", origen: "no_contesto", actividadId: actId };
       const tid = await api.createTarea(nuevaT);
       const enCal = anotar && calListo && isHora(hora) ? await anotarTarea({ id: tid, ...nuevaT }, lead, true) : false;
+      /* Con el WhatsApp, también queda el llamado siguiente (si se pidió). */
+      const otro = canal === "whatsapp" && tambien ? addBusinessDays(fecha < todayKey() ? todayKey() : fecha, 2) : "";
+      if (otro) await api.createTarea({ ...nuevaT, tipo: "llamar", titulo: `Volver a llamar (${veces})`, fecha: otro, hora: otraHora() });
       const redacta = canal === "whatsapp" && conClaude && sampleState.fn && lead.telefono && !lead.noContactar;
       if (redacta) redactarTareas(lead, [{ tipo: "whatsapp", que: "Escribirle porque no contestó la llamada", tareaId: tid, objetivo: "seguimiento", instrucciones: `Lo llamamos y no contestó (${veces}). Escríbele un WhatsApp breve: quién eres, por qué lo llamaste en una frase (con lo que sabemos de su negocio) y pregunta cuándo le acomoda conversar 10 minutos. Si su guion trae el WhatsApp para cuando no contesta, úsalo de base. Sin presionar ni reprochar.` }]);
-      toast(`${leadTitulo(lead)}: ${canal === "whatsapp" ? "escribirle por WhatsApp" : "volver a llamar"} ${cuandoTexto(fecha)}${hora ? " a las " + hora : ""}.${enCal ? " Quedó anotado en Google Calendar." : ""}${redacta ? " Claude está redactando el WhatsApp." : ""}`);
+      toast(`${leadTitulo(lead)}: ${canal === "whatsapp" ? "escribirle por WhatsApp" : "volver a llamar"} ${cuandoTexto(fecha)}${hora ? " a las " + hora : ""}${otro ? ` y llamarlo ${cuandoTexto(otro)}` : ""}.${enCal ? " Quedó anotado en Google Calendar." : ""}${redacta ? " Claude está redactando el WhatsApp." : ""}`);
       closeModal();
     } catch (e) { toast(dbErrorText(e), "bad"); setSaving(false); }
   };
@@ -6668,9 +6802,10 @@ function NoContestoModal({ lead }) {
       closeModal();
     } catch (e) { toast(dbErrorText(e), "bad"); setSaving(false); }
   };
-  return html`<${Modal} title=${"No contestó: " + leadName(lead)} onClose=${closeModal} foot=${html`${n >= 3 ? html`<button class="btn ghost danger" onClick=${perder} disabled=${saving}>Perdido · No responde</button>` : null}<button class="btn ghost" onClick=${closeModal}>Cancelar</button><button class="btn primary" onClick=${guardar} disabled=${saving}>Guardar</button>`}>
+  return html`<${Modal} title=${"No contestó: " + leadName(lead)} onClose=${closeModal} foot=${html`${n >= 3 ? html`<button class=${cx("btn danger", n >= 4 ? "primary" : "ghost")} onClick=${perder} disabled=${saving}>Perdido · No responde</button>` : null}<button class="btn ghost" onClick=${closeModal}>Cancelar</button><button class=${cx("btn", n >= 4 ? "" : "primary")} onClick=${guardar} disabled=${saving}>${n >= 4 ? "Seguir intentando" : "Guardar"}</button>`}>
     <div class="modal-body">
-      <p class="small muted">${n === 1 ? "Primer intento sin respuesta." : `Es el intento ${n} sin respuesta.`} Queda en el historial y la tarjeta sigue en su etapa.</p>
+      <ol class="cadencia" aria-label="Qué hacer cuando no contesta">${CADENCIA.map(([k, l], i) => html`<li key=${k} class=${cx(i + 1 < plan.paso && "hecho", i + 1 === plan.paso && "actual", i === 3 && "fin")} aria-current=${i + 1 === plan.paso ? "step" : null}><b>${k}</b>${l}</li>`)}</ol>
+      <p class="small muted">${plan.texto} ${plan.paso >= 4 ? "Si prefieres seguir intentando, queda otro llamado en una semana." : "Queda en el historial y la tarjeta sigue en su etapa."}</p>
       <div class="field"><span>Qué pasó</span><${Chips} label="Qué pasó" value=${resultado} onChange=${setResultado} options=${SIN_RESPUESTA_OPC} /></div>
       <div class="field"><span>¿Cuándo lo volvemos a intentar?</span><${Chips} label="Cuándo" value=${rel} onChange=${elegir} options=${RELLAMAR} /></div>
       <div class="grid-2">
@@ -6679,9 +6814,58 @@ function NoContestoModal({ lead }) {
       </div>
       ${calListo && isHora(hora) ? html`<label class="check"><input type="checkbox" checked=${anotar} onChange=${(e) => setAnotar(e.currentTarget.checked)} />Anotar en Google Calendar, para que avise a esa hora</label>` : null}
       <div class="field"><span>Entonces</span><${Seg} label="Próxima acción" value=${canal} onChange=${setCanal} options=${[["llamar", "Volver a llamar", "phone"], ["whatsapp", "Escribirle por WhatsApp", "chat"]]} />
-        ${canal === "whatsapp" && sampleState.fn ? html`<label class="check"><input type="checkbox" checked=${conClaude} onChange=${(e) => setConClaude(e.currentTarget.checked)} />Claude redacta el WhatsApp (queda en Borradores, unido a la tarea, para que lo revises)</label>` : null}</div>
+        ${canal === "whatsapp" && sampleState.fn ? html`<label class="check"><input type="checkbox" checked=${conClaude} onChange=${(e) => setConClaude(e.currentTarget.checked)} />Claude redacta el WhatsApp (queda en Borradores, unido a la tarea, para que lo revises)</label>` : null}
+        ${canal === "whatsapp" ? html`<label class="check"><input type="checkbox" checked=${tambien} onChange=${(e) => setTambien(e.currentTarget.checked)} />Y si no responde, volver a llamarlo 2 días hábiles después</label>` : null}</div>
       <label class="field" for="nc-nota"><span>Nota (opcional)</span><input id="nc-nota" class="input" value=${nota} onInput=${(e) => setNota(e.currentTarget.value)} placeholder="Ej.: contestó la secretaria, que llame después de las 15" /></label>
-      ${n >= 3 ? html`<div class="note warn"><${Icon} name="info" /><div>Lleva ${n} intentos sin respuesta. Si prefieres cerrarlo, pásalo a Perdido con el motivo «No responde».</div></div>` : null}
+      ${n === 3 ? html`<div class="note warn"><${Icon} name="info" /><div>Lleva ${n} intentos sin respuesta. Si prefieres cerrarlo, pásalo a Perdido con el motivo «No responde».</div></div>` : null}
+    </div>
+  </${Modal}>`;
+}
+
+/* Contestó, pero pidió que lo llamemos otro día (o a otra hora): queda la llamada como «Pidió que
+   llamemos después», la tarea de llamarlo ese día a esa hora y, si se quiere, el evento en Google
+   Calendar y un WhatsApp de confirmación que redacta Claude. */
+function OtroDiaModal({ lead }) {
+  const { api, closeModal, toast, tareasPorLead, me, yo, calListo, anotarTarea, sampleState, redactarTareas } = useCtx();
+  const hoy = todayKey();
+  const [fecha, setFecha] = useState(addBusinessDays(hoy, 1));
+  const [hora, setHora] = useState("10:00");
+  const [nota, setNota] = useState("");
+  const [anotar, setAnotar] = useState(true);
+  const [confirmar, setConfirmar] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const puedeEscribir = !!sampleState.fn && !!lead.telefono && !lead.noContactar;
+  const guardar = async () => {
+    if (!isKey(fecha) || fecha < hoy) { toast("Elige el día en que pidió que lo llamemos.", "bad"); return; }
+    setSaving(true);
+    try {
+      const h = isHora(hora) ? hora : "";
+      const cuando = `${cuandoTexto(fecha)}${h ? " a las " + h : ""}`;
+      const actId = await api.addAct({ leadId: lead.id, tipo: "llamada", resultado: "volver", duracion: null, resumen: `Pidió que lo llamemos ${cuando}.${nota.trim() ? " " + nota.trim() : ""}` });
+      /* La llamada cumple la tarea de llamar que tocaba y cuenta como contacto. */
+      const pend = tareasPorLead[lead.id] || [];
+      for (const x of pend) if (tipoTarea(x.tipo) === "llamar" && x.fecha <= hoy) await api.updateTarea(x.id, { estado: "hecha", hecha: nowISO(), hechaPor: me.id || null, actividadId: actId });
+      const de = etapaDe(lead);
+      await api.updateLead(lead.id, { ultimoContacto: nowISO(), ultimoIntento: nowISO(), intentos: 0, ...(de === "nuevo" ? { etapa: "contactado" } : {}), ...(!pend.length && tareaDeProxima(lead) ? { proxima: null } : {}) });
+      if (de === "nuevo") await api.addAct({ leadId: lead.id, tipo: "etapa", de, a: "contactado" });
+      const nuevaT = { leadId: lead.id, tipo: "llamar", titulo: "Volver a llamar (lo pidió)", nota: nota.trim(), fecha, hora: h, responsable: lead.responsable || yo || null, estado: "pendiente", origen: "llamada", actividadId: actId };
+      const tid = await api.createTarea(nuevaT);
+      const enCal = anotar && calListo && h ? await anotarTarea({ id: tid, ...nuevaT }, lead, true) : false;
+      if (confirmar && puedeEscribir) {
+        const wid = await api.createTarea({ leadId: lead.id, tipo: "whatsapp", titulo: "Confirmarle por WhatsApp la llamada", nota: "", fecha: hoy, hora: "", responsable: lead.responsable || yo || null, estado: "pendiente", origen: "llamada", actividadId: actId });
+        redactarTareas(lead, [{ tipo: "whatsapp", que: "Confirmar la llamada que pidió", tareaId: wid, objetivo: "seguimiento", instrucciones: `Hablamos por teléfono y pidió que lo llamemos ${cuando}. Escríbele un WhatsApp de una o dos frases confirmando ese día y hora, y agradeciendo el tiempo. Sin presionar ni agregar nada más.` }]);
+      }
+      toast(`${leadTitulo(lead)}: llamarlo ${cuando}.${enCal ? " Quedó anotado en Google Calendar." : ""}${confirmar && puedeEscribir ? " Claude está redactando el WhatsApp de confirmación." : ""}`);
+      closeModal();
+    } catch (e) { toast(dbErrorText(e), "bad"); setSaving(false); }
+  };
+  return html`<${Modal} title=${"Pidió que lo llamemos otro día: " + leadName(lead)} onClose=${closeModal} labelId="otro-title" foot=${html`<button class="btn ghost" onClick=${closeModal}>Cancelar</button><button class="btn primary" onClick=${guardar} disabled=${saving}>${saving ? "Guardando…" : "Guardar"}</button>`}>
+    <div class="modal-body">
+      <p class="small muted">Queda la llamada en el historial («Pidió que llamemos después») y la tarea de llamarlo ese día${isHora(hora) ? ", a esa hora, con su recordatorio en pantalla" : ""}.</p>
+      <${CuandoLlamar} fecha=${fecha} hora=${hora} onFecha=${setFecha} onHora=${setHora} idp="od" />
+      <label class="field" for="od-nota"><span>Nota (opcional)</span><input id="od-nota" class="input" value=${nota} onInput=${(e) => setNota(e.currentTarget.value)} placeholder="Ej.: está en terreno; prefiere después de almuerzo" /></label>
+      ${calListo && isHora(hora) ? html`<label class="check"><input type="checkbox" checked=${anotar} onChange=${(e) => setAnotar(e.currentTarget.checked)} />Anotar en Google Calendar, para que avise a esa hora</label>` : null}
+      ${puedeEscribir ? html`<label class="check"><input type="checkbox" checked=${confirmar} onChange=${(e) => setConfirmar(e.currentTarget.checked)} />Claude redacta un WhatsApp para confirmarle el día y la hora (queda en Borradores para que lo revises)</label>` : null}
     </div>
   </${Modal}>`;
 }
@@ -6790,7 +6974,7 @@ function AjustesView() {
           <div class="grid-2">
             <label class="field" for="f-nombre"><span>Nombre</span><input id="f-nombre" class="input" value=${firma.nombre} onInput=${sf("nombre")} /></label>
             <label class="field" for="f-cargo"><span>Cargo</span><input id="f-cargo" class="input" value=${firma.cargo} onInput=${sf("cargo")} placeholder="Socio fundador · Producto" /></label>
-            <label class="field" for="f-tel"><span>Teléfono de negocios</span><input id="f-tel" class="input mono" type="tel" value=${firma.telefono} onInput=${sf("telefono")} placeholder="9 1234 5678" /></label>
+            <label class="field" for="f-tel"><span>Teléfono</span><input id="f-tel" class="input mono" type="tel" value=${firma.telefono} onInput=${sf("telefono")} placeholder="9 1234 5678" /></label>
             <label class="field" for="f-correo"><span>Correo</span><input id="f-correo" class="input" type="email" value=${firma.correo} onInput=${sf("correo")} placeholder="nombre@zhdevelopment.cl" /></label>
           </div>
           <div class="actions"><button class="btn primary" onClick=${guardarFirma} disabled=${!me.id || !canWrite}>Guardar firma</button></div>
@@ -6799,11 +6983,11 @@ function AjustesView() {
       <section class="panel"><div class="panel-head"><h2>Empresa y canales</h2></div>
         <div class="panel-body">
           <div class="grid-2">
-            <label class="field" for="c-wa"><span>WhatsApp de negocios</span><input id="c-wa" class="input mono" type="tel" value=${c.whatsappNegocios} onInput=${sc("whatsappNegocios")} placeholder="9 1234 5678" /><small class="hint">Se usa en el enlace «WhatsApp» de las firmas y como recordatorio de la línea para llamar.</small></label>
+            <label class="field" for="c-wa"><span>WhatsApp de la empresa (opcional)</span><input id="c-wa" class="input mono" type="tel" value=${c.whatsappNegocios} onInput=${sc("whatsappNegocios")} placeholder="9 1234 5678" /><small class="hint">Va en el enlace «WhatsApp» de las firmas de los correos. Si lo dejas vacío, cada firma usa el teléfono de su socio.</small></label>
             <label class="field" for="c-agenda"><span>Enlace para agendar</span><input id="c-agenda" class="input" value=${c.agendaUrl} onInput=${sc("agendaUrl")} /><small class="hint">Claude lo usa en los botones y mensajes para agendar.</small></label>
             <label class="field" for="c-gmail"><span>Cuenta de Google de ZH (Gmail y Calendar)</span><input id="c-gmail" class="input" type="email" value=${c.gmailCuenta} onInput=${sc("gmailCuenta")} placeholder="contacto@zhdevelopment.cl" /><small class="hint">El CRM lee y crea las reuniones en el calendario de esta cuenta, y «Copiar y abrir Gmail» se abre en ella.</small></label>
             <label class="field" for="c-equipo"><span>Correos del equipo</span><input id="c-equipo" class="input" value=${c.correosEquipo} onInput=${sc("correosEquipo")} placeholder="nombre@zhdevelopment.cl, otro@gmail.com" /><small class="hint">Se invitan a las reuniones que crea el CRM y nunca se confunden con un lead. Sepáralos con comas.</small></label>
-            <div class="field"><span>Abrir WhatsApp en</span><${Seg} label="Abrir WhatsApp en" value=${c.abrirWhatsapp} onChange=${(v) => setC((x) => ({ ...x, abrirWhatsapp: v }))} options=${[["app", "App o wa.me"], ["web", "WhatsApp Web"]]} /><small class="hint">En el computador, WhatsApp Web abre directo el chat si tienes la sesión de negocios iniciada.</small></div>
+            <div class="field"><span>Abrir WhatsApp en</span><${Seg} label="Abrir WhatsApp en" value=${c.abrirWhatsapp} onChange=${(v) => setC((x) => ({ ...x, abrirWhatsapp: v }))} options=${[["app", "App o wa.me"], ["web", "WhatsApp Web"]]} /><small class="hint">En el computador, WhatsApp Web abre directo el chat si tienes la sesión iniciada.</small></div>
           </div>
           <div class="actions"><button class="btn primary" onClick=${guardarCfg} disabled=${!canWrite}>Guardar ajustes</button></div>
         </div></section>
@@ -7308,6 +7492,18 @@ function App() {
     if (!id) throw { code: "formato" };
     return { id, link: httpsOk(e && e.htmlLink) || (mover && previo.link) || "", fecha: d.fecha, hora: conHora ? d.hora : "" };
   }, [mcp, calListo, calCuenta, correoDeSocio, invalidarCal]);
+  /* «Me llamó y no contesté»: queda en el historial y la tarea de devolverle la llamada, hoy en 5
+     minutos (con su recordatorio en pantalla), para quien la perdió. */
+  const devolverLlamada = useCallback(async (lead) => {
+    if (!wrapApi || !lead) return;
+    try {
+      const en5 = new Date(Date.now() + 5 * 6e4);
+      const hm = keyOf(en5.toISOString()) === todayKey() ? fmtHM.format(en5) : "";
+      await wrapApi.addAct({ leadId: lead.id, tipo: "nota", resumen: "Llamó y no alcanzamos a contestar." });
+      await wrapApi.createTarea({ leadId: lead.id, tipo: "llamar", titulo: "Devolverle la llamada", nota: "Te llamó y no alcanzaste a contestar.", fecha: todayKey(), hora: hm, responsable: yo || lead.responsable || null, estado: "pendiente", origen: "manual" });
+      toast(`${leadTitulo(lead)}: quedó la tarea de devolverle la llamada${hm ? " a las " + hm : ", hoy"}.`);
+    } catch (e) { toast(dbErrorText(e), "bad"); }
+  }, [wrapApi, yo, toast]);
   /* Una tarea en el calendario: «Llamar a Gabriela · Panadería Rivas», con la persona, el teléfono
      y el detalle. */
   const datosTareaCal = (t, lead) => ({
@@ -7703,7 +7899,7 @@ function App() {
     db, api: wrapApi, me, yo, leads: leads || [], leadsById, acts, drafts, equipo, cfg, sampleState, setSampleState, downloads, toast, nameOf, team, redactarTareas,
     tareas: tareas || [], tareasPorLead, siguienteDe, completarTarea, marcarTarea, agendarReunion, moverEtapa, cerrarTareasDe,
     cal, calCuenta, calListo, equipoCorreos, registro: registro || {}, leadDeEvento, permitirCalendario, refrescarCalendario, abrirPermisos, moverReunion, crearEventoDeReunion, recordatorio, prepararReunion,
-    anotarEnCalendario, anotarTarea, anotarCobro, cobroCal,
+    anotarEnCalendario, anotarTarea, anotarCobro, cobroCal, devolverLlamada,
     assets, subirArchivo, borrarArchivo, guardarPropuesta, diasEnEtapa,
     clientes: clientes || [], clientesById, proyectos: proyectos || [], proyectosById, cobros: cobros || [], mantenciones: mantenciones || [], solicitudes: solicitudes || [],
     openLead, openCliente, openProyecto, openDraft, openModal, closeModal, nav, changeStage, moveProyecto, moverCliente, canWrite, profileName: me.name,
@@ -7775,6 +7971,7 @@ function App() {
       ${modal.type === "draft" ? html`<${DraftEditor} id=${modal.id} />` : null}
       ${modal.type === "lost" ? html`<${LostModal} lead=${modal.lead} />` : null}
       ${modal.type === "noContesto" ? html`<${NoContestoModal} lead=${modal.lead} />` : null}
+      ${modal.type === "otroDia" ? html`<${OtroDiaModal} lead=${modal.lead} />` : null}
       ${modal.type === "agendar" ? html`<${AgendarModal} lead=${modal.lead} tarea=${modal.tarea} desdeEtapa=${!!modal.desdeEtapa} />` : null}
       ${modal.type === "reunionHecha" ? html`<${ReunionHechaModal} lead=${modal.lead} tarea=${modal.tarea} />` : null}
       ${modal.type === "propuesta" ? html`<${PropuestaModal} lead=${modal.lead} tarea=${modal.tarea} desdeEtapa=${!!modal.desdeEtapa} editar=${!!modal.editar} />` : null}

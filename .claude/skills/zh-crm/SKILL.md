@@ -128,7 +128,8 @@ con «Automático», esto pasa solo al detener la grabación):
    cada uno); `puntaje` = promedio de las notas × 20, redondeado (no lo inventes). Con solo notas,
    `evaluacion: null`.
 3. `set` en `actividades`: `{leadId, tipo: "llamada" | "reunion", fecha, autor: "claude",
-   resultado (solo llamadas), linea, duracion, resumen, transcripcion, analisis}`. Guarda
+   resultado (solo llamadas: `contesto`, `no_contesto`, `buzon`, `ocupado`, `volver` = pidió que
+   llamemos después, `equivocado`), duracion, resumen, transcripcion, analisis}`. Guarda
    `transcripcion` solo si el usuario pide conservarla; si no, `null` (quedan las notas y el
    análisis).
 4. Tareas: las de `llamar` que vencían quedan `hecha` (en una reunión, la tarea `reunion`), con
@@ -141,15 +142,38 @@ con «Automático», esto pasa solo al detener la grabación):
    por contactar y contestó, `reunion_agendada` si quedó una reunión con día, `reunion_concretada`
    después de una reunión. Cada cambio de etapa agrega una actividad `{tipo: "etapa", de, a}`.
 
+Los socios llaman desde su celular: no hay una línea de la empresa (las actividades ya no llevan
+`linea`).
+
 **Si no contestó** (no contestó, buzón u ocupado): la actividad `{leadId, tipo: "llamada",
 resultado: "no_contesto" | "buzon" | "ocupado", resumen}`; la tarea de `llamar` que tocaba queda
-`hecha`; una tarea nueva `{tipo: "llamar", titulo: "Volver a llamar (N intentos sin respuesta)",
-fecha: <día hábil siguiente, u otro que digan>, hora, origen: "no_contesto"}` (o, si le van a
-escribir, `{tipo: "whatsapp", titulo: "No contesta (N intentos sin respuesta): escribirle por
-WhatsApp"}` con su borrador unido: `tareaId` en el borrador y `borradorId` en la tarea), y en el lead
-`intentos` + 1, `ultimoIntento` = ahora y su `proxima`. La etapa no cambia: la idea es volver a
-llamar en otro momento. Desde el tercer intento, si el socio lo pide, pásalo a perdido con
-`motivoPerdida: "No responde"`.
+`hecha`, y en el lead `intentos` + 1, `ultimoIntento` = ahora y su `proxima`. La etapa no cambia.
+Lo que sigue depende del intento N (es lo que propone la página; si el socio dice otra cosa, se
+hace lo que diga). Todas las tareas llevan `origen: "no_contesto"` y `actividadId`; «otra hora»
+es `16:00` si se llamó antes de las 13:00 y `10:00` si fue después:
+1. N = 1: `{tipo: "llamar", titulo: "Volver a llamar (1 intento sin respuesta)", fecha: <día hábil
+   siguiente>, hora: <otra hora>}`.
+2. N = 2: `{tipo: "whatsapp", titulo: "No contesta (2 intentos sin respuesta): escribirle por
+   WhatsApp", fecha: hoy}` con su borrador unido (`tareaId` en el borrador y `borradorId` en la
+   tarea), más `{tipo: "llamar", titulo: "Volver a llamar (2 intentos sin respuesta)", fecha: <2
+   días hábiles después>, hora: <otra hora>}`.
+3. N = 3: un último `llamar` a los 5 días hábiles, a otra hora.
+4. N ≥ 4: propón al socio pasarlo a perdido con `motivoPerdida: "No responde"` (y la actividad de
+   etapa); no lo hagas sin que lo diga. Si quiere seguir, otro `llamar` a los 5 días hábiles.
+
+**Si pidió que lo llamemos otro día** («llámame el lunes a las 10»): la actividad `{leadId, tipo:
+"llamada", resultado: "volver", resumen: "Pidió que lo llamemos el lunes a las 10:00." + lo que
+agregue el socio}`; la tarea de `llamar` que tocaba queda `hecha`; en el lead `ultimoContacto` y
+`ultimoIntento` = ahora, `intentos: 0`, su `proxima` y, si estaba `nuevo`, `etapa: "contactado"`
+(con su actividad de etapa); y la tarea `{tipo: "llamar", titulo: "Volver a llamar (lo pidió)",
+nota, fecha, hora, origen: "llamada", actividadId}`. Si no dijo hora, `hora: ""`. Si el socio lo
+pide, una tarea de `whatsapp` «Confirmarle por WhatsApp la llamada» para hoy, con su borrador (una
+o dos frases que confirman el día y la hora, sin agregar nada más).
+
+**Si llamó y no alcanzaron a contestar:** una actividad `nota` («Llamó y no alcanzamos a
+contestar.») y la tarea `{tipo: "llamar", titulo: "Devolverle la llamada", nota: "Te llamó y no
+alcanzaste a contestar.", fecha: hoy, hora: <en 5 minutos, si sigue siendo hoy>, responsable:
+<quien la perdió>, origen: "manual"}`. No suma intentos.
 
 **Redactar un correo o un WhatsApp:**
 1. Lee el lead (o el cliente), su historial y la firma de quien lo pide (`equipo`). El `dolor` y

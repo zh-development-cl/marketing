@@ -119,8 +119,8 @@ const SEED = {
   const eyebrow = await page.locator(".page-head .eyebrow").textContent();
   ok(eyebrow.includes("6 abiertos") && eyebrow.includes("$18.000.000 en juego") && eyebrow.includes("$9.050.000 ponderado"), "la cabecera suma lo que está en juego y lo ponderado por etapa");
   ok((await col(page, "propuesta").locator(".col-sum").innerText()).includes("$10.000.000 · $5.000.000 ponderado"), "cada etapa muestra su total y su ponderado");
-  ok((await page.locator(".board .col").count()) === 7 && (await page.locator(".board .col").last().getAttribute("data-col")) === "ganado", "por defecto se ven las 6 etapas abiertas y «Ganado» al final");
-  ok((await page.locator(".board .col-title").allInnerTexts()).join("|") === "Por contactar|Contactado|Reunión agendada|Reunión concretada|Propuesta enviada|Negociación|Ganado", "con «Reunión agendada» y «Reunión concretada» como etapas");
+  ok((await page.locator(".board > .col").count()) === 6 && (await page.locator(".board .col-par .col").evaluateAll((els) => els.map((x) => x.getAttribute("data-col")).join("|"))) === "ganado|perdido|pausa", "las 6 etapas abiertas, cada una en su carril, y al final Ganado, Perdido y En pausa apilados, siempre a la vista");
+  ok((await page.locator(".board .col-title").allInnerTexts()).join("|") === "Por contactar|Contactado|Reunión agendada|Reunión concretada|Propuesta enviada|Negociación|Ganado|Perdido|En pausa", "con «Reunión agendada» y «Reunión concretada» como etapas");
   ok(await card(page, "Pedro León").locator(".tag", { hasText: /Cliente.+En desarrollo/ }).isVisible(), "la tarjeta ganada dice a qué cliente pasó y en qué etapa va");
   ok(await card(page, "Paula Rojas").locator(".knext.vacio", { hasText: "Sin tarea" }).isVisible(), "la tarjeta avisa cuando no hay una tarea pendiente");
   ok((await card(page, "Paula Rojas").locator(".kcard-titulo").innerText()) === "Panadería Sol", "la tarjeta muestra primero la empresa");
@@ -242,7 +242,7 @@ const SEED = {
   await page.selectOption("#emb-resp", NI);
   ok((await page.locator(".kcard.lead").count()) === 2 && await card(page, "Tomás Vera").isVisible() && await card(page, "Jorge Paz").isVisible(), "el filtro por responsable muestra solo los de Nicolás");
   await page.selectOption("#emb-resp", LO);
-  ok((await card(page, "Tomás Vera").count()) === 0 && (await page.locator(".kcard.lead").count()) === 5, "o solo los de Lorenzo (4 abiertos y 1 ganado)");
+  ok((await card(page, "Tomás Vera").count()) === 0 && (await page.locator(".kcard.lead").count()) === 7, "o solo los de Lorenzo (4 abiertos, 1 ganado, 1 perdido y 1 en pausa)");
   ok((await page.locator("#emb-resp option").allInnerTexts()).join("|") === "Todos los responsables|Lorenzo|Nicolás|Sin responsable", "los responsables son solo Lorenzo y Nicolás");
   await page.selectOption("#emb-resp", "");
   await page.selectOption("#emb-orden", "valor");
@@ -286,13 +286,12 @@ const SEED = {
   ok(li.etapa === "perdido" && li.motivoPerdida === "No responde" && li.proxima === null && li.intentos === 3, "y lo pasa a Perdido con el motivo «No responde»");
   ok(Object.values(dump).some((v) => v.leadId === "lead-i" && v.tipo === "etapa" && v.a === "perdido"), "con el cambio de etapa en el historial");
 
-  await page.check("#ver-cerrados");
-  ok((await page.locator(".board .col").count()) === 9 && await col(page, "perdido").locator(".kcard.lead", { hasText: "Rosa Pinto" }).isVisible(), "se pueden ver los ganados, perdidos y en pausa");
+  ok(await col(page, "perdido").locator(".kcard.lead.compacto", { hasText: "Ferretería Ola" }).isVisible() && (await col(page, "perdido").locator(".kcard.lead", { hasText: "Rosa Pinto" }).count()) === 0, "los perdidos se ven en su carril, con tarjetas cortas (la empresa, sin la persona)");
   ok(await col(page, "pausa").locator(".kcard.lead", { hasText: "Ana Ruiz" }).locator(".knext", { hasText: "Retomar" }).isVisible(), "la tarjeta en pausa muestra cuándo retomarlo");
-  ok(await card(page, "Rosa Pinto").locator(".tag", { hasText: "No es el momento" }).isVisible(), "un perdido muestra su motivo, también uno antiguo");
-  const resumen = await col(page, "perdido").locator(".col-sum.motivos").innerText();
-  ok(resumen.includes("1 sin motivo") && resumen.includes("1 no responde"), "la columna Perdido cuenta cuántos hay por motivo");
-  await card(page, "Marta Gil").locator(".tagbtn", { hasText: "Falta el motivo" }).click();
+  ok(await card(page, "Ferretería Ola").locator(".tag", { hasText: "No es el momento" }).isVisible(), "un perdido muestra su motivo, también uno antiguo");
+  const resumen = await col(page, "perdido").locator(".col-motivos span").evaluateAll((els) => els.map((x) => x.getAttribute("title")));
+  ok(resumen.includes("Sin motivo: 1") && resumen.includes("No responde: 1"), "el carril Perdido cuenta cuántos hay por motivo");
+  await card(page, "Textil Norte").locator(".tagbtn", { hasText: "Falta el motivo" }).click();
   await page.locator(".modal", { hasText: "Motivo de pérdida: Marta Gil" }).waitFor();
   ok((await page.locator(".modal .chip").allInnerTexts()).join("|") === "No responde|Mal timing|No hay fit|Está con la competencia", "los motivos son: no responde, mal timing, no hay fit y está con la competencia");
   ok(await page.locator(".modal .btn.primary").isDisabled(), "sin motivo no se puede guardar");
@@ -305,7 +304,6 @@ const SEED = {
   ok(Object.values(dump).some((v) => v.leadId === "lead-h" && v.tipo === "nota" && String(v.resumen).startsWith("Motivo de pérdida: Está con la competencia")), "y queda anotado en el historial");
   ok((await page.locator("#lead-title").count()) === 0, "sin abrir la ficha");
   await shot(page, "e05-perdidos.png");
-  await page.uncheck("#ver-cerrados");
 
   /* ---------------- Proyectos: mismo arrastre ---------------- */
   await page.locator(".side .nav button", { hasText: /^Proyectos/ }).click();
@@ -319,7 +317,7 @@ const SEED = {
 
   /* ---------------- embudo de clientes ---------------- */
   await page.locator(".side .nav button", { hasText: /^Embudo de leads/ }).click();
-  await page.locator(".board .linkbtn", { hasText: "Ver el embudo de clientes" }).click();
+  await page.locator(".board .linkbtn", { hasText: "Embudo de clientes →" }).click();
   await page.locator("h1", { hasText: "Embudo de clientes" }).waitFor();
   ok(true, "desde «Ganado» se pasa al embudo de clientes");
   const ccard = (nombre) => page.locator(".kcard.lead", { hasText: nombre });
