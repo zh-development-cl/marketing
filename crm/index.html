@@ -553,7 +553,29 @@ details.data .grid-2 { margin-top: 14px; }
 .ccard .line .mono { font-size: 13px; overflow-wrap: anywhere; }
 .cedit { display: grid; gap: 10px; padding: 12px; border: 1px solid var(--line); border-radius: var(--r-m); background: var(--surface-2); }
 .hitos { display: grid; gap: 6px; }
-.hito { display: grid; grid-template-columns: auto minmax(0, 1fr) 150px auto; gap: 8px; align-items: center; }
+.hito { display: grid; grid-template-columns: auto minmax(0, 1fr) 150px auto auto; gap: 8px; align-items: center; }
+.cal-nota { display: flex; align-items: center; gap: 6px; }
+.avisos { display: grid; gap: 8px; }
+.aviso { display: flex; align-items: center; gap: 12px; padding: 10px 12px 10px 14px; border: 1px solid var(--line); border-left: 3px solid var(--line-2); border-radius: var(--r-m); background: var(--surface); }
+.aviso.today { border-left-color: var(--accent); }
+.aviso.late { border-left-color: var(--bad); }
+.aviso-ico { flex: none; width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; background: var(--sunken); color: var(--fg-2); }
+.aviso.today .aviso-ico { background: var(--accent-soft); color: var(--accent); }
+.aviso.late .aviso-ico { background: var(--bad-soft); color: var(--bad); }
+.aviso p { flex: 1; min-width: 0; font-size: 14px; line-height: 1.4; }
+.aviso .btn { flex: none; }
+.avisos-aj { display: grid; gap: 12px; justify-items: start; }
+.recs { position: fixed; z-index: 75; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); right: max(16px, env(safe-area-inset-right, 0px)); width: min(360px, calc(100% - 32px)); display: grid; gap: 8px; }
+body.arrastrando .recs { visibility: hidden; }
+.recs.con-ficha { right: calc(min(620px, 100%) + 16px); }
+.rec { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: start; padding: 12px 8px 12px 14px; border: 1px solid var(--line-2); border-left: 3px solid var(--accent); border-radius: var(--r-m); background: var(--surface); box-shadow: var(--shadow); }
+.rec-ico { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); }
+.rec-main { min-width: 0; }
+.rec-cuando { font-size: 12px; font-weight: 600; letter-spacing: 0.02em; color: var(--accent); }
+.rec-titulo { margin: 2px 0 10px; font-size: 14px; line-height: 1.35; }
+@media (max-width: 1100px) { .recs.con-ficha { right: max(16px, env(safe-area-inset-right, 0px)); } }
+@media (max-width: 900px) { .recs { top: calc(8px + env(safe-area-inset-top, 0px)); bottom: auto; left: max(16px, env(safe-area-inset-left, 0px)); width: auto; } }
+@media (max-width: 600px) { .aviso { flex-wrap: wrap; } .aviso p { flex-basis: calc(100% - 40px); } .aviso .btn { margin-left: 40px; } }
 .hito.done .input:not([type="date"]) { text-decoration: line-through; color: var(--fg-3); }
 .hito input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--ok); }
 @media (max-width: 560px) { .hito { grid-template-columns: auto minmax(0, 1fr) auto; } .hito input[type="date"] { grid-column: 2; } }
@@ -1392,6 +1414,18 @@ function calEscrituraTexto(e, mover) {
   if (c === "tool_error") return `Google Calendar no ${mover ? "movió" : "creó"} el evento: ${clip(String(e.message || "sin detalle"), 160)}.`;
   return calErrorText(e);
 }
+/* Lo que el CRM anota en el calendario (una tarea, un cobro o un hito) lleva esta marca en la
+   descripción: así nunca se toma por una reunión ni sale repetido en el panel del calendario. */
+const MARCA_CAL = "Anotado desde el CRM de ZH Development.";
+const esAnotacion = (ev) => !!ev && String(ev.descripcion || "").includes(MARCA_CAL);
+const DURACION_TAREA = 15;
+/* Al anotar, una falla sin respuesta clara no prueba que no se hizo: no se repite sola. */
+function calAnotarTexto(e) {
+  const c = e && e.code;
+  if (!c || c === "server_unavailable" || c === "upstream_error" || c === "cancelled" || c === "rate_limited" || c === "formato") return "Google Calendar no confirmó: puede que se haya anotado igual. Revisa el calendario antes de volver a intentarlo.";
+  if (c === "tool_error") return `Google Calendar no lo anotó: ${clip(String(e.message || "sin detalle"), 160)}.`;
+  return calErrorText(e);
+}
 
 const ls = {
   get(k, d) { try { const v = localStorage.getItem("zhcrm:" + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
@@ -2045,6 +2079,7 @@ const ICONS = {
   ext: '<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
   check: '<path d="m5 12 5 5 9-10"/>',
   cal: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+  calplus: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M12 13v5M9.5 15.5h5"/>',
   upload: '<path d="M12 16V4M7 9l5-5 5 5M4 20h16"/>',
   download: '<path d="M12 4v12M7 11l5 5 5-5M4 20h16"/>',
   trash: '<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',
@@ -2287,9 +2322,10 @@ function LeadRow({ lead, mode }) {
    derecha hace lo que toca: llamar, revisar el borrador, agendar, entrar a Meet o contar cómo fue
    la reunión. Una reunión unida a Google Calendar muestra si el lead aceptó la invitación. */
 function TareaFila({ t, conLead, onEditar }) {
-  const { leadsById, openLead, openDraft, completarTarea, canWrite, cfg, nameOf, drafts, cal, calListo, crearEventoDeReunion, sampleState, prepararReunion, toast } = useCtx();
+  const { leadsById, openLead, openDraft, completarTarea, canWrite, cfg, nameOf, drafts, cal, calListo, crearEventoDeReunion, sampleState, prepararReunion, toast, anotarTarea } = useCtx();
   const [creando, setCreando] = useState(false);
   const [preparando, setPreparando] = useState(false);
+  const [anotando, setAnotando] = useState(false);
   const lead = leadsById[t.leadId] || null;
   const tipo = tipoTarea(t.tipo);
   const pend = tareaPendiente(t);
@@ -2300,6 +2336,9 @@ function TareaFila({ t, conLead, onEditar }) {
   const wa = lead && lead.telefono && !lead.noContactar ? waLink(lead.telefono, mensaje, cfg) : null;
   const ev = tipo === "reunion" && t.evento && t.evento.id ? t.evento : null;
   const resp = ev && RESPUESTA[ev.respuesta];
+  /* Las demás tareas se pueden anotar en el calendario, para que avise aunque el CRM esté cerrado. */
+  const anotada = tipo !== "reunion" && t.calendario && t.calendario.id ? t.calendario : null;
+  const puedeAnotar = tipo !== "reunion" && pend && !!lead && !t.virtual && canWrite && calListo && !anotada && isKey(t.fecha) && t.fecha >= todayKey() && !tareaVencida(t);
   /* Sin evento unido: si el calendario ya tiene uno de este lead ese día, se une solo; si no, se puede crear. */
   const correo = lead ? String(lead.correo || "").toLowerCase() : "";
   const yaEnCal = !!correo && (cal.eventos || []).some((e) => e.fecha === t.fecha && e.invitados.some((a) => a.correo === correo));
@@ -2319,27 +2358,30 @@ function TareaFila({ t, conLead, onEditar }) {
     else if (puedeCrear) accion = html`<button type="button" class="btn small" onClick=${crear} disabled=${creando} title="Crea el evento con Meet e invita al lead"><${Icon} name="cal" />${creando ? "Creando…" : "Crear en Calendar"}</button>`;
     else if (gcal) accion = html`<a class="btn small" href=${gcal} target="_blank" rel="noopener" title="Abre Google Calendar con el evento lleno"><${Icon} name="cal" />Calendario</a>`;
   }
-  const verEvento = ev && ev.link && pend ? html`<a class="btn small icon" href=${ev.link} target="_blank" rel="noopener" title="Abrir el evento en Google Calendar" aria-label="Abrir el evento en Google Calendar"><${Icon} name="cal" /></a>` : null;
+  const enCal = ev || anotada;
+  const verEvento = enCal && enCal.link && pend ? html`<a class="btn small icon" href=${enCal.link} target="_blank" rel="noopener" title=${ev ? "Abrir el evento en Google Calendar" : "Abrir en Google Calendar"} aria-label=${ev ? "Abrir el evento en Google Calendar" : "Abrir en Google Calendar"}><${Icon} name="cal" /></a>` : null;
   const copiarMsg = mensaje && pend ? html`<button type="button" class="btn small icon" title="Copiar el mensaje" aria-label="Copiar el mensaje" onClick=${async () => toast((await copyText(mensaje)) ? "Mensaje copiado." : "No se pudo copiar.")}><${Icon} name="copy" /></button>` : null;
   const preparar = async () => { setPreparando(true); await prepararReunion(t); setPreparando(false); };
   const botonPreparar = reunionAbierta && canWrite && sampleState.fn && !t.preparacion ? html`<button type="button" class="btn small claude" onClick=${preparar} disabled=${preparando} title="Claude arma el objetivo, la agenda, las preguntas y el cierre"><${Icon} name="spark" />${preparando ? "Preparando…" : "Preparar"}</button>` : null;
   const titulo = t.titulo || accionLabel(tipo);
+  const anotar = async () => { setAnotando(true); await anotarTarea(t, lead); setAnotando(false); };
+  const botonAnotar = puedeAnotar ? html`<button type="button" class="btn small icon" onClick=${anotar} disabled=${anotando} title="Anotar en Google Calendar" aria-label=${"Anotar en Google Calendar: " + titulo}><${Icon} name="calplus" /></button>` : null;
   return html`<div class=${cx("task", t.estado === "hecha" && "done", t.estado === "descartada" && "gone")}>
     <button type="button" class=${cx("tick", t.estado === "hecha" && "on")} disabled=${!pend || !canWrite} title=${pend ? (tipo === "agendar" ? "Agendar la reunión" : tipo === "reunion" ? "¿Se hizo la reunión?" : "Marcar como hecha") : ""} aria-label=${(pend ? "Completar: " : "Hecha: ") + titulo} onClick=${() => completarTarea(t)}><${Icon} name="check" size=${12} /></button>
     <div class="task-main">
       <div class="task-title"><${Icon} name=${TIPO_TAREA[tipo][2]} size=${15} />${onEditar && pend ? html`<button type="button" title="Editar la tarea" onClick=${onEditar}>${titulo}</button>` : html`<span>${titulo}</span>`}</div>
-      <div class="task-meta">${conLead && lead ? html`<button type="button" onClick=${() => openLead(lead.id)}>${leadTitulo(lead)}</button> · ` : null}<span class=${c.tono}>${c.txt}</span>${t.responsable ? " · " + nameOf(t.responsable) : ""}${pend && t.origen === "llamada" ? " · acordado en una llamada" : pend && t.origen === "reunion" ? " · acordado en una reunión" : pend && t.origen === "agenda_web" ? " · agendó por la web" : ""}${pend && ev ? (resp && resp[0] ? html` · <span class=${cx("resp", resp[1])}>${resp[0]}</span>` : " · en Google Calendar") : null}</div>
+      <div class="task-meta">${conLead && lead ? html`<button type="button" onClick=${() => openLead(lead.id)}>${leadTitulo(lead)}</button> · ` : null}<span class=${c.tono}>${c.txt}</span>${t.responsable ? " · " + nameOf(t.responsable) : ""}${pend && t.origen === "llamada" ? " · acordado en una llamada" : pend && t.origen === "reunion" ? " · acordado en una reunión" : pend && t.origen === "agenda_web" ? " · agendó por la web" : ""}${pend && ev ? (resp && resp[0] ? html` · <span class=${cx("resp", resp[1])}>${resp[0]}</span>` : " · en Google Calendar") : null}${pend && anotada ? " · en Google Calendar" : null}</div>
       ${t.nota ? html`<p class="task-nota">${t.nota}</p>` : mensaje && pend ? html`<p class="task-nota msg">${mensaje}</p>` : null}
       ${t.preparacion && pend ? html`<details class="prep"><summary>Preparación de Claude${t.preparada ? " · " + ago(t.preparada) : ""}</summary><p>${t.preparacion}</p>
         ${canWrite && sampleState.fn ? html`<button type="button" class="linkbtn" onClick=${preparar} disabled=${preparando}>${preparando ? "Preparando…" : "Volver a prepararla"}</button>` : null}</details>` : null}
     </div>
-    ${accion || verEvento || copiarMsg || botonPreparar ? html`<div class="task-side">${botonPreparar}${accion}${copiarMsg}${verEvento}</div>` : null}
+    ${accion || verEvento || copiarMsg || botonPreparar || botonAnotar ? html`<div class="task-side">${botonPreparar}${accion}${copiarMsg}${verEvento}${botonAnotar}</div>` : null}
   </div>`;
 }
 
 const TIPOS_EDITABLES = TIPOS_TAREA.filter((x) => x[0] !== "reunion");
 function TareaEditor({ lead, t, onDone }) {
-  const { api, toast, yo, canWrite, moverReunion, recordatorio } = useCtx();
+  const { api, toast, yo, canWrite, moverReunion, recordatorio, calListo, anotarTarea } = useCtx();
   const nueva = !t || !!t.virtual;
   const esReunion = !!t && tipoTarea(t.tipo) === "reunion";
   const [tipo, setTipo] = useState(t ? tipoTarea(t.tipo) : "llamar");
@@ -2349,6 +2391,10 @@ function TareaEditor({ lead, t, onDone }) {
   const [resp, setResp] = useState((t && t.responsable) || lead.responsable || yo || "");
   const [nota, setNota] = useState((t && t.nota) || "");
   const [saving, setSaving] = useState(false);
+  /* Anotar en el calendario: por defecto, si tiene hora. Una ya anotada se cambia allá al guardar. */
+  const [anotar, setAnotar] = useState(null);
+  const anotada = !esReunion && !!(t && t.calendario && t.calendario.id);
+  const conCal = calListo && !esReunion && !anotada && (anotar ?? isHora(hora));
   const hoy = todayKey();
   const quick = [["Hoy", hoy], ["Mañana", addDays(hoy, 1)], ["En 3 días hábiles", addBusinessDays(hoy, 3)], ["En una semana", addDays(hoy, 7)]];
   const guardar = async () => {
@@ -2356,14 +2402,17 @@ function TareaEditor({ lead, t, onDone }) {
     setSaving(true);
     try {
       const data = { tipo, titulo: titulo.trim() || accionLabel(tipo), fecha, hora: isHora(hora) ? hora : "", responsable: resp || null, nota: nota.trim() };
-      if (nueva) await api.createTarea({ leadId: lead.id, ...data, estado: "pendiente", origen: "manual" });
-      else if (esReunion && t.evento && t.evento.id) {
+      if (nueva) {
+        const id = await api.createTarea({ leadId: lead.id, ...data, estado: "pendiente", origen: "manual" });
+        if (conCal) await anotarTarea({ id, leadId: lead.id, ...data }, lead);
+      } else if (esReunion && t.evento && t.evento.id) {
         const { fecha: f, hora: h, ...resto } = data;
         const extra = await moverReunion(t, lead, { fecha: f, hora: h, resumen: resto.titulo !== (t.titulo || "") ? `${resto.titulo} · ${leadTitulo(lead)} y ZH Development` : "" }, resto);
         if (extra) toast(`Reunión ${cuandoTexto(f)}${h ? " a las " + h : ""}.${extra}`, /no confirmó|no movió/.test(extra) ? "bad" : "");
       } else {
         await api.updateTarea(t.id, data);
         if (esReunion) await recordatorio({ ...t, ...data }, lead);
+        else if (anotada ? data.fecha !== t.fecha || data.hora !== (t.hora || "") || data.titulo !== (t.titulo || "") : conCal) await anotarTarea({ ...t, ...data }, lead);
       }
       onDone();
     } catch (e) { toast(dbErrorText(e), "bad"); setSaving(false); }
@@ -2372,7 +2421,7 @@ function TareaEditor({ lead, t, onDone }) {
     setSaving(true);
     try {
       await api.updateTarea(t.id, { estado: "descartada", hecha: nowISO() });
-      toast(esReunion && t.evento && t.evento.id && !tareaVencida(t) ? "Tarea descartada. La reunión sigue en Google Calendar: cancélala allá si ya no va." : "Tarea descartada.");
+      toast(esReunion && t.evento && t.evento.id && !tareaVencida(t) ? "Tarea descartada. La reunión sigue en Google Calendar: cancélala allá si ya no va." : anotada && !tareaVencida(t) ? "Tarea descartada. Sigue anotada en Google Calendar: bórrala allá si ya no va." : "Tarea descartada.");
       onDone();
     } catch (e) { toast(dbErrorText(e), "bad"); setSaving(false); }
   };
@@ -2387,6 +2436,8 @@ function TareaEditor({ lead, t, onDone }) {
     </div>
     <div class="actions">${quick.map(([l, k]) => html`<button type="button" class=${cx("btn small", fecha === k && "on")} onClick=${() => setFecha(k)}>${l}</button>`)}</div>
     <label class="field" for=${idp + "-nota"}><span>Detalle (opcional)</span><textarea id=${idp + "-nota"} class="textarea" rows="2" value=${nota} onInput=${(e) => setNota(e.currentTarget.value)}></textarea></label>
+    ${anotada ? html`<p class="small muted cal-nota"><${Icon} name="cal" size=${14} />Está anotada en Google Calendar: si cambias el día, la hora o el título, se cambia allá.</p>`
+      : !esReunion && calListo ? html`<label class="check"><input type="checkbox" checked=${anotar ?? isHora(hora)} onChange=${(e) => setAnotar(e.currentTarget.checked)} />Anotar en Google Calendar ${isHora(hora) ? "(15 minutos, a esa hora)" : "(todo el día)"}</label>` : null}
     <div class="actions">
       <button type="button" class="btn primary small" onClick=${guardar} disabled=${saving || !canWrite}>${nueva ? "Agregar tarea" : "Guardar"}</button>
       <button type="button" class="btn ghost small" onClick=${onDone}>Cancelar</button>
@@ -2647,7 +2698,7 @@ function CalendarioPanel() {
   const { cal, calCuenta } = useCtx();
   if (cal.estado === "off") return null;
   const t = todayKey();
-  const evs = (cal.eventos || []).filter((e) => e.estado !== "cancelled" && e.fecha >= t && e.fecha <= addDays(t, 7));
+  const evs = (cal.eventos || []).filter((e) => e.estado !== "cancelled" && !esAnotacion(e) && e.fecha >= t && e.fecha <= addDays(t, 7));
   const vista = evs.slice(0, 12);
   const dias = [];
   for (const e of vista) { const g = dias[dias.length - 1]; if (g && g.fecha === e.fecha) g.items.push(e); else dias.push({ fecha: e.fecha, items: [e] }); }
@@ -2965,8 +3016,125 @@ function MetricasView() {
 
 /* ===================================================================== vista: hoy */
 
+/* Vuelve a dibujar cada cierto tiempo y al volver a la pestaña, para lo que depende de la hora. */
+function useReloj(ms) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const i = setInterval(() => setTick((x) => x + 1), ms);
+    const v = () => { if (!document.hidden) setTick((x) => x + 1); };
+    document.addEventListener("visibilitychange", v);
+    return () => { clearInterval(i); document.removeEventListener("visibilitychange", v); };
+  }, [ms]);
+}
+const minDelDia = (hm) => { const [h, m] = String(hm).split(":").map(Number); return h * 60 + m; };
+const minTxt = (n) => (n < 60 ? `${n} min` : `${Math.floor(n / 60)} h${n % 60 ? ` ${n % 60} min` : ""}`);
+/* Una campana corta para los recordatorios. El navegador solo deja sonar después de que la persona
+   tocó la página, así que se prepara con el primer clic o tecla. */
+const sonido = { ctx: null };
+function prepararSonido() {
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!sonido.ctx && AC) sonido.ctx = new AC();
+    if (sonido.ctx && sonido.ctx.state === "suspended") sonido.ctx.resume().catch(() => {});
+  } catch (e) { /* sin audio en esta vista */ }
+}
+function campana() {
+  try {
+    const c = sonido.ctx;
+    if (!c || c.state !== "running") return;
+    [880, 1318.5].forEach((f, i) => {
+      const t = c.currentTime + i * 0.16;
+      const o = c.createOscillator();
+      const g = c.createGain();
+      o.type = "sine";
+      o.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.14, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.6);
+      o.connect(g);
+      g.connect(c.destination);
+      o.start(t);
+      o.stop(t + 0.65);
+    });
+  } catch (e) { /* sin audio en esta vista */ }
+}
+
+/* Recordatorios mientras el CRM está abierto, en cualquier sección: 10 minutos antes de cada
+   reunión y a la hora de cada tarea con hora (las de quien lo abre y las sin responsable). Cada uno
+   sale una vez; «En 10 min» lo vuelve a mostrar después. Se recuerda en este navegador. */
+function Recordatorios({ conFicha }) {
+  const { tareas, leadsById, yo, openLead, cfg } = useCtx();
+  useReloj(20000);
+  const [, setVer] = useState(0);
+  const prev = useRef(null);
+  useEffect(() => {
+    const hoy = todayKey();
+    for (const n of ["avisados", "pospuestos"]) {
+      const w = {};
+      for (const [k, x] of Object.entries(ls.get(n, {}) || {})) if ((k.split("|")[1] || "") >= hoy) w[k] = x;
+      ls.set(n, w);
+    }
+    const f = () => setVer((x) => x + 1);
+    const tocar = () => { if (ls.get("sonidoAvisos", true) !== false) prepararSonido(); };
+    window.addEventListener("zhcrm-avisos", f);
+    window.addEventListener("pointerdown", tocar, { passive: true });
+    window.addEventListener("keydown", tocar);
+    return () => { window.removeEventListener("zhcrm-avisos", f); window.removeEventListener("pointerdown", tocar); window.removeEventListener("keydown", tocar); };
+  }, []);
+  const hoy = todayKey();
+  const ahora = minDelDia(ahoraHM());
+  const vistos = ls.get("avisados", {}) || {};
+  const pospuestos = ls.get("pospuestos", {}) || {};
+  const items = [];
+  if (ls.get("recordatorios", true) !== false) {
+    for (const t of tareas) {
+      if (t.fecha !== hoy || !isHora(t.hora) || !tareaPendiente(t)) continue;
+      const l = leadsById[t.leadId];
+      if (!l || l.noContactar) continue;
+      const reunion = tipoTarea(t.tipo) === "reunion";
+      if (!reunion && yo && t.responsable && t.responsable !== yo) continue;
+      const ini = minDelDia(t.hora);
+      if (ahora < (reunion ? ini - 10 : ini) || ahora >= ini + (reunion ? Number(t.duracion) || DURACION_REUNION : 60)) continue;
+      const k = `${t.id}|${t.fecha}|${t.hora}`;
+      if (vistos[k] || (pospuestos[k] && Date.now() < pospuestos[k])) continue;
+      items.push({ k, t, l, reunion, falta: ini - ahora });
+    }
+  }
+  items.sort((a, b) => a.falta - b.falta);
+  const claves = items.map((x) => x.k).join(",");
+  /* Suena cuando aparece uno nuevo con el CRM ya abierto (al abrirlo, no). */
+  useEffect(() => {
+    const antes = prev.current;
+    prev.current = new Set(items.map((x) => x.k));
+    if (antes && items.some((x) => !antes.has(x.k)) && ls.get("sonidoAvisos", true) !== false) campana();
+  }, [claves]);
+  const marcar = (k) => { const v = ls.get("avisados", {}) || {}; v[k] = Date.now(); ls.set("avisados", v); setVer((x) => x + 1); };
+  const posponer = (k) => { const v = ls.get("pospuestos", {}) || {}; v[k] = Date.now() + 10 * 6e4; ls.set("pospuestos", v); setVer((x) => x + 1); };
+  if (!items.length) return null;
+  return html`<div class=${cx("recs", conFicha && "con-ficha")} role="region" aria-label="Recordatorios" aria-live="polite">${items.slice(0, 3).map(({ k, t, l, reunion, falta }) => {
+    const tipo = tipoTarea(t.tipo);
+    const meet = reunion && t.evento && t.evento.meet ? t.evento.meet : "";
+    const wa = tipo === "whatsapp" && l.telefono ? waLink(l.telefono, t.mensaje || "", cfg) : null;
+    const accion = meet ? html`<a class="btn small primary" href=${meet} target="_blank" rel="noopener" onClick=${() => marcar(k)}><${Icon} name="meet" />Unirse a Meet</a>`
+      : tipo === "llamar" && l.telefono ? html`<button type="button" class="btn small primary" onClick=${() => { marcar(k); openLead(l.id, "llamada"); }}><${Icon} name="phone" />Llamar</button>`
+      : wa ? html`<a class="btn small primary" href=${wa} target="_blank" rel="noopener" onClick=${() => marcar(k)}><${Icon} name="chat" />WhatsApp</a>`
+      : html`<button type="button" class="btn small primary" onClick=${() => { marcar(k); openLead(l.id); }}>Abrir</button>`;
+    const cuando = falta > 0 ? `En ${minTxt(falta)}` : falta === 0 ? "Ahora" : reunion ? `Empezó hace ${minTxt(-falta)}` : `Hace ${minTxt(-falta)}`;
+    return html`<div class="rec" key=${k}>
+      <span class="rec-ico"><${Icon} name=${reunion ? "meet" : TIPO_TAREA[tipo][2]} size=${16} /></span>
+      <div class="rec-main">
+        <p class="rec-cuando">${cuando} · ${t.hora}</p>
+        <p class="rec-titulo">${reunion ? html`Reunión con <b>${leadTitulo(l)}</b>` : html`<b>${t.titulo || accionLabel(tipo)}</b> · ${leadTitulo(l)}`}</p>
+        <div class="actions">${accion}<button type="button" class="btn small ghost" onClick=${() => posponer(k)}>En 10 min</button></div>
+      </div>
+      <button type="button" class="btn small ghost icon" aria-label="Cerrar el recordatorio" onClick=${() => marcar(k)}><${Icon} name="x" /></button>
+    </div>`;
+  })}</div>`;
+}
+
 function HoyView() {
-  const { leads: todos, acts, drafts, openModal, nav, equipo, me, clientes, proyectos, cobros, solicitudes, clientesById, cfg, tareas, tareasPorLead, siguienteDe, leadsById, diasEnEtapa, openLead } = useCtx();
+  const { leads: todos, acts, drafts, openModal, nav, equipo, me, clientes, proyectos, cobros, solicitudes, clientesById, cfg, tareas, tareasPorLead, siguienteDe, leadsById, diasEnEtapa, openLead, openCliente, canWrite } = useCtx();
+  useReloj(60000);
   const [quien, setQuien] = useState(() => { const v = ls.get("respHoy", ""); return respNombre(v) ? v : ""; });
   useEffect(() => ls.set("respHoy", quien), [quien]);
   /* Lo de cada socio, más lo que todavía no tiene responsable. */
@@ -2993,6 +3161,32 @@ function HoyView() {
   const paraHoy = atrasadas.length + deHoy.length;
   const porLlamar = colaLlamadas(todos, tareasPorLead, quien).cola.length;
   const estancados = leads.filter((l) => !l.noContactar && ["reunion_concretada", "propuesta", "negociacion"].includes(etapaDe(l)) && (diasEnEtapa(l) ?? 0) >= DIAS_AVISO).sort((a, b) => diasEnEtapa(b) - diasEnEtapa(a));
+  /* Avisos: lo que conviene ver apenas se abre el CRM. La reunión que viene (o la que está en
+     curso), las invitaciones rechazadas y los pagos vencidos. Las tareas con hora tienen su
+     recordatorio en pantalla y quedan en rojo en Tareas. */
+  const ahoraM = minDelDia(ahoraHM());
+  const avisos = [];
+  for (const x of deHoy) {
+    const l = leadsById[x.leadId];
+    if (!l || x.virtual || !isHora(x.hora) || tipoTarea(x.tipo) !== "reunion") continue;
+    const falta = minDelDia(x.hora) - ahoraM;
+    if (falta > 120 || falta <= -(Number(x.duracion) || DURACION_REUNION)) continue;
+    const meet = x.evento && x.evento.meet;
+    avisos.push({ k: "r-" + x.id, tono: falta <= 15 ? "today" : "", icon: "meet",
+      texto: html`Reunión con <b>${leadTitulo(l)}</b> a las ${x.hora} · ${falta > 0 ? "en " + minTxt(falta) : "en curso"}`,
+      accion: meet ? html`<a class="btn small primary" href=${meet} target="_blank" rel="noopener"><${Icon} name="meet" />Unirse a Meet</a>` : html`<button type="button" class="btn small" onClick=${() => openLead(l.id)}>Abrir</button>` });
+  }
+  for (const x of lista) {
+    const l = leadsById[x.leadId];
+    if (!l || tipoTarea(x.tipo) !== "reunion" || !x.evento || x.evento.respuesta !== "declined" || tareaVencida(x)) continue;
+    avisos.push({ k: "d-" + x.id, tono: "late", icon: "cal", texto: html`<b>${leadTitulo(l)}</b> rechazó la invitación a la reunión del ${fechaTxt(x.fecha, x.hora)}`,
+      accion: canWrite && !l.noContactar ? html`<button type="button" class="btn small" onClick=${() => openModal({ type: "agendar", lead: l })}>Reagendar</button>` : html`<button type="button" class="btn small" onClick=${() => openLead(l.id)}>Abrir</button>` });
+  }
+  for (const x of vencidos.slice(0, 3)) {
+    avisos.push({ k: "c-" + x.id, tono: "late", icon: "coin", texto: html`Pago vencido: <b>${x.concepto || tipoCobroLabel(x.tipo)}</b> · ${clienteName(clientesById[x.clienteId])} · ${money(conIva(x.monto))} con IVA, venció ${cuandoTexto(venceCobro(x, cfg))}`,
+      accion: html`<button type="button" class="btn small" onClick=${() => openCliente(x.clienteId)}>Ver</button>` });
+  }
+  if (vencidos.length > 3) avisos.push({ k: "c-mas", tono: "late", icon: "coin", texto: `Y ${vencidos.length - 3} ${vencidos.length - 3 === 1 ? "pago vencido más" : "pagos vencidos más"}.`, accion: html`<button type="button" class="btn small" onClick=${() => nav("cobros")}>Ver cobros</button>` });
 
   const frase = [];
   if (paraHoy) frase.push(`${paraHoy} ${paraHoy === 1 ? "tarea" : "tareas"} para hoy${atrasadas.length ? ` (${atrasadas.length} ${atrasadas.length === 1 ? "atrasada" : "atrasadas"})` : ""}`);
@@ -3035,6 +3229,10 @@ function HoyView() {
       ${clientes.length ? html`<span class=${cx("stat", !solAbiertas.length && "zero")} role="listitem"><button onClick=${() => nav("soporte")}><b>${solAbiertas.length}</b> solicitudes abiertas</button></span>` : null}
       ${vencidos.length ? html`<span class="stat alert" role="listitem"><button onClick=${() => nav("cobros")}><b>${money(sum(vencidos, (x) => x.monto))}</b> vencido</button></span>` : null}
     </div>`}
+
+    ${avisos.length ? html`<section class="avisos" aria-label="Avisos">${avisos.map((a) => html`<div class=${cx("aviso", a.tono)} key=${a.k}>
+      <span class="aviso-ico"><${Icon} name=${a.icon} size=${15} /></span><p>${a.texto}</p>${a.accion}
+    </div>`)}</section>` : null}
 
     ${sinFirma && leads.length ? html`<div class="note warn"><${Icon} name="info" /><div>Completa tu firma en <button class="btn small ghost" style="min-height:0;padding:0;text-decoration:underline" onClick=${() => nav("ajustes")}>Ajustes</button> para que los correos salgan con tu nombre y teléfono.</div></div>` : null}
 
@@ -4602,10 +4800,11 @@ function SolRow({ s, showCliente }) {
 }
 
 function CobroRow({ x, showCliente }) {
-  const { clientesById, proyectosById, openModal, api, toast, canWrite, cfg } = useCtx();
+  const { clientesById, proyectosById, openModal, api, toast, canWrite, cfg, calListo, anotarCobro, cobroCal } = useCtx();
   const c = clientesById[x.clienteId];
   const p = x.proyectoId ? proyectosById[x.proyectoId] : null;
   const [modo, setModo] = useState("");
+  const [anotando, setAnotando] = useState(false);
   const [factura, setFactura] = useState(x.factura || "");
   const [fecha, setFecha] = useState(todayKey());
   const [vence, setVence] = useState(addDays(todayKey(), plazoPago(cfg)));
@@ -4619,12 +4818,19 @@ function CobroRow({ x, showCliente }) {
   };
   const concepto = x.concepto || tipoCobroLabel(x.tipo);
   const vencido = pagoVencido(x, cfg);
+  /* El día de facturar o el vencimiento, anotado en el calendario (y movido si cambió). */
+  const dc = canWrite && calListo && (x.estado === "por_facturar" || x.estado === "facturado") ? cobroCal(x) : null;
+  const yaCal = dc && x.calendario && x.calendario.id && x.calendario.que === dc.que ? x.calendario : null;
+  const botonCal = !dc || !dc.fecha || dc.fecha < todayKey() ? null
+    : yaCal && yaCal.fecha === dc.fecha ? html`<a class="btn small icon" href=${yaCal.link || "https://calendar.google.com"} target="_blank" rel="noopener" title="Abrir en Google Calendar" aria-label=${"Abrir en Google Calendar: " + concepto}><${Icon} name="cal" /></a>`
+    : html`<button class="btn small icon" title=${yaCal ? "Cambiar en Google Calendar" : "Anotar en Google Calendar"} aria-label=${(yaCal ? "Cambiar en Google Calendar: " : "Anotar en Google Calendar: ") + concepto} disabled=${anotando} onClick=${async () => { setAnotando(true); await anotarCobro(x); setAnotando(false); }}><${Icon} name="calplus" /></button>`;
   return html`<div class="irow">
     <span class=${cx("irow-ico", vencido && "bad", x.estado === "pagado" && "ok")}><${Icon} name=${x.tipo === "mensualidad" ? "repeat" : "coin"} /></span>
     <button class="irow-main" onClick=${() => openModal({ type: "cobro", id: x.id })}><b>${concepto}</b><span>${[showCliente ? clienteName(c) : "", p ? p.nombre : "", x.factura ? "Factura " + x.factura : ""].filter(Boolean).join(" · ") || tipoCobroLabel(x.tipo)}</span></button>
     <div class="irow-side">
       <${Amount} n=${x.monto} />
       <${CobroTag} x=${x} />
+      ${botonCal}
       ${canWrite && x.estado === "por_facturar" ? html`<button class="btn small" onClick=${() => setModo(modo === "facturar" ? "" : "facturar")}>Facturar</button>` : null}
       ${canWrite && x.estado === "facturado" ? html`<button class="btn small" onClick=${() => setModo(modo === "pagar" ? "" : "pagar")}>Registrar pago</button>` : null}
       ${canWrite && x.estado === "facturado" && venceCobro(x, cfg) && venceCobro(x, cfg) <= addDays(todayKey(), 3) ? html`<button class="btn small claude" title="Redactar recordatorio de pago" onClick=${() => openModal({ type: "composeCliente", clienteId: x.clienteId, preset: { objetivo: "cobro", cobroId: x.id, proyectoId: x.proyectoId || "", canal: "correo" } })}><${Icon} name="spark" />Recordar</button>` : null}
@@ -5225,10 +5431,30 @@ function ProyectosView() {
 }
 
 function HitosEditor({ p, save, canWrite }) {
+  const { calListo, anotarEnCalendario, clientesById, toast } = useCtx();
   const hs = hitosDe(p);
   const [nuevo, setNuevo] = useState("");
   const [fecha, setFecha] = useState("");
+  const [anotando, setAnotando] = useState("");
   const upd = (i, patch) => save({ hitos: hs.map((h, j) => (j === i ? { ...h, ...patch } : h)) });
+  /* Un hito en el calendario: todo el día, invitando a quien lleva el proyecto. */
+  const anotar = async (h, i) => {
+    setAnotando(h.id || String(i));
+    const c = clientesById[p.clienteId];
+    const previo = h.calendario && h.calendario.id ? h.calendario : null;
+    try {
+      const r = await anotarEnCalendario({ titulo: `Hito: ${h.nombre} · ${p.nombre}`, fecha: h.fecha, hora: "", responsable: p.responsable || "", detalle: `Proyecto ${p.nombre}${c ? " de " + clienteName(c) : ""}.` }, previo);
+      await upd(i, { calendario: r });
+      toast(`${previo ? "Se cambió" : "Quedó anotado"} en Google Calendar: ${h.nombre}, ${cuandoTexto(h.fecha)}.`);
+    } catch (e) { toast(calAnotarTexto(e), "bad"); }
+    setAnotando("");
+  };
+  const calDe = (h, i) => {
+    if (!canWrite || !calListo || h.hecho || !isKey(h.fecha) || h.fecha < todayKey()) return html`<span></span>`;
+    const ya = h.calendario && h.calendario.id ? h.calendario : null;
+    if (ya && ya.fecha === h.fecha) return html`<a class="btn small ghost icon" href=${ya.link || "https://calendar.google.com"} target="_blank" rel="noopener" title="Abrir en Google Calendar" aria-label=${"Abrir en Google Calendar: " + (h.nombre || "hito")}><${Icon} name="cal" /></a>`;
+    return html`<button class="btn small ghost icon" title=${ya ? "Cambiar en Google Calendar" : "Anotar en Google Calendar"} aria-label=${(ya ? "Cambiar en Google Calendar: " : "Anotar en Google Calendar: ") + (h.nombre || "hito")} disabled=${!!anotando} onClick=${() => anotar(h, i)}><${Icon} name="calplus" /></button>`;
+  };
   const add = (nombre, f) => { const n = String(nombre || "").trim(); if (!n) return; save({ hitos: [...hs, { id: newId("hito"), nombre: n, fecha: f || "", hecho: false }] }); };
   const sugeridos = ["Levantamiento validado", "Diseño aprobado por el cliente", "Entrega parcial", "Pruebas con usuarios reales", "Puesta en producción"];
   return html`<div class="hitos">
@@ -5236,13 +5462,14 @@ function HitosEditor({ p, save, canWrite }) {
       <input type="checkbox" aria-label=${"Hito listo: " + (h.nombre || "")} checked=${!!h.hecho} disabled=${!canWrite} onChange=${(e) => upd(i, { hecho: e.currentTarget.checked, fechaHecho: e.currentTarget.checked ? todayKey() : null })} />
       <${InlineInput} aria-label="Nombre del hito" value=${h.nombre} disabled=${!canWrite} onCommit=${(v) => v && upd(i, { nombre: v })} />
       <input class="input" type="date" aria-label=${"Fecha del hito " + (h.nombre || "")} value=${h.fecha || ""} disabled=${!canWrite} onChange=${(e) => upd(i, { fecha: e.currentTarget.value })} />
+      ${calDe(h, i)}
       <button class="btn small ghost icon" aria-label=${"Quitar el hito " + (h.nombre || "")} onClick=${() => save({ hitos: hs.filter((_, j) => j !== i) })} disabled=${!canWrite}><${Icon} name="x" /></button>
     </div>`)}
     ${canWrite ? html`<div class="hito">
       <span class="irow-ico" style="width:18px;height:18px;background:none"><${Icon} name="plus" /></span>
       <input id="hito-nuevo" class="input" placeholder="Nuevo hito (ej.: Diseño aprobado)" value=${nuevo} onInput=${(e) => setNuevo(e.currentTarget.value)} onKeyDown=${(e) => { if (e.key === "Enter") { add(nuevo, fecha); setNuevo(""); setFecha(""); } }} />
       <input class="input" type="date" aria-label="Fecha del nuevo hito" value=${fecha} onInput=${(e) => setFecha(e.currentTarget.value)} />
-      <button class="btn small" onClick=${() => { add(nuevo, fecha); setNuevo(""); setFecha(""); }} disabled=${!nuevo.trim()}>Agregar</button>
+      <button class="btn small" style="grid-column:span 2" onClick=${() => { add(nuevo, fecha); setNuevo(""); setFecha(""); }} disabled=${!nuevo.trim()}>Agregar</button>
     </div>` : null}
     ${!hs.length && canWrite ? html`<div class="actions"><span class="small muted">Sugeridos:</span>${sugeridos.map((n) => html`<button class="btn small" key=${n} onClick=${() => add(n, "")}>${n}</button>`)}</div>` : null}
   </div>`;
@@ -6388,8 +6615,9 @@ function ReunionHechaModal({ lead: lead0, tarea }) {
 /* No contestó: queda el intento y cuándo volver a intentarlo, sin abrir la ficha. Después de
    varios intentos se puede cerrar como perdido por «No responde». */
 function NoContestoModal({ lead }) {
-  const { api, closeModal, toast, tareasPorLead, me, yo, cerrarTareasDe, sampleState, redactarTareas } = useCtx();
+  const { api, closeModal, toast, tareasPorLead, me, yo, cerrarTareasDe, sampleState, redactarTareas, calListo, anotarTarea } = useCtx();
   const [conClaude, setConClaude] = useState(true);
+  const [anotar, setAnotar] = useState(true);
   const n = (lead.intentos || 0) + 1;
   const cuando = (c) => {
     const t = todayKey();
@@ -6420,10 +6648,12 @@ function NoContestoModal({ lead }) {
       const pend = tareasPorLead[lead.id] || [];
       for (const x of pend) if (tipoTarea(x.tipo) === "llamar" && x.fecha <= todayKey()) await api.updateTarea(x.id, { estado: "hecha", hecha: nowISO(), hechaPor: me.id || null, actividadId: actId });
       await api.updateLead(lead.id, { ultimoIntento: nowISO(), intentos: n, ...(!pend.length && tareaDeProxima(lead) ? { proxima: null } : {}) });
-      const tid = await api.createTarea({ leadId: lead.id, tipo: canal, titulo: canal === "whatsapp" ? `No contesta (${veces}): escribirle por WhatsApp` : `Volver a llamar (${veces})`, fecha, hora: hora || "", responsable: lead.responsable || yo || null, estado: "pendiente", origen: "no_contesto", actividadId: actId });
+      const nuevaT = { leadId: lead.id, tipo: canal, titulo: canal === "whatsapp" ? `No contesta (${veces}): escribirle por WhatsApp` : `Volver a llamar (${veces})`, fecha, hora: hora || "", responsable: lead.responsable || yo || null, estado: "pendiente", origen: "no_contesto", actividadId: actId };
+      const tid = await api.createTarea(nuevaT);
+      const enCal = anotar && calListo && isHora(hora) ? await anotarTarea({ id: tid, ...nuevaT }, lead, true) : false;
       const redacta = canal === "whatsapp" && conClaude && sampleState.fn && lead.telefono && !lead.noContactar;
       if (redacta) redactarTareas(lead, [{ tipo: "whatsapp", que: "Escribirle porque no contestó la llamada", tareaId: tid, objetivo: "seguimiento", instrucciones: `Lo llamamos y no contestó (${veces}). Escríbele un WhatsApp breve: quién eres, por qué lo llamaste en una frase (con lo que sabemos de su negocio) y pregunta cuándo le acomoda conversar 10 minutos. Si su guion trae el WhatsApp para cuando no contesta, úsalo de base. Sin presionar ni reprochar.` }]);
-      toast(`${leadTitulo(lead)}: ${canal === "whatsapp" ? "escribirle por WhatsApp" : "volver a llamar"} ${cuandoTexto(fecha)}${hora ? " a las " + hora : ""}.${redacta ? " Claude está redactando el WhatsApp." : ""}`);
+      toast(`${leadTitulo(lead)}: ${canal === "whatsapp" ? "escribirle por WhatsApp" : "volver a llamar"} ${cuandoTexto(fecha)}${hora ? " a las " + hora : ""}.${enCal ? " Quedó anotado en Google Calendar." : ""}${redacta ? " Claude está redactando el WhatsApp." : ""}`);
       closeModal();
     } catch (e) { toast(dbErrorText(e), "bad"); setSaving(false); }
   };
@@ -6447,6 +6677,7 @@ function NoContestoModal({ lead }) {
         <label class="field" for="nc-fecha"><span>Día</span><input id="nc-fecha" class="input" type="date" value=${fecha} onInput=${(e) => { setRel(""); setFecha(e.currentTarget.value); }} /></label>
         <label class="field" for="nc-hora"><span>Hora (opcional)</span><input id="nc-hora" class="input" type="time" value=${hora} onInput=${(e) => { setRel(""); setHora(e.currentTarget.value); }} /></label>
       </div>
+      ${calListo && isHora(hora) ? html`<label class="check"><input type="checkbox" checked=${anotar} onChange=${(e) => setAnotar(e.currentTarget.checked)} />Anotar en Google Calendar, para que avise a esa hora</label>` : null}
       <div class="field"><span>Entonces</span><${Seg} label="Próxima acción" value=${canal} onChange=${setCanal} options=${[["llamar", "Volver a llamar", "phone"], ["whatsapp", "Escribirle por WhatsApp", "chat"]]} />
         ${canal === "whatsapp" && sampleState.fn ? html`<label class="check"><input type="checkbox" checked=${conClaude} onChange=${(e) => setConClaude(e.currentTarget.checked)} />Claude redacta el WhatsApp (queda en Borradores, unido a la tarea, para que lo revises)</label>` : null}</div>
       <label class="field" for="nc-nota"><span>Nota (opcional)</span><input id="nc-nota" class="input" value=${nota} onInput=${(e) => setNota(e.currentTarget.value)} placeholder="Ej.: contestó la secretaria, que llame después de las 15" /></label>
@@ -6504,6 +6735,10 @@ function AjustesView() {
   const [cc, setCc] = useState({ garantiaDias: String(cfg.garantiaDias || 60), plazoPago: String(cfg.plazoPago || 30) });
   const metaTxt = (k) => ((cfg.metas || {})[k] ? String(cfg.metas[k]) : "");
   const [metas, setMetas] = useState({ llamadas: metaTxt("llamadas"), reuniones: metaTxt("reuniones") });
+  /* Los avisos son de cada navegador: no se guardan en la base. */
+  const [recOn, setRecOn] = useState(() => ls.get("recordatorios", true) !== false);
+  const [sonOn, setSonOn] = useState(() => ls.get("sonidoAvisos", true) !== false);
+  const cambiarAviso = (k, v, set) => { ls.set(k, v); set(v); window.dispatchEvent(new Event("zhcrm-avisos")); };
   useEffect(() => { setMetas({ llamadas: metaTxt("llamadas"), reuniones: metaTxt("reuniones") }); }, [metaTxt("llamadas"), metaTxt("reuniones")]);
   const guardarMetas = async () => {
     const n = (v) => { const x = Number(String(v).replace(/\D/g, "")); return x > 0 ? x : 0; };
@@ -6581,6 +6816,13 @@ function AjustesView() {
             <div class="field"><span>Dónde se ven</span><p class="small" style="padding-top:8px">En Hoy, «Esta semana», de lunes a domingo. Para el equipo se suman las de los dos.</p></div>
           </div>
           <div class="actions"><button class="btn primary" onClick=${guardarMetas} disabled=${!canWrite}>Guardar metas</button></div>
+        </div></section>
+
+      <section class="panel" aria-label="Avisos"><div class="panel-head"><h2>Avisos</h2><span class="eyebrow">En este navegador</span></div>
+        <div class="panel-body avisos-aj">
+          <label class="switch"><input type="checkbox" checked=${recOn} onChange=${(e) => cambiarAviso("recordatorios", e.currentTarget.checked, setRecOn)} />Recordatorios en pantalla: 10 minutos antes de cada reunión y a la hora de las tareas con hora</label>
+          <label class="switch"><input type="checkbox" checked=${sonOn} disabled=${!recOn} onChange=${(e) => { cambiarAviso("sonidoAvisos", e.currentTarget.checked, setSonOn); if (e.currentTarget.checked) { prepararSonido(); setTimeout(campana, 60); } }} />Con sonido</label>
+          <p class="small muted">Salen mientras el CRM está abierto, en cualquier sección. Para que el teléfono te avise aunque el CRM esté cerrado, anota la tarea en Google Calendar con el botón del calendario (en cada tarea, cobro o hito): queda en el calendario de ${calCuenta} y se invita a quien la lleva, con el correo de su firma.</p>
         </div></section>
 
       <section class="panel"><div class="panel-head"><h2>Google Calendar</h2><span class="eyebrow">${calCuenta}</span></div>
@@ -6881,11 +7123,13 @@ function App() {
      reunión no se borra solo: el aviso que devuelve lo recuerda. */
   const cerrarTareasDe = useCallback(async (leadId) => {
     let enCal = 0;
+    let anotadas = 0;
     for (const t of tareasPorLead[leadId] || []) {
       await wrapApi.updateTarea(t.id, { estado: "descartada", hecha: nowISO(), hechaPor: meRef.current.id || null });
       if (tipoTarea(t.tipo) === "reunion" && t.evento && t.evento.id && !tareaVencida(t)) enCal += 1;
+      else if (t.calendario && t.calendario.id && !tareaVencida(t)) anotadas += 1;
     }
-    return enCal ? " La reunión sigue en Google Calendar: cancélala allá si ya no va." : "";
+    return (enCal ? " La reunión sigue en Google Calendar: cancélala allá si ya no va." : "") + (anotadas ? " Lo anotado en Google Calendar sigue allá: bórralo si ya no va." : "");
   }, [wrapApi, tareasPorLead]);
 
   /* Redacta, uno tras otro, los correos y WhatsApp de las tareas (lo acordado en una llamada o la
@@ -7034,6 +7278,83 @@ function App() {
     await recordatorio({ ...t, fecha: d.fecha, hora: d.hora || "", ...(evento ? { evento } : {}) }, lead);
     return ev ? " También se movió en Google Calendar." : aviso;
   }, [wrapApi, calListo, escribirEvento, recordatorio]);
+
+  /* El correo de un socio (el de su firma en Ajustes), para invitarlo a lo que se anota. */
+  const correoDeSocio = useCallback((r) => {
+    if (!r) return "";
+    const e = String(r).startsWith("u_") ? equipo[r] : Object.values(equipo).find((x) => x && respDeNombre(x.nombre) === r);
+    return e && isEmail(e.correo) ? String(e.correo).trim().toLowerCase() : "";
+  }, [equipo]);
+  /* Anota algo en el calendario de la cuenta: con hora, 15 minutos; sin hora, todo el día y sin
+     ocupar la agenda. Invita, sin mandar correo, al socio que lo lleva, para que su calendario le
+     avise. Con «previo» lo mueve; si pasa de tener hora a no tenerla (o al revés), lo anota de nuevo.
+     Una falla sin respuesta clara no se repite sola. */
+  const anotarEnCalendario = useCallback(async (d, previo) => {
+    if (!mcp || !calListo) throw { code: "not_granted" };
+    const conHora = isHora(d.hora);
+    const tiempos = conHora
+      ? { startTime: `${d.fecha}T${d.hora}:00`, endTime: `${d.fecha}T${sumarMin(d.hora, d.duracion || DURACION_TAREA)}:00` }
+      : { startTime: `${d.fecha}T00:00:00`, endTime: `${addDays(d.fecha, 1)}T00:00:00`, allDay: true };
+    const mover = !!(previo && previo.id) && isHora(previo.hora) === conHora;
+    let res;
+    if (mover) res = await mcp.callTool(GCAL, "update_event", clean({ calendarId: calCuenta, eventId: previo.id, summary: d.titulo, ...tiempos, timeZone: TZ, notificationLevel: "NONE" }));
+    else {
+      const correo = correoDeSocio(d.responsable);
+      res = await mcp.callTool(GCAL, "create_event", clean({ calendarId: calCuenta, summary: d.titulo, description: [d.detalle, MARCA_CAL].filter(Boolean).join("\n\n"), ...tiempos, timeZone: TZ, availability: conHora ? undefined : "AVAILABILITY_FREE", attendees: correo && correo !== calCuenta ? [{ email: correo }] : undefined, notificationLevel: "NONE" }));
+    }
+    invalidarCal();
+    const e = eventoDePayload(res && res.payload);
+    const id = e && idEventoOk(e.id) ? e.id : mover ? previo.id : "";
+    if (!id) throw { code: "formato" };
+    return { id, link: httpsOk(e && e.htmlLink) || (mover && previo.link) || "", fecha: d.fecha, hora: conHora ? d.hora : "" };
+  }, [mcp, calListo, calCuenta, correoDeSocio, invalidarCal]);
+  /* Una tarea en el calendario: «Llamar a Pablo · Logística Integral», con la persona, el teléfono
+     y el detalle. */
+  const datosTareaCal = (t, lead) => ({
+    titulo: `${t.titulo || accionLabel(tipoTarea(t.tipo))} · ${leadTitulo(lead)}`,
+    fecha: t.fecha, hora: isHora(t.hora) ? t.hora : "", responsable: t.responsable || lead.responsable || "",
+    detalle: [[lead.nombre, lead.empresa].filter(Boolean).join(" · "), lead.telefono && !lead.noContactar ? "Teléfono: " + fmtPhone(lead.telefono) : "", t.nota ? clip(t.nota, 600) : ""].filter(Boolean).join("\n"),
+  });
+  /* «Anotar en Google Calendar» en una tarea (o al guardarla con la casilla marcada). Si ya estaba
+     anotada y cambió el día, la hora o el título, mueve el evento. Con «silencio» no avisa si sale bien. */
+  const anotarTarea = useCallback(async (t, lead0, silencio) => {
+    const lead = lead0 || leadsById[t.leadId];
+    if (!wrapApi || !lead || !t || !t.id || t.virtual || !isKey(t.fecha)) return false;
+    const previo = t.calendario && t.calendario.id ? t.calendario : null;
+    if (!calListo) { if (previo) toast("Cámbiala también en Google Calendar: desde esta vista no se puede.", "bad"); return false; }
+    try {
+      const c = await anotarEnCalendario(datosTareaCal(t, lead), previo);
+      await wrapApi.updateTarea(t.id, { calendario: c });
+      const cuando = `${cuandoTexto(t.fecha)}${isHora(t.hora) ? " a las " + t.hora : ""}`;
+      const que = t.titulo || accionLabel(tipoTarea(t.tipo));
+      if (!silencio) toast(previo && previo.id === c.id ? `También se cambió en Google Calendar: ${que}, ${cuando}.` : previo ? `Quedó anotada de nuevo en Google Calendar (${cuando}): borra allá la anterior.` : `Anotada en Google Calendar: ${que}, ${cuando}.`);
+      return true;
+    } catch (e) { toast(calAnotarTexto(e), "bad"); return false; }
+  }, [wrapApi, leadsById, calListo, anotarEnCalendario, toast]);
+  /* Un cobro en el calendario: el día de facturarlo o, ya facturado, su vencimiento. */
+  const cobroCal = useCallback((x) => {
+    const c = clientesById[x.clienteId];
+    const p = x.proyectoId ? proyectosById[x.proyectoId] : null;
+    const concepto = x.concepto || tipoCobroLabel(x.tipo);
+    const vence = x.estado === "facturado";
+    const fecha = vence ? venceCobro(x, cfg) : x.estado === "por_facturar" ? x.fecha : "";
+    return {
+      que: vence ? "vence" : "facturar", fecha: isKey(fecha) ? fecha : "", hora: "", responsable: (p && p.responsable) || (c && c.responsable) || "",
+      titulo: vence ? `Vence la factura${x.factura ? " " + x.factura : ""}: ${concepto} · ${clienteName(c)}` : `Facturar: ${concepto} · ${clienteName(c)}`,
+      detalle: [`${money(x.monto)} + IVA (${money(conIva(x.monto))} con IVA)`, p ? "Proyecto: " + p.nombre : ""].filter(Boolean).join("\n"),
+    };
+  }, [clientesById, proyectosById, cfg]);
+  const anotarCobro = useCallback(async (x) => {
+    const d = cobroCal(x);
+    if (!wrapApi || !d.fecha) return false;
+    const previo = x.calendario && x.calendario.id && x.calendario.que === d.que ? x.calendario : null;
+    try {
+      const c = await anotarEnCalendario(d, previo);
+      await wrapApi.updateCobro(x.id, { calendario: { ...c, que: d.que } });
+      toast(`${previo ? "Se cambió" : "Quedó anotado"} en Google Calendar: ${d.titulo}, ${cuandoTexto(d.fecha)}.`);
+      return true;
+    } catch (e) { toast(calAnotarTexto(e), "bad"); return false; }
+  }, [wrapApi, cobroCal, anotarEnCalendario, toast]);
 
   /* «Preparar con Claude»: objetivo, agenda, preguntas, señales, riesgos y cierre, guardados en la
      tarea de la reunión. */
@@ -7334,7 +7655,7 @@ function App() {
       if (isPhone(l.telefono) && !porTel[l.telefono]) porTel[l.telefono] = l;
     }
     for (const ev of c.eventos) {
-      if (ev.todoElDia || !ev.hora || ev.estado === "cancelled") continue;
+      if (ev.todoElDia || !ev.hora || ev.estado === "cancelled" || esAnotacion(ev)) continue;
       const reg = reg0[ev.id];
       if (reg) {
         const lead = lb[reg.leadId];
@@ -7382,6 +7703,7 @@ function App() {
     db, api: wrapApi, me, yo, leads: leads || [], leadsById, acts, drafts, equipo, cfg, sampleState, setSampleState, downloads, toast, nameOf, team, redactarTareas,
     tareas: tareas || [], tareasPorLead, siguienteDe, completarTarea, marcarTarea, agendarReunion, moverEtapa, cerrarTareasDe,
     cal, calCuenta, calListo, equipoCorreos, registro: registro || {}, leadDeEvento, permitirCalendario, refrescarCalendario, abrirPermisos, moverReunion, crearEventoDeReunion, recordatorio, prepararReunion,
+    anotarEnCalendario, anotarTarea, anotarCobro, cobroCal,
     assets, subirArchivo, borrarArchivo, guardarPropuesta, diasEnEtapa,
     clientes: clientes || [], clientesById, proyectos: proyectos || [], proyectosById, cobros: cobros || [], mantenciones: mantenciones || [], solicitudes: solicitudes || [],
     openLead, openCliente, openProyecto, openDraft, openModal, closeModal, nav, changeStage, moveProyecto, moverCliente, canWrite, profileName: me.name,
@@ -7465,6 +7787,7 @@ function App() {
       ${modal.type === "mantencion" ? html`<${MantencionModal} id=${modal.id} clienteId=${modal.clienteId} />` : null}
       ${modal.type === "composeCliente" ? html`<${ComposeClienteModal} clienteId=${modal.clienteId} preset=${modal.preset} />` : null}
     </${Boundary}>` : null}
+    ${wrapApi ? html`<${Recordatorios} conFicha=${!!drawer} />` : null}
     <div class=${cx("toasts", modal && "raised")} aria-live="polite">${toasts.map((t) => html`<div key=${t.id} class=${cx("toast", t.tone === "bad" && "bad")}><span>${t.msg}</span><span class="toast-acts">${t.accion ? html`<button onClick=${() => { setToasts((x) => x.filter((y) => y.id !== t.id)); t.accion.fn(); }}>${t.accion.label}</button>` : null}<button aria-label="Cerrar aviso" onClick=${() => setToasts((x) => x.filter((y) => y.id !== t.id))}>OK</button></span></div>`)}</div>
   </${Ctx.Provider}>`;
 }

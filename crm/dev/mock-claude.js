@@ -21,6 +21,9 @@
 
   const seed = window.__MOCK_SEED || {};
   for (const [p, d] of Object.entries(seed)) store.set(p, clone(d));
+  /* Los recordatorios en pantalla dependen de la hora: apagados, salvo que la prueba los pida con
+     window.__MOCK_RECORDATORIOS = true. */
+  try { if (!window.__MOCK_RECORDATORIOS) localStorage.setItem("zhcrm:recordatorios", "false"); } catch (e) { /* sin almacenamiento */ }
 
   function assertJson(v, path) {
     if (v === undefined) throw { code: "invalid_argument", message: "undefined en " + path };
@@ -328,14 +331,17 @@
       else if (!aprobado) w.handler({ type: "error", error: falla("approval_required") });
       else w.handler({ type: "data", result: { content: [], payload: lista() } });
     }, 30);
+    /* Con «allDay», el evento es de día completo: start y end con «date» (el fin es el día siguiente). */
+    const tiempo = (s, input) => (input.allDay ? { date: String(s).slice(0, 10) } : { dateTime: conZona(s), timeZone: input.timeZone || "America/Santiago" });
     const crear = (input) => {
       const id = "ev" + Math.random().toString(36).slice(2, 12);
       const ahora = new Date().toISOString();
       const meet = "https://meet.google.com/abc-" + id.slice(2, 6) + "-xyz";
       const ev = {
         id, summary: input.summary, description: input.description || "", status: "confirmed", eventType: "DEFAULT",
-        start: { dateTime: conZona(input.startTime), timeZone: input.timeZone || "America/Santiago" },
-        end: { dateTime: conZona(input.endTime), timeZone: input.timeZone || "America/Santiago" },
+        start: tiempo(input.startTime, input),
+        end: tiempo(input.endTime, input),
+        ...(input.availability === "AVAILABILITY_FREE" ? { transparency: "transparent" } : {}),
         attendees: [{ email: cuenta, organizer: true, self: true, responseStatus: "accepted" }, ...(input.attendees || []).map((a) => ({ email: a.email, ...(a.displayName ? { displayName: a.displayName } : {}), responseStatus: "needsAction" }))],
         organizer: { email: cuenta, self: true }, creator: { email: cuenta, self: true },
         htmlLink: "https://www.google.com/calendar/event?eid=" + id,
@@ -375,8 +381,8 @@
         const ev = (mcpCfg.eventos || []).find((e) => e.id === input.eventId);
         if (!ev) throw falla("tool_error", "Not Found");
         if (mcpCfg.fallaMover) throw falla(mcpCfg.fallaMover);
-        if (input.startTime) ev.start = { dateTime: conZona(input.startTime), timeZone: input.timeZone || "America/Santiago" };
-        if (input.endTime) ev.end = { dateTime: conZona(input.endTime), timeZone: input.timeZone || "America/Santiago" };
+        if (input.startTime) ev.start = tiempo(input.startTime, input);
+        if (input.endTime) ev.end = tiempo(input.endTime, input);
         if (input.summary) ev.summary = input.summary;
         ev.updated = new Date().toISOString();
         return { content: [], payload: clone(ev) };

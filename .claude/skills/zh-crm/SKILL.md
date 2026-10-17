@@ -67,7 +67,8 @@ con `tipo` = `llamar`, `whatsapp`, `correo`, `agendar` (coordinar el día de una
 `whatsapp` puede llevar `mensaje` (el texto listo para enviar). Toda tarea
 lleva día; `titulo` corto, empezando con un verbo; el detalle interno va en `nota`. Una `reunion`
 unida a Google Calendar lleva `evento: {id, link, meet, respuesta, actualizado, propio,
-organizador}` (ver «Google Calendar»).
+organizador}`; cualquier otra tarea anotada en el calendario lleva `calendario: {id, link, fecha,
+hora}` (ver «Google Calendar»).
 
 - La primera pendiente (por día y hora) es la **próxima acción**: cópiala en el lead como
   `proxima: {tipo, fecha, hora, nota: <titulo>, tareaId}` (si no lo haces, la página lo hace sola
@@ -195,6 +196,16 @@ Google Calendar en la conversación:
    updated, actualizado}`.
 Para mover una reunión unida a un evento de la cuenta, `update_event` con `eventId`, `startTime` y
 `endTime`, y actualiza la tarea.
+
+**Anotar en el calendario** (una tarea que no es reunión, el vencimiento de un cobro o un hito),
+solo si el socio lo pide: `create_event` en la cuenta con `summary` = «<titulo> · <empresa>» (en
+cobros, «Vence la factura N: <concepto> · <cliente>»; en hitos, «Hito: <nombre> · <proyecto>»), con
+hora 15 minutos o, sin hora, `allDay: true` (de 00:00 al día siguiente) y `availability:
+"AVAILABILITY_FREE"`; `attendees` = solo el socio que lo lleva (el `correo` de su firma en
+`equipo`), `notificationLevel: "NONE"`, y la descripción termina con la línea «Anotado desde el
+CRM de ZH Development.» (así la página no lo toma por una reunión). Guarda en el documento
+`calendario: {id, link: htmlLink, fecha, hora}` (en cobros, más `que: "facturar" | "vence"`; en un
+hito, dentro de su objeto en `hitos`). No los registres en `eventos/` ni los unas a un lead.
 
 **Recordatorio de la reunión:** si el lead tiene teléfono y queda al menos un día hábil antes, la
 página deja una tarea `whatsapp` con id `tar-rec-<id de la reunión>`, `origen: "recordatorio"`,
