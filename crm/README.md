@@ -35,6 +35,13 @@ revisarlos antes de enviarlos.
 (nuevo lead, importar, ir a una sección), por palabras sueltas, sin tildes o por los dígitos del
 teléfono. Las flechas eligen y Enter abre; sin texto, muestra los leads con algo para hoy.
 
+**Menús desplegables:** los filtros y las listas para elegir (etapa, responsable, orden, cliente…)
+abren un menú con el diseño del CRM y no el del sistema: el título en los filtros, la marca en lo
+elegido, el color de cada etapa, la inicial de cada socio y, en las listas de 12 opciones o más, un
+buscador. Se usan con el mouse (también apretando, deslizando y soltando) o con el teclado:
+flechas, Enter, Escape o las primeras letras. Un clic afuera solo cierra el menú. En el teléfono
+queda el selector del sistema, que ahí es más cómodo.
+
 **Ficha del lead** (se abre al tocar un lead): arriba, la empresa, la persona, la etapa y quién lo
 lleva; teléfono y correo con copiar, llamar y WhatsApp; **la propuesta**, si se envió (ver
 «Propuestas, estancados, metas y archivos»); **las tareas** (ver «Tareas y flujo automático»); el
@@ -507,6 +514,7 @@ NODE_PATH=$(npm root -g) node crm/dev/tareas.cjs    # tareas y flujo automático
 NODE_PATH=$(npm root -g) node crm/dev/calendario.cjs # Google Calendar: unir eventos con leads, reservas de la web, mover, invitaciones, crear y mover eventos, permisos
 NODE_PATH=$(npm root -g) node crm/dev/mejoras.cjs   # buscar, llamar en serie, horarios libres, recordatorio, preparar con Claude, métricas, selección múltiple
 NODE_PATH=$(npm root -g) node crm/dev/seguimiento.cjs # propuesta enviada, días en la etapa y estancados, archivos, metas, WhatsApp de «No contestó» y resumen con Claude
+NODE_PATH=$(npm root -g) node crm/dev/menus.cjs     # menús desplegables: mouse, teclado, buscador, Escape y clic afuera, tarjetas, ventanas, teléfono y oscuro
 NODE_PATH=$(npm root -g) node crm/dev/avisos.cjs    # avisos de Hoy, recordatorios en pantalla, anotar en Google Calendar tareas, cobros e hitos, y qué hacer según cómo salió la llamada
 ```
 
