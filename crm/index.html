@@ -245,6 +245,8 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing:
 .input:focus, .select:focus, .textarea:focus { outline: 2px solid var(--focus); outline-offset: -1px; border-color: transparent; }
 .input[disabled], .select[disabled], .textarea[disabled] { opacity: 0.6; }
 .input.mono { font-family: var(--font-mono); font-size: 14px; }
+.input[type=file] { padding: 5px 6px; color: var(--fg-2); font-size: 13.5px; cursor: pointer; }
+.input[type=file]::file-selector-button { margin-right: 10px; padding: 5px 12px; border: 1px solid var(--line-2); border-radius: 999px; background: var(--surface-2); color: var(--fg); font: inherit; font-weight: 500; cursor: pointer; }
 .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 14px; align-items: start; }
 .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 14px; align-items: start; }
 .span-2 { grid-column: 1 / -1; }
@@ -787,6 +789,39 @@ kbd { display: inline-grid; place-items: center; min-width: 20px; height: 20px; 
 .mbar { display: block; height: 8px; justify-self: end; border-radius: 4px 0 0 4px; background: var(--accent); min-width: 0; }
 .cargando-suave .kpi > b, .cargando-suave .mtabla { opacity: 0.6; }
 
+/* ---------- metas y resumen ---------- */
+.semana { display: grid; gap: 14px; }
+.meta { display: grid; gap: 5px; }
+.meta-top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; font-size: 14px; color: var(--fg-2); }
+.meta-top b { font: 600 18px/1.2 var(--font-text); color: var(--fg); }
+.meta-top b .muted { font-size: 14px; font-weight: 500; }
+.meta-bar { height: 8px; border-radius: 4px; background: var(--accent-soft); overflow: hidden; }
+.meta-bar span { display: block; height: 100%; border-radius: 0 4px 4px 0; background: var(--accent); }
+.meta small { font-size: 12.5px; }
+.resumen .panel-head h2 { text-wrap: balance; }
+.resumen-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px 24px; }
+.resumen-cols ul { margin: 6px 0 0; padding-left: 18px; display: grid; gap: 6px; font-size: 14px; line-height: 1.5; }
+
+/* ---------- propuesta y archivos ---------- */
+.prop-box { display: grid; gap: 8px; padding: 14px 16px; border-radius: var(--r-m); border: 1px solid var(--line); background: var(--surface-2); }
+.prop-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.prop-head h3 { margin: 0; }
+.prop-monto { margin: 0; font-size: 15px; }
+.prop-monto b { font: 600 20px/1.2 var(--font-text); }
+.archivos { display: grid; gap: 8px; border-radius: var(--r-m); transition: box-shadow 0.12s ease; }
+.archivos.encima { box-shadow: 0 0 0 2px var(--accent); background: var(--accent-soft); }
+.arch-list { display: grid; }
+.arch { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 8px 0; border-top: 1px solid var(--line); }
+.arch:first-child { border-top: 0; }
+.arch-ico { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; background: var(--sunken); color: var(--fg-2); }
+.arch-main { display: grid; gap: 1px; min-width: 0; color: inherit; text-decoration: none; }
+.arch-main b { font-weight: 600; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.arch-main span { font-size: 12.5px; color: var(--fg-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.arch-main:hover b { text-decoration: underline; }
+.arch-main:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 6px; }
+.arch-del { display: inline-flex; gap: 6px; }
+.btn.off { opacity: 0.6; pointer-events: none; }
+
 /* ---------- selección múltiple en Leads ---------- */
 table.leads th.sel, table.leads td.sel { width: 40px; padding-right: 0; }
 table.leads td.sel input, table.leads th.sel input { width: 16px; height: 16px; accent-color: var(--btn); cursor: pointer; }
@@ -905,7 +940,10 @@ const etapaId = (id) => (ETAPA[id] ? id : ETAPA_ANTIGUA[id] || "nuevo");
 const etapaDe = (l) => etapaId(l && l.etapa);
 /* Probabilidad de cierre por etapa, para el valor ponderado del embudo. */
 const PROB_ETAPA = { nuevo: 0.05, contactado: 0.1, reunion_agendada: 0.2, reunion_concretada: 0.35, propuesta: 0.5, negociacion: 0.75, ganado: 1, perdido: 0, pausa: 0 };
-const ORDEN_EMBUDO = [["proxima", "Por próxima tarea"], ["actividad", "Por última actividad"], ["valor", "Por valor"], ["creado", "Más nuevos primero"]];
+const ORDEN_EMBUDO = [["proxima", "Por próxima tarea"], ["actividad", "Por última actividad"], ["valor", "Por valor"], ["etapa", "Más tiempo en la etapa"], ["creado", "Más nuevos primero"]];
+/* Días en la etapa que ya merecen aviso, y desde cuándo es preocupante (en las etapas abiertas). */
+const DIAS_AVISO = 7;
+const tonoDias = (d) => (d >= 21 ? "late" : d >= 14 ? "warn" : "");
 const CERRADAS = ["ganado", "perdido", "pausa"];
 const SOLTAR_EN = { ganado: "Soltar para marcar como ganado", perdido: "Soltar para marcar como perdido", pausa: "Soltar para dejar en pausa" };
 const RUTA = ["nuevo", "contactado", "reunion_agendada", "reunion_concretada", "propuesta", "negociacion"];
@@ -1741,6 +1779,49 @@ function promptAyudaVivo(o) {
   const datos = [l.nombre && "Lead: " + l.nombre, l.empresa && "Empresa: " + l.empresa, l.cargo && "Cargo: " + l.cargo, l.necesidad && "Lo que busca: " + l.necesidad, l.dolor && "Dolor que suponemos (sin confirmar): " + clip(l.dolor, 500), l.comoAyudamos && "Cómo podemos ayudar: " + clip(l.comoAyudamos, 500), l.guion && "Guion que preparamos (úsalo de referencia, sobre todo sus respuestas a objeciones; no lo leas literal):\n" + clip(l.guion, 2500), "Etapa: " + etapaLabel(l.etapa), "Trato: " + (l.trato === "usted" ? "de usted" : "de tú")].filter(Boolean).join("\n");
   return `Estás ayudando en vivo a un vendedor de ZH durante una llamada con un lead. ${ZH_CORTO}\n\n${datos}\n\nLo último de la llamada (transcripción automática: no separa quién habla y trae errores):\n${String(o.texto || "").slice(-1800)}${o.notas ? "\n\nNotas del vendedor: " + clip(o.notas, 500) : ""}\n\nMira lo último que dijo o preguntó el lead (una objeción, una duda o un silencio) y dile al vendedor qué decir ahora. Frases cortas y naturales para decir en voz alta, en español de Chile. Habla del problema del lead. No inventes precios, plazos, casos ni clientes. Si preguntan el precio, explica que depende del alcance y que, después de entender bien lo que necesitan, ZH manda una propuesta escrita con alcance, plazo y precio. Si piden que les manden información, propón ver su caso en una reunión de 30 minutos. Nunca presiones.\nResponde solo con JSON: {"detecte": "qué dijo o pidió el lead, en una frase corta", "respuesta": "lo que el vendedor puede decir ahora, en 1 o 2 frases", "pregunta": "una pregunta para seguir, o vacío", "evitar": "algo que no conviene decir ahora, o vacío"}`;
 }
+/* Archivos (capacidad «assets»): PDF, imágenes y texto. Word y Excel no se aceptan: van como PDF. */
+const TIPOS_ARCHIVO = { pdf: "application/pdf", png: "image/png", jpg: "image/jpeg", jpeg: "image/jpeg", gif: "image/gif", webp: "image/webp", svg: "image/svg+xml", csv: "text/csv", md: "text/markdown", json: "application/json", txt: "text/plain" };
+const ACEPTA_ARCHIVOS = ".pdf,.png,.jpg,.jpeg,.gif,.webp,.svg,.csv,.md,.json,.txt,application/pdf,image/*,text/plain,text/csv";
+const tipoArchivo = (f) => { const t = String((f && f.type) || ""); if (Object.values(TIPOS_ARCHIVO).includes(t)) return t; const ext = String((f && f.name) || "").toLowerCase().split(".").pop(); return TIPOS_ARCHIVO[ext] || ""; };
+const pesoArchivo = (b) => { const n = Number(b) || 0; return n < 1024 * 1024 ? `${Math.max(1, Math.round(n / 1024))} KB` : `${(n / (1024 * 1024)).toFixed(1).replace(".", ",")} MB`; };
+function archivoErrorText(e) {
+  const c = e && e.code;
+  if (c === "too_large") return "pesa más de lo permitido (20 MB; 2 MB si es SVG).";
+  if (c === "unsupported_type") return "ese tipo de archivo no se puede subir. Usa PDF, imagen o texto; los Word y Excel, guárdalos como PDF.";
+  if (c === "quota_or_state") return "se llenó el espacio de archivos del CRM. Borra los que ya no sirvan.";
+  if (c === "rate_limited") return "demasiados archivos seguidos. Espera un momento y vuelve a intentar.";
+  if (c === "upstream_auth") return "tu sesión de claude.ai expiró. Recarga la página.";
+  if (c === "not_uploader") return "solo quien lo subió puede borrarlo.";
+  if (c === "not_granted" || c === "capability_disabled" || c === "capability_removed") return "esta vista no puede guardar archivos.";
+  if (c === "invalid_request") return "no se pudo leer el archivo. Prueba con otro.";
+  return "no se pudo subir por un problema temporal. Vuelve a intentar.";
+}
+
+/* La semana de trabajo: de lunes a domingo, en hora de Chile. */
+const inicioSemana = (k) => addDays(k, -((keyDate(k).getUTCDay() + 6) % 7));
+const habilesQuedan = (k) => { let n = 0; for (let d = k; d <= addDays(inicioSemana(k), 4); d = addDays(d, 1)) if (!isWeekend(d)) n += 1; return n; };
+/* Quién hizo algo: Lorenzo o Nicolás (por el nombre), «equipo», «claude» u «otros». */
+const personaDe = (autor, nameOf) => (autor === "claude" || autor === "equipo" ? autor : respDeNombre(nameOf(autor)) || "otros");
+
+/* Resumen de la semana con Claude: lo que va bien, lo que preocupa y qué hacer. */
+function promptResumen(o) {
+  return `${ZH_CONTEXTO}
+
+Eres el apoyo comercial de ZH Development. Con los datos del CRM de ${o.periodo}, escribe un resumen corto para la reunión semanal de los socios (Lorenzo y Nicolás). Usa solo lo que dicen los datos: no inventes cifras ni hechos, y si algo no se puede saber, no lo digas. Español de Chile, directo y concreto. No menciones precios que no estén en los datos.
+Fecha de hoy: ${todayKey()} (hora de Chile).
+
+DATOS
+${o.datos}
+
+Responde solo con JSON, sin texto antes ni después:
+{"titular": "una frase con lo más importante",
+ "bien": ["2 a 3 cosas que van bien"],
+ "atencion": ["2 a 3 cosas que preocupan o se están quedando"],
+ "proximos": ["3 acciones concretas para la próxima semana, con el nombre del lead cuando corresponda"]}`;
+}
+const sanitizeResumen = (r) => { const o = r && typeof r === "object" ? r : {}; return { titular: String(o.titular || "").trim(), bien: strArr(o.bien, 4), atencion: strArr(o.atencion, 4), proximos: strArr(o.proximos, 5) }; };
+const textoResumen = (r) => [r.titular, "", "Va bien", ...r.bien.map((x) => "- " + x), "", "Atención", ...r.atencion.map((x) => "- " + x), "", "Próxima semana", ...r.proximos.map((x) => "- " + x)].join("\n").trim();
+
 /* El recordatorio de una reunión: el día hábil anterior, con el mensaje de WhatsApp listo. */
 const fmtDiaSemana = new Intl.DateTimeFormat("es-CL", { timeZone: "UTC", weekday: "long" });
 const diaRecordatorio = (fecha) => { let d = addDays(fecha, -1); while (isWeekend(d)) d = addDays(d, -1); return d; };
@@ -1994,6 +2075,7 @@ const ICONS = {
   chart: '<path d="M4 4v16h16"/><path d="M8 16v-5M12 16V8M16 16v-8"/>',
   next: '<path d="M6 5l9 7-9 7z"/><path d="M18 5v14"/>',
   bell: '<path d="M6 9a6 6 0 0 1 12 0c0 6 2.5 8 2.5 8h-17S6 15 6 9"/><path d="M10.3 20a1.9 1.9 0 0 0 3.4 0"/>',
+  img: '<rect x="3.5" y="4.5" width="17" height="15" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="M20.5 15.5l-4.5-4.5-8.5 8.5"/>',
 };
 function Icon({ name, size }) {
   return html`<svg viewBox="0 0 24 24" width=${size || 16} height=${size || 16} fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" dangerouslySetInnerHTML=${{ __html: ICONS[name] || "" }}></svg>`;
@@ -2476,6 +2558,36 @@ function Buscador() {
   </div>`;
 }
 
+/* Una meta de la semana: cuánto va, de cuánto, y lo que falta. */
+function MetaFila({ label, n, meta }) {
+  const pct = meta ? Math.min(100, Math.round((n / meta) * 100)) : 0;
+  return html`<div class="meta">
+    <div class="meta-top"><span>${label}</span><b>${n}${meta ? html`<span class="muted"> de ${meta}</span>` : null}</b></div>
+    ${meta ? html`<div class="meta-bar" role="meter" aria-label=${label} aria-valuemin="0" aria-valuemax=${meta} aria-valuenow=${n}><span style=${`width:${pct}%`}></span></div>
+      <small class=${n >= meta ? "resp ok" : "muted"}>${n >= meta ? "Meta cumplida" : `Faltan ${meta - n}`}</small>` : null}
+  </div>`;
+}
+/* Esta semana: llamadas y reuniones agendadas, contra la meta por socio (Ajustes). */
+function SemanaPanel({ quien }) {
+  const { acts, leadsById, nameOf, cfg, nav } = useCtx();
+  const t = todayKey();
+  const desde = inicioSemana(t);
+  const de = (a) => keyOf(a.fecha) >= desde;
+  const llamadas = acts.filter((a) => a.tipo === "llamada" && a.leadId && de(a) && (!quien || personaDe(a.autor, nameOf) === quien)).length;
+  const reuniones = new Set(acts.filter((a) => a.tipo === "etapa" && a.a && etapaId(a.a) === "reunion_agendada" && a.leadId && de(a) && (!quien || ((leadsById[a.leadId] || {}).responsable || "") === quien)).map((a) => a.leadId)).size;
+  const metas = cfg.metas || {};
+  const por = quien ? 1 : RESPONSABLES.length;
+  const ml = (Number(metas.llamadas) || 0) * por;
+  const mr = (Number(metas.reuniones) || 0) * por;
+  const q = habilesQuedan(t);
+  return html`<section class="panel" aria-label="Esta semana"><div class="panel-head"><h2>Esta semana</h2><span class="eyebrow">${quien ? respNombre(quien) : "Todo el equipo"}</span></div>
+    <div class="panel-body semana">
+      <${MetaFila} label="Llamadas" n=${llamadas} meta=${ml} />
+      <${MetaFila} label="Reuniones agendadas" n=${reuniones} meta=${mr} />
+      <p class="small muted">${q ? `Quedan ${q} ${q === 1 ? "día hábil" : "días hábiles"}.` : "Fin de semana."} <button type="button" class="linkbtn" onClick=${() => nav("ajustes")}>${ml || mr ? "Cambiar las metas" : "Ponerse una meta"}</button></p>
+    </div></section>`;
+}
+
 /* ===================================================================== calendario */
 
 /* La conexión con Google Calendar: si está al día y, si no, qué hacer según el código. */
@@ -2691,7 +2803,9 @@ function Barras({ filas, max, label }) {
 const etapaIdx = (e) => (e === "ganado" ? RUTA.length : RUTA.indexOf(etapaId(e)));
 
 function MetricasView() {
-  const { leads, db, cobros, cfg, nameOf } = useCtx();
+  const { leads, db, cobros, cfg, nameOf, sampleState, setSampleState, toast, diasEnEtapa } = useCtx();
+  const [resumen, setResumen] = useState(null);
+  const [resumiendo, setResumiendo] = useState(false);
   const [periodo, setPeriodo] = useState(() => { const v = ls.get("periodoMetricas", "30"); return PERIODOS.some((p) => p[0] === v) ? v : "30"; });
   useEffect(() => ls.set("periodoMetricas", periodo), [periodo]);
   const t = todayKey();
@@ -2718,7 +2832,7 @@ function MetricasView() {
 
   /* Lo que pasó en el período. */
   const etapas = items.filter((a) => a.tipo === "etapa" && a.leadId);
-  const llegaron = (e) => new Set(etapas.filter((a) => a.a === e).map((a) => a.leadId));
+  const llegaron = (e) => new Set(etapas.filter((a) => a.a && etapaId(a.a) === e).map((a) => a.leadId));
   const ganados = [...llegaron("ganado")].map((id) => leads.find((l) => l.id === id)).filter(Boolean);
   const perdidos = [...llegaron("perdido")].map((id) => leads.find((l) => l.id === id)).filter((l) => l && etapaDe(l) === "perdido");
   const llamadas = items.filter((a) => a.tipo === "llamada" && a.leadId);
@@ -2765,12 +2879,47 @@ function MetricasView() {
   const porCobrar = sum(cobros.filter((x) => (x.estado === "por_facturar" && isKey(x.fecha) && x.fecha <= en30) || (x.estado === "facturado" && !pagoVencido(x, cfg) && venceCobro(x, cfg) <= en30)), (x) => x.monto);
   const pagado = sum(cobros.filter((x) => x.estado === "pagado" && isKey(x.fechaPago) && x.fechaPago >= desde), (x) => x.monto);
   const periodoTxt = (PERIODOS.find((p) => p[0] === periodo) || PERIODOS[1])[1];
+  /* Lo que se le pasa a Claude para el resumen: los números de esta página y lo que dijeron los leads. */
+  const resumir = async () => {
+    const fn = sampleState.fn;
+    if (!fn || cargando) return;
+    setResumiendo(true);
+    try {
+      const nombre = (id) => { const l = leads.find((x) => x.id === id); return l ? leadTitulo(l) : "un lead"; };
+      const estancados = leads.filter((l) => !l.noContactar && ["reunion_concretada", "propuesta", "negociacion"].includes(etapaDe(l)) && (diasEnEtapa(l) ?? 0) >= DIAS_AVISO);
+      const notas = items.filter((a) => a.leadId && (a.tipo === "llamada" || a.tipo === "reunion") && (a.resumen || (a.analisis && a.analisis.resumen))).slice(0, 15)
+        .map((a) => `- ${keyOf(a.fecha)} · ${nombre(a.leadId)} · ${actTitulo(a)}: ${clip((a.analisis && a.analisis.resumen) || a.resumen, 240)}`);
+      const datos = [
+        `Leads abiertos: ${abiertos.length} (${porEtapa.map((x) => `${etapaLabel(x.e)} ${x.n}`).join(", ")}).`,
+        conValor ? `Valor de los abiertos con monto: ${money(total)} + IVA; pronóstico ponderado ${money(ponderado)}.` : "Ningún lead abierto tiene valor estimado.",
+        `En ${periodoTxt}: ${nuevos.length === 1 ? "llegó 1 lead nuevo" : `llegaron ${nuevos.length} leads nuevos`}; ${llamadas.length} llamadas registradas (${contestadas} contestaron); ${llegaron("reunion_agendada").size} reuniones agendadas y ${llegaron("reunion_concretada").size} concretadas; ${ganados.length} ${ganados.length === 1 ? "ganado" : "ganados"}${ganados.length ? " (" + ganados.map(leadTitulo).join(", ") + ")" : ""}; ${perdidos.length} ${perdidos.length === 1 ? "perdido" : "perdidos"}${perdidos.length ? " (" + motivos.filter((x) => x.n).map((x) => `${x.l} ${x.n}`).join(", ") + ")" : ""}.`,
+        evaluadas.length ? `Puntaje promedio de las llamadas evaluadas: ${Math.round(puntaje())} de 100; criterio más bajo: ${peor ? peor.l + " " + fmt1(peor.equipo) + " de 5" : "sin datos"}.` : "Sin llamadas evaluadas.",
+        `Estancados (${DIAS_AVISO} días o más en la misma etapa, después de la reunión): ${estancados.map((l) => `${leadTitulo(l)} (${etapaLabel(etapaDe(l))}, ${diasEnEtapa(l)} días)`).join(", ") || "ninguno"}.`,
+        notas.length ? "Lo que se habló:\n" + notas.join("\n") : "",
+      ].filter(Boolean).join("\n");
+      const r = sanitizeResumen(await fn.json(promptResumen({ periodo: "los últimos " + periodoTxt, datos }), { modelTier: "default", cache: false }));
+      if (!r.titular && !r.proximos.length) throw { code: "empty_completion" };
+      setResumen(r);
+    } catch (e) {
+      if (e && CLAUDE_OFF.has(e.code)) setSampleState({ fn: null, off: true });
+      toast(sampleErrorText(e), "bad");
+    }
+    setResumiendo(false);
+  };
 
   return html`<div class=${cx("main-inner", cargando && "cargando-suave")}>
     <header class="page-head">
       <div><p class="eyebrow">Ventas y clientes</p><h1>Métricas</h1><p class="lede">Cómo va el embudo hoy y qué pasó en los últimos ${periodoTxt}.</p></div>
-      <div class="actions"><${Seg} label="Período" value=${periodo} onChange=${setPeriodo} options=${PERIODOS} /></div>
+      <div class="actions"><${Seg} label="Período" value=${periodo} onChange=${setPeriodo} options=${PERIODOS} />
+        ${sampleState.fn ? html`<button type="button" class="btn claude" onClick=${resumir} disabled=${resumiendo || cargando}><${Icon} name="spark" />${resumiendo ? "Resumiendo…" : "Resumen con Claude"}</button>` : null}</div>
     </header>
+    ${resumen ? html`<section class="panel resumen" aria-label="Resumen de Claude"><div class="panel-head"><h2>${resumen.titular || "Resumen"}</h2>
+        <span class="actions"><button type="button" class="btn small" onClick=${async () => toast((await copyText(textoResumen(resumen))) ? "Resumen copiado." : "No se pudo copiar.")}><${Icon} name="copy" />Copiar</button><button type="button" class="btn small ghost" onClick=${() => setResumen(null)}>Cerrar</button></span></div>
+      <div class="panel-body resumen-cols">
+        <div><p class="eyebrow">Va bien</p><ul>${resumen.bien.map((x, i) => html`<li key=${i}>${x}</li>`)}</ul></div>
+        <div><p class="eyebrow">Atención</p><ul>${resumen.atencion.map((x, i) => html`<li key=${i}>${x}</li>`)}</ul></div>
+        <div><p class="eyebrow">Próxima semana</p><ul>${resumen.proximos.map((x, i) => html`<li key=${i}>${x}</li>`)}</ul></div>
+      </div></section>` : null}
 
     <div class="kpis" role="list">
       <div class="kpi" role="listitem"><span>Leads abiertos</span><b>${abiertos.length}</b><small>${conValor ? `${money(total)} + IVA en ${conValor} con valor` : "Sin valor estimado todavía"}</small></div>
@@ -2817,7 +2966,7 @@ function MetricasView() {
 /* ===================================================================== vista: hoy */
 
 function HoyView() {
-  const { leads: todos, acts, drafts, openModal, nav, equipo, me, clientes, proyectos, cobros, solicitudes, clientesById, cfg, tareas, tareasPorLead, siguienteDe, leadsById } = useCtx();
+  const { leads: todos, acts, drafts, openModal, nav, equipo, me, clientes, proyectos, cobros, solicitudes, clientesById, cfg, tareas, tareasPorLead, siguienteDe, leadsById, diasEnEtapa, openLead } = useCtx();
   const [quien, setQuien] = useState(() => { const v = ls.get("respHoy", ""); return respNombre(v) ? v : ""; });
   useEffect(() => ls.set("respHoy", quien), [quien]);
   /* Lo de cada socio, más lo que todavía no tiene responsable. */
@@ -2843,6 +2992,7 @@ function HoyView() {
   const promedio = evaluadas.length ? Math.round(sum(evaluadas, (a) => a.analisis.evaluacion.puntaje) / evaluadas.length) : null;
   const paraHoy = atrasadas.length + deHoy.length;
   const porLlamar = colaLlamadas(todos, tareasPorLead, quien).cola.length;
+  const estancados = leads.filter((l) => !l.noContactar && ["reunion_concretada", "propuesta", "negociacion"].includes(etapaDe(l)) && (diasEnEtapa(l) ?? 0) >= DIAS_AVISO).sort((a, b) => diasEnEtapa(b) - diasEnEtapa(a));
 
   const frase = [];
   if (paraHoy) frase.push(`${paraHoy} ${paraHoy === 1 ? "tarea" : "tareas"} para hoy${atrasadas.length ? ` (${atrasadas.length} ${atrasadas.length === 1 ? "atrasada" : "atrasadas"})` : ""}`);
@@ -2901,7 +3051,14 @@ function HoyView() {
           ${nuevos.length > 12 ? html`<button class="btn small ghost" onClick=${() => nav("embudo")}>Ver los ${nuevos.length} en el embudo</button>` : null}</div></section>
       </div>
       <div class="stack">
+        <${SemanaPanel} quien=${quien} />
         <${CalendarioPanel} />
+        ${estancados.length ? html`<section class="panel" aria-label="Estancados"><div class="panel-head"><h2>Estancados</h2><span class="eyebrow">${estancados.length}</span></div>
+          <div class="panel-body"><p class="small muted">Llevan ${DIAS_AVISO} días o más en la misma etapa, después de la reunión. Un llamado o un WhatsApp los mueve.</p>
+            <div class="lrows">${estancados.slice(0, 6).map((l) => { const s = siguienteDe(l); const d = diasEnEtapa(l); return html`<div class="lrow" key=${l.id}>
+              <button class="lrow-main" onClick=${() => openLead(l.id)}><span class="lrow-name">${leadTitulo(l)}</span><span class="lrow-sub">${etapaLabel(l.etapa)}${l.propuesta && l.propuesta.monto ? " · " + money(l.propuesta.monto) + " + IVA" : ""}</span>${s ? html`<span class="lrow-note">${s.titulo || accionLabel(s.tipo)} · ${cuandoTarea(s).txt}</span>` : html`<span class="lrow-note">Sin tarea</span>`}</button>
+              <div class="lrow-side"><span class=${cx("tag", tonoDias(d))}>${etapaDe(l) === "propuesta" && l.propuesta ? `Enviada hace ${d} d` : `${d} d en la etapa`}</span></div>
+            </div>`; })}</div></div></section>` : null}
         ${clientes.length ? html`<section class="panel"><div class="panel-head"><h2>Clientes: próximos 7 días</h2><span class="eyebrow">${agenda.length}</span></div>
           <div class="panel-body"><${AgendaList} items=${agenda} limit=${10} empty="Sin hitos, entregas, facturas ni pagos en los próximos 7 días." />
           ${agenda.length > 10 ? html`<button class="btn small ghost" onClick=${() => nav("proyectos")}>Ver proyectos</button>` : null}</div></section>
@@ -3243,9 +3400,11 @@ function GanadoTag({ l }) {
 }
 
 function LeadCard({ l, ultima, onPointerDown }) {
-  const { api, openLead, openModal, canWrite, cfg, siguienteDe } = useCtx();
+  const { api, openLead, openModal, canWrite, cfg, siguienteDe, diasEnEtapa } = useCtx();
   const etapa = etapaDe(l);
   const abierto = ETAPA[etapa].open;
+  const dias = abierto && !l.noContactar ? diasEnEtapa(l) : null;
+  const avisoDias = dias != null && dias >= DIAS_AVISO;
   const sig = siguienteDe(l);
   const wa = l.telefono && !l.noContactar ? waLink(l.telefono, "", cfg) : null;
   const abrir = () => { if (!recienArrastrado()) openLead(l.id); };
@@ -3261,7 +3420,7 @@ function LeadCard({ l, ultima, onPointerDown }) {
       : abierto ? html`<div class="knext vacio">Sin tarea${canWrite ? html` · <button type="button" class="linkbtn tagbtn" onClick=${accion("tareas")}>agregar</button>` : null}</div>`
       : etapa === "perdido" ? html`<div class="kcard-tags">${l.motivoPerdida ? html`<span class="tag late">${l.motivoPerdida}</span>` : canWrite ? html`<button type="button" class="tag warn tagbtn" onClick=${ventana({ type: "lost", lead: l })}>Falta el motivo</button>` : html`<span class="tag warn">Sin motivo</span>`}</div>`
       : etapa === "ganado" ? html`<div class="kcard-tags"><${GanadoTag} l=${l} /></div>` : null}
-    ${(l.intentos || l.inasistencias) && abierto && !l.noContactar ? html`<div class="kcard-tags">${l.intentos ? html`<span class="tag warn" title="Llamadas seguidas sin respuesta">${l.intentos} sin respuesta</span>` : null}${l.inasistencias ? html`<span class="tag warn" title="Veces que no se presentó a una reunión">No se presentó${l.inasistencias > 1 ? " ×" + l.inasistencias : ""}</span>` : null}</div>` : null}
+    ${(l.intentos || l.inasistencias || avisoDias) && abierto && !l.noContactar ? html`<div class="kcard-tags">${avisoDias ? html`<span class=${cx("tag", tonoDias(dias))} title="Días en esta etapa">${etapa === "propuesta" && l.propuesta ? `Enviada hace ${dias} d` : `${dias} d en la etapa`}</span>` : null}${l.intentos ? html`<span class="tag warn" title="Llamadas seguidas sin respuesta">${l.intentos} sin respuesta</span>` : null}${l.inasistencias ? html`<span class="tag warn" title="Veces que no se presentó a una reunión">No se presentó${l.inasistencias > 1 ? " ×" + l.inasistencias : ""}</span>` : null}</div>` : null}
     ${ultima ? html`<span class="kcard-act"><${Icon} name=${ACT_ICON[ultima.tipo] || "note"} size=${12} /><span>${actTitulo(ultima)} · ${ago(ultima.fecha)}</span></span>` : null}
     <div class="kcard-foot">
       <${RespAvatar} valor=${l.responsable} quien=${leadTitulo(l)} guardar=${(nv) => api.updateLead(l.id, { responsable: nv })} />
@@ -3283,7 +3442,7 @@ const motivosResumen = (items) => {
 };
 
 function EmbudoView() {
-  const { leads, acts, openModal, changeStage, canWrite, nameOf, team, nav, siguienteDe } = useCtx();
+  const { leads, acts, openModal, changeStage, canWrite, nameOf, team, nav, siguienteDe, diasEnEtapa } = useCtx();
   const [verCerrados, setVerCerrados] = useState(() => ls.get("verCerrados", false));
   const [q, setQ] = useState(() => ls.get("qEmb", ""));
   const [resp, setResp] = useState(() => { const v = ls.get("respEmb", ""); return v === "mios" ? "" : v; });
@@ -3310,6 +3469,7 @@ function EmbudoView() {
     actividad: (a, b) => fechaAct(b).localeCompare(fechaAct(a)),
     valor: (a, b) => (Number(b.valor) || 0) - (Number(a.valor) || 0) || fechaAct(b).localeCompare(fechaAct(a)),
     creado: (a, b) => String(b.creado || "").localeCompare(String(a.creado || "")),
+    etapa: (a, b) => (diasEnEtapa(b) ?? -1) - (diasEnEtapa(a) ?? -1) || fechaAct(b).localeCompare(fechaAct(a)),
   }[orden] || (() => 0);
   const abiertos = visibles.filter(isOpen);
   const enJuego = sum(abiertos, (l) => l.valor);
@@ -3680,6 +3840,7 @@ function LeadDrawer({ id, tab: initialTab, onClose }) {
           </div>
         </section>
 
+        <${PropuestaBox} lead=${lead} />
         <${TareasLead} lead=${lead} abrirNueva=${initialTab === "tareas"} />
 
         ${lead.dolor || lead.comoAyudamos || lead.guion ? html`<section class="pitch">
@@ -3703,6 +3864,8 @@ function LeadDrawer({ id, tab: initialTab, onClose }) {
         </section>
 
         ${leadDrafts.length ? html`<section><h3>Borradores</h3><${DraftList} items=${leadDrafts} /></section>` : null}
+
+        <${Archivos} dueno=${{ tipo: "lead", id: lead.id }} items=${lead.archivos} />
 
         <section><h3>Historial</h3><${Feed} items=${hist} /></section>
 
@@ -4935,7 +5098,7 @@ function ClienteDrawer({ id, tab: initialTab, onClose }) {
   const agenda = agendaClientes({ proyectos: ps, cobros: cs, clientesById }, cfg, 30);
   const cDrafts = drafts.filter((x) => x.clienteId === c.id && x.estado !== "descartado");
   const save = (patch) => api.updateCliente(c.id, patch).catch((e) => toast(dbErrorText(e), "bad"));
-  const tabs = [["resumen", "Resumen"], ["proyectos", "Proyectos", ps.length], ["soporte", "Soporte", r.sols.length], ["cobros", "Cobros", r.nVencidos], ["historial", "Historial"], ["datos", "Datos"]];
+  const tabs = [["resumen", "Resumen"], ["proyectos", "Proyectos", ps.length], ["soporte", "Soporte", r.sols.length], ["cobros", "Cobros", r.nVencidos], ["archivos", "Archivos", (c.archivos || []).length], ["historial", "Historial"], ["datos", "Datos"]];
 
   return html`<div>
     <div class="scrim" onClick=${onClose}></div>
@@ -5009,6 +5172,7 @@ function ClienteDrawer({ id, tab: initialTab, onClose }) {
             <div class="irow-side"><span class="amount">${money(m.monto)}<small>al mes + IVA</small></span></div>
           </div>`)}</div>` : html`<p class="empty">Sin mantención. Al cerrar la garantía conviene ofrecer la mantención técnica (respaldos, monitoreo, seguridad y soporte básico).</p>`}</section>` : null}
 
+        ${tab === "archivos" ? html`<${Archivos} dueno=${{ tipo: "cliente", id: c.id }} items=${c.archivos} />` : null}
         ${tab === "historial" ? html`<section><h3 class="sr">Historial</h3><${Feed} items=${hist} /></section>` : null}
         ${tab === "datos" ? html`<${ClienteDatos} c=${c} save=${save} onClose=${onClose} />` : null}
       </div>
@@ -5950,6 +6114,108 @@ function LostModal({ lead }) {
   </${Modal}>`;
 }
 
+/* Propuesta enviada: cuánto, el documento (enlace o PDF) y cuándo hacer el seguimiento. */
+function PropuestaModal({ lead: lead0, tarea, desdeEtapa, editar }) {
+  const { closeModal, guardarPropuesta, leadsById, canWrite, assets } = useCtx();
+  const lead = leadsById[lead0.id] || lead0;
+  const prev = lead.propuesta || {};
+  const hoy = todayKey();
+  const [monto, setMonto] = useState(prev.monto ? String(prev.monto) : lead.valor ? String(lead.valor) : "");
+  const [fecha, setFecha] = useState(prev.fecha || hoy);
+  const [enlace, setEnlace] = useState(prev.enlace || "");
+  const [seguir, setSeguir] = useState(addBusinessDays(hoy, 3));
+  const [archivo, setArchivo] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const m = parseMonto(monto);
+  const quick = [["En 3 días hábiles", addBusinessDays(hoy, 3)], ["En una semana", addDays(hoy, 7)], ["Sin seguimiento", ""]];
+  const guardar = async (soloMover) => {
+    setSaving(true);
+    const e = enlace.trim();
+    const ok = await guardarPropuesta(lead, soloMover ? null : { monto: m, fecha, enlace: e ? safeUrl(e) : "", seguimiento: seguir, archivo }, tarea || null, editar);
+    if (ok) closeModal(); else setSaving(false);
+  };
+  const foot = html`<button class="btn ghost" onClick=${closeModal}>Cancelar</button><span style="flex:1"></span>
+    ${desdeEtapa ? html`<button class="btn" onClick=${() => guardar(true)} disabled=${saving || !canWrite}>Solo mover</button>` : null}
+    <button class="btn primary" onClick=${() => guardar(false)} disabled=${saving || !canWrite}>${saving ? "Guardando…" : editar ? "Guardar" : "Propuesta enviada"}</button>`;
+  return html`<${Modal} title=${(editar ? "Propuesta de " : "Propuesta enviada a ") + leadTitulo(lead)} onClose=${closeModal} foot=${foot} labelId="prop-title">
+    <div class="modal-body">
+      ${editar ? null : html`<p class="small muted">${avanza(lead, "propuesta") ? "El lead pasa a «Propuesta enviada»" : "Queda en el historial"}${tarea ? " y la tarea queda hecha" : ""}. Con el monto, el embudo y las métricas muestran el valor real.</p>`}
+      <div class="grid-2">
+        <label class="field" for="prop-monto"><span>Monto (CLP sin IVA)</span><input id="prop-monto" class="input mono" inputmode="numeric" value=${monto} onInput=${(e) => setMonto(e.currentTarget.value)} placeholder="4500000" />
+          <small class="hint">${m ? `${money(m)} + IVA · ${money(conIva(m))} con IVA` : "Opcional. Sale de la propuesta escrita."}</small></label>
+        <label class="field" for="prop-fecha"><span>Enviada el</span><input id="prop-fecha" class="input" type="date" value=${fecha} onInput=${(e) => setFecha(e.currentTarget.value)} /></label>
+      </div>
+      <label class="field" for="prop-enlace"><span>Enlace al documento (opcional)</span><input id="prop-enlace" class="input" value=${enlace} onInput=${(e) => setEnlace(e.currentTarget.value)} placeholder="https://docs.google.com/…" /></label>
+      ${assets ? html`<label class="field" for="prop-pdf"><span>PDF de la propuesta (opcional)</span><input id="prop-pdf" class="input" type="file" accept="application/pdf,.pdf" onChange=${(e) => setArchivo((e.currentTarget.files || [])[0] || null)} />
+        <small class="hint">${prev.archivo && !archivo ? "Ya hay un PDF guardado; uno nuevo lo reemplaza en la propuesta." : "Queda en los archivos del lead."}</small></label>` : null}
+      ${editar ? null : html`<div class="field"><span>Seguimiento</span>
+        <div class="actions">${quick.map(([l, k]) => html`<button type="button" class=${cx("btn small", seguir === k && "on")} onClick=${() => setSeguir(k)}>${l}</button>`)}<input class="input" type="date" aria-label="Día del seguimiento" style="width:auto" value=${seguir} onInput=${(e) => setSeguir(e.currentTarget.value)} /></div>
+        <small class="hint">${seguir ? `Queda una llamada «Seguimiento de la propuesta» para ${cuandoTexto(seguir)}.` : "Sin llamada de seguimiento."}</small></div>`}
+    </div>
+  </${Modal}>`;
+}
+
+/* La propuesta en la ficha del lead: cuánto, hace cuánto, el documento y qué pasó. */
+function PropuestaBox({ lead }) {
+  const { canWrite, changeStage, openModal } = useCtx();
+  const p = lead.propuesta;
+  if (!p) return null;
+  const e = etapaDe(lead);
+  const dias = isKey(p.fecha) ? Math.max(0, diffDays(p.fecha, todayKey())) : null;
+  const estado = e === "ganado" ? ["Aceptada", "ok"] : e === "perdido" ? ["No aceptada", "late"] : e === "negociacion" ? ["En negociación", "today"] : [dias == null ? "Enviada" : dias === 0 ? "Enviada hoy" : `Enviada hace ${dias} ${dias === 1 ? "día" : "días"}`, dias != null && dias >= 14 ? "warn" : ""];
+  return html`<section class="prop-box" aria-label="Propuesta">
+    <div class="prop-head"><h3>Propuesta</h3><span class=${cx("tag", estado[1])}>${estado[0]}</span>${isKey(p.fecha) ? html`<span class="small muted">${noDots(fmtShort.format(keyDate(p.fecha)))}</span>` : null}</div>
+    ${p.monto ? html`<p class="prop-monto"><b>${money(p.monto)}</b> + IVA <span class="muted">· ${money(conIva(p.monto))} con IVA</span></p>` : null}
+    <div class="actions">
+      ${p.enlace ? html`<a class="btn small" href=${safeUrl(p.enlace)} target="_blank" rel="noopener"><${Icon} name="ext" />Abrir el documento</a>` : null}
+      ${p.archivo ? html`<a class="btn small" href=${"/_blob/" + p.archivo} target="_blank" rel="noopener"><${Icon} name="doc" />Ver el PDF</a>` : null}
+      ${canWrite && isOpen(lead) ? html`
+        <button type="button" class="btn small primary" onClick=${() => changeStage(lead, "ganado")}><${Icon} name="check" />La aceptó</button>
+        ${e !== "negociacion" ? html`<button type="button" class="btn small" onClick=${() => changeStage(lead, "negociacion")}>En negociación</button>` : null}
+        <button type="button" class="btn small ghost danger" onClick=${() => changeStage(lead, "perdido")}>No la aceptó</button>` : null}
+      ${canWrite ? html`<button type="button" class="btn small ghost" onClick=${() => openModal({ type: "propuesta", lead, editar: true })}>Editar</button>` : null}
+    </div>
+  </section>`;
+}
+
+/* Los archivos de una ficha: la propuesta, el contrato o lo que mande el cliente (PDF, imagen o
+   texto). Se suben con el botón o arrastrándolos encima. */
+function Archivos({ dueno, items }) {
+  const { assets, subirArchivo, borrarArchivo, toast, canWrite, nameOf } = useCtx();
+  const [subiendo, setSubiendo] = useState(false);
+  const [borrar, setBorrar] = useState("");
+  const [encima, setEncima] = useState(false);
+  const inputRef = useRef(null);
+  const lista = (items || []).filter((x) => x && x.id).sort((a, b) => String(b.subido || "").localeCompare(String(a.subido || "")));
+  const puede = !!assets && canWrite;
+  if (!puede && !lista.length) return null;
+  const elegir = async (files) => {
+    const fs = [...(files || [])].slice(0, 10);
+    if (!fs.length) return;
+    setSubiendo(true);
+    let n = 0;
+    for (const f of fs) { try { await subirArchivo(f, dueno); n += 1; } catch (e) { toast(`${f.name}: ${archivoErrorText(e)}`, "bad"); } }
+    setSubiendo(false);
+    if (inputRef.current) inputRef.current.value = "";
+    if (n) toast(n === 1 ? "Archivo guardado." : `${n} archivos guardados.`);
+  };
+  const quitar = async (x) => {
+    setBorrar("");
+    try { await borrarArchivo(x, dueno); toast("Archivo borrado."); } catch (e) { toast(`${x.nombre}: ${archivoErrorText(e)}`, "bad"); }
+  };
+  const drop = puede ? { onDragOver: (e) => { e.preventDefault(); setEncima(true); }, onDragLeave: () => setEncima(false), onDrop: (e) => { e.preventDefault(); setEncima(false); elegir(e.dataTransfer && e.dataTransfer.files); } } : {};
+  return html`<section class=${cx("archivos", encima && "encima")} aria-label="Archivos" ...${drop}>
+    <div class="sec-head"><h3>Archivos</h3>${lista.length ? html`<span class="count">${lista.length}</span>` : null}<span style="flex:1"></span>
+      ${puede ? html`<label class=${cx("btn small", subiendo && "off")}><input ref=${inputRef} type="file" class="sr" multiple accept=${ACEPTA_ARCHIVOS} disabled=${subiendo} onChange=${(e) => elegir(e.currentTarget.files)} /><${Icon} name="upload" />${subiendo ? "Subiendo…" : "Subir"}</label>` : null}</div>
+    ${lista.length ? html`<div class="arch-list">${lista.map((x) => html`<div class="arch" key=${x.id}>
+        <span class="arch-ico"><${Icon} name=${String(x.tipo || "").startsWith("image/") ? "img" : "doc"} /></span>
+        <a class="arch-main" href=${"/_blob/" + x.id} target="_blank" rel="noopener" title="Abrir"><b>${x.nombre || "Archivo"}</b><span>${[x.etiqueta === "propuesta" ? "Propuesta" : "", pesoArchivo(x.bytes), ago(x.subido), x.por ? nameOf(x.por) : ""].filter(Boolean).join(" · ")}</span></a>
+        ${puede ? (borrar === x.id ? html`<span class="arch-del"><button type="button" class="btn small danger" onClick=${() => quitar(x)}>Borrar</button><button type="button" class="btn small ghost" onClick=${() => setBorrar("")}>No</button></span>`
+          : html`<button type="button" class="btn small icon ghost" aria-label=${"Borrar " + (x.nombre || "archivo")} onClick=${() => setBorrar(x.id)}><${Icon} name="trash" /></button>`) : null}
+      </div>`)}</div>` : html`<p class="empty">Sube la propuesta, el contrato o lo que te mande el cliente: PDF, imagen o texto. También puedes arrastrarlos aquí.</p>`}
+  </section>`;
+}
+
 /* Agendar (o cambiar) la reunión: queda como tarea con día y hora, el lead pasa a «Reunión
    agendada» y, si se pide, Claude deja redactada la confirmación. */
 function AgendarModal({ lead: lead0, tarea, desdeEtapa }) {
@@ -6122,7 +6388,8 @@ function ReunionHechaModal({ lead: lead0, tarea }) {
 /* No contestó: queda el intento y cuándo volver a intentarlo, sin abrir la ficha. Después de
    varios intentos se puede cerrar como perdido por «No responde». */
 function NoContestoModal({ lead }) {
-  const { api, closeModal, toast, tareasPorLead, me, yo, cerrarTareasDe } = useCtx();
+  const { api, closeModal, toast, tareasPorLead, me, yo, cerrarTareasDe, sampleState, redactarTareas } = useCtx();
+  const [conClaude, setConClaude] = useState(true);
   const n = (lead.intentos || 0) + 1;
   const cuando = (c) => {
     const t = todayKey();
@@ -6153,8 +6420,10 @@ function NoContestoModal({ lead }) {
       const pend = tareasPorLead[lead.id] || [];
       for (const x of pend) if (tipoTarea(x.tipo) === "llamar" && x.fecha <= todayKey()) await api.updateTarea(x.id, { estado: "hecha", hecha: nowISO(), hechaPor: me.id || null, actividadId: actId });
       await api.updateLead(lead.id, { ultimoIntento: nowISO(), intentos: n, ...(!pend.length && tareaDeProxima(lead) ? { proxima: null } : {}) });
-      await api.createTarea({ leadId: lead.id, tipo: canal, titulo: canal === "whatsapp" ? `No contesta (${veces}): escribirle por WhatsApp` : `Volver a llamar (${veces})`, fecha, hora: hora || "", responsable: lead.responsable || yo || null, estado: "pendiente", origen: "no_contesto", actividadId: actId });
-      toast(`${leadTitulo(lead)}: ${canal === "whatsapp" ? "escribirle por WhatsApp" : "volver a llamar"} ${cuandoTexto(fecha)}${hora ? " a las " + hora : ""}.`);
+      const tid = await api.createTarea({ leadId: lead.id, tipo: canal, titulo: canal === "whatsapp" ? `No contesta (${veces}): escribirle por WhatsApp` : `Volver a llamar (${veces})`, fecha, hora: hora || "", responsable: lead.responsable || yo || null, estado: "pendiente", origen: "no_contesto", actividadId: actId });
+      const redacta = canal === "whatsapp" && conClaude && sampleState.fn && lead.telefono && !lead.noContactar;
+      if (redacta) redactarTareas(lead, [{ tipo: "whatsapp", que: "Escribirle porque no contestó la llamada", tareaId: tid, objetivo: "seguimiento", instrucciones: `Lo llamamos y no contestó (${veces}). Escríbele un WhatsApp breve: quién eres, por qué lo llamaste en una frase (con lo que sabemos de su negocio) y pregunta cuándo le acomoda conversar 10 minutos. Si su guion trae el WhatsApp para cuando no contesta, úsalo de base. Sin presionar ni reprochar.` }]);
+      toast(`${leadTitulo(lead)}: ${canal === "whatsapp" ? "escribirle por WhatsApp" : "volver a llamar"} ${cuandoTexto(fecha)}${hora ? " a las " + hora : ""}.${redacta ? " Claude está redactando el WhatsApp." : ""}`);
       closeModal();
     } catch (e) { toast(dbErrorText(e), "bad"); setSaving(false); }
   };
@@ -6178,7 +6447,8 @@ function NoContestoModal({ lead }) {
         <label class="field" for="nc-fecha"><span>Día</span><input id="nc-fecha" class="input" type="date" value=${fecha} onInput=${(e) => { setRel(""); setFecha(e.currentTarget.value); }} /></label>
         <label class="field" for="nc-hora"><span>Hora (opcional)</span><input id="nc-hora" class="input" type="time" value=${hora} onInput=${(e) => { setRel(""); setHora(e.currentTarget.value); }} /></label>
       </div>
-      <div class="field"><span>Entonces</span><${Seg} label="Próxima acción" value=${canal} onChange=${setCanal} options=${[["llamar", "Volver a llamar", "phone"], ["whatsapp", "Escribirle por WhatsApp", "chat"]]} /></div>
+      <div class="field"><span>Entonces</span><${Seg} label="Próxima acción" value=${canal} onChange=${setCanal} options=${[["llamar", "Volver a llamar", "phone"], ["whatsapp", "Escribirle por WhatsApp", "chat"]]} />
+        ${canal === "whatsapp" && sampleState.fn ? html`<label class="check"><input type="checkbox" checked=${conClaude} onChange=${(e) => setConClaude(e.currentTarget.checked)} />Claude redacta el WhatsApp (queda en Borradores, unido a la tarea, para que lo revises)</label>` : null}</div>
       <label class="field" for="nc-nota"><span>Nota (opcional)</span><input id="nc-nota" class="input" value=${nota} onInput=${(e) => setNota(e.currentTarget.value)} placeholder="Ej.: contestó la secretaria, que llame después de las 15" /></label>
       ${n >= 3 ? html`<div class="note warn"><${Icon} name="info" /><div>Lleva ${n} intentos sin respuesta. Si prefieres cerrarlo, pásalo a Perdido con el motivo «No responde».</div></div>` : null}
     </div>
@@ -6232,6 +6502,13 @@ async function getAll(db, path, field) {
 function AjustesView() {
   const { me, equipo, cfg, api, toast, downloads, leads, db, nameOf, canWrite, profileName, clientes, cobros, clientesById, proyectosById, calCuenta } = useCtx();
   const [cc, setCc] = useState({ garantiaDias: String(cfg.garantiaDias || 60), plazoPago: String(cfg.plazoPago || 30) });
+  const metaTxt = (k) => ((cfg.metas || {})[k] ? String(cfg.metas[k]) : "");
+  const [metas, setMetas] = useState({ llamadas: metaTxt("llamadas"), reuniones: metaTxt("reuniones") });
+  useEffect(() => { setMetas({ llamadas: metaTxt("llamadas"), reuniones: metaTxt("reuniones") }); }, [metaTxt("llamadas"), metaTxt("reuniones")]);
+  const guardarMetas = async () => {
+    const n = (v) => { const x = Number(String(v).replace(/\D/g, "")); return x > 0 ? x : 0; };
+    try { await api.setConfig({ ...cfg, metas: { llamadas: n(metas.llamadas), reuniones: n(metas.reuniones) } }); toast("Metas guardadas."); } catch (e) { toast(dbErrorText(e), "bad"); }
+  };
   useEffect(() => { setCc({ garantiaDias: String(cfg.garantiaDias || 60), plazoPago: String(cfg.plazoPago || 30) }); }, [cfg.garantiaDias, cfg.plazoPago]);
   const mine = (me.id && equipo[me.id]) || {};
   const [firma, setFirma] = useState({ nombre: mine.nombre || profileName || "", cargo: mine.cargo || "", telefono: mine.telefono ? fmtPhone(mine.telefono) : "", correo: mine.correo || "" });
@@ -6294,6 +6571,16 @@ function AjustesView() {
             <div class="field"><span>Abrir WhatsApp en</span><${Seg} label="Abrir WhatsApp en" value=${c.abrirWhatsapp} onChange=${(v) => setC((x) => ({ ...x, abrirWhatsapp: v }))} options=${[["app", "App o wa.me"], ["web", "WhatsApp Web"]]} /><small class="hint">En el computador, WhatsApp Web abre directo el chat si tienes la sesión de negocios iniciada.</small></div>
           </div>
           <div class="actions"><button class="btn primary" onClick=${guardarCfg} disabled=${!canWrite}>Guardar ajustes</button></div>
+        </div></section>
+
+      <section class="panel"><div class="panel-head"><h2>Metas de la semana</h2><span class="eyebrow">Por socio</span></div>
+        <div class="panel-body">
+          <div class="grid-3">
+            <label class="field" for="m-llamadas"><span>Llamadas por semana</span><input id="m-llamadas" class="input mono" inputmode="numeric" value=${metas.llamadas} onInput=${(e) => setMetas((x) => ({ ...x, llamadas: e.currentTarget.value }))} placeholder="25" /></label>
+            <label class="field" for="m-reuniones"><span>Reuniones agendadas por semana</span><input id="m-reuniones" class="input mono" inputmode="numeric" value=${metas.reuniones} onInput=${(e) => setMetas((x) => ({ ...x, reuniones: e.currentTarget.value }))} placeholder="3" /></label>
+            <div class="field"><span>Dónde se ven</span><p class="small" style="padding-top:8px">En Hoy, «Esta semana», de lunes a domingo. Para el equipo se suman las de los dos.</p></div>
+          </div>
+          <div class="actions"><button class="btn primary" onClick=${guardarMetas} disabled=${!canWrite}>Guardar metas</button></div>
         </div></section>
 
       <section class="panel"><div class="panel-head"><h2>Google Calendar</h2><span class="eyebrow">${calCuenta}</span></div>
@@ -6381,6 +6668,7 @@ function App() {
   const [permisos, setPermisos] = useState(null);
   const [cal, setCal] = useState({ estado: "cargando", eventos: null, storedAt: 0, error: null });
   const [registro, setRegistro] = useState(null);
+  const [assets, setAssets] = useState(null);
   /* Menú lateral con solo íconos: por defecto en pantallas de menos de 1500 px, para que el embudo quepa entero. */
   const [mini, setMini] = useState(() => { const v = ls.get("menuMini", null); return v == null ? window.innerWidth < 1500 : !!v; });
   const alternarMenu = () => { const v = !mini; ls.set("menuMini", v); setMini(v); };
@@ -6402,6 +6690,7 @@ function App() {
     c.use("sample").then((s) => { if (alive) setSampleState(s ? { fn: s, off: false } : { fn: null, off: true }); }, () => alive && setSampleState({ fn: null, off: true }));
     c.use("mcp").then((m) => { if (alive) setMcp(m || null); }, () => alive && setMcp(null));
     c.use("permissions").then((p) => { if (alive) setPermisos(p || null); }, () => {});
+    c.use("assets").then((a) => { if (alive) setAssets(a || null); }, () => {});
     c.use("user").then(async (u) => {
       if (!alive || !u) return;
       setUserApi(u);
@@ -6629,33 +6918,21 @@ function App() {
     else toast("Claude no pudo redactar el borrador. Puedes hacerlo desde «Redactar con Claude».", "bad");
   }, [wrapApi, sampleState.fn, equipo, me.id, cfg, toast, acts]);
 
-  /* Completar una tarea. «Agendar» pide el día de la reunión y «Reunión» pregunta si se hizo;
-     «Enviar propuesta» pasa el lead a «Propuesta enviada» con una llamada de seguimiento. */
+  /* Completar una tarea. «Agendar» pide el día de la reunión, «Reunión» pregunta si se hizo y
+     «Enviar propuesta» pide el monto, el documento y cuándo hacer el seguimiento. */
   const completarTarea = useCallback(async (t) => {
     const lead = t && leadsById[t.leadId];
     if (!wrapApi || !lead || !tareaPendiente(t)) return;
     const tipo = tipoTarea(t.tipo);
     if (tipo === "agendar") { setModal({ type: "agendar", lead, tarea: t }); return; }
     if (tipo === "reunion") { setModal({ type: "reunionHecha", lead, tarea: t }); return; }
+    if (tipo === "propuesta") { setModal({ type: "propuesta", lead, tarea: t }); return; }
     try {
-      const vuelta = [];
       await marcarTarea(t, "hecha");
-      vuelta.push(t.virtual ? () => wrapApi.updateLead(lead.id, { proxima: lead.proxima }) : () => wrapApi.updateTarea(t.id, { estado: "pendiente", hecha: null, hechaPor: null }));
-      let msg = `Hecho: ${t.titulo || accionLabel(tipo)}.`;
-      if (tipo === "propuesta" && avanza(lead, "propuesta")) {
-        await moverEtapa(lead, "propuesta", { resumen: t.titulo || "" });
-        vuelta.push(() => moverEtapa({ ...lead, etapa: "propuesta" }, etapaDe(lead)));
-        msg = `${leadTitulo(lead)}: Propuesta enviada.`;
-        if (!(tareasPorLead[lead.id] || []).some((x) => x.id !== t.id)) {
-          const f = addBusinessDays(todayKey(), 3);
-          const nid = await wrapApi.createTarea({ leadId: lead.id, tipo: "llamar", titulo: "Seguimiento de la propuesta", fecha: f, hora: "", responsable: t.responsable || lead.responsable || yo || null, estado: "pendiente", origen: "etapa" });
-          vuelta.push(() => wrapApi.deleteTarea(nid));
-          msg += ` Queda una llamada de seguimiento ${cuandoTexto(f)}.`;
-        }
-      }
-      toast(msg, "", { label: "Deshacer", fn: async () => { try { for (const f of vuelta.reverse()) await f(); toast("Listo: quedó como estaba."); } catch (e) { toast(dbErrorText(e), "bad"); } } });
+      const deshacer = t.virtual ? () => wrapApi.updateLead(lead.id, { proxima: lead.proxima }) : () => wrapApi.updateTarea(t.id, { estado: "pendiente", hecha: null, hechaPor: null });
+      toast(`Hecho: ${t.titulo || accionLabel(tipo)}.`, "", { label: "Deshacer", fn: async () => { try { await deshacer(); toast("Listo: quedó como estaba."); } catch (e) { toast(dbErrorText(e), "bad"); } } });
     } catch (e) { toast(dbErrorText(e), "bad"); }
-  }, [wrapApi, leadsById, tareasPorLead, marcarTarea, moverEtapa, toast, yo]);
+  }, [wrapApi, leadsById, marcarTarea, toast]);
 
   /* ---------- Google Calendar */
   const calCuenta = String(cfg.gmailCuenta || CORREO_PUBLICO).trim().toLowerCase();
@@ -6778,6 +7055,89 @@ function App() {
     }
   }, [wrapApi, db, leadsById, sampleState.fn, toast]);
 
+  /* Sube un archivo y lo deja en la ficha (lead o cliente): el id va en «archivos» del documento. */
+  const subirArchivo = useCallback(async (file, dueno, etiqueta) => {
+    if (!assets || !wrapApi) throw { code: "not_granted" };
+    const tipo = tipoArchivo(file);
+    if (!tipo) throw { code: "unsupported_type" };
+    let r;
+    try { r = await assets.upload(file, { type: tipo }); } catch (e) {
+      if (!e || e.code !== "store_unavailable") throw e;
+      await sleep(1200);
+      r = await assets.upload(file, { type: tipo });
+    }
+    const item = clean({ id: r.id, nombre: clip(file.name || "archivo", 120), tipo: r.contentType || tipo, bytes: r.sizeBytes || file.size || 0, subido: nowISO(), por: meRef.current.id || null, etiqueta: etiqueta || "" });
+    const doc = dueno.tipo === "cliente" ? clientesById[dueno.id] : leadsById[dueno.id];
+    const lista = [...((doc && doc.archivos) || []).filter((x) => x && x.id !== item.id), item];
+    if (dueno.tipo === "cliente") await wrapApi.updateCliente(dueno.id, { archivos: lista }); else await wrapApi.updateLead(dueno.id, { archivos: lista });
+    return item;
+  }, [assets, wrapApi, leadsById, clientesById]);
+  const borrarArchivo = useCallback(async (item, dueno) => {
+    if (!assets || !wrapApi) throw { code: "not_granted" };
+    await assets.delete(item.id);
+    const doc = dueno.tipo === "cliente" ? clientesById[dueno.id] : leadsById[dueno.id];
+    const lista = ((doc && doc.archivos) || []).filter((x) => x && x.id !== item.id);
+    if (dueno.tipo === "cliente") await wrapApi.updateCliente(dueno.id, { archivos: lista });
+    else await wrapApi.updateLead(dueno.id, { archivos: lista, ...(doc && doc.propuesta && doc.propuesta.archivo === item.id ? { propuesta: { ...doc.propuesta, archivo: "" } } : {}) });
+  }, [assets, wrapApi, leadsById, clientesById]);
+
+  /* Propuesta enviada: el monto, el documento y cuándo hacer el seguimiento. Pasa el lead a
+     «Propuesta enviada» (si avanza), cumple las tareas de enviar la propuesta y deja la llamada de
+     seguimiento. Con «editar», solo cambia los datos de la propuesta. */
+  const guardarPropuesta = useCallback(async (lead, d, tarea, editar) => {
+    if (!wrapApi) return false;
+    try {
+      let archivo = null;
+      if (d && d.archivo) {
+        try { archivo = await subirArchivo(d.archivo, { tipo: "lead", id: lead.id }, "propuesta"); } catch (e) { toast(`El PDF no se guardó: ${archivoErrorText(e)}`, "bad"); }
+      }
+      const prev = lead.propuesta || {};
+      const patch = d ? { propuesta: { monto: d.monto || null, fecha: isKey(d.fecha) ? d.fecha : todayKey(), enlace: d.enlace || "", archivo: archivo ? archivo.id : prev.archivo || "" }, ...(d.monto ? { valor: d.monto } : {}) } : {};
+      if (editar) {
+        await wrapApi.updateLead(lead.id, patch);
+        toast("Propuesta actualizada.");
+        return true;
+      }
+      const pend = tareasPorLead[lead.id] || [];
+      for (const x of pend) if (tipoTarea(x.tipo) === "propuesta" && (!tarea || x.id !== tarea.id)) await marcarTarea(x, "hecha");
+      if (tarea && tareaPendiente(tarea)) await marcarTarea(tarea, "hecha");
+      const resumen = d && d.monto ? `Propuesta enviada: ${money(d.monto)} + IVA` : "Propuesta enviada";
+      if (avanza(lead, "propuesta")) await moverEtapa(lead, "propuesta", { patch, resumen });
+      else {
+        if (Object.keys(patch).length) await wrapApi.updateLead(lead.id, patch);
+        await wrapApi.addAct({ leadId: lead.id, tipo: "nota", resumen: resumen + "." });
+      }
+      let msg = `${leadTitulo(lead)}: Propuesta enviada${d && d.monto ? ` por ${money(d.monto)} + IVA` : ""}.`;
+      const otras = pend.filter((x) => tipoTarea(x.tipo) !== "propuesta" && (!tarea || x.id !== tarea.id));
+      const seg = d ? d.seguimiento : !otras.length ? addBusinessDays(todayKey(), 3) : "";
+      if (isKey(seg) && !otras.some((x) => /seguimiento de la propuesta/i.test(x.titulo || ""))) {
+        await wrapApi.createTarea({ leadId: lead.id, tipo: "llamar", titulo: "Seguimiento de la propuesta", fecha: seg, hora: "", responsable: lead.responsable || yo || null, estado: "pendiente", origen: "etapa" });
+        msg += ` Queda una llamada de seguimiento ${cuandoTexto(seg)}.`;
+      }
+      toast(msg);
+      return true;
+    } catch (e) { toast(dbErrorText(e), "bad"); return false; }
+  }, [wrapApi, tareasPorLead, marcarTarea, moverEtapa, subirArchivo, toast, yo]);
+
+  /* Cuántos días lleva cada lead en su etapa: desde el último cambio a esa etapa en el historial (o
+     desde que se envió la propuesta, o desde que llegó si es nuevo). */
+  const etapaDesdeMap = useMemo(() => {
+    const m = {};
+    for (const a of acts) {
+      if (a.tipo !== "etapa" || !a.leadId || !a.a || !keyOf(a.fecha)) continue;
+      const k = a.leadId + "|" + etapaId(a.a);
+      const f = new Date(a.fecha).toISOString();
+      if (!m[k] || f > m[k]) m[k] = f;
+    }
+    return m;
+  }, [acts]);
+  const diasEnEtapa = useCallback((l) => {
+    const e = etapaDe(l);
+    const f = etapaDesdeMap[l.id + "|" + e] || (e === "propuesta" && l.propuesta && l.propuesta.fecha) || (e === "nuevo" ? l.creado : "");
+    const k = !f ? "" : isKey(f) ? f : keyOf(f);
+    return k ? Math.max(0, diffDays(k, todayKey())) : null;
+  }, [etapaDesdeMap]);
+
   /* «Crear en Calendar» en una reunión que todavía no tiene evento. */
   const crearEventoDeReunion = useCallback(async (t) => {
     const lead = leadsById[t.leadId];
@@ -6848,6 +7208,7 @@ function App() {
     if (etapa === "ganado" && !lead.clienteId) { setModal({ type: "won", lead }); return; }
     const pend = tareasPorLead[lead.id] || [];
     if (etapa === "reunion_agendada" && !pend.some((x) => tipoTarea(x.tipo) === "reunion")) { setModal({ type: "agendar", lead, desdeEtapa: true }); return; }
+    if (etapa === "propuesta") { setModal({ type: "propuesta", lead, desdeEtapa: true }); return; }
     try {
       await moverEtapa(lead, etapa, ETAPA[etapa].open ? {} : { patch: { proxima: null } });
       let msg = `${leadTitulo(lead)}: ${etapaLabel(etapa)}.`;
@@ -6858,18 +7219,9 @@ function App() {
         for (const x of pend) if (tipoTarea(x.tipo) === "reunion") await marcarTarea(x, "hecha");
         accion = { label: "Registrar la reunión", fn: () => openLead(lead.id, "reunion") };
       }
-      if (etapa === "propuesta") {
-        const props = pend.filter((x) => tipoTarea(x.tipo) === "propuesta");
-        for (const x of props) await marcarTarea(x, "hecha");
-        if (pend.length === props.length) {
-          const f = addBusinessDays(todayKey(), 3);
-          await wrapApi.createTarea({ leadId: lead.id, tipo: "llamar", titulo: "Seguimiento de la propuesta", fecha: f, hora: "", responsable: lead.responsable || yo || null, estado: "pendiente", origen: "etapa" });
-          msg += ` Queda una llamada de seguimiento ${cuandoTexto(f)}.`;
-        }
-      }
       toast(msg, "", accion);
     } catch (e) { toast(dbErrorText(e), "bad"); }
-  }, [wrapApi, tareasPorLead, moverEtapa, marcarTarea, cerrarTareasDe, toast, openLead, yo]);
+  }, [wrapApi, tareasPorLead, moverEtapa, marcarTarea, cerrarTareasDe, toast, openLead]);
   const hoyKey = todayKey();
   let pendientes = 0;
   for (const l of leads || []) {
@@ -7030,6 +7382,7 @@ function App() {
     db, api: wrapApi, me, yo, leads: leads || [], leadsById, acts, drafts, equipo, cfg, sampleState, setSampleState, downloads, toast, nameOf, team, redactarTareas,
     tareas: tareas || [], tareasPorLead, siguienteDe, completarTarea, marcarTarea, agendarReunion, moverEtapa, cerrarTareasDe,
     cal, calCuenta, calListo, equipoCorreos, registro: registro || {}, leadDeEvento, permitirCalendario, refrescarCalendario, abrirPermisos, moverReunion, crearEventoDeReunion, recordatorio, prepararReunion,
+    assets, subirArchivo, borrarArchivo, guardarPropuesta, diasEnEtapa,
     clientes: clientes || [], clientesById, proyectos: proyectos || [], proyectosById, cobros: cobros || [], mantenciones: mantenciones || [], solicitudes: solicitudes || [],
     openLead, openCliente, openProyecto, openDraft, openModal, closeModal, nav, changeStage, moveProyecto, moverCliente, canWrite, profileName: me.name,
   };
@@ -7102,6 +7455,7 @@ function App() {
       ${modal.type === "noContesto" ? html`<${NoContestoModal} lead=${modal.lead} />` : null}
       ${modal.type === "agendar" ? html`<${AgendarModal} lead=${modal.lead} tarea=${modal.tarea} desdeEtapa=${!!modal.desdeEtapa} />` : null}
       ${modal.type === "reunionHecha" ? html`<${ReunionHechaModal} lead=${modal.lead} tarea=${modal.tarea} />` : null}
+      ${modal.type === "propuesta" ? html`<${PropuestaModal} lead=${modal.lead} tarea=${modal.tarea} desdeEtapa=${!!modal.desdeEtapa} editar=${!!modal.editar} />` : null}
       ${modal.type === "propuestaCliente" ? html`<${PropuestaClienteModal} cliente=${modal.cliente} de=${modal.de} />` : null}
       ${modal.type === "won" ? html`<${WonModal} lead=${modal.lead} />` : null}
       ${modal.type === "newCliente" ? html`<${NewClienteModal} />` : null}

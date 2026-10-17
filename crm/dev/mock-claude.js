@@ -1,6 +1,6 @@
-/* Imita window.claude (db, user, sample, downloads, permissions y, si la prueba lo pide, mcp con
-   Google Calendar) para probar el CRM fuera de claude.ai, y el micrófono con el reconocimiento de
-   voz del navegador para «Transcribir en vivo».
+/* Imita window.claude (db, user, sample, downloads, assets, permissions y, si la prueba lo pide,
+   mcp con Google Calendar) para probar el CRM fuera de claude.ai, y el micrófono con el
+   reconocimiento de voz del navegador para «Transcribir en vivo».
    Solo para desarrollo: build_preview.py lo inyecta antes de la página en crm/dev/preview.html.
    - db: almacén en memoria con la misma forma de la API (doc/collection, where/orderBy/limit,
      get/set/update/delete, onSnapshot). Rechaza valores undefined como lo haría el JSON real.
@@ -132,6 +132,12 @@
 
   const plus = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); };
   function answer(p) {
+    if (p.includes("reunión semanal de los socios")) return {
+      titular: "Semana con más reuniones, pero dos propuestas sin respuesta.",
+      bien: ["Se agendaron reuniones nuevas", "Las llamadas se registraron con su análisis"],
+      atencion: ["Taller Norte lleva días con la propuesta sin respuesta", "Quedan leads nuevos sin llamar"],
+      proximos: ["Llamar a Taller Norte por la propuesta", "Llamar a los leads nuevos de la lista", "Preparar la reunión del martes"],
+    };
     if (p.includes("Prepara a un socio de ZH Development para una reunión")) return {
       objetivo: "Entender cómo cotizan hoy y acordar si vale la pena una propuesta escrita.",
       agenda: ["5 min: presentarnos y confirmar el objetivo", "15 min: que muestre cómo cotiza hoy", "7 min: qué le cuesta y quién decide", "3 min: siguiente paso"],
@@ -381,7 +387,39 @@
     window.__mcpRefrescar = () => { for (const w of watchers) entregar(w); };
   }
 
-  const caps = { db, user, sample, downloads, permissions, ...(mcp ? { mcp } : {}) };
+  /* Archivos (capacidad «assets»): guarda los archivos en memoria. Con window.__MOCK_ASSETS =
+     { off: true } la vista no puede subir (como un lector); { falla: "<código>" } rechaza cada
+     subida y { fallaUnaVez: "store_unavailable" } solo la primera. window.__assetCalls guarda cada
+     llamada y window.__assets los archivos guardados. */
+  const asCfg = window.__MOCK_ASSETS || {};
+  window.__assetCalls = [];
+  window.__assets = new Map();
+  const TIPOS_OK = ["image/png", "image/jpeg", "image/gif", "image/webp", "image/svg+xml", "video/mp4", "video/webm", "application/pdf", "font/woff2", "font/woff", "font/ttf", "font/otf", "text/csv", "text/markdown", "application/json", "text/plain", "text/css", "text/javascript"];
+  let fallaUna = asCfg.fallaUnaVez || "";
+  const assets = asCfg.off ? null : Object.freeze({
+    async upload(blob, options) {
+      const type = (options && options.type) || (blob && blob.type) || "";
+      window.__assetCalls.push({ tipo: "upload", type, size: blob && blob.size, nombre: blob && blob.name });
+      await tick(40);
+      if (!(blob instanceof Blob) || !blob.size) throw { code: "invalid_request", message: "simulado: blob vacío" };
+      if (fallaUna) { const c = fallaUna; fallaUna = ""; throw { code: c, message: "simulado: " + c }; }
+      if (asCfg.falla) throw { code: asCfg.falla, message: "simulado: " + asCfg.falla };
+      if (!TIPOS_OK.includes(type)) throw { code: "unsupported_type", message: "simulado: " + type };
+      if (blob.size > (type === "image/svg+xml" ? 2 : 20) * 1024 * 1024) throw { code: "too_large", message: "simulado: muy grande" };
+      const id = Array.from({ length: 32 }, () => "0123456789abcdef"[Math.floor(Math.random() * 16)]).join("");
+      window.__assets.set(id, { type, size: blob.size, nombre: blob.name || "" });
+      return { id, url: "/_blob/" + id, sizeBytes: blob.size, contentType: type };
+    },
+    async list() { return { assets: [...window.__assets].map(([id, a]) => ({ id, url: "/_blob/" + id, contentType: a.type, sizeBytes: a.size, createdAt: new Date().toISOString() })), usage: { files: window.__assets.size, bytes: 0, maxFiles: 1000, maxBytes: 1 << 30 } }; },
+    async delete(ref) {
+      window.__assetCalls.push({ tipo: "delete", ref });
+      await tick(30);
+      const id = String(ref).replace(/^\/_blob\//, "");
+      return { deleted: window.__assets.delete(id) };
+    },
+  });
+
+  const caps = { db, user, sample, downloads, permissions, ...(assets ? { assets } : {}), ...(mcp ? { mcp } : {}) };
   const memo = {};
   window.claude = Object.freeze({ use: (name) => (memo[name] = memo[name] || tick(30).then(() => caps[name] || null)) });
 })();

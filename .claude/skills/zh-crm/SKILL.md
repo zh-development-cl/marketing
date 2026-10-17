@@ -80,8 +80,12 @@ organizador}` (ver «Google Calendar»).
     `inasistencias` + 1 y una actividad `nota` («No se presentó a la reunión del …»); después, una
     tarea de `whatsapp` para reagendar o, si el socio lo dice, `perdido` (por defecto con
     `motivoPerdida: "No responde"` y el detalle en `motivoDetalle`).
-  - `propuesta` → `propuesta` y, si no tiene otra tarea, una de `llamar` «Seguimiento de la
-    propuesta» a los 3 días hábiles.
+  - `propuesta` → `propuesta`, con lo que diga el socio en el lead: `propuesta: {monto (sin IVA,
+    entero, o null), fecha: "AAAA-MM-DD", enlace, archivo: ""}` y `valor` = monto si lo hay; la
+    actividad de etapa lleva `resumen: "Propuesta enviada: $4.500.000 + IVA"` (o solo «Propuesta
+    enviada»). Después, una tarea `llamar` «Seguimiento de la propuesta» para el día que diga el
+    socio (si no dice, a los 3 días hábiles), para el `responsable` del lead, salvo que ya tenga
+    una. No inventes el monto: si no lo dicen, `null`.
 - Lo automático **nunca retrocede** una etapa ni saca un lead de `ganado`; perdido o en pausa solo
   si el socio lo dice. Al pasar a `ganado`, `perdido` o `pausa`, las tareas pendientes quedan
   `descartada` y `proxima: null`.
@@ -139,7 +143,9 @@ con «Automático», esto pasa solo al detener la grabación):
 **Si no contestó** (no contestó, buzón u ocupado): la actividad `{leadId, tipo: "llamada",
 resultado: "no_contesto" | "buzon" | "ocupado", resumen}`; la tarea de `llamar` que tocaba queda
 `hecha`; una tarea nueva `{tipo: "llamar", titulo: "Volver a llamar (N intentos sin respuesta)",
-fecha: <día hábil siguiente, u otro que digan>, hora, origen: "no_contesto"}`, y en el lead
+fecha: <día hábil siguiente, u otro que digan>, hora, origen: "no_contesto"}` (o, si le van a
+escribir, `{tipo: "whatsapp", titulo: "No contesta (N intentos sin respuesta): escribirle por
+WhatsApp"}` con su borrador unido: `tareaId` en el borrador y `borradorId` en la tarea), y en el lead
 `intentos` + 1, `ultimoIntento` = ahora y su `proxima`. La etapa no cambia: la idea es volver a
 llamar en otro momento. Desde el tercer intento, si el socio lo pide, pásalo a perdido con
 `motivoPerdida: "No responde"`.
@@ -202,6 +208,26 @@ calendario con `list_events` (si el evento aparece, la página lo une sola). Nun
 `"No hay fit"` o `"Está con la competencia"`, y lo que dijo, con sus palabras, va en
 `motivoDetalle`. Si no sabes el motivo, déjalo vacío (`""`): la tarjeta muestra «Falta el motivo»
 para que un socio lo ponga.
+
+**Lo que respondió a la propuesta:** «la aceptó» → `ganado` (convertir en cliente, receta de
+clientes); «está negociando» → `negociacion`; «no la aceptó» → `perdido` con su motivo. Si cambia
+el monto, `update` de `propuesta` completo (con los demás campos como estaban) y de `valor`.
+
+**¿Quiénes están estancados?** Leads en `reunion_concretada`, `propuesta` o `negociacion`, sin
+`noContactar`, que llevan 7 días o más en esa etapa: cuenta desde la última actividad
+`{tipo: "etapa", a: <su etapa>}` (en `propuesta`, si no está, desde `propuesta.fecha`). Responde
+del más antiguo al más nuevo, con los días, el monto de la propuesta si lo hay y su próxima tarea.
+
+**¿Cómo vamos esta semana?** Desde el lunes (hora de Chile): las actividades `llamada` con
+`leadId`, por `autor` (el id `u_…` de cada socio en `equipo`), y los leads distintos con una
+actividad `{tipo: "etapa", a: "reunion_agendada"}`, por el `responsable` del lead. Compáralos con
+`config/general.metas` (`{llamadas, reuniones}`, por socio y por semana; para el equipo, el doble).
+
+**Archivos de una ficha:** `archivos[]` del lead o del cliente (`{id, nombre, tipo, bytes, subido,
+por, etiqueta}`) apunta a archivos guardados en el artifact; se suben y se borran solo desde la
+página. Para leer uno (por ejemplo, el PDF de una propuesta), usa la herramienta `Artifact` con
+`action: "read"`, la `url` del CRM y `path` = su `id`: queda en tu carpeta temporal. Nunca lo
+copies al repositorio ni cambies esas entradas a mano.
 
 **Archivo:** la colección `archivo` guarda documentos completos que salieron del repositorio por
 tener datos de contacto (el playbook de llamadas, los guiones y la investigación de la prospección

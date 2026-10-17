@@ -232,15 +232,22 @@ const SEED = {
   ok(await tareasHoy.locator(".task", { hasText: "Ferretería Andes" }).getByRole("button", { name: "Llamar" }).isVisible(), "una tarea de llamar trae el botón para llamar");
   await shot(page, "t04-hoy.png");
   await tareasHoy.locator(".task", { hasText: "Taller Norte" }).locator(".tick").click();
-  await toast(page, "Taller Norte: Propuesta enviada. Queda una llamada de seguimiento");
+  await page.locator("#prop-title", { hasText: "Propuesta enviada a Taller Norte" }).waitFor();
+  ok(true, "completar «Enviar propuesta» pide los datos de la propuesta");
+  await page.fill("#prop-monto", "3200000");
+  await page.locator(".modal .btn.primary", { hasText: "Propuesta enviada" }).click();
+  await toast(page, "Taller Norte: Propuesta enviada por $3.200.000 + IVA. Queda una llamada de seguimiento");
   dump = await store(page);
   const seg = docs(dump, "tareas").find((x) => x.leadId === "lead-d" && x.titulo === "Seguimiento de la propuesta");
-  ok(dump["leads/lead-d"].etapa === "propuesta" && dump["tareas/tar-p"].estado === "hecha", "completar «Enviar propuesta» pasa el lead a «Propuesta enviada»");
+  ok(dump["leads/lead-d"].etapa === "propuesta" && dump["tareas/tar-p"].estado === "hecha", "al guardarla, el lead pasa a «Propuesta enviada» y la tarea queda hecha");
+  ok(dump["leads/lead-d"].valor === 3200000 && dump["leads/lead-d"].propuesta.monto === 3200000 && dump["leads/lead-d"].propuesta.fecha === T, "el monto queda en la propuesta y como valor del lead");
   ok(seg && seg.tipo === "llamar" && seg.fecha === habil(T, 3) && seg.responsable === "nicolas", "y deja la llamada de seguimiento en 3 días hábiles, para quien lo lleva");
+  await tareasHoy.locator(".task", { hasText: "Ferretería Andes" }).locator(".tick").click();
+  await toast(page, "Hecho: Primera llamada.");
+  ok((await store(page))["tareas/tar-a"].estado === "hecha", "una tarea común queda hecha con un clic");
   await page.locator(".toast button", { hasText: "Deshacer" }).click();
   await toast(page, "Listo: quedó como estaba.");
-  dump = await store(page);
-  ok(dump["leads/lead-d"].etapa === "reunion_concretada" && dump["tareas/tar-p"].estado === "pendiente" && !docs(dump, "tareas").some((x) => x.titulo === "Seguimiento de la propuesta"), "«Deshacer» vuelve todo como estaba");
+  ok((await store(page))["tareas/tar-a"].estado === "pendiente", "y «Deshacer» la deja pendiente otra vez");
 
   /* ---------------- la reunión que no se hizo ---------------- */
   await tareasHoy.locator(".task", { hasText: "Café Central" }).getByRole("button", { name: "¿Se hizo?" }).click();
