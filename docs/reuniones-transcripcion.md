@@ -13,8 +13,9 @@ Qué hace, cómo se pone en marcha (una sola vez) y qué hacer si algo falla.
   aparece en el CRM, en **Hoy → «Reuniones transcritas»**.
 - **Registrar** abre la ficha con la transcripción y Claude arma lo que corresponde:
   - **Lead** (la reunión de diagnóstico o la que siga): el plan, con qué pasó, la etapa, las tareas
-    de ZH, la próxima reunión (con Meet, en el calendario de `contacto@`, invitando a
-    Lorenzo y a Nicolás: los correos de Ajustes → «Correos del equipo») y la confirmación por WhatsApp o correo.
+    de ZH, la próxima reunión (con Meet, en el calendario de `contacto@`, que es la cuenta con que
+    trabaja Lorenzo, e invitando a los correos de Ajustes → «Correos del equipo», hoy el de
+    Nicolás) y la confirmación por WhatsApp o correo.
   - **Cliente**: el acta, con los acuerdos, lo pendiente de cada lado, las tareas de ZH (con día y
     responsable), la próxima reunión y las solicitudes para Soporte.
   - Nada se guarda ni se agenda hasta que tú confirmas o corriges.
@@ -44,7 +45,7 @@ Google Meet (contacto@)  ←  zh-reuniones (Vercel)  ←  conector «ZH Reunione
    que **`contacto@` tenga la licencia**, porque organiza las reuniones y en su Drive quedan las
    transcripciones. Prueba rápida: entrar a meet.google.com con `contacto@`, iniciar una reunión y
    abrir «Actividades» (abajo a la derecha); si aparece «Transcripciones», está listo. Si no: en
-   admin.google.com (con la cuenta administradora del dominio) → Usuarios → `contacto@` →
+   admin.google.com (con `contacto@`, que administra el dominio) → Usuarios → `contacto@` →
    Licencias, y en Aplicaciones → Google Workspace → Google Meet → configuración de video de Meet →
    Transcripciones, permitir que se transcriba.
 2. **Las reuniones las organiza `contacto@`.** Solo se transcriben solas las reuniones de esa
@@ -60,7 +61,7 @@ Google Meet (contacto@)  ←  zh-reuniones (Vercel)  ←  conector «ZH Reunione
 
 ### 1. Google Cloud
 
-Con `contacto@zhdevelopment.cl` (o con la cuenta que administra Workspace), en
+Con `contacto@zhdevelopment.cl` (la que administra Workspace), en
 https://console.cloud.google.com:
 
 1. Crear un proyecto, por ejemplo «ZH Reuniones».
@@ -90,7 +91,7 @@ Variables, para Production y Preview:
 | `GOOGLE_CLIENT_ID` | el ID de cliente del paso 1 | Plain |
 | `GOOGLE_CLIENT_SECRET` | el secreto del paso 1 | Sensitive |
 | `GOOGLE_CUENTA` | `contacto@zhdevelopment.cl` (ya está) | Plain |
-| `EQUIPO` | los correos de Lorenzo y de Nicolás, separados por comas (ya está) | Plain |
+| `EQUIPO` | el correo de Nicolás (ya está). `contacto@`, con la que entra Lorenzo, ya puede por `GOOGLE_CUENTA`. Si se suma alguien, su correo va separado por comas | Plain |
 | `AUTH_SECRET` | opcional: una clave larga al azar para firmar las llaves del conector (si no está, se usa el secreto de Google; si se agrega o se cambia después, cada uno vuelve a conectar el conector) | Sensitive |
 
 Después: Deployments → el último → **Redeploy**. En https://zh-reuniones.vercel.app la lista dice
@@ -110,7 +111,8 @@ qué falta.
 1. claude.ai → Configuración → Conectores → **Agregar conector personalizado**:
    - Nombre: **ZH Reuniones** (exacto: el CRM lo busca por ese nombre).
    - URL: `https://zh-reuniones.vercel.app/mcp`
-   - Conectar y entrar con tu cuenta de Google del equipo (la de tu correo en `EQUIPO`). Si
+   - Conectar y entrar con tu cuenta de Google: Lorenzo con `contacto@zhdevelopment.cl` y Nicolás
+     con la suya (la de `EQUIPO`). Si
      claude.ai dice que solo un administrador puede agregar conectores, lo agrega quien
      administra la organización y cada uno toca «Conectar».
 2. En el conector, deja las tres herramientas en **Permitir siempre** («Transcribir una reunión»,
