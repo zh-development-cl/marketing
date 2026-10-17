@@ -18,7 +18,8 @@ revisarlos antes de enviarlos.
 |---|---|
 | Hoy | Las tareas del día: atrasadas, de hoy y de los próximos 7 días, cada una con su círculo para completarla y su botón (llamar, revisar el borrador, agendar, «Unirse a Meet», «¿Se hizo?»), con un filtro para ver lo de Lorenzo o lo de Nicolás; el **Calendario** de `contacto@zhdevelopment.cl` (hoy y los próximos 7 días, con el lead de cada reunión, Meet, la respuesta a la invitación y «Crear lead» para quien todavía no es lead); los leads por contactar, los que no tienen tarea, los borradores por revisar y la actividad reciente. Con clientes: pagos atrasados, cobros por facturar, hitos y garantías que terminan en los próximos 7 días, y el soporte abierto. |
 | **Ventas** | |
-| Leads | Tabla con búsqueda por nombre, empresa, correo o teléfono, y filtros por etapa, origen y responsable. «Tabla / Tablero» cambia al embudo. |
+| Llamar en serie | Las llamadas de hoy, una tras otra: primero las tareas de llamar atrasadas y de hoy, después los leads nuevos sin tarea (prioridad alta primero), solo con teléfono. Cada una muestra el teléfono grande, la tarea, el dolor, cómo ayudamos, el guion y los últimos contactos; «Contestó: registrar» abre el registro de la llamada (con «Transcribir en vivo»), «No contestó» deja el intento y la próxima tarea, y al terminar pasa sola a la siguiente. «Saltar», la lista «Después» y el filtro por socio. En el teléfono está en la barra de abajo. |
+| Leads | Tabla con búsqueda por nombre, empresa, correo o teléfono, y filtros por etapa, origen y responsable. «Tabla / Tablero» cambia al embudo. Con la casilla de cada fila se eligen varios para asignarlos a un socio, moverlos a Por contactar, Contactado, En pausa o Perdido (con su motivo) o agregarles una tarea. |
 | Embudo de leads | Tablero por etapa, al estilo de HubSpot: las tarjetas se arrastran de una etapa a otra, hasta «Ganado» (ver «Embudo de leads»). |
 | **Clientes** | |
 | Clientes | Lista de clientes con su etapa, sus servicios (proyecto en curso, garantía, mantención), las solicitudes abiertas y lo que falta cobrar. «Tabla / Tablero» cambia al embudo de clientes. |
@@ -27,7 +28,12 @@ revisarlos antes de enviarlos.
 | Soporte | Solicitudes de los clientes, con su cobertura: garantía, mantención o evolutivo. |
 | Cobros | Anticipos, pagos por hito, evolutivos y mensualidades: por facturar, facturado, vencido y pagado. |
 | Borradores | Correos y WhatsApp redactados con Claude o a mano, con vista previa y acciones de envío. |
+| Métricas | El embudo de hoy con su valor y el pronóstico ponderado por etapa; en el período elegido (7, 30 o 90 días, o 12 meses): llamadas y cuántas contestaron, reuniones, ganados, hasta dónde llegaron los leads nuevos, por qué se perdieron, la actividad de cada socio, el puntaje de las llamadas por criterio (y dónde mejorar) y, con clientes, lo vencido, lo por cobrar en 30 días y lo pagado. |
 | Ajustes | Firma de cada socio, WhatsApp de negocios, enlace para agendar, cuenta de Google de ZH (`contacto@zhdevelopment.cl`: su calendario es el que lee y escribe el CRM, y Gmail se abre en ella), correos del equipo (se invitan a las reuniones y nunca se confunden con un lead), estado de Google Calendar, garantía y plazo de pago por defecto, exportación. |
+
+**Buscar** (⌘K o Ctrl+K, «/» o el botón «Buscar» del menú): leads, clientes, proyectos y acciones
+(nuevo lead, importar, ir a una sección), por palabras sueltas, sin tildes o por los dígitos del
+teléfono. Las flechas eligen y Enter abre; sin texto, muestra los leads con algo para hoy.
 
 **Ficha del lead** (se abre al tocar un lead): arriba, la empresa, la persona, la etapa y quién lo
 lleva; teléfono y correo con copiar, llamar y WhatsApp; **las tareas** (ver «Tareas y flujo
@@ -80,11 +86,20 @@ lead: se ve en su tarjeta y la página la copia en `proxima` para la tabla, el C
 Completar una tarea (el círculo, en la tarjeta del embudo, en Hoy o en la ficha) hace lo que
 corresponde:
 
-- **Agendar reunión** pide el día, la hora y la duración: crea el evento en Google Calendar con Meet
-  (Google le manda la invitación al lead y al equipo), queda la tarea de la reunión unida al
-  evento, el lead pasa a **Reunión agendada** y, si se pide, Claude deja redactada la confirmación
-  por WhatsApp o correo, con el enlace de Meet, y una tarea para enviarla hoy (ver «Google
-  Calendar»). Las demás tareas de agendar del lead quedan hechas.
+- **Agendar reunión** pide el día, la hora y la duración, con los **horarios libres** de ese día
+  según el calendario (de 9 a 19) y un aviso si la hora choca con otro evento: crea el evento en
+  Google Calendar con Meet (Google le manda la invitación al lead y al equipo), queda la tarea de
+  la reunión unida al evento, el lead pasa a **Reunión agendada** y, si se pide, Claude deja
+  redactada la confirmación por WhatsApp o correo, con el enlace de Meet, y una tarea para
+  enviarla hoy (ver «Google Calendar»). Las demás tareas de agendar del lead quedan hechas.
+- **Recordatorio:** cada reunión con un lead que tiene teléfono deja una tarea de WhatsApp para el
+  día hábil anterior, con el mensaje listo (día, hora y enlace de Meet, de tú o de usted):
+  «Enviar por WhatsApp» abre el chat con el texto escrito y también se puede copiar. Se mueve si
+  la reunión se mueve y se descarta si la reunión se cierra. Nunca se envía solo; se apaga en
+  Ajustes → Google Calendar.
+- **Preparar con Claude** (en la tarea de la reunión): el objetivo, la agenda con minutos, las
+  preguntas, las señales de que hay proyecto, los riesgos con cómo responder y el cierre. Queda
+  guardado en la tarea («Preparación de Claude»); Claude no propone precios.
 - **La reunión**, pasada su hora, pregunta **«¿Se hizo?»**: «Sí» la da por hecha, pasa el lead a
   **Reunión concretada** y abre «Registrar reunión»; **«No se presentó»** anota la inasistencia y
   deja la tarea de escribirle hoy para reagendar (con el WhatsApp redactado por Claude, sin
@@ -350,7 +365,7 @@ calendario `AAAA-MM-DD` en hora de Chile; marcas de tiempo en ISO. En todas las 
 | Colección | Documento | Campos principales |
 |---|---|---|
 | `leads` | un lead | `nombre`, `empresa`, `cargo`, `telefono` (E.164, `+569…`), `correo`, `sitio`, `rubro`, `ciudad`, `origen` (`web`, `agenda`, `instagram`, `linkedin`, `referido`, `evento`, `prospeccion`, `otro`), `etapa` (`nuevo`, `contactado`, `reunion_agendada`, `reunion_concretada`, `propuesta`, `negociacion`, `ganado`, `perdido`, `pausa`; un `reunion` antiguo se lee como `reunion_agendada`), `prioridad` (`alta`, `media`, `baja`), `trato` (`tu`, `usted`), `necesidad` (lo que pide, confirmado), `dolor` (lo que suponemos), `comoAyudamos`, `guion`, `notas`, `responsable` (`lorenzo`, `nicolas` o `null`), `proxima` (copia de su primera tarea pendiente: `{tipo, fecha AAAA-MM-DD, hora, nota, tareaId}` o `null`; la página la pone al día sola, y una `proxima` sin `tareaId` se muestra como tarea), `intentos` (llamadas seguidas sin respuesta), `ultimoContacto`, `ultimoIntento`, `motivoPerdida` (`No responde`, `Mal timing`, `No hay fit`, `Está con la competencia`; vacío = falta; puede quedar un texto antiguo), `motivoDetalle` (lo que dijo), `inasistencias` (reuniones a las que no se presentó), `noContactar`, `noContactarDesde`, `valor`, `caso` (id en `propuestaszh`), `clienteId` (si se convirtió), `creado`, `actualizado`, `creadoPor` |
-| `tareas` | una tarea de un lead | `leadId`, `tipo` (`llamar`, `whatsapp`, `correo`, `agendar`, `reunion`, `propuesta`, `otro`), `titulo`, `nota` (detalle interno), `fecha` (`AAAA-MM-DD`), `hora` (`HH:MM` o vacío), `duracion` (minutos, en reuniones), `responsable`, `estado` (`pendiente`, `hecha`, `descartada`), `resultado` (en reuniones: `no_se_presento`), `hecha` (ISO), `hechaPor`, `origen` (`llamada`, `reunion`, `no_contesto`, `agendar`, `etapa`, `borrador`, `manual`, `migracion`, `calendario`, `agenda_web`), `actividadId` (la llamada o reunión de la que salió o que la cumplió), `borradorId` (el mensaje redactado para ella), `evento` (en reuniones unidas a Google Calendar: `{id, link, meet, respuesta, actualizado, propio, organizador}`, con `respuesta` = `needsAction`, `accepted`, `declined` o `tentative` del lead y `propio` = si lo organiza la cuenta del calendario) |
+| `tareas` | una tarea de un lead | `leadId`, `tipo` (`llamar`, `whatsapp`, `correo`, `agendar`, `reunion`, `propuesta`, `otro`), `titulo`, `nota` (detalle interno), `fecha` (`AAAA-MM-DD`), `hora` (`HH:MM` o vacío), `duracion` (minutos, en reuniones), `responsable`, `estado` (`pendiente`, `hecha`, `descartada`), `resultado` (en reuniones: `no_se_presento`), `hecha` (ISO), `hechaPor`, `origen` (`llamada`, `reunion`, `no_contesto`, `agendar`, `etapa`, `borrador`, `manual`, `migracion`, `calendario`, `agenda_web`, `recordatorio`), `actividadId` (la llamada o reunión de la que salió o que la cumplió), `borradorId` (el mensaje redactado para ella), `mensaje` (en WhatsApp: el texto listo, como el del recordatorio), `reunionId` (en el recordatorio: la reunión; su id es `tar-rec-<id de la reunión>`), `preparacion` y `preparada` (en reuniones: la preparación de Claude y cuándo se hizo), `evento` (en reuniones unidas a Google Calendar: `{id, link, meet, respuesta, actualizado, propio, organizador}`, con `respuesta` = `needsAction`, `accepted`, `declined` o `tentative` del lead y `propio` = si lo organiza la cuenta del calendario) |
 | `eventos` | uno por evento de Google Calendar (id del evento) | `leadId`, `tareaId`, `inicio` (ISO), `evActualizado` (el `updated` del evento que se vio), `actualizado` |
 | `clientes` | un cliente | `nombre`, `razonSocial`, `rut`, `giro`, `direccion`, `ciudad`, `correoFacturacion`, `sitio`, `rubro`, `contactos[]` (`{id, nombre, cargo, correo, telefono, rol, principal}`, con `rol` = `decisor`, `usuario`, `facturacion`, `tecnico` u `otro`), `responsable`, `trato`, `leadIds[]`, `estado` (`activo`, `archivado`), `etapa` (embudo de clientes: `inicio`, `desarrollo`, `garantia`, `mantencion`, `propuesta`, `sin_servicio`; vacío o `null` = automática, según sus servicios), `propuesta` (`{titulo, valor}` en «Nueva propuesta»), `notas` |
 | `proyectos` | un proyecto | `clienteId`, `leadId`, `nombre`, `tipo` (`software`, `automatizacion`, `ia`, `web`, `procesos`, `consultoria`, `otro`), `valor`, `estado` (`por_iniciar`, `entender`, `disenar`, `construir`, `probar`, `mejorar`, `cerrado`, `pausado`, `cancelado`), `inicio`, `entregaEstimada`, `produccion` (desde aquí corre la garantía), `garantiaDias`, `cierre`, `hitos[]` (`{id, nombre, fecha, hecho, fechaHecho}`), `enlaces[]` (`{id, titulo, url}`), `caso`, `alcance`, `responsable`, `notas` |
@@ -362,7 +377,7 @@ calendario `AAAA-MM-DD` en hora de Chile; marcas de tiempo en ISO. En todas las 
 | `equipo` | uno por usuario (id `u_…`) | `nombre`, `cargo`, `telefono`, `correo` (la firma) |
 | `diagnostico` | `microfono-<id de usuario>` | último resultado de «Transcribir en vivo»: `ok`, `paso`, `tipo`, `error`, `politica`, `enMarco`, `navegador`, `fecha` |
 | `archivo` | un documento guardado | `titulo`, `ruta`, `rama`, `commit`, `contenido`, `guardado`, `nota`: copias de documentos que salieron del repositorio público por tener datos de contacto (por ejemplo, el playbook y los guiones de la prospección de octubre de 2026). No se ven en la página; entran en el respaldo JSON |
-| `config` | `general` | `whatsappNegocios`, `agendaUrl`, `gmailCuenta` (la cuenta de Google de ZH: `contacto@zhdevelopment.cl`, cuyo calendario usa el CRM), `correosEquipo` (lista de correos del equipo), `abrirWhatsapp` (`app`, `web`), `garantiaDias` (60 si no está), `plazoPago` (30 si no está) |
+| `config` | `general` | `whatsappNegocios`, `agendaUrl`, `gmailCuenta` (la cuenta de Google de ZH: `contacto@zhdevelopment.cl`, cuyo calendario usa el CRM), `correosEquipo` (lista de correos del equipo), `recordatorioReunion` (`false` apaga el recordatorio por WhatsApp; si no está, va prendido), `abrirWhatsapp` (`app`, `web`), `garantiaDias` (60 si no está), `plazoPago` (30 si no está) |
 
 Borrar un cliente borra sus proyectos, cobros, mantenciones, solicitudes, borradores e historial
 (sus leads quedan, sin el enlace). Borrar un proyecto borra sus cobros pendientes; lo pagado, las
@@ -390,6 +405,7 @@ NODE_PATH=$(npm root -g) node crm/dev/microfono.cjs # transcribir en vivo, con m
 NODE_PATH=$(npm root -g) node crm/dev/embudo.cjs    # embudos de leads y de clientes, y Proyectos: arrastrar (mouse y dedo), montos, filtros, responsables, no contestó y motivos de pérdida
 NODE_PATH=$(npm root -g) node crm/dev/tareas.cjs    # tareas y flujo automático: grabar y guardar solo, agendar, ¿se hizo?, propuesta y deshacer, menú contraído
 NODE_PATH=$(npm root -g) node crm/dev/calendario.cjs # Google Calendar: unir eventos con leads, reservas de la web, mover, invitaciones, crear y mover eventos, permisos
+NODE_PATH=$(npm root -g) node crm/dev/mejoras.cjs   # buscar, llamar en serie, horarios libres, recordatorio, preparar con Claude, métricas, selección múltiple
 ```
 
 `crm/dev/mock-claude.js` imita `window.claude` (base de datos en memoria, Claude con respuestas

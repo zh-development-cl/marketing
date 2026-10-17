@@ -149,9 +149,13 @@ const SEED = {
   ok(docs(dump, "actividades").some((a) => a.leadId === "lead-b" && a.tipo === "etapa" && a.de === "contactado" && a.a === "reunion_agendada"), "el cambio de etapa queda en el historial");
   await toast(page, "Quedó redactado 1 borrador");
   dump = await store(page);
-  const conf = docs(dump, "tareas").find((x) => x.leadId === "lead-b" && x.tipo === "whatsapp");
+  const conf = docs(dump, "tareas").find((x) => x.leadId === "lead-b" && x.tipo === "whatsapp" && x.origen === "agendar");
   const bconf = conf && dump["borradores/" + conf.borradorId];
   ok(conf && conf.fecha === T && bconf && bconf.objetivo === "confirmar" && bconf.tareaId === conf.id, "la confirmación queda redactada por Claude, unida a una tarea para hoy");
+  const rec = dump["tareas/tar-rec-" + rb.id];
+  const antes = (() => { let d = addDays(addDays(T, 4), -1); while ([0, 6].includes(new Date(d + "T12:00:00Z").getUTCDay())) d = addDays(d, -1); return d; })();
+  ok(rec && rec.tipo === "whatsapp" && rec.origen === "recordatorio" && rec.reunionId === rb.id && rec.fecha === antes && rec.estado === "pendiente", "queda el recordatorio por WhatsApp el día hábil anterior a la reunión");
+  ok(rec && /^Hola Bruno, te escribo para recordarte nuestra reunión (de mañana|del \S+) a las 12:00\. ¡Nos vemos!$/.test(rec.mensaje), "con el mensaje listo, de tú y con la hora");
   ok(await col(page, "reunion_agendada").locator(".kcard.lead", { hasText: "Viña Norte" }).isVisible(), "la tarjeta queda en «Reunión agendada»");
   await page.waitForFunction(() => { const l = window.__mockStore.get("leads/lead-b"); return l.proxima && l.proxima.tareaId && l.proxima.tipo === "whatsapp"; }, null, { timeout: 5000 });
   ok(true, "la «próxima acción» del lead sigue a su primera tarea pendiente");
@@ -168,7 +172,7 @@ const SEED = {
   await toast(page, "su tarea quedó hecha");
   dump = await store(page);
   ok(dump["tareas/" + conf.id].estado === "hecha", "la tarea de confirmar queda hecha al enviar el borrador");
-  ok(docs(dump, "tareas").filter((x) => x.leadId === "lead-b" && x.estado === "pendiente").length === 1, "y no se agrega un seguimiento");
+  ok(docs(dump, "tareas").filter((x) => x.leadId === "lead-b" && x.estado === "pendiente").map((x) => x.tipo).sort().join(",") === "reunion,whatsapp", "y no se agrega un seguimiento (quedan la reunión y su recordatorio)");
 
   /* ---------------- tareas a mano en la ficha ---------------- */
   await page.locator("#lead-title", { hasText: "Viña Norte" }).waitFor();

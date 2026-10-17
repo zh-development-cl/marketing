@@ -735,6 +735,106 @@ button.cev-titulo:focus-visible, a.cev-titulo:focus-visible, .cev-meta a:focus-v
 .resp.warn { color: var(--warn); font-weight: 600; }
 .resp.today { color: var(--accent); font-weight: 600; }
 .cal-pie { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-top: 12px; font-size: 12.5px; color: var(--fg-3); }
+/* ---------- buscar (⌘K) ---------- */
+kbd { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 5px; border: 1px solid var(--line-2); border-bottom-width: 2px; border-radius: 5px; background: var(--surface); color: var(--fg-3); font: 500 11px/1 var(--font-mono); }
+.cmdk-wrap { position: fixed; inset: 0; z-index: 70; display: grid; justify-items: center; align-items: start; padding: max(12vh, calc(env(safe-area-inset-top, 0px) + 24px)) max(16px, env(safe-area-inset-right, 0px)) 24px max(16px, env(safe-area-inset-left, 0px)); }
+.cmdk-wrap .scrim { position: fixed; inset: 0; }
+.cmdk { position: relative; width: min(640px, 100%); max-height: min(560px, 76vh); display: grid; grid-template-rows: auto minmax(0, 1fr) auto; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-l); box-shadow: var(--shadow); overflow: hidden; }
+.cmdk-input { display: flex; align-items: center; gap: 10px; padding: 0 14px; border-bottom: 1px solid var(--line); color: var(--fg-3); }
+.cmdk-input input { flex: 1; min-width: 0; height: 54px; border: 0; background: transparent; color: var(--fg); font: 400 16px/1.3 var(--font-text); outline: none; }
+.cmdk-input input::-webkit-search-cancel-button { display: none; }
+.cmdk-list { overflow-y: auto; padding: 6px; overscroll-behavior: contain; }
+.cmdk-group + .cmdk-group { margin-top: 4px; }
+.cmdk-group > p { margin: 8px 10px 4px; font: 600 12px/1.2 var(--font-text); color: var(--fg-3); }
+.cmdk-item { all: unset; box-sizing: border-box; width: 100%; display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 10px; cursor: pointer; }
+.cmdk-item.on { background: var(--accent-soft); }
+.cmdk-ico { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; background: var(--sunken); color: var(--fg-2); }
+.cmdk-item.on .cmdk-ico { background: var(--surface); color: var(--accent); }
+.cmdk-txt { display: grid; gap: 1px; min-width: 0; }
+.cmdk-txt b { font-weight: 600; font-size: 14.5px; color: var(--fg); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cmdk-txt span { font-size: 12.5px; color: var(--fg-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cmdk-foot { display: flex; flex-wrap: wrap; gap: 6px 16px; padding: 9px 14px; border-top: 1px solid var(--line); background: var(--surface-2); font-size: 12px; color: var(--fg-3); }
+.cmdk-foot span { display: inline-flex; align-items: center; gap: 4px; }
+@media (max-width: 600px) { .cmdk-wrap { padding-top: calc(env(safe-area-inset-top, 0px) + 12px); } .cmdk { max-height: 82vh; } .cmdk-foot { display: none; } }
+.nav .nav-buscar { margin-bottom: 6px; border: 1px solid var(--side-line); }
+.nav .nav-buscar kbd { margin-left: auto; border-color: var(--side-line); background: transparent; color: var(--side-fg-2); }
+.app.mini .nav .nav-buscar kbd { display: none; }
+.btn.ghost-dark { background: transparent; border-color: transparent; color: var(--side-fg); }
+
+/* ---------- métricas ---------- */
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+.kpi { display: grid; gap: 4px; align-content: start; padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--r-l); background: var(--surface); min-width: 0; }
+.kpi > span { font-size: 13px; font-weight: 500; color: var(--fg-2); }
+.kpi > b { font: 600 27px/1.15 var(--font-text); color: var(--fg); letter-spacing: -0.01em; white-space: nowrap; }
+@media (max-width: 600px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .kpi { padding: 12px 13px; } .kpi > b { font-size: 21px; } }
+.kpi > small { font-size: 12.5px; color: var(--fg-3); }
+.kpi.alerta > b { color: var(--bad); }
+.kpis.mini { grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin-bottom: 12px; }
+.kpis.mini .kpi { padding: 10px 12px; border-radius: var(--r-m); background: var(--surface-2); }
+.kpis.mini .kpi > b { font-size: 22px; }
+.hbars { display: grid; gap: 10px; margin: 6px 0 12px; }
+.hbar { display: grid; grid-template-columns: minmax(96px, 38%) minmax(0, 1fr) auto; gap: 10px; align-items: center; }
+.hbar-l { font-size: 13.5px; color: var(--fg-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hbar-t { display: block; height: 12px; border-left: 1px solid var(--line-2); }
+.hbar-f { display: block; height: 100%; border-radius: 0 4px 4px 0; }
+.hbar-v { font-size: 13px; font-weight: 600; color: var(--fg); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.mtabla { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.mtabla th, .mtabla td { padding: 8px 10px; border-top: 1px solid var(--line); text-align: right; font-variant-numeric: tabular-nums; }
+.mtabla thead th { border-top: 0; font-size: 12.5px; font-weight: 600; color: var(--fg-3); }
+.mtabla th[scope="row"], .mtabla thead th:first-child { text-align: left; font-weight: 500; color: var(--fg-2); }
+.mtabla tr.peor th, .mtabla tr.peor td { background: var(--warn-soft); }
+.mcel { display: inline-grid; grid-template-columns: 56px auto; gap: 8px; align-items: center; justify-content: end; }
+.mbar { display: block; height: 8px; justify-self: end; border-radius: 4px 0 0 4px; background: var(--accent); min-width: 0; }
+.cargando-suave .kpi > b, .cargando-suave .mtabla { opacity: 0.6; }
+
+/* ---------- selección múltiple en Leads ---------- */
+table.leads th.sel, table.leads td.sel { width: 40px; padding-right: 0; }
+table.leads td.sel input, table.leads th.sel input { width: 16px; height: 16px; accent-color: var(--btn); cursor: pointer; }
+table.leads tr.on td { background: var(--accent-soft); }
+.masivo { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 1px solid var(--line); border-radius: var(--r-l) var(--r-l) 0 0; background: var(--surface-2); }
+.masivo .select, .masivo .input { width: auto; min-height: 32px; padding-block: 4px; font-size: 13.5px; }
+.masivo .grow { flex: 1; }
+.masivo-tarea { display: inline-flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.task-nota.msg { padding: 6px 10px; border-left: 2px solid var(--line-2); color: var(--fg-2); }
+details.prep { margin-top: 4px; }
+details.prep summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var(--accent); }
+details.prep p { margin: 6px 0 4px; padding: 10px 12px; border-radius: var(--r-s); background: var(--surface-2); font-size: 13.5px; line-height: 1.55; white-space: pre-wrap; color: var(--fg); }
+.libres { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.libres > span:first-child { flex-basis: 100%; }
+
+/* ---------- llamar en serie ---------- */
+.llamar { display: grid; grid-template-columns: minmax(0, 1fr) minmax(240px, 320px); gap: 18px; align-items: start; }
+@media (max-width: 980px) { .llamar { grid-template-columns: minmax(0, 1fr); } }
+.llamar-listo { margin-bottom: 14px; }
+.llamar-card .panel-body { display: grid; gap: 16px; padding-top: 18px; }
+.ficha-llamada { display: grid; gap: 14px; }
+.fl-head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 8px 16px; }
+.fl-head h2 { font: 600 24px/1.2 var(--font-display); text-wrap: balance; }
+.fl-head p { margin: 3px 0 0; color: var(--fg-2); font-size: 14px; }
+.fl-tags { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.fl-tel { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 12px 14px; border-radius: var(--r-m); background: var(--surface-2); border: 1px solid var(--line); }
+.fl-num { font: 600 22px/1.2 var(--font-mono); letter-spacing: 0.01em; margin-right: 6px; user-select: all; }
+.fl-tarea { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; font-size: 14px; color: var(--fg-2); }
+.fl-tarea svg { color: var(--fg-3); }
+.fl-tarea span { flex-basis: 100%; font-size: 13.5px; color: var(--fg-3); white-space: pre-wrap; }
+.fl-pitch { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px 18px; }
+.fl-pitch p { margin: 4px 0 0; font-size: 14px; line-height: 1.55; color: var(--fg); white-space: pre-wrap; }
+.fl-guion summary { cursor: pointer; font-size: 13.5px; font-weight: 600; color: var(--fg-2); }
+.fl-guion p { margin: 6px 0 0; max-height: 360px; overflow-y: auto; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 14px; line-height: 1.55; color: var(--fg); }
+.fl-hist { display: grid; gap: 6px; }
+.llamar-acciones { position: sticky; bottom: 0; z-index: 2; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: -16px; padding: 12px 0 16px; border-top: 1px solid var(--line); background: var(--surface); }
+@media (max-width: 900px) { .llamar-acciones { bottom: calc(58px + env(safe-area-inset-bottom, 0px)); } }
+.llamar-acciones .grow { flex: 1; }
+.llamar-reg { padding-top: 14px; border-top: 1px solid var(--line); }
+.llamar-fin { display: grid; gap: 8px; justify-items: start; padding-block: 22px; }
+.llamar-fin h2 { font-size: 19px; }
+.cola { display: grid; }
+.cola-item { all: unset; box-sizing: border-box; display: grid; gap: 1px; padding: 9px 0; border-top: 1px solid var(--line); cursor: pointer; min-width: 0; }
+.cola-item:first-child { border-top: 0; }
+.cola-item b { font-weight: 600; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cola-item span { font-size: 12.5px; color: var(--fg-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cola-item:hover b { text-decoration: underline; }
+.cola-item:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 6px; }
 .cal-aviso p { margin: 0; }
 .cal-aviso .actions { margin-top: 8px; }
 @container (max-width: 520px) { .cev { grid-template-columns: 44px minmax(0, 1fr); } .cev-side { grid-column: 2; justify-content: flex-start; } }
@@ -1641,6 +1741,52 @@ function promptAyudaVivo(o) {
   const datos = [l.nombre && "Lead: " + l.nombre, l.empresa && "Empresa: " + l.empresa, l.cargo && "Cargo: " + l.cargo, l.necesidad && "Lo que busca: " + l.necesidad, l.dolor && "Dolor que suponemos (sin confirmar): " + clip(l.dolor, 500), l.comoAyudamos && "Cómo podemos ayudar: " + clip(l.comoAyudamos, 500), l.guion && "Guion que preparamos (úsalo de referencia, sobre todo sus respuestas a objeciones; no lo leas literal):\n" + clip(l.guion, 2500), "Etapa: " + etapaLabel(l.etapa), "Trato: " + (l.trato === "usted" ? "de usted" : "de tú")].filter(Boolean).join("\n");
   return `Estás ayudando en vivo a un vendedor de ZH durante una llamada con un lead. ${ZH_CORTO}\n\n${datos}\n\nLo último de la llamada (transcripción automática: no separa quién habla y trae errores):\n${String(o.texto || "").slice(-1800)}${o.notas ? "\n\nNotas del vendedor: " + clip(o.notas, 500) : ""}\n\nMira lo último que dijo o preguntó el lead (una objeción, una duda o un silencio) y dile al vendedor qué decir ahora. Frases cortas y naturales para decir en voz alta, en español de Chile. Habla del problema del lead. No inventes precios, plazos, casos ni clientes. Si preguntan el precio, explica que depende del alcance y que, después de entender bien lo que necesitan, ZH manda una propuesta escrita con alcance, plazo y precio. Si piden que les manden información, propón ver su caso en una reunión de 30 minutos. Nunca presiones.\nResponde solo con JSON: {"detecte": "qué dijo o pidió el lead, en una frase corta", "respuesta": "lo que el vendedor puede decir ahora, en 1 o 2 frases", "pregunta": "una pregunta para seguir, o vacío", "evitar": "algo que no conviene decir ahora, o vacío"}`;
 }
+/* El recordatorio de una reunión: el día hábil anterior, con el mensaje de WhatsApp listo. */
+const fmtDiaSemana = new Intl.DateTimeFormat("es-CL", { timeZone: "UTC", weekday: "long" });
+const diaRecordatorio = (fecha) => { let d = addDays(fecha, -1); while (isWeekend(d)) d = addDays(d, -1); return d; };
+function mensajeRecordatorio(lead, t) {
+  const cuando = diffDays(diaRecordatorio(t.fecha), t.fecha) === 1 ? "de mañana" : "del " + fmtDiaSemana.format(keyDate(t.fecha));
+  const nombre = firstName(lead.nombre);
+  const usted = lead.trato === "usted";
+  const meet = t.evento && t.evento.meet;
+  return `Hola${nombre ? " " + nombre : ""}, ${usted ? "le escribo para recordarle" : "te escribo para recordarte"} nuestra reunión ${cuando} a las ${t.hora}${meet ? `, por Google Meet: ${meet}` : ""}. ${usted ? "Quedamos atentos." : "¡Nos vemos!"}`;
+}
+
+/* Preparar una reunión con Claude: objetivo, agenda, preguntas, señales, riesgos y cierre. */
+function promptPreparacion(o) {
+  const t = o.tarea;
+  return `${ZH_CONTEXTO}
+
+Prepara a un socio de ZH Development para una reunión con un lead. Usa solo lo que está en los datos; lo que no se sabe va como pregunta para la reunión. No inventes cifras, nombres ni plazos, y no propongas precios: el precio va después, en una propuesta escrita. Español de Chile, frases cortas y concretas.
+Fecha de hoy: ${todayKey()} (hora de Chile).
+La reunión: ${t.titulo || "Reunión"}, el ${fechaTxt(t.fecha, t.hora)}, ${Number(t.duracion) || DURACION_REUNION} minutos, por Google Meet.
+
+${leadContexto(o.lead, o.hist)}
+
+Responde solo con JSON, sin texto antes ni después:
+{"objetivo": "qué tiene que salir de esta reunión, en una frase",
+ "agenda": ["3 a 5 bloques con sus minutos, que sumen la duración (ej.: \"5 min: presentarnos y confirmar el objetivo\")"],
+ "preguntas": ["5 a 7 preguntas para entender el problema, cuánto le cuesta hoy y quién decide"],
+ "senales": ["2 a 4 señales de que hay un proyecto real"],
+ "riesgos": ["2 a 4 objeciones o riesgos probables, cada uno con cómo responder"],
+ "cierre": "cómo cerrar la reunión y qué siguiente paso pedir"}`;
+}
+function sanitizePreparacion(r) {
+  const o = r && typeof r === "object" ? r : {};
+  return { objetivo: String(o.objetivo || "").trim(), agenda: strArr(o.agenda, 6), preguntas: strArr(o.preguntas, 8), senales: strArr(o.senales, 5), riesgos: strArr(o.riesgos, 5), cierre: String(o.cierre || "").trim() };
+}
+function textoPreparacion(p) {
+  const L = [];
+  const lista = (titulo, xs) => { if (xs.length) L.push("", titulo, ...xs.map((x) => "- " + x)); };
+  if (p.objetivo) L.push("Objetivo: " + p.objetivo);
+  lista("Agenda", p.agenda);
+  lista("Preguntas", p.preguntas);
+  lista("Señales de que hay proyecto", p.senales);
+  lista("Riesgos y cómo responder", p.riesgos);
+  if (p.cierre) L.push("", "Cierre: " + p.cierre);
+  return L.join("\n").trim();
+}
+
 function sanitizeAyuda(r) {
   const o = r && typeof r === "object" ? r : {};
   return { detecte: clip(String(o.detecte || "").trim(), 200), respuesta: clip(String(o.respuesta || "").trim(), 400), pregunta: clip(String(o.pregunta || "").trim(), 240), evitar: clip(String(o.evitar || "").trim(), 200) };
@@ -1845,6 +1991,9 @@ const ICONS = {
   stop: '<rect x="6.5" y="6.5" width="11" height="11" rx="2"/>',
   chevL: '<path d="m15 6-6 6 6 6"/>',
   chevR: '<path d="m9 6 6 6-6 6"/>',
+  chart: '<path d="M4 4v16h16"/><path d="M8 16v-5M12 16V8M16 16v-8"/>',
+  next: '<path d="M6 5l9 7-9 7z"/><path d="M18 5v14"/>',
+  bell: '<path d="M6 9a6 6 0 0 1 12 0c0 6 2.5 8 2.5 8h-17S6 15 6 9"/><path d="M10.3 20a1.9 1.9 0 0 0 3.4 0"/>',
 };
 function Icon({ name, size }) {
   return html`<svg viewBox="0 0 24 24" width=${size || 16} height=${size || 16} fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" dangerouslySetInnerHTML=${{ __html: ICONS[name] || "" }}></svg>`;
@@ -2056,15 +2205,17 @@ function LeadRow({ lead, mode }) {
    derecha hace lo que toca: llamar, revisar el borrador, agendar, entrar a Meet o contar cómo fue
    la reunión. Una reunión unida a Google Calendar muestra si el lead aceptó la invitación. */
 function TareaFila({ t, conLead, onEditar }) {
-  const { leadsById, openLead, openDraft, completarTarea, canWrite, cfg, nameOf, drafts, cal, calListo, crearEventoDeReunion } = useCtx();
+  const { leadsById, openLead, openDraft, completarTarea, canWrite, cfg, nameOf, drafts, cal, calListo, crearEventoDeReunion, sampleState, prepararReunion, toast } = useCtx();
   const [creando, setCreando] = useState(false);
+  const [preparando, setPreparando] = useState(false);
   const lead = leadsById[t.leadId] || null;
   const tipo = tipoTarea(t.tipo);
   const pend = tareaPendiente(t);
   const c = pend ? cuandoTarea(t) : { txt: (t.estado === "hecha" ? "Hecha " : "Descartada ") + ago(t.hecha || t.actualizado), tono: "" };
   const pasada = c.tono === "ask";
   const borrador = t.borradorId ? drafts.find((d) => d.id === t.borradorId) : null;
-  const wa = lead && lead.telefono && !lead.noContactar ? waLink(lead.telefono, "", cfg) : null;
+  const mensaje = tipo === "whatsapp" && t.mensaje ? String(t.mensaje) : "";
+  const wa = lead && lead.telefono && !lead.noContactar ? waLink(lead.telefono, mensaje, cfg) : null;
   const ev = tipo === "reunion" && t.evento && t.evento.id ? t.evento : null;
   const resp = ev && RESPUESTA[ev.respuesta];
   /* Sin evento unido: si el calendario ya tiene uno de este lead ese día, se une solo; si no, se puede crear. */
@@ -2080,28 +2231,33 @@ function TareaFila({ t, conLead, onEditar }) {
     if (pasada) accion = html`<button type="button" class="btn small primary" onClick=${() => completarTarea(t)}>¿Se hizo?</button>`;
     else if (borrador && borrador.estado !== "enviado" && borrador.estado !== "descartado") accion = html`<button type="button" class="btn small claude" onClick=${() => openDraft(borrador.id)}><${Icon} name="doc" />Revisar y enviar</button>`;
     else if (tipo === "llamar" && lead.telefono && !lead.noContactar) accion = html`<button type="button" class="btn small" onClick=${() => openLead(lead.id, "llamada")}><${Icon} name="phone" />Llamar</button>`;
-    else if (tipo === "whatsapp" && wa) accion = html`<a class="btn small" href=${wa} target="_blank" rel="noopener"><${Icon} name="chat" />WhatsApp</a>`;
+    else if (tipo === "whatsapp" && wa) accion = html`<a class="btn small" href=${wa} target="_blank" rel="noopener" title=${mensaje ? "Abre WhatsApp con el mensaje escrito" : "Abre el chat de WhatsApp"}><${Icon} name="chat" />${mensaje ? "Enviar por WhatsApp" : "WhatsApp"}</a>`;
     else if (tipo === "correo" && !lead.noContactar) accion = html`<button type="button" class="btn small" onClick=${() => openLead(lead.id, "redactar")}><${Icon} name="spark" />Redactar</button>`;
     else if (tipo === "agendar") accion = html`<button type="button" class="btn small" onClick=${() => completarTarea(t)}><${Icon} name="cal" />Agendar</button>`;
     else if (puedeCrear) accion = html`<button type="button" class="btn small" onClick=${crear} disabled=${creando} title="Crea el evento con Meet e invita al lead"><${Icon} name="cal" />${creando ? "Creando…" : "Crear en Calendar"}</button>`;
     else if (gcal) accion = html`<a class="btn small" href=${gcal} target="_blank" rel="noopener" title="Abre Google Calendar con el evento lleno"><${Icon} name="cal" />Calendario</a>`;
   }
   const verEvento = ev && ev.link && pend ? html`<a class="btn small icon" href=${ev.link} target="_blank" rel="noopener" title="Abrir el evento en Google Calendar" aria-label="Abrir el evento en Google Calendar"><${Icon} name="cal" /></a>` : null;
+  const copiarMsg = mensaje && pend ? html`<button type="button" class="btn small icon" title="Copiar el mensaje" aria-label="Copiar el mensaje" onClick=${async () => toast((await copyText(mensaje)) ? "Mensaje copiado." : "No se pudo copiar.")}><${Icon} name="copy" /></button>` : null;
+  const preparar = async () => { setPreparando(true); await prepararReunion(t); setPreparando(false); };
+  const botonPreparar = reunionAbierta && canWrite && sampleState.fn && !t.preparacion ? html`<button type="button" class="btn small claude" onClick=${preparar} disabled=${preparando} title="Claude arma el objetivo, la agenda, las preguntas y el cierre"><${Icon} name="spark" />${preparando ? "Preparando…" : "Preparar"}</button>` : null;
   const titulo = t.titulo || accionLabel(tipo);
   return html`<div class=${cx("task", t.estado === "hecha" && "done", t.estado === "descartada" && "gone")}>
     <button type="button" class=${cx("tick", t.estado === "hecha" && "on")} disabled=${!pend || !canWrite} title=${pend ? (tipo === "agendar" ? "Agendar la reunión" : tipo === "reunion" ? "¿Se hizo la reunión?" : "Marcar como hecha") : ""} aria-label=${(pend ? "Completar: " : "Hecha: ") + titulo} onClick=${() => completarTarea(t)}><${Icon} name="check" size=${12} /></button>
     <div class="task-main">
       <div class="task-title"><${Icon} name=${TIPO_TAREA[tipo][2]} size=${15} />${onEditar && pend ? html`<button type="button" title="Editar la tarea" onClick=${onEditar}>${titulo}</button>` : html`<span>${titulo}</span>`}</div>
       <div class="task-meta">${conLead && lead ? html`<button type="button" onClick=${() => openLead(lead.id)}>${leadTitulo(lead)}</button> · ` : null}<span class=${c.tono}>${c.txt}</span>${t.responsable ? " · " + nameOf(t.responsable) : ""}${pend && t.origen === "llamada" ? " · acordado en una llamada" : pend && t.origen === "reunion" ? " · acordado en una reunión" : pend && t.origen === "agenda_web" ? " · agendó por la web" : ""}${pend && ev ? (resp && resp[0] ? html` · <span class=${cx("resp", resp[1])}>${resp[0]}</span>` : " · en Google Calendar") : null}</div>
-      ${t.nota ? html`<p class="task-nota">${t.nota}</p>` : null}
+      ${t.nota ? html`<p class="task-nota">${t.nota}</p>` : mensaje && pend ? html`<p class="task-nota msg">${mensaje}</p>` : null}
+      ${t.preparacion && pend ? html`<details class="prep"><summary>Preparación de Claude${t.preparada ? " · " + ago(t.preparada) : ""}</summary><p>${t.preparacion}</p>
+        ${canWrite && sampleState.fn ? html`<button type="button" class="linkbtn" onClick=${preparar} disabled=${preparando}>${preparando ? "Preparando…" : "Volver a prepararla"}</button>` : null}</details>` : null}
     </div>
-    ${accion || verEvento ? html`<div class="task-side">${accion}${verEvento}</div>` : null}
+    ${accion || verEvento || copiarMsg || botonPreparar ? html`<div class="task-side">${botonPreparar}${accion}${copiarMsg}${verEvento}</div>` : null}
   </div>`;
 }
 
 const TIPOS_EDITABLES = TIPOS_TAREA.filter((x) => x[0] !== "reunion");
 function TareaEditor({ lead, t, onDone }) {
-  const { api, toast, yo, canWrite, moverReunion } = useCtx();
+  const { api, toast, yo, canWrite, moverReunion, recordatorio } = useCtx();
   const nueva = !t || !!t.virtual;
   const esReunion = !!t && tipoTarea(t.tipo) === "reunion";
   const [tipo, setTipo] = useState(t ? tipoTarea(t.tipo) : "llamar");
@@ -2123,7 +2279,10 @@ function TareaEditor({ lead, t, onDone }) {
         const { fecha: f, hora: h, ...resto } = data;
         const extra = await moverReunion(t, lead, { fecha: f, hora: h, resumen: resto.titulo !== (t.titulo || "") ? `${resto.titulo} · ${leadTitulo(lead)} y ZH Development` : "" }, resto);
         if (extra) toast(`Reunión ${cuandoTexto(f)}${h ? " a las " + h : ""}.${extra}`, /no confirmó|no movió/.test(extra) ? "bad" : "");
-      } else await api.updateTarea(t.id, data);
+      } else {
+        await api.updateTarea(t.id, data);
+        if (esReunion) await recordatorio({ ...t, ...data }, lead);
+      }
       onDone();
     } catch (e) { toast(dbErrorText(e), "bad"); setSaving(false); }
   };
@@ -2215,6 +2374,108 @@ function ListoCard({ r, lead, onClose }) {
   </div>`;
 }
 
+/* ===================================================================== buscar */
+
+/* Buscar en todo el CRM (⌘K, Ctrl+K o «/»): leads, clientes, proyectos y acciones. Las flechas
+   eligen y Enter abre. Sin texto, muestra las acciones y los leads con algo para hoy. */
+function Buscador() {
+  const { leads, clientes, proyectos, clientesById, closeModal, openLead, openCliente, openProyecto, openModal, nav, canWrite, siguienteDe } = useCtx();
+  const [q, setQ] = useState("");
+  const [sel, setSel] = useState(0);
+  const listRef = useRef(null);
+  /* El foco va al campo apenas existe, para no perder lo que se escribe justo después de ⌘K. */
+  const enfocar = useCallback((el) => { if (el && document.activeElement !== el && !el.dataset.listo) { el.dataset.listo = "1"; el.focus(); } }, []);
+  const res = useMemo(() => {
+    const qq = fold(q).trim();
+    const qd = q.replace(/\D/g, "");
+    const palabras = qq.split(/\s+/).filter(Boolean);
+    /* 0: el nombre empieza así; 1: una palabra empieza así; 2: aparece en algún dato; null: no está. */
+    const puntaje = (nombre, resto, tel) => {
+      if (!palabras.length) return 3;
+      const n = fold(nombre);
+      const todo = n + " " + fold(resto);
+      if (qd.length >= 3 && String(tel || "").replace(/\D/g, "").includes(qd)) return 1;
+      if (!palabras.every((p) => todo.includes(p))) return null;
+      if (n.startsWith(qq)) return 0;
+      return n.split(/[^a-z0-9ñ]+/).some((w) => w.startsWith(palabras[0])) ? 1 : 2;
+    };
+    const orden = (a, b) => a.p - b.p || a.titulo.localeCompare(b.titulo, "es");
+    const L = [];
+    for (const l of leads) {
+      const p = puntaje(`${l.empresa || ""} ${l.nombre || ""}`, [l.cargo, l.correo, l.rubro, l.ciudad, l.necesidad].join(" "), l.telefono);
+      if (p == null) continue;
+      if (!qq) { const s = siguienteDe(l); if (!s || !s.fecha || s.fecha > todayKey() || !isOpen(l)) continue; }
+      const s = siguienteDe(l);
+      L.push({ tipo: "lead", id: l.id, titulo: leadTitulo(l), sub: [leadPersona(l), etapaLabel(l.etapa), s ? (s.titulo || accionLabel(s.tipo)) + " · " + cuandoTarea(s).txt : ""].filter(Boolean).join(" · "), icono: "user", p: isOpen(l) ? p : p + 0.5, k: s ? tareaClave(s) : "9999", run: () => openLead(l.id) });
+    }
+    const C = [];
+    for (const c of clientes) {
+      const cs = (c.contactos || []).map((x) => [x.nombre, x.correo, x.telefono].join(" ")).join(" ");
+      const p = puntaje(clienteName(c), [c.razonSocial, c.rut, c.rubro, c.ciudad, cs].join(" "), (c.contactos || []).map((x) => x.telefono).join(" "));
+      if (p == null || !qq) continue;
+      C.push({ tipo: "cliente", id: c.id, titulo: clienteName(c), sub: [c.razonSocial, c.rut].filter(Boolean).join(" · ") || "Cliente", icono: "building", p, run: () => openCliente(c.id) });
+    }
+    const P = [];
+    for (const x of proyectos) {
+      const cli = clientesById[x.clienteId];
+      const p = puntaje(x.nombre || "", [cli ? clienteName(cli) : "", faseLabel(x.estado)].join(" "), "");
+      if (p == null || !qq) continue;
+      P.push({ tipo: "proyecto", id: x.id, titulo: x.nombre || "Proyecto", sub: [cli ? clienteName(cli) : "", faseLabel(x.estado)].filter(Boolean).join(" · "), icono: "folder", p, run: () => openProyecto(x.id) });
+    }
+    const acciones = [
+      ...(canWrite ? [["Nuevo lead", "plus", () => openModal({ type: "newLead" }), "nuevo crear agregar lead"], ["Importar leads", "upload", () => openModal({ type: "import" }), "importar cargar lista planilla csv"]] : []),
+      ...VIEWS.map(([v, l, ic]) => [v === "llamar" ? "Llamar en serie" : `Ir a ${l}`, ic, () => { closeModal(); nav(v); }, `ir ver abrir ${l} ${v}`]),
+    ];
+    const A = [];
+    for (const [titulo, icono, run, claves] of acciones) {
+      const t = fold(titulo + " " + claves);
+      if (palabras.length && !palabras.every((w) => t.includes(w))) continue;
+      A.push({ tipo: "accion", id: titulo, titulo, sub: "", icono, p: 0, run });
+    }
+    const grupos = [];
+    const lim = (arr, n) => arr.sort(orden).slice(0, n);
+    if (qq) {
+      if (L.length) grupos.push(["Leads", lim(L, 8)]);
+      if (C.length) grupos.push(["Clientes", lim(C, 5)]);
+      if (P.length) grupos.push(["Proyectos", lim(P, 5)]);
+      if (A.length) grupos.push(["Acciones", A.slice(0, 5)]);
+    } else {
+      grupos.push(["Acciones", A.slice(0, canWrite ? 3 : 1)]);
+      if (L.length) grupos.push(["Con algo para hoy", L.sort((a, b) => a.k.localeCompare(b.k)).slice(0, 6)]);
+      grupos.push(["Ir a", A.slice(canWrite ? 3 : 1)]);
+    }
+    return grupos;
+  }, [q, leads, clientes, proyectos, clientesById, canWrite, siguienteDe]);
+  const plano = res.flatMap(([, items]) => items);
+  useEffect(() => { setSel(0); }, [q]);
+  useEffect(() => {
+    const el = listRef.current && listRef.current.querySelector(`[data-i="${sel}"]`);
+    if (el && el.scrollIntoView) el.scrollIntoView({ block: "nearest" });
+  }, [sel]);
+  const abrir = (it) => { if (!it) return; if (it.tipo !== "accion") closeModal(); it.run(); };
+  const onKey = (e) => {
+    if (e.key === "ArrowDown") { e.preventDefault(); setSel((s) => (plano.length ? (s + 1) % plano.length : 0)); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); setSel((s) => (plano.length ? (s - 1 + plano.length) % plano.length : 0)); }
+    else if (e.key === "Enter") { e.preventDefault(); abrir(plano[sel]); }
+  };
+  let i = -1;
+  return html`<div class="cmdk-wrap" onKeyDown=${onKey}>
+    <div class="scrim" onClick=${closeModal}></div>
+    <div class="cmdk" role="dialog" aria-modal="true" aria-label="Buscar en el CRM">
+      <label class="cmdk-input"><${Icon} name="search" size=${18} /><span class="sr">Buscar</span>
+        <input ref=${enfocar} id="buscar-global" type="search" autocomplete="off" spellcheck="false" placeholder="Busca un lead, cliente, proyecto o acción" value=${q} onInput=${(e) => setQ(e.currentTarget.value)}
+          role="combobox" aria-expanded="true" aria-controls="cmdk-lista" aria-activedescendant=${plano[sel] ? "cmdk-" + sel : null} />
+        <kbd>Esc</kbd></label>
+      <div class="cmdk-list" id="cmdk-lista" role="listbox" ref=${listRef}>
+        ${plano.length ? res.map(([g, items]) => html`<div class="cmdk-group" key=${g}><p>${g}</p>${items.map((it) => { i += 1; const k = i; return html`<button type="button" key=${it.tipo + it.id} id=${"cmdk-" + k} data-i=${k} role="option" aria-selected=${sel === k ? "true" : "false"} class=${cx("cmdk-item", sel === k && "on")} onMouseMove=${() => sel !== k && setSel(k)} onClick=${() => abrir(it)}>
+          <span class="cmdk-ico"><${Icon} name=${it.icono} /></span><span class="cmdk-txt"><b>${it.titulo}</b>${it.sub ? html`<span>${it.sub}</span>` : null}</span>${sel === k ? html`<kbd>↵</kbd>` : null}</button>`; })}</div>`)
+          : html`<p class="empty">Nada coincide con «${q}».</p>`}
+      </div>
+      <div class="cmdk-foot"><span><kbd>↑</kbd><kbd>↓</kbd> elegir</span><span><kbd>↵</kbd> abrir</span><span><kbd>${MAC ? "⌘" : "Ctrl"}</kbd><kbd>K</kbd> o <kbd>/</kbd> para buscar desde cualquier parte</span></div>
+    </div>
+  </div>`;
+}
+
 /* ===================================================================== calendario */
 
 /* La conexión con Google Calendar: si está al día y, si no, qué hacer según el código. */
@@ -2289,6 +2550,270 @@ function CalendarioPanel() {
     </div></section>`;
 }
 
+/* ===================================================================== vista: llamar en serie */
+
+/* Las llamadas de hoy, una tras otra: primero las tareas de llamar que tocan hoy o están atrasadas
+   (por hora), después los leads nuevos sin tarea (prioridad alta primero). Solo leads con teléfono
+   que se pueden contactar. */
+function colaLlamadas(leads, tareasPorLead, quien) {
+  const t = todayKey();
+  const deQuien = (r) => !quien || !r || r === quien;
+  const cola = [];
+  let sinTel = 0;
+  for (const l of leads) {
+    if (!contactable(l)) continue;
+    const ts = tareasPorLead[l.id] || [];
+    const v = ts.length ? null : tareaDeProxima(l);
+    const llamar = ts.find((x) => tipoTarea(x.tipo) === "llamar" && x.fecha && x.fecha <= t) || (v && tipoTarea(v.tipo) === "llamar" && v.fecha <= t ? v : null);
+    let item = null;
+    if (llamar && deQuien(llamar.responsable || l.responsable)) item = { lead: l, tarea: llamar, orden: "0" + tareaClave(llamar) };
+    else if (!ts.length && !v && etapaDe(l) === "nuevo" && deQuien(l.responsable)) item = { lead: l, tarea: null, orden: "1" + ({ alta: 0, media: 1, baja: 2 }[l.prioridad] ?? 1) + String(l.creado || "") };
+    if (!item) continue;
+    if (!isPhone(l.telefono)) { sinTel += 1; continue; }
+    cola.push(item);
+  }
+  cola.sort((a, b) => a.orden.localeCompare(b.orden));
+  return { cola, sinTel };
+}
+
+function LlamarView() {
+  const { leads, tareasPorLead, openLead, openModal, canWrite, cfg, toast, db, acts, me, nameOf, nav } = useCtx();
+  const [quien, setQuien] = useState(() => { const v = ls.get("respLlamar", ls.get("respHoy", "")); return respNombre(v) ? v : ""; });
+  useEffect(() => ls.set("respLlamar", quien), [quien]);
+  const [saltados, setSaltados] = useState([]);
+  const [hechos, setHechos] = useState([]);
+  const [elegido, setElegido] = useState("");
+  const [registrando, setRegistrando] = useState(false);
+  const [listo, setListo] = useState(null);
+  const [hist, setHist] = useState([]);
+  const { cola, sinTel } = colaLlamadas(leads, tareasPorLead, quien);
+  const pendientes = cola.filter((x) => !hechos.includes(x.lead.id) && !saltados.includes(x.lead.id));
+  const cur = (elegido && cola.find((x) => x.lead.id === elegido && !hechos.includes(elegido))) || pendientes[0] || null;
+  const curId = cur ? cur.lead.id : "";
+  useEffect(() => {
+    setHist([]);
+    if (!db || !curId) return undefined;
+    return db.collection("actividades").where("leadId", "==", curId).onSnapshot((s) => setHist(s.docs.map((x) => ({ id: x.id, ...x.data() })).sort((a, b) => String(b.fecha).localeCompare(String(a.fecha)))), () => {});
+  }, [db, curId]);
+  useEffect(() => { setRegistrando(false); }, [curId]);
+  const t = todayKey();
+  const mias = acts.filter((a) => a.tipo === "llamada" && keyOf(a.fecha) === t && (!me.id || a.autor === me.id));
+  const contestaron = mias.filter((a) => a.resultado === "contesto" || a.resultado === "volver").length;
+  const siguiente = () => { setElegido(""); window.scrollTo({ top: 0 }); };
+  const saltar = () => { if (cur) setSaltados((s) => [...s, cur.lead.id]); siguiente(); };
+  const despues = (r, lead) => { setRegistrando(false); if (!r) return; setHechos((h) => [...h, lead.id]); setListo({ r, lead }); siguiente(); };
+  const resto = pendientes.filter((x) => !cur || x.lead.id !== cur.lead.id);
+
+  return html`<div class="main-inner">
+    <header class="page-head">
+      <div>
+        <p class="eyebrow">${cap(fmtLong.format(keyDate(t)))} · Hora de Chile</p>
+        <h1>Llamar en serie</h1>
+        <p class="lede">${cola.length ? `${pendientes.length} ${pendientes.length === 1 ? "llamada pendiente" : "llamadas pendientes"} para hoy${saltados.length ? ` · ${saltados.length} ${saltados.length === 1 ? "saltada" : "saltadas"}` : ""}.` : "No quedan llamadas para hoy."} Registra cada una y pasa a la siguiente.</p>
+      </div>
+      <div class="summary" role="list">
+        <span class=${cx("stat", !mias.length && "zero")} role="listitem"><b>${mias.length}</b>${mias.length === 1 ? "llamada tuya hoy" : "llamadas tuyas hoy"}</span>
+        <span class=${cx("stat", !contestaron && "zero")} role="listitem"><b>${contestaron}</b>contestaron</span>
+      </div>
+    </header>
+    <div class="toolbar"><${Seg} label="De quién" value=${quien} onChange=${(v) => { setQuien(v); setElegido(""); }} options=${[["", "Todo el equipo"], ...RESPONSABLES.map(([id, n]) => [id, n])]} />${sinTel ? html`<span class="small muted">${sinTel} por llamar ${sinTel === 1 ? "no tiene" : "no tienen"} teléfono.</span>` : null}</div>
+    ${listo ? html`<div class="llamar-listo"><${ListoCard} r=${listo.r} lead=${listo.lead} onClose=${() => setListo(null)} /></div>` : null}
+    ${!cur ? html`<section class="panel"><div class="panel-body llamar-fin">
+        <h2>${cola.length && saltados.length ? "Solo quedan las que saltaste" : "Listo por hoy"}</h2>
+        <p class="muted">${cola.length && saltados.length ? `Saltaste ${saltados.length}. Puedes volver a verlas o dejarlas para después.` : "No hay más llamadas para hoy. Puedes revisar los borradores o los leads sin tarea."}</p>
+        <div class="actions">${saltados.length ? html`<button class="btn primary" onClick=${() => setSaltados([])}>Volver a las saltadas</button>` : null}<button class="btn" onClick=${() => nav("hoy")}>Ir a Hoy</button><button class="btn" onClick=${() => nav("embudo")}>Ver el embudo</button></div>
+      </div></section>` : html`<div class="llamar">
+      <section class="panel llamar-card" aria-label=${"Llamar a " + leadTitulo(cur.lead)}>
+        <div class="panel-body">
+          <${FichaLlamada} item=${cur} hist=${hist} />
+          ${registrando ? html`<div class="llamar-reg"><${RegistroContacto} key=${cur.lead.id} modo="llamada" lead=${cur.lead} hist=${hist} onDone=${(r) => despues(r, cur.lead)} /></div>` : html`
+          <div class="llamar-acciones">
+            <button type="button" class="btn primary" disabled=${!canWrite} onClick=${() => setRegistrando(true)}><${Icon} name="phone" />Contestó: registrar</button>
+            <button type="button" class="btn" disabled=${!canWrite} onClick=${() => openModal({ type: "noContesto", lead: cur.lead })}><${Icon} name="phonex" />No contestó</button>
+            <span class="grow"></span>
+            <button type="button" class="btn ghost" onClick=${() => openLead(cur.lead.id)}>Abrir ficha</button>
+            <button type="button" class="btn ghost" onClick=${saltar}><${Icon} name="next" />Saltar</button>
+          </div>`}
+        </div>
+      </section>
+      <aside class="stack">
+        <section class="panel"><div class="panel-head"><h2>Después</h2><span class="eyebrow">${resto.length}</span></div>
+          <div class="panel-body">${resto.length ? html`<div class="cola">${resto.slice(0, 10).map((x) => html`<button type="button" key=${x.lead.id} class="cola-item" onClick=${() => { setElegido(x.lead.id); window.scrollTo({ top: 0 }); }}>
+            <b>${leadTitulo(x.lead)}</b><span>${x.tarea ? `${x.tarea.titulo || "Llamar"} · ${cuandoTarea(x.tarea).txt}` : "Por contactar"}${x.lead.intentos ? ` · ${x.lead.intentos} sin respuesta` : ""}</span></button>`)}</div>
+            ${resto.length > 10 ? html`<p class="small muted">Y ${resto.length - 10} más.</p>` : null}` : html`<p class="empty">Es la última de hoy.</p>`}</div></section>
+        <section class="panel"><div class="panel-body"><p class="small muted">«No contestó» deja el intento y la próxima tarea sin abrir la ficha. Para grabar y que Claude analice la llamada, usa «Contestó: registrar» y «Transcribir en vivo».</p></div></section>
+      </aside>
+    </div>`}
+  </div>`;
+}
+
+/* Lo necesario para la llamada: quién es, el teléfono, por qué lo llamamos y el guion. */
+function FichaLlamada({ item, hist }) {
+  const { cfg, toast, nameOf } = useCtx();
+  const l = item.lead;
+  const wa = waLink(l.telefono, "", cfg);
+  const ultimos = hist.filter((a) => a.tipo !== "etapa").slice(0, 3);
+  return html`<div class="ficha-llamada">
+    <div class="fl-head">
+      <div style="min-width:0"><h2>${leadTitulo(l)}</h2><p>${[l.empresa ? l.nombre : "", l.cargo, l.rubro, l.ciudad].filter(Boolean).join(" · ") || origenLabel(l.origen)}</p></div>
+      <div class="fl-tags"><${StagePill} etapa=${l.etapa} />${l.prioridad === "alta" ? html`<span class="tag warn">Prioridad alta</span>` : null}${l.intentos ? html`<span class="tag">${l.intentos} sin respuesta</span>` : null}${l.responsable ? html`<span class="tag">Lo lleva ${nameOf(l.responsable)}</span>` : null}</div>
+    </div>
+    <div class="fl-tel">
+      <span class="fl-num">${fmtPhone(l.telefono)}</span>
+      <button type="button" class="btn small" onClick=${async () => toast((await copyText(l.telefono)) ? "Número copiado." : "No se pudo copiar.")}><${Icon} name="copy" />Copiar</button>
+      <a class="btn small" href=${"tel:" + l.telefono}><${Icon} name="phone" />Llamar</a>
+      ${wa ? html`<a class="btn small" href=${wa} target="_blank" rel="noopener"><${Icon} name="chat" />WhatsApp</a>` : null}
+    </div>
+    ${item.tarea ? html`<p class="fl-tarea"><${Icon} name="phone" /> <b>${item.tarea.titulo || "Llamar"}</b> · ${cuandoTarea(item.tarea).txt}${item.tarea.nota ? html`<span>${item.tarea.nota}</span>` : null}</p>` : html`<p class="fl-tarea"><${Icon} name="user" /> <b>Primer contacto</b> · todavía no lo hemos llamado</p>`}
+    ${l.necesidad || l.dolor || l.comoAyudamos ? html`<div class="fl-pitch">
+      ${l.necesidad ? html`<div><span class="eyebrow">Qué necesita</span><p>${l.necesidad}</p></div>` : null}
+      ${l.dolor ? html`<div><span class="eyebrow">Dolor · por confirmar</span><p>${l.dolor}</p></div>` : null}
+      ${l.comoAyudamos ? html`<div><span class="eyebrow">Cómo ayudamos</span><p>${l.comoAyudamos}</p></div>` : null}
+    </div>` : null}
+    ${l.guion ? html`<details class="guion fl-guion" open><summary>Guion y preparación</summary><p>${l.guion}</p></details>` : null}
+    ${ultimos.length ? html`<div class="fl-hist"><span class="eyebrow">Últimos contactos</span><${Feed} items=${ultimos} limit=${3} /></div>` : null}
+  </div>`;
+}
+
+/* ===================================================================== vista: métricas */
+
+const PERIODOS = [["7", "7 días"], ["30", "30 días"], ["90", "90 días"], ["365", "12 meses"]];
+const CONTESTO = new Set(["contesto", "volver"]);
+/* Barras horizontales: una fila por categoría, con la etiqueta, la barra y el valor al final. */
+function Barras({ filas, max, label }) {
+  const tope = max || Math.max(1, ...filas.map((f) => f.n));
+  return html`<div class="hbars" role="list" aria-label=${label || null}>${filas.map((f) => html`<div class="hbar" role="listitem" key=${f.k} title=${f.titulo || null}>
+    <span class="hbar-l">${f.l}</span>
+    <span class="hbar-t"><span class="hbar-f" style=${`width:${f.n ? Math.max(2, (f.n / tope) * 100) : 0}%;background:${f.color || "var(--accent)"}`}></span></span>
+    <span class="hbar-v">${f.v != null ? f.v : f.n}</span>
+  </div>`)}</div>`;
+}
+const etapaIdx = (e) => (e === "ganado" ? RUTA.length : RUTA.indexOf(etapaId(e)));
+
+function MetricasView() {
+  const { leads, db, cobros, cfg, nameOf } = useCtx();
+  const [periodo, setPeriodo] = useState(() => { const v = ls.get("periodoMetricas", "30"); return PERIODOS.some((p) => p[0] === v) ? v : "30"; });
+  useEffect(() => ls.set("periodoMetricas", periodo), [periodo]);
+  const t = todayKey();
+  const desde = addDays(t, -(Number(periodo) - 1));
+  const [acts, setActs] = useState(null);
+  useEffect(() => {
+    if (!db) return undefined;
+    let alive = true;
+    setActs((a) => a && a.desde === desde ? a : null);
+    db.collection("actividades").where("fecha", ">=", addDays(desde, -1) + "T00:00:00.000Z").get()
+      .then((s) => { if (alive) setActs({ desde, items: s.docs.map((d) => ({ id: d.id, ...d.data() })).filter((a) => keyOf(a.fecha) >= desde) }); }, () => alive && setActs({ desde, items: [] }));
+    return () => { alive = false; };
+  }, [db, desde]);
+  const items = acts ? acts.items : [];
+  const cargando = !acts;
+
+  /* Embudo de hoy: los abiertos por etapa, con su valor y el pronóstico ponderado. */
+  const abiertos = leads.filter(isOpen);
+  const valor = (l) => Number(l.valor) || 0;
+  const porEtapa = RUTA.map((e) => { const ls0 = abiertos.filter((l) => etapaDe(l) === e); return { e, n: ls0.length, valor: sum(ls0, valor) }; });
+  const total = sum(abiertos, valor);
+  const ponderado = Math.round(sum(abiertos, (l) => valor(l) * (PROB_ETAPA[etapaDe(l)] || 0)));
+  const conValor = abiertos.filter((l) => valor(l) > 0).length;
+
+  /* Lo que pasó en el período. */
+  const etapas = items.filter((a) => a.tipo === "etapa" && a.leadId);
+  const llegaron = (e) => new Set(etapas.filter((a) => a.a === e).map((a) => a.leadId));
+  const ganados = [...llegaron("ganado")].map((id) => leads.find((l) => l.id === id)).filter(Boolean);
+  const perdidos = [...llegaron("perdido")].map((id) => leads.find((l) => l.id === id)).filter((l) => l && etapaDe(l) === "perdido");
+  const llamadas = items.filter((a) => a.tipo === "llamada" && a.leadId);
+  const contestadas = llamadas.filter((a) => CONTESTO.has(a.resultado)).length;
+  const nuevos = leads.filter((l) => keyOf(l.creado) >= desde);
+
+  /* Conversión de los leads que llegaron en el período: hasta dónde avanzó cada uno. */
+  const maxIdx = (l) => {
+    let m = etapaIdx(l.etapa);
+    for (const a of etapas) if (a.leadId === l.id) m = Math.max(m, etapaIdx(a.a), etapaIdx(a.de));
+    return m;
+  };
+  const pasos = [["nuevo", "Llegaron"], ["contactado", "Contactados"], ["reunion_agendada", "Reunión agendada"], ["reunion_concretada", "Reunión concretada"], ["propuesta", "Propuesta enviada"], ["ganado", "Ganados"]];
+  const idxs = nuevos.map(maxIdx);
+  const conversion = pasos.map(([e, l]) => { const n = e === "nuevo" ? nuevos.length : idxs.filter((i) => i >= etapaIdx(e)).length; return { k: e, l, n, v: nuevos.length ? `${n} · ${Math.round((n / nuevos.length) * 100)}%` : "0", color: `var(--st-${e})` }; });
+
+  /* Actividad por persona: quién registró cada contacto. */
+  const quienDe = (autor) => (autor === "claude" || autor === "equipo" ? autor : respDeNombre(nameOf(autor)) || "otros");
+  const personas = [...RESPONSABLES.map((r) => [r[0], r[1]]), ["equipo", "Equipo"], ["claude", "Claude"], ["otros", "Otras personas"]];
+  const tipos = [["llamada", "Llamadas", (a) => a.tipo === "llamada"], ["contesto", "Contestaron", (a) => a.tipo === "llamada" && CONTESTO.has(a.resultado)], ["whatsapp", "WhatsApp", (a) => a.tipo === "whatsapp"], ["correo", "Correos", (a) => a.tipo === "correo"], ["reunion", "Reuniones", (a) => a.tipo === "reunion"]];
+  const contactos = items.filter((a) => a.leadId && CONTACTOS.has(a.tipo));
+  const cuenta = Object.fromEntries(personas.map(([p]) => [p, Object.fromEntries(tipos.map(([k, , f]) => [k, contactos.filter((a) => quienDe(a.autor) === p && f(a)).length]))]));
+  const cols = personas.filter(([p]) => RESPONSABLES.some((r) => r[0] === p) || tipos.some(([k]) => cuenta[p][k]));
+  const maxFila = Object.fromEntries(tipos.map(([k]) => [k, Math.max(1, ...cols.map(([p]) => cuenta[p][k]))]));
+
+  /* Motivos de pérdida de los que se perdieron en el período. */
+  const motivos = [...MOTIVOS, ""].map((m) => ({ k: m || "sin", l: m || "Sin motivo", n: perdidos.filter((l) => (MOTIVOS.includes(l.motivoPerdida) ? l.motivoPerdida : "") === m).length })).filter((x) => x.n || x.k !== "sin");
+
+  /* Cómo van las llamadas: el puntaje que les dio Claude. */
+  const evaluadas = llamadas.filter((a) => a.analisis && a.analisis.evaluacion && Number(a.analisis.evaluacion.puntaje) > 0);
+  const prom = (xs) => (xs.length ? xs.reduce((s, x) => s + x, 0) / xs.length : null);
+  const criterios = CRITERIOS.map((c) => {
+    const id = c[0];
+    const notas = (p) => evaluadas.filter((a) => !p || quienDe(a.autor) === p).map((a) => Number(((a.analisis.evaluacion.criterios || {})[id] || {}).nota)).filter((n) => n > 0);
+    return { id, l: c[1], equipo: prom(notas()), por: Object.fromEntries(RESPONSABLES.map((r) => [r[0], prom(notas(r[0]))])) };
+  });
+  const peor = criterios.filter((c) => c.equipo != null).sort((a, b) => a.equipo - b.equipo)[0];
+  const puntaje = (p) => prom(evaluadas.filter((a) => !p || quienDe(a.autor) === p).map((a) => Number(a.analisis.evaluacion.puntaje)));
+  const fmt1 = (n) => (n == null ? "—" : n.toFixed(1).replace(".", ","));
+
+  /* Cobros: vencido, por cobrar en 30 días y pagado en el período. */
+  const vencido = sum(cobros.filter((x) => pagoVencido(x, cfg)), (x) => x.monto);
+  const en30 = addDays(t, 30);
+  const porCobrar = sum(cobros.filter((x) => (x.estado === "por_facturar" && isKey(x.fecha) && x.fecha <= en30) || (x.estado === "facturado" && !pagoVencido(x, cfg) && venceCobro(x, cfg) <= en30)), (x) => x.monto);
+  const pagado = sum(cobros.filter((x) => x.estado === "pagado" && isKey(x.fechaPago) && x.fechaPago >= desde), (x) => x.monto);
+  const periodoTxt = (PERIODOS.find((p) => p[0] === periodo) || PERIODOS[1])[1];
+
+  return html`<div class=${cx("main-inner", cargando && "cargando-suave")}>
+    <header class="page-head">
+      <div><p class="eyebrow">Ventas y clientes</p><h1>Métricas</h1><p class="lede">Cómo va el embudo hoy y qué pasó en los últimos ${periodoTxt}.</p></div>
+      <div class="actions"><${Seg} label="Período" value=${periodo} onChange=${setPeriodo} options=${PERIODOS} /></div>
+    </header>
+
+    <div class="kpis" role="list">
+      <div class="kpi" role="listitem"><span>Leads abiertos</span><b>${abiertos.length}</b><small>${conValor ? `${money(total)} + IVA en ${conValor} con valor` : "Sin valor estimado todavía"}</small></div>
+      <div class="kpi" role="listitem" title="Valor de cada lead abierto por la probabilidad de su etapa"><span>Pronóstico ponderado</span><b>${conValor ? money(ponderado) : "—"}</b><small>${conValor ? "+ IVA, según la etapa de cada uno" : "Agrega el valor estimado en la ficha"}</small></div>
+      <div class="kpi" role="listitem"><span>Llamadas · ${periodoTxt}</span><b>${cargando ? "…" : llamadas.length}</b><small>${llamadas.length ? `${contestadas} contestaron (${Math.round((contestadas / llamadas.length) * 100)}%)` : "Sin llamadas registradas"}</small></div>
+      <div class="kpi" role="listitem" title="Leads que pasaron a «Reunión agendada» en el período"><span>Reuniones · ${periodoTxt}</span><b>${cargando ? "…" : llegaron("reunion_agendada").size}</b><small>${llegaron("reunion_concretada").size} concretadas</small></div>
+      <div class="kpi" role="listitem"><span>Ganados · ${periodoTxt}</span><b>${cargando ? "…" : ganados.length}</b><small>${ganados.length && sum(ganados, valor) ? `${money(sum(ganados, valor))} + IVA` : `${perdidos.length} ${perdidos.length === 1 ? "perdido" : "perdidos"} en el período`}</small></div>
+    </div>
+
+    <div class="cols metricas">
+      <div class="stack">
+        <section class="panel" aria-label="Embudo de hoy"><div class="panel-head"><h2>Embudo de hoy</h2><span class="eyebrow">${abiertos.length} abiertos</span></div>
+          <div class="panel-body">${abiertos.length ? html`<${Barras} label="Leads abiertos por etapa" filas=${porEtapa.map((x) => ({ k: x.e, l: etapaLabel(x.e), n: x.n, v: x.valor ? `${x.n} · ${money(x.valor)}` : String(x.n), color: `var(--st-${x.e})`, titulo: `${etapaLabel(x.e)}: ${x.n} ${x.n === 1 ? "lead" : "leads"}${x.valor ? ", " + money(x.valor) + " + IVA" : ""}` }))} />` : html`<p class="empty">No hay leads abiertos.</p>`}
+          <p class="small muted">Montos sin IVA. Probabilidad por etapa: ${RUTA.map((e) => `${etapaLabel(e)} ${Math.round((PROB_ETAPA[e] || 0) * 100)}%`).join(" · ")}.</p></div></section>
+        <section class="panel" aria-label="Conversión"><div class="panel-head"><h2>De los que llegaron en ${periodoTxt}</h2><span class="eyebrow">${nuevos.length} leads</span></div>
+          <div class="panel-body">${nuevos.length ? html`<${Barras} label="Hasta dónde llegaron los leads del período" filas=${conversion} max=${nuevos.length} /><p class="small muted">Cuántos llegaron al menos hasta cada etapa, aunque después se hayan perdido.</p>` : html`<p class="empty">No llegaron leads nuevos en este período.</p>`}</div></section>
+        <section class="panel" aria-label="Motivos de pérdida"><div class="panel-head"><h2>Por qué se perdieron</h2><span class="eyebrow">${perdidos.length} en ${periodoTxt}</span></div>
+          <div class="panel-body">${perdidos.length ? html`<${Barras} label="Perdidos por motivo" filas=${motivos} />` : html`<p class="empty">No se perdió ningún lead en este período.</p>`}</div></section>
+      </div>
+      <div class="stack">
+        <section class="panel" aria-label="Actividad"><div class="panel-head"><h2>Actividad</h2><span class="eyebrow">${periodoTxt}</span></div>
+          <div class="panel-body">${cargando ? html`<p class="empty">Cargando…</p>` : html`<div class="table-wrap"><table class="mtabla">
+            <thead><tr><th></th>${cols.map(([p, n]) => html`<th key=${p}>${n}</th>`)}</tr></thead>
+            <tbody>${tipos.map(([k, l]) => html`<tr key=${k}><th scope="row">${l}</th>${cols.map(([p]) => html`<td key=${p}><span class="mcel"><span class="mbar" style=${`width:${(cuenta[p][k] / maxFila[k]) * 100}%`}></span><b>${cuenta[p][k]}</b></span></td>`)}</tr>`)}</tbody>
+          </table></div><p class="small muted">Contactos registrados en el CRM, por quién los registró.</p>`}</div></section>
+        <section class="panel" aria-label="Calidad de las llamadas"><div class="panel-head"><h2>Cómo van las llamadas</h2><span class="eyebrow">${evaluadas.length} evaluadas</span></div>
+          <div class="panel-body">${evaluadas.length ? html`
+            <div class="kpis mini">${RESPONSABLES.map(([p, n]) => html`<div class="kpi" key=${p}><span>${n}</span><b>${puntaje(p) == null ? "—" : Math.round(puntaje(p))}</b><small>de 100</small></div>`)}<div class="kpi"><span>Equipo</span><b>${Math.round(puntaje())}</b><small>de 100</small></div></div>
+            <div class="table-wrap"><table class="mtabla"><thead><tr><th>Criterio (1 a 5)</th>${RESPONSABLES.map(([p, n]) => html`<th key=${p}>${n}</th>`)}<th>Equipo</th></tr></thead>
+              <tbody>${criterios.map((c) => html`<tr key=${c.id} class=${peor && c.id === peor.id ? "peor" : ""}><th scope="row">${c.l}</th>${RESPONSABLES.map(([p]) => html`<td key=${p}>${fmt1(c.por[p])}</td>`)}<td><b>${fmt1(c.equipo)}</b></td></tr>`)}</tbody></table></div>
+            ${peor ? html`<p class="small">Donde más hay que mejorar: <b>${peor.l.toLowerCase()}</b> (${fmt1(peor.equipo)} de 5).</p>` : null}`
+            : html`<p class="empty">Cuando registres llamadas con la transcripción, Claude les pone nota y aquí ves el promedio por criterio.</p>`}</div></section>
+        ${cobros.length ? html`<section class="panel" aria-label="Cobros"><div class="panel-head"><h2>Cobros</h2><span class="eyebrow">Sin IVA</span></div>
+          <div class="panel-body"><div class="kpis mini">
+            <div class=${cx("kpi", vencido && "alerta")}><span>Vencido</span><b>${money(vencido)}</b><small>${vencido ? "Facturas que ya pasaron su plazo" : "Nada vencido"}</small></div>
+            <div class="kpi"><span>Por cobrar en 30 días</span><b>${money(porCobrar)}</b><small>Por facturar y por vencer</small></div>
+            <div class="kpi"><span>Pagado · ${periodoTxt}</span><b>${money(pagado)}</b><small>Según la fecha de pago</small></div>
+          </div></div></section>` : null}
+      </div>
+    </div>
+  </div>`;
+}
+
 /* ===================================================================== vista: hoy */
 
 function HoyView() {
@@ -2317,6 +2842,7 @@ function HoyView() {
   const evaluadas = acts.filter((a) => a.tipo === "llamada" && a.autor === me.id && a.analisis && a.analisis.evaluacion && Date.now() - Date.parse(a.fecha) < 30 * 864e5);
   const promedio = evaluadas.length ? Math.round(sum(evaluadas, (a) => a.analisis.evaluacion.puntaje) / evaluadas.length) : null;
   const paraHoy = atrasadas.length + deHoy.length;
+  const porLlamar = colaLlamadas(todos, tareasPorLead, quien).cola.length;
 
   const frase = [];
   if (paraHoy) frase.push(`${paraHoy} ${paraHoy === 1 ? "tarea" : "tareas"} para hoy${atrasadas.length ? ` (${atrasadas.length} ${atrasadas.length === 1 ? "atrasada" : "atrasadas"})` : ""}`);
@@ -2364,7 +2890,7 @@ function HoyView() {
 
     ${todos.length || clientes.length ? html`<div class="cols">
       <div class="stack">
-        <section class="panel" aria-label="Tareas"><div class="panel-head"><h2>Tareas</h2><span class="eyebrow">${paraHoy} para hoy</span></div>
+        <section class="panel" aria-label="Tareas"><div class="panel-head"><h2>Tareas</h2>${porLlamar ? html`<button type="button" class="btn small" onClick=${() => nav("llamar")}><${Icon} name="phone" />Llamar en serie · ${porLlamar}</button>` : html`<span class="eyebrow">${paraHoy} para hoy</span>`}</div>
           <div class="panel-body">
             ${grupo("Atrasadas", atrasadas, "late")}
             ${deHoy.length ? grupo("Hoy", deHoy, "") : html`<p class="task-group">Hoy</p><p class="empty">${atrasadas.length ? "Nada más para hoy." : "No hay tareas para hoy."}</p>`}
@@ -2395,8 +2921,67 @@ function HoyView() {
 
 /* ===================================================================== vista: leads */
 
+/* Acciones para varios leads a la vez: asignar, mover de etapa o agregar una tarea. */
+const MOVER_MASIVO = [["nuevo", "Por contactar"], ["contactado", "Contactado"], ["pausa", "En pausa"], ["perdido", "Perdido"]];
+function AccionesMasivas({ ids, leads, onListo }) {
+  const { api, toast, moverEtapa, cerrarTareasDe, canWrite, yo } = useCtx();
+  const [mover, setMover] = useState("");
+  const [motivo, setMotivo] = useState("");
+  const [tarea, setTarea] = useState(false);
+  const [tipo, setTipo] = useState("llamar");
+  const [fecha, setFecha] = useState(() => addBusinessDays(todayKey(), 1));
+  const [ocupado, setOcupado] = useState(false);
+  const sel = leads.filter((l) => ids.includes(l.id));
+  const n = sel.length;
+  const plural = (x) => `${x} ${x === 1 ? "lead" : "leads"}`;
+  const correr = async (fn, msg) => {
+    setOcupado(true);
+    try { for (const l of sel) await fn(l); toast(msg); onListo(); } catch (e) { toast(dbErrorText(e), "bad"); }
+    setOcupado(false);
+  };
+  const asignar = (v) => correr((l) => (l.responsable === (v || null) ? null : api.updateLead(l.id, { responsable: v || null })), v ? `${plural(n)} para ${respNombre(v)}.` : `${plural(n)} sin responsable.`);
+  const aplicarEtapa = () => {
+    if (!mover || (mover === "perdido" && !motivo)) return;
+    correr(async (l) => {
+      if (etapaDe(l) === mover && mover !== "perdido") return;
+      if (mover === "perdido") {
+        await cerrarTareasDe(l.id);
+        await api.updateLead(l.id, { etapa: "perdido", motivoPerdida: motivo, motivoDetalle: l.etapa === "perdido" ? l.motivoDetalle || "" : "", proxima: null });
+        if (etapaDe(l) !== "perdido") await api.addAct({ leadId: l.id, tipo: "etapa", de: etapaDe(l), a: "perdido", resumen: motivo });
+        return;
+      }
+      if (mover === "pausa") await cerrarTareasDe(l.id);
+      await moverEtapa(l, mover, mover === "pausa" ? { patch: { proxima: null } } : {});
+    }, `${plural(n)} en ${mover === "perdido" ? "Perdido · " + motivo : etapaLabel(mover)}.`);
+  };
+  const agregar = () => {
+    if (!isKey(fecha)) { toast("Elige el día de la tarea.", "bad"); return; }
+    correr((l) => (l.noContactar && tipo !== "otro" ? null : api.createTarea({ leadId: l.id, tipo, titulo: PRIMERA_TAREA[tipo] && etapaDe(l) === "nuevo" ? PRIMERA_TAREA[tipo] : accionLabel(tipo), fecha, hora: "", responsable: l.responsable || yo || null, estado: "pendiente", origen: "manual" })), `Tarea agregada a ${plural(n)} para ${cuandoTexto(fecha)}.`);
+  };
+  if (!n) return null;
+  return html`<div class="masivo" role="region" aria-label="Acciones para los leads seleccionados">
+    <b>${n} ${n === 1 ? "seleccionado" : "seleccionados"}</b>
+    <select class="select" aria-label="Asignar a" value="" disabled=${!canWrite || ocupado} onChange=${(e) => { const v = e.currentTarget.value; e.currentTarget.value = ""; if (v) asignar(v === "nadie" ? "" : v); }}>
+      <option value="">Asignar a…</option>${RESPONSABLES.map(([v, l]) => html`<option value=${v}>${l}</option>`)}<option value="nadie">Sin responsable</option>
+    </select>
+    <select class="select" aria-label="Mover a" value=${mover} disabled=${!canWrite || ocupado} onChange=${(e) => setMover(e.currentTarget.value)}>
+      <option value="">Mover a…</option>${MOVER_MASIVO.map(([v, l]) => html`<option value=${v}>${l}</option>`)}
+    </select>
+    ${mover === "perdido" ? html`<select class="select" aria-label="Motivo de pérdida" value=${motivo} onChange=${(e) => setMotivo(e.currentTarget.value)}><option value="">Motivo…</option>${MOTIVOS.map((m) => html`<option value=${m}>${m}</option>`)}</select>` : null}
+    ${mover ? html`<button type="button" class="btn small primary" disabled=${ocupado || (mover === "perdido" && !motivo)} onClick=${aplicarEtapa}>Mover</button>` : null}
+    ${tarea ? html`<span class="masivo-tarea">
+        <select class="select" aria-label="Tipo de tarea" value=${tipo} onChange=${(e) => setTipo(e.currentTarget.value)}>${TIPOS_EDITABLES.map(([v, l]) => html`<option value=${v}>${l}</option>`)}</select>
+        <input class="input" type="date" aria-label="Día de la tarea" value=${fecha} onInput=${(e) => setFecha(e.currentTarget.value)} />
+        <button type="button" class="btn small primary" disabled=${ocupado} onClick=${agregar}>Agregar</button>
+      </span>` : html`<button type="button" class="btn small" disabled=${!canWrite || ocupado} onClick=${() => setTarea(true)}><${Icon} name="plus" />Tarea</button>`}
+    <span class="grow"></span>
+    <button type="button" class="btn small ghost" onClick=${onListo}>Quitar selección</button>
+  </div>`;
+}
+
 function LeadsView() {
-  const { leads, openLead, openModal, nameOf, me, cfg, team, siguienteDe } = useCtx();
+  const { leads, openLead, openModal, nameOf, me, cfg, team, siguienteDe, canWrite } = useCtx();
+  const [selec, setSelec] = useState([]);
   const [q, setQ] = useState(() => ls.get("q", ""));
   const [etapa, setEtapa] = useState(() => ls.get("fEtapa", "abiertos"));
   const [origen, setOrigen] = useState(() => ls.get("fOrigen", ""));
@@ -2427,6 +3012,11 @@ function LeadsView() {
     else if (orden === "nombre") r.sort((a, b) => fold(leadName(a)).localeCompare(fold(leadName(b))));
     return r;
   }, [leads, q, etapa, origen, resp, orden, me.id, siguienteDe]);
+  /* La selección se queda solo con lo que se ve con los filtros de ahora. */
+  const visibles = list.map((l) => l.id);
+  const selVisibles = selec.filter((id) => visibles.includes(id));
+  const todos = list.length > 0 && selVisibles.length === list.length;
+  const alternar = (id) => setSelec((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
 
   return html`<div class="main-inner">
     <header class="page-head">
@@ -2455,9 +3045,11 @@ function LeadsView() {
     </div>
     <section class="panel">
       ${!list.length ? html`<div class="panel-body" style="padding-top:16px"><p class="empty">${leads.length ? "Ningún lead coincide con estos filtros." : "Todavía no hay leads. Agrega el primero o importa una lista."}</p></div>` : html`
+      ${canWrite ? html`<div class="only-wide"><${AccionesMasivas} ids=${selVisibles} leads=${list} onListo=${() => setSelec([])} /></div>` : null}
       <div class="only-wide table-wrap"><table class="leads">
-        <thead><tr><th>Lead</th><th>Etapa</th><th>Próxima tarea</th><th>Último contacto</th><th>Teléfono</th><th>Responsable</th></tr></thead>
-        <tbody>${list.map((l) => html`<tr key=${l.id} onClick=${() => openLead(l.id)}>
+        <thead><tr>${canWrite ? html`<th class="sel"><input type="checkbox" aria-label="Seleccionar todos los de la lista" checked=${todos} onChange=${() => setSelec(todos ? [] : visibles)} /></th>` : null}<th>Lead</th><th>Etapa</th><th>Próxima tarea</th><th>Último contacto</th><th>Teléfono</th><th>Responsable</th></tr></thead>
+        <tbody>${list.map((l) => html`<tr key=${l.id} class=${selVisibles.includes(l.id) ? "on" : ""} onClick=${() => openLead(l.id)}>
+          ${canWrite ? html`<td class="sel" onClick=${(e) => e.stopPropagation()}><input type="checkbox" aria-label=${"Seleccionar " + leadTitulo(l)} checked=${selVisibles.includes(l.id)} onChange=${() => alternar(l.id)} /></td>` : null}
           <td><div class="cell-name"><b>${leadTitulo(l)}</b>${leadPersona(l) ? html`<span>${leadPersona(l)}</span>` : null}</div></td>
           <td><div style="display:grid;gap:6px;justify-items:start"><${StagePill} etapa=${l.etapa} /><${Meter} etapa=${l.etapa} /></div></td>
           <td>${l.noContactar ? html`<span class="tag late">No contactar</span>` : html`<${SigTag} t=${siguienteDe(l)} />`}</td>
@@ -5361,7 +5953,7 @@ function LostModal({ lead }) {
 /* Agendar (o cambiar) la reunión: queda como tarea con día y hora, el lead pasa a «Reunión
    agendada» y, si se pide, Claude deja redactada la confirmación. */
 function AgendarModal({ lead: lead0, tarea, desdeEtapa }) {
-  const { closeModal, agendarReunion, tareasPorLead, sampleState, cfg, canWrite, moverEtapa, toast, leadsById, calListo, calCuenta, equipoCorreos } = useCtx();
+  const { closeModal, agendarReunion, tareasPorLead, sampleState, cfg, canWrite, moverEtapa, toast, leadsById, calListo, calCuenta, equipoCorreos, cal } = useCtx();
   const lead = leadsById[lead0.id] || lead0;
   const [existente] = useState(() => (tareasPorLead[lead.id] || []).find((x) => tipoTarea(x.tipo) === "reunion") || null);
   const evPrevio = existente && existente.evento && existente.evento.id ? existente.evento : null;
@@ -5381,6 +5973,15 @@ function AgendarModal({ lead: lead0, tarea, desdeEtapa }) {
   const correo = isEmail(lead.correo) ? String(lead.correo).toLowerCase() : "";
   const equipoInv = [...equipoCorreos].filter((x) => x !== calCuenta && x !== correo);
   const conCal = calListo && enCal && conHora && !evPrevio;
+  /* Lo que ya está en el calendario ese día (sin contar el evento de esta misma reunión). */
+  const aMin = (hm) => { const [h, m] = String(hm).split(":").map(Number); return h * 60 + m; };
+  const ocupados = calListo && isKey(fecha) ? (cal.eventos || []).filter((e) => !e.todoElDia && e.estado !== "cancelled" && e.fecha === fecha && (!evPrevio || e.id !== evPrevio.id)).map((e) => ({ ev: e, de: aMin(e.hora), a: keyOf(e.fin) > fecha ? 24 * 60 : aMin(e.horaFin || e.hora) })) : [];
+  const choque = conHora ? ocupados.find((o) => aMin(hora) < o.a && o.de < aMin(hora) + dur) : null;
+  const libres = [];
+  if (calListo && isKey(fecha) && fecha >= hoy) {
+    const desde = fecha === hoy ? aMin(ahoraHM()) + 30 : 0;
+    for (let m = 9 * 60; m + dur <= 19 * 60; m += 30) if (m >= desde && !ocupados.some((o) => m < o.a && o.de < m + dur)) libres.push(`${pad2(Math.floor(m / 60))}:${pad2(m % 60)}`);
+  }
   const gcal = gcalLink({ titulo: `${titulo.trim() || "Reunión"} · ${leadTitulo(lead)} y ZH Development`, fecha, hora: conHora ? hora : "", duracion: dur, detalle: "Reunión con ZH Development.\nzhdevelopment.cl", invitados: lead.correo || "" }, cfg);
   const quick = [["Hoy", hoy], ["Mañana", addDays(hoy, 1)], ["Pasado mañana", addDays(hoy, 2)], ["En una semana", addDays(hoy, 7)]];
   const guardar = async () => {
@@ -5416,6 +6017,11 @@ function AgendarModal({ lead: lead0, tarea, desdeEtapa }) {
         <div class="field"><span>Duración</span><${Seg} label="Duración" value=${String(duracion)} onChange=${setDuracion} options=${[["30", "30 min"], ["45", "45"], ["60", "1 h"]]} /></div>
       </div>
       <div class="actions">${quick.map(([l, k]) => html`<button type="button" class=${cx("btn small", fecha === k && "on")} onClick=${() => setFecha(k)}>${l}</button>`)}</div>
+      ${calListo && isKey(fecha) && fecha >= hoy ? html`<div class="libres" aria-label="Horarios libres">
+        <span class="small muted">${isWeekend(fecha) ? "Es fin de semana. " : ""}${libres.length ? `Libre el ${noDots(fmtShort.format(keyDate(fecha)))} según el calendario:` : `Sin horarios libres el ${noDots(fmtShort.format(keyDate(fecha)))} entre las 9 y las 19.`}</span>
+        ${libres.slice(0, 14).map((h) => html`<button type="button" class=${cx("btn small", hora === h && "on")} onClick=${() => setHora(h)}>${h}</button>`)}${libres.length > 14 ? html`<span class="small muted">y ${libres.length - 14} más</span>` : null}
+      </div>` : null}
+      ${choque ? html`<div class="note warn"><${Icon} name="info" /><div>A esa hora ya está «${choque.ev.titulo}» (${choque.ev.hora}–${choque.ev.horaFin}) en el calendario.</div></div>` : null}
       <label class="field" for="ag-titulo"><span>Para qué es</span><input id="ag-titulo" class="input" value=${titulo} onInput=${(e) => setTitulo(e.currentTarget.value)} /></label>
       <label class="field" for="ag-nota"><span>Notas internas para la reunión (opcional)</span><textarea id="ag-nota" class="textarea" rows="2" value=${nota} onInput=${(e) => setNota(e.currentTarget.value)}></textarea><small class="hint">Quedan en la tarea; no van en la invitación.</small></label>
       ${calBox}
@@ -5692,6 +6298,7 @@ function AjustesView() {
 
       <section class="panel"><div class="panel-head"><h2>Google Calendar</h2><span class="eyebrow">${calCuenta}</span></div>
         <div class="panel-body"><${CalEstado} detalle />
+          <label class="switch" style="margin-top:12px"><input type="checkbox" checked=${cfg.recordatorioReunion !== false} disabled=${!canWrite} onChange=${async (e) => { const v = e.currentTarget.checked; try { await api.setConfig({ ...cfg, recordatorioReunion: v }); toast(v ? "Recordatorios activados." : "Recordatorios desactivados."); } catch (x) { toast(dbErrorText(x), "bad"); } }} />Recordatorio por WhatsApp el día hábil anterior a cada reunión (una tarea con el mensaje listo, que envías tú)</label>
           <p class="small muted" style="margin-top:10px">Cada reunión del calendario con un lead queda como su tarea, con el botón de Meet y la respuesta a la invitación, y el lead pasa a «Reunión agendada». Las reservas de zhdevelopment.cl crean su lead. Al agendar desde el CRM, el evento se crea con Meet e invita al lead y al equipo; al cambiar el día, se mueve.</p></div></section>
 
       <section class="panel"><div class="panel-head"><h2>Clientes y cobros</h2><span class="eyebrow">Garantía, plazos e IVA</span></div>
@@ -5733,11 +6340,14 @@ function AjustesView() {
 /* ===================================================================== app */
 
 /* [id, nombre, ícono, nombre corto para el menú contraído] */
-const VIEWS = [["hoy", "Hoy", "sun", "Hoy"], ["leads", "Leads", "list", "Leads"], ["embudo", "Embudo de leads", "funnel", "Embudo"], ["clientes", "Clientes", "building", "Clientes"], ["embudoClientes", "Embudo de clientes", "funnel", "Etapas"], ["proyectos", "Proyectos", "folder", "Proyectos"], ["soporte", "Soporte", "lifebuoy", "Soporte"], ["cobros", "Cobros", "coin", "Cobros"], ["borradores", "Borradores", "doc", "Borradores"], ["ajustes", "Ajustes", "sliders", "Ajustes"]];
+const VIEWS = [["hoy", "Hoy", "sun", "Hoy"], ["llamar", "Llamar en serie", "phone", "Llamar"], ["leads", "Leads", "list", "Leads"], ["embudo", "Embudo de leads", "funnel", "Embudo"], ["clientes", "Clientes", "building", "Clientes"], ["embudoClientes", "Embudo de clientes", "funnel", "Etapas"], ["proyectos", "Proyectos", "folder", "Proyectos"], ["soporte", "Soporte", "lifebuoy", "Soporte"], ["cobros", "Cobros", "coin", "Cobros"], ["borradores", "Borradores", "doc", "Borradores"], ["metricas", "Métricas", "chart", "Métricas"], ["ajustes", "Ajustes", "sliders", "Ajustes"]];
 const VIEW = Object.fromEntries(VIEWS.map((v) => [v[0], v]));
-const NAV_GROUPS = [["", ["hoy"]], ["Ventas", ["leads", "embudo"]], ["Clientes", ["clientes", "embudoClientes", "proyectos", "soporte", "cobros"]], ["", ["borradores", "ajustes"]]];
-const TABS_MOVIL = ["hoy", "leads", "clientes", "borradores"];
-const MAS_MOVIL = ["embudo", "embudoClientes", "proyectos", "soporte", "cobros", "ajustes"];
+const NAV_GROUPS = [["", ["hoy"]], ["Ventas", ["llamar", "leads", "embudo"]], ["Clientes", ["clientes", "embudoClientes", "proyectos", "soporte", "cobros"]], ["", ["borradores", "metricas", "ajustes"]]];
+const TABS_MOVIL = ["hoy", "llamar", "leads", "borradores"];
+const MAS_MOVIL = ["embudo", "clientes", "embudoClientes", "proyectos", "soporte", "cobros", "metricas", "ajustes"];
+const MAC = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent || "");
+/* ¿El foco está en un campo de texto? (los atajos de una tecla no se activan mientras se escribe). */
+const escribiendo = (el) => !!(el && el.closest && el.closest("input, textarea, select, [contenteditable=''], [contenteditable=true]"));
 
 function App() {
   const [db, setDb] = useState(undefined);
@@ -5914,8 +6524,14 @@ function App() {
   abierto.current = { modal, drawer, mas };
   useEffect(() => {
     const onKey = (e) => {
-      if (e.key !== "Escape") return;
       const o = abierto.current;
+      if ((e.key === "k" || e.key === "K") && (e.metaKey || e.ctrlKey) && !e.altKey) {
+        e.preventDefault();
+        setModal((m) => (m && m.type === "buscar" ? null : { type: "buscar" }));
+        return;
+      }
+      if (e.key === "/" && !e.metaKey && !e.ctrlKey && !e.altKey && !o.modal && !escribiendo(e.target)) { e.preventDefault(); setModal({ type: "buscar" }); return; }
+      if (e.key !== "Escape") return;
       if (o.modal) { setModal(null); e.preventDefault(); } else if (o.drawer) { setDrawer(null); e.preventDefault(); } else if (o.mas) { setMas(false); e.preventDefault(); }
     };
     window.addEventListener("keydown", onKey);
@@ -5941,11 +6557,32 @@ function App() {
   }, [tareas]);
   /* La próxima tarea de un lead: la primera pendiente o, si no tiene, su «proxima» antigua. */
   const siguienteDe = useCallback((l) => (l ? (tareasPorLead[l.id] || [])[0] || tareaDeProxima(l) : null), [tareasPorLead]);
+  const tareasRef = useRef(null);
+  tareasRef.current = tareas;
   const marcarTarea = useCallback(async (t, estado, extra) => {
     if (t.virtual) { await wrapApi.updateLead(t.leadId, { proxima: null }); return; }
     const fin = estado !== "pendiente";
     await wrapApi.updateTarea(t.id, { estado, hecha: fin ? nowISO() : null, hechaPor: fin ? meRef.current.id || null : null, ...(extra || {}) });
+    /* Una reunión cerrada ya no necesita su recordatorio. */
+    const rec = fin && tipoTarea(t.tipo) === "reunion" ? (tareasRef.current || []).find((x) => x.id === "tar-rec-" + t.id) : null;
+    if (rec) await wrapApi.updateTarea(rec.id, { estado: "descartada", hecha: nowISO(), hechaPor: meRef.current.id || null });
   }, [wrapApi]);
+  /* El recordatorio por WhatsApp de una reunión: una tarea el día hábil anterior con el mensaje listo
+     (Ajustes → Google Calendar). Sigue a la reunión: se mueve con ella y se descarta si la reunión se
+     cierra o ya no queda un día hábil antes. Nunca se envía solo. */
+  const recordatorio = useCallback(async (t, lead) => {
+    if (!wrapApi || !t || !t.id || !lead) return;
+    const id = "tar-rec-" + t.id;
+    const previo = (tareasRef.current || []).find((x) => x.id === id) || null;
+    const quiere = cfg.recordatorioReunion !== false && tareaPendiente(t) && tipoTarea(t.tipo) === "reunion" && isPhone(lead.telefono) && !lead.noContactar && isHora(t.hora) && isKey(t.fecha) && diaRecordatorio(t.fecha) > todayKey();
+    if (!quiere) {
+      if (previo) await wrapApi.updateTarea(id, { estado: "descartada", hecha: nowISO(), hechaPor: meRef.current.id || null });
+      return;
+    }
+    const datos = { fecha: diaRecordatorio(t.fecha), titulo: `Recordarle la reunión del ${noDots(fmtShort.format(keyDate(t.fecha))).replace(",", "")} a las ${t.hora}`, mensaje: mensajeRecordatorio(lead, t) };
+    if (previo) { if (previo.fecha !== datos.fecha || previo.mensaje !== datos.mensaje || previo.titulo !== datos.titulo) await wrapApi.updateTarea(id, datos); return; }
+    await wrapApi.ensureTarea(id, { leadId: lead.id, tipo: "whatsapp", hora: "", nota: "", reunionId: t.id, origen: "recordatorio", responsable: t.responsable || lead.responsable || null, estado: "pendiente", ...datos });
+  }, [wrapApi, cfg.recordatorioReunion]);
   const moverEtapa = useCallback(async (lead, a, extra) => {
     const o = extra || {};
     await wrapApi.updateLead(lead.id, { etapa: a, ...(o.patch || {}) });
@@ -6117,8 +6754,29 @@ function App() {
     const evento = ev ? { ...eventoParaTarea(ev, lead), ...((ev.invitados || []).length ? {} : { respuesta: previo.respuesta || "" }) } : null;
     await wrapApi.updateTarea(t.id, { ...(extra || {}), fecha: d.fecha, hora: d.hora || "", ...(d.duracion ? { duracion: d.duracion } : {}), ...(evento ? { evento } : {}) });
     if (ev && ev.inicio) await wrapApi.setEvento(ev.id, { leadId: lead.id, tareaId: t.id, inicio: ev.inicio, evActualizado: ev.actualizado });
+    await recordatorio({ ...t, fecha: d.fecha, hora: d.hora || "", ...(evento ? { evento } : {}) }, lead);
     return ev ? " También se movió en Google Calendar." : aviso;
-  }, [wrapApi, calListo, escribirEvento]);
+  }, [wrapApi, calListo, escribirEvento, recordatorio]);
+
+  /* «Preparar con Claude»: objetivo, agenda, preguntas, señales, riesgos y cierre, guardados en la
+     tarea de la reunión. */
+  const prepararReunion = useCallback(async (t) => {
+    const lead = leadsById[t.leadId];
+    const fn = sampleState.fn;
+    if (!wrapApi || !db || !lead || !fn) return false;
+    try {
+      const hs = (await db.collection("actividades").where("leadId", "==", lead.id).get()).docs.map((x) => ({ id: x.id, ...x.data() })).sort((a, b) => String(b.fecha).localeCompare(String(a.fecha)));
+      const p = sanitizePreparacion(await fn.json(promptPreparacion({ lead, hist: hs, tarea: t }), { modelTier: "default", cache: false }));
+      if (!p.objetivo && !p.preguntas.length) throw { code: "empty_completion" };
+      await wrapApi.updateTarea(t.id, { preparacion: textoPreparacion(p), preparada: nowISO() });
+      toast(`Preparación lista: quedó en la reunión con ${leadTitulo(lead)}.`);
+      return true;
+    } catch (e) {
+      if (e && CLAUDE_OFF.has(e.code)) setSampleState({ fn: null, off: true });
+      toast(e && e.code ? sampleErrorText(e) : dbErrorText(e), "bad");
+      return false;
+    }
+  }, [wrapApi, db, leadsById, sampleState.fn, toast]);
 
   /* «Crear en Calendar» en una reunión que todavía no tiene evento. */
   const crearEventoDeReunion = useCallback(async (t) => {
@@ -6159,6 +6817,7 @@ function App() {
           await wrapApi.setEvento(ev.id, { leadId: lead.id, tareaId: tid, inicio: ev.inicio || "", evActualizado: ev.actualizado });
           calTxt = ` Quedó en Google Calendar con Meet${isEmail(lead.correo) ? " y Google le mandó la invitación a " + lead.correo : ""}.`;
         }
+        await recordatorio({ ...(existente || {}), id: tid, leadId: lead.id, tipo: "reunion", ...datos, estado: "pendiente", responsable: (existente && existente.responsable) || lead.responsable || yo || null, evento: ev ? eventoParaTarea(ev, lead) : (existente && existente.evento) || null }, lead);
       }
       /* Con la reunión agendada, las tareas de agendar del lead quedan hechas. */
       const porAgendar = (tareasPorLead[lead.id] || []).filter((x) => tipoTarea(x.tipo) === "agendar");
@@ -6179,7 +6838,7 @@ function App() {
       toast(`${leadTitulo(lead)}: reunión ${cuando}.${calTxt}${extra}`, calMal ? "bad" : "");
       return true;
     } catch (e) { toast(dbErrorText(e), "bad"); return false; }
-  }, [wrapApi, tareas, tareasPorLead, marcarTarea, moverEtapa, moverReunion, escribirEvento, redactarTareas, sampleState.fn, toast, yo]);
+  }, [wrapApi, tareas, tareasPorLead, marcarTarea, moverEtapa, moverReunion, escribirEvento, recordatorio, redactarTareas, sampleState.fn, toast, yo]);
 
   /* Cambiar de etapa desde el embudo o la ficha, con lo que corresponde a cada etapa. */
   const changeStage = useCallback(async (lead, etapa) => {
@@ -6222,7 +6881,7 @@ function App() {
   const clientesHoy = agendaClientes({ proyectos: proyectos || [], cobros: cobros || [], clientesById }, cfg, 0).length;
   const porRevisar = drafts.filter((d) => d.estado === "por_revisar").length;
   const counts = {
-    hoy: pendientes + clientesHoy, borradores: porRevisar, leads: (leads || []).filter(isOpen).length,
+    hoy: pendientes + clientesHoy, borradores: porRevisar, leads: (leads || []).filter(isOpen).length, llamar: colaLlamadas(leads || [], tareasPorLead, "").cola.length,
     soporte: (solicitudes || []).filter((s) => SOL_ABIERTA.has(s.estado)).length,
     cobros: (cobros || []).filter((x) => pagoVencido(x, cfg) || facturaAtrasada(x)).length,
   };
@@ -6250,8 +6909,10 @@ function App() {
   const calSync = useRef({ corriendo: false, otra: false });
   const actCal = (k, ev) => `act-cal${k}-${ev.id}-${(ev.fecha + ev.hora).replace(/\D/g, "")}`;
   const unirAEvento = async (t, ev, lead) => {
-    await wrapApi.updateTarea(t.id, { fecha: ev.fecha, hora: ev.hora, duracion: ev.duracion || t.duracion || DURACION_REUNION, evento: eventoParaTarea(ev, lead) });
+    const evento = eventoParaTarea(ev, lead);
+    await wrapApi.updateTarea(t.id, { fecha: ev.fecha, hora: ev.hora, duracion: ev.duracion || t.duracion || DURACION_REUNION, evento });
     await wrapApi.setEvento(ev.id, { leadId: lead.id, tareaId: t.id, inicio: ev.inicio, evActualizado: ev.actualizado });
+    await recordatorio({ ...t, fecha: ev.fecha, hora: ev.hora, evento }, lead);
   };
   const alDiaConEvento = async (t, ev, lead, reg) => {
     const prev = t.evento || {};
@@ -6267,6 +6928,7 @@ function App() {
     const movido = masNuevo && (t.fecha !== ev.fecha || (t.hora || "") !== ev.hora);
     if (difiere || movido) await wrapApi.updateTarea(t.id, { evento: nuevo, ...(movido ? { fecha: ev.fecha, hora: ev.hora, duracion: ev.duracion || t.duracion || DURACION_REUNION } : {}) });
     if (reg.tareaId !== t.id || !reg.inicio || (masNuevo && (reg.inicio !== ev.inicio || reg.evActualizado !== ev.actualizado))) await wrapApi.setEvento(ev.id, { leadId: lead.id, tareaId: t.id, inicio: ev.inicio, evActualizado: ev.actualizado });
+    if (movido || String(prev.meet || "") !== String(nuevo.meet || "")) await recordatorio({ ...t, ...(movido ? { fecha: ev.fecha, hora: ev.hora } : {}), evento: nuevo }, lead);
     if (movido && prev.id) {
       await wrapApi.addAct({ leadId: lead.id, tipo: "nota", resumen: `La reunión se movió en Google Calendar: del ${fechaTxt(t.fecha, t.hora)} al ${fechaTxt(ev.fecha, ev.hora)}.` }, actCal("mov", ev));
       toast(`${leadTitulo(lead)}: la reunión se movió en Google Calendar para ${cuandoTexto(ev.fecha)} a las ${ev.hora}.`);
@@ -6281,6 +6943,7 @@ function App() {
     const nueva = await wrapApi.ensureTarea(tid, { leadId: lead.id, tipo: "reunion", titulo: tituloDeEvento(ev.titulo, lead), fecha: ev.fecha, hora: ev.hora, duracion: ev.duracion || DURACION_REUNION, nota: "", responsable: lead.responsable || null, estado: "pendiente", origen: web ? "agenda_web" : "calendario", evento: eventoParaTarea(ev, lead) });
     await wrapApi.setEvento(ev.id, { leadId: lead.id, tareaId: tid, inicio: ev.inicio, evActualizado: ev.actualizado });
     if (!nueva) return;
+    await recordatorio({ id: tid, leadId: lead.id, tipo: "reunion", fecha: ev.fecha, hora: ev.hora, estado: "pendiente", responsable: lead.responsable || null, evento: eventoParaTarea(ev, lead) }, lead);
     for (const x of calUlt.current.tareasPorLead[lead.id] || []) if (tipoTarea(x.tipo) === "agendar") await marcarTarea(x, "hecha");
     const cuando = `${cuandoTexto(ev.fecha)} a las ${ev.hora}`;
     const resumen = web ? `Agendó por zhdevelopment.cl: reunión ${cuando}` : `Reunión ${cuando}, tomada de Google Calendar`;
@@ -6366,7 +7029,7 @@ function App() {
   const ctx = {
     db, api: wrapApi, me, yo, leads: leads || [], leadsById, acts, drafts, equipo, cfg, sampleState, setSampleState, downloads, toast, nameOf, team, redactarTareas,
     tareas: tareas || [], tareasPorLead, siguienteDe, completarTarea, marcarTarea, agendarReunion, moverEtapa, cerrarTareasDe,
-    cal, calCuenta, calListo, equipoCorreos, registro: registro || {}, leadDeEvento, permitirCalendario, refrescarCalendario, abrirPermisos, moverReunion, crearEventoDeReunion,
+    cal, calCuenta, calListo, equipoCorreos, registro: registro || {}, leadDeEvento, permitirCalendario, refrescarCalendario, abrirPermisos, moverReunion, crearEventoDeReunion, recordatorio, prepararReunion,
     clientes: clientes || [], clientesById, proyectos: proyectos || [], proyectosById, cobros: cobros || [], mantenciones: mantenciones || [], solicitudes: solicitudes || [],
     openLead, openCliente, openProyecto, openDraft, openModal, closeModal, nav, changeStage, moveProyecto, moverCliente, canWrite, profileName: me.name,
   };
@@ -6390,6 +7053,8 @@ function App() {
   else if (view === "cobros") body = html`<${CobrosView} />`;
   else if (view === "borradores") body = html`<${BorradoresView} />`;
   else if (view === "ajustes") body = html`<${AjustesView} />`;
+  else if (view === "llamar") body = html`<${LlamarView} />`;
+  else if (view === "metricas") body = html`<${MetricasView} />`;
   else body = html`<${HoyView} />`;
 
   return html`<${Ctx.Provider} value=${ctx}>
@@ -6397,6 +7062,7 @@ function App() {
       <aside class="side">
         <div class="brand"><${Logo} /><div class="brand-txt"><b>ZH Development</b><span>CRM y clientes</span></div></div>
         <nav class="nav" aria-label="Secciones">
+          <button type="button" class="nav-buscar" title=${mini ? `Buscar (${MAC ? "⌘" : "Ctrl+"}K)` : null} onClick=${() => openModal({ type: "buscar" })}><${Icon} name="search" size=${18} /><span class="lbl">Buscar</span><span class="lbl-c" aria-hidden="true">Buscar</span><kbd class="lbl">${MAC ? "⌘K" : "Ctrl K"}</kbd></button>
           ${NAV_GROUPS.map(([g, vs], gi) => html`${g ? html`<p class="nav-group">${g}</p>` : gi && mini ? html`<p class="nav-group" aria-hidden="true"></p>` : null}${vs.map((v) => { const [, l, ic, corto] = VIEW[v]; return html`<button key=${v} aria-current=${view === v ? "page" : "false"} title=${mini ? l : null} onClick=${() => nav(v)}><${Icon} name=${ic} size=${18} /><span class="lbl">${l}</span><span class="lbl-c" aria-hidden="true">${corto || l}</span>${counts[v] ? html`<span class="count">${counts[v]}</span>` : null}</button>`; })}`)}
         </nav>
         <div class="side-foot">
@@ -6409,6 +7075,7 @@ function App() {
       <header class="topbar">
         <div class="brand"><${Logo} /><b>CRM</b></div>
         <span class="grow"></span>
+        <button class="btn small icon ghost-dark" aria-label="Buscar" onClick=${() => openModal({ type: "buscar" })}><${Icon} name="search" size=${18} /></button>
         <button class="btn small primary" onClick=${() => openModal({ type: "newLead" })} disabled=${!wrapApi || !canWrite}><${Icon} name="plus" />Nuevo</button>
       </header>
       <main class="main" id="main">
@@ -6416,7 +7083,7 @@ function App() {
         <${Boundary} name="esta sección">${body}</${Boundary}>
       </main>
       <nav class="tabs" aria-label="Secciones">
-        ${TABS_MOVIL.map((v) => { const [, l, ic] = VIEW[v]; return html`<button key=${v} aria-current=${view === v ? "page" : "false"} onClick=${() => nav(v)}><${Icon} name=${ic} size=${20} />${l}${(v === "hoy" || v === "borradores") && counts[v] ? html`<span class="dot">${counts[v]}</span>` : null}</button>`; })}
+        ${TABS_MOVIL.map((v) => { const [, l0, ic, corto] = VIEW[v]; const l = corto || l0; return html`<button key=${v} aria-current=${view === v ? "page" : "false"} onClick=${() => nav(v)}><${Icon} name=${ic} size=${20} />${l}${(v === "hoy" || v === "borradores") && counts[v] ? html`<span class="dot">${counts[v]}</span>` : null}</button>`; })}
         <button aria-current=${MAS_MOVIL.includes(view) ? "page" : "false"} aria-expanded=${mas ? "true" : "false"} onClick=${() => setMas(!mas)}><${Icon} name="more" size=${20} />Más${counts.soporte + counts.cobros ? html`<span class="dot">${counts.soporte + counts.cobros}</span>` : null}</button>
       </nav>
       ${mas ? html`<div class="more-wrap"><div class="scrim" onClick=${() => setMas(false)}></div><div class="more" role="menu" aria-label="Más secciones">
@@ -6427,6 +7094,7 @@ function App() {
       ${drawer.kind === "cliente" ? html`<${ClienteDrawer} id=${drawer.id} tab=${drawer.tab} onClose=${closeDrawer} />` : drawer.kind === "proyecto" ? html`<${ProyectoDrawer} id=${drawer.id} onClose=${closeDrawer} />` : html`<${LeadDrawer} id=${drawer.id} tab=${drawer.tab} onClose=${closeDrawer} />`}
     </${Boundary}>` : null}
     ${modal && wrapApi ? html`<${Boundary} name="esta ventana">
+      ${modal.type === "buscar" ? html`<${Buscador} />` : null}
       ${modal.type === "newLead" ? html`<${NewLeadModal} preset=${modal.preset} />` : null}
       ${modal.type === "import" ? html`<${ImportModal} />` : null}
       ${modal.type === "draft" ? html`<${DraftEditor} id=${modal.id} />` : null}

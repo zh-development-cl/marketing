@@ -132,6 +132,14 @@
 
   const plus = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); };
   function answer(p) {
+    if (p.includes("Prepara a un socio de ZH Development para una reunión")) return {
+      objetivo: "Entender cómo cotizan hoy y acordar si vale la pena una propuesta escrita.",
+      agenda: ["5 min: presentarnos y confirmar el objetivo", "15 min: que muestre cómo cotiza hoy", "7 min: qué le cuesta y quién decide", "3 min: siguiente paso"],
+      preguntas: ["¿Cómo llega hoy un pedido de cotización?", "¿Cuántas cotizaciones hacen a la semana?", "¿Qué parte les toma más tiempo?", "¿Quién más participa en la decisión?", "¿Para cuándo lo necesitan?"],
+      senales: ["Tiene un problema con costo claro", "Quiere verlo funcionando pronto"],
+      riesgos: ["Dice que es caro: preguntar cuánto le cuesta hoy el problema", "No decide solo: pedir una reunión con quien decide"],
+      cierre: "Proponer enviar la propuesta escrita en 3 días hábiles y agendar 20 minutos para revisarla.",
+    };
     if (p.includes("Estás ayudando en vivo")) return {
       detecte: "Dice que lo encuentra caro.", respuesta: "Te entiendo. ¿Cuántas horas a la semana se les van hoy en cuadrar el inventario a mano? Con eso vemos si se paga solo.",
       pregunta: "¿Quién más participa en la decisión?", evitar: "Dar un precio antes de conocer el alcance.",

@@ -275,7 +275,8 @@ const SEED = {
   await phone.locator(".more button", { hasText: /^Soporte/ }).click();
   await phone.locator("h1", { hasText: "Soporte" }).waitFor();
   await noOverflow(phone, "teléfono, Soporte");
-  await phone.locator(".tabs button", { hasText: /^Clientes/ }).click();
+  await phone.locator(".tabs button", { hasText: /^Más/ }).click();
+  await phone.locator(".more button", { hasText: /^Clientes/ }).click();
   await phone.locator(".only-narrow .irow").first().waitFor();
   await noOverflow(phone, "teléfono, Clientes");
   await phone.locator(".only-narrow .irow-main", { hasText: "Clínica Norte" }).click();

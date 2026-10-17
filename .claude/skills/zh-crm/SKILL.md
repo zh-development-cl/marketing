@@ -63,7 +63,8 @@ Lo que hay que hacer con cada lead son **tareas** (colección `tareas`): `{leadI
 nota, fecha: "AAAA-MM-DD", hora: "HH:MM" | "", duracion (minutos, en reuniones), responsable,
 estado: "pendiente", origen, actividadId, borradorId, evento, creado, actualizado, creadoPor: "claude"}`,
 con `tipo` = `llamar`, `whatsapp`, `correo`, `agendar` (coordinar el día de una reunión),
-`reunion` (la reunión, con día y hora), `propuesta` (enviar la propuesta) u `otro`. Toda tarea
+`reunion` (la reunión, con día y hora), `propuesta` (enviar la propuesta) u `otro`. Una tarea de
+`whatsapp` puede llevar `mensaje` (el texto listo para enviar). Toda tarea
 lleva día; `titulo` corto, empezando con un verbo; el detalle interno va en `nota`. Una `reunion`
 unida a Google Calendar lleva `evento: {id, link, meet, respuesta, actualizado, propio,
 organizador}` (ver «Google Calendar»).
@@ -187,7 +188,13 @@ Google Calendar en la conversación:
    cuenta}`, y `set` en `eventos/<id del evento>`: `{leadId, tareaId, inicio (ISO), evActualizado:
    updated, actualizado}`.
 Para mover una reunión unida a un evento de la cuenta, `update_event` con `eventId`, `startTime` y
-`endTime`, y actualiza la tarea. Si la creación falla sin respuesta clara, no la repitas: revisa el
+`endTime`, y actualiza la tarea.
+
+**Recordatorio de la reunión:** si el lead tiene teléfono y queda al menos un día hábil antes, la
+página deja una tarea `whatsapp` con id `tar-rec-<id de la reunión>`, `origen: "recordatorio"`,
+`reunionId`, `fecha` = el día hábil anterior y `mensaje` (el texto listo); la mueve con la reunión.
+Si creas o mueves una reunión con `ArtifactData`, crea o actualiza también ese recordatorio con la
+misma forma (salvo `config/general.recordatorioReunion: false`). Nunca lo envíes. Si la creación falla sin respuesta clara, no la repitas: revisa el
 calendario con `list_events` (si el evento aparece, la página lo une sola). Nunca borres eventos.
 
 **Mover de etapa:** `update` de `etapa` más la actividad `{tipo: "etapa", de, a}`; al cerrarlo
