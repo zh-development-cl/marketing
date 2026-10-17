@@ -161,7 +161,7 @@ const SEED = {
 
   /* ---------------- llamar en serie ---------------- */
   ok((await page.locator(".side .nav button", { hasText: /^Llamar/ }).locator(".count").innerText()) === "4", "el menú muestra cuántas llamadas hay para hoy");
-  ok(await visto(page.locator(".panel[aria-label=Tareas] .panel-head button", { hasText: "Llamar en serie · 4" })), "y Hoy tiene el acceso a «Llamar en serie»");
+  ok(await visto(page.locator(".lo-que-toca .panel-head button", { hasText: "Llamar en serie · 4" })), "y Hoy tiene el acceso a «Llamar en serie»");
   await irA(page, "llamar");
   await page.locator("h1", { hasText: "Llamar en serie" }).waitFor();
   ok((await actual(page)) === "Viña Norte", "parte por la llamada atrasada");

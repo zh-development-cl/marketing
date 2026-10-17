@@ -226,7 +226,7 @@ const SEED = {
 
   /* ---------------- Hoy: completar y deshacer ---------------- */
   await irA(page, "hoy");
-  const tareasHoy = page.locator(".panel", { has: page.locator("h2", { hasText: /^Tareas$/ }) });
+  const tareasHoy = page.locator(".lo-que-toca");
   ok(await tareasHoy.locator(".task-group.late", { hasText: "Atrasadas" }).isVisible(), "Hoy separa las tareas atrasadas");
   ok(await tareasHoy.locator(".task", { hasText: "Café Central" }).getByRole("button", { name: "¿Se hizo?" }).isVisible(), "una reunión pasada pide contar si se hizo");
   ok(await tareasHoy.locator(".task", { hasText: "Ferretería Andes" }).getByRole("button", { name: "Llamar" }).isVisible(), "una tarea de llamar trae el botón para llamar");

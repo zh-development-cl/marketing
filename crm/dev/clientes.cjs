@@ -82,13 +82,14 @@ const SEED = {
   await toast(page, "mensualidad agregada");
   let dump = await store(page);
   ok(!!dump[`cobros/cob-m-man-cn-${MK}`], "la mantención activa genera la mensualidad del mes con id fijo");
-  const panel = page.locator(".panel", { hasText: "Clientes: próximos 7 días" });
-  await panel.waitFor();
+  const panel = page.locator(".lo-que-toca");
+  await panel.locator('.hoy-grupo[aria-label="Clientes"]').waitFor();
+  if (await page.locator(".hoy-proximos:not([open])").count()) await page.locator(".hoy-proximos > summary").click();
   ok(await panel.locator(".irow", { hasText: "Termina la garantía" }).isVisible(), "Hoy avisa que termina la garantía");
-  ok(await panel.locator(".irow", { hasText: "Pago atrasado: factura 115" }).isVisible(), "Hoy muestra el pago atrasado");
-  ok(await panel.locator(".irow", { hasText: "Capacitación al equipo" }).isVisible(), "Hoy muestra el hito de la semana");
-  ok(await page.locator(".panel", { hasText: "Soporte abierto" }).locator(".irow", { hasText: "No llegan los recordatorios" }).isVisible(), "Hoy muestra la solicitud abierta");
-  ok(await page.locator(".stat.alert", { hasText: "vencido" }).isVisible(), "Hoy muestra lo vencido");
+  ok(await panel.locator('.hoy-grupo[aria-label="Clientes"] .irow', { hasText: "Pago atrasado: factura 115" }).isVisible(), "Hoy muestra el pago atrasado en el grupo Clientes");
+  ok(await panel.locator(".hoy-proximos .irow", { hasText: "Capacitación al equipo" }).isVisible(), "y el hito de la semana en «Próximos 7 días»");
+  ok(await panel.locator('.hoy-grupo[aria-label="Clientes"] .irow', { hasText: "No llegan los recordatorios" }).isVisible(), "Hoy muestra la solicitud abierta");
+  ok(await page.locator(".avisos .aviso", { hasText: "Pago vencido" }).isVisible(), "y arriba, el aviso del pago vencido");
   await shot(page, "c01-hoy.png");
 
   /* ---------------- lead ganado → cliente ---------------- */

@@ -313,6 +313,20 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing:
 .plan-leads summary { cursor: pointer; font-size: 13.5px; font-weight: 500; color: var(--fg-2); }
 .plan-lista { display: grid; gap: 4px; max-height: 240px; margin-top: 8px; overflow-y: auto; }
 @media (max-width: 600px) { .plan-ajustes { grid-template-columns: minmax(0, 1fr); } .plan-dias li { grid-template-columns: minmax(0, 1fr); gap: 6px; } .plan-socio { align-items: start; } .plan-nombres { white-space: normal; } }
+/* Hoy: una sola lista de lo que toca, con sus grupos; los próximos 7 días, plegados. */
+.hoy-cols { grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr); }
+.lo-que-toca .hoy-grupo { display: grid; gap: 8px; margin-top: 4px; }
+.lo-que-toca .hoy-grupo > .task-group { margin-bottom: 0; }
+.lo-que-toca .irows, .lo-que-toca .lrows { margin-top: 2px; }
+.task-group.warn { color: var(--warn); }
+.hoy-proximos { margin-top: 6px; padding-top: 10px; border-top: 1px solid var(--line); }
+.hoy-proximos > summary { display: flex; align-items: center; gap: 8px; list-style: none; cursor: pointer; }
+.hoy-proximos > summary::-webkit-details-marker { display: none; }
+.hoy-proximos > summary .task-group { margin: 0; }
+.hoy-proximos > summary::after { content: ""; width: 7px; height: 7px; border-right: 1.6px solid var(--fg-3); border-bottom: 1.6px solid var(--fg-3); transform: rotate(45deg) translateY(-2px); transition: transform 0.15s ease; }
+.hoy-proximos[open] > summary::after { transform: rotate(-135deg) translateY(-1px); }
+.hoy-proximos > .tasks, .hoy-proximos > .irows { margin-top: 10px; }
+@media (max-width: 1100px) { .hoy-cols { grid-template-columns: minmax(0, 1fr); } }
 /* Pestañas de una sección (Hoy y Clientes): arriba del contenido, con una raya bajo la elegida. */
 .subnav-wrap { margin-bottom: 20px; }
 .subnav { display: flex; gap: 24px; overflow-x: auto; border-bottom: 1px solid var(--line); scrollbar-width: none; }
@@ -446,8 +460,26 @@ body.arrastrando .toasts { bottom: calc(112px + env(safe-area-inset-bottom, 0px)
 .col-sum.motivos { font-size: 12px; }
 .linkbtn { border: 0; padding: 0; background: none; color: var(--accent); font: inherit; font-size: 12.5px; cursor: pointer; text-align: left; }
 .linkbtn:hover { text-decoration: underline; }
-.pitch { display: grid; gap: 10px; padding: 14px 16px; border-radius: var(--r-m); background: var(--sunken); }
+.pitch { display: block; padding: 14px 16px; border-radius: var(--r-m); background: var(--sunken); }
 .pitch h3 { margin: 0; }
+details.pitch > summary { display: flex; align-items: center; justify-content: space-between; gap: 10px; list-style: none; cursor: pointer; }
+details.pitch > summary::-webkit-details-marker { display: none; }
+details.pitch > summary::after { content: ""; flex: none; width: 8px; height: 8px; margin-right: 4px; border-right: 1.6px solid var(--fg-3); border-bottom: 1.6px solid var(--fg-3); transform: rotate(45deg) translateY(-2px); transition: transform 0.15s ease; }
+details.pitch[open] > summary::after { transform: rotate(-135deg) translateY(-2px); }
+.pitch > div, .pitch > details.guion { margin-top: 10px; }
+/* Arriba de la ficha: en qué va, qué hacer, el contacto y el resultado de la llamada, en una tarjeta. */
+.ahora { display: grid; gap: 12px; padding: 14px; border: 1px solid var(--line); border-radius: var(--r-l); background: var(--surface); box-shadow: var(--card-shadow); }
+.ahora-ia { display: grid; gap: 8px; padding: 2px 2px 12px; border-bottom: 1px solid var(--line); }
+.ahora-fila { display: grid; grid-template-columns: 82px minmax(0, 1fr); gap: 10px; align-items: baseline; }
+.ahora-fila .eyebrow { font-size: 10.5px; }
+.ahora-fila p { margin: 0; font-size: 14.5px; line-height: 1.45; color: var(--fg); }
+.ahora-pie { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; padding-left: 92px; font-size: 12.5px; color: var(--fg-3); }
+.ahora-claude { display: inline-flex; align-items: center; gap: 5px; color: var(--fg-3); }
+.ahora-claude svg { color: var(--accent); }
+.ahora .quick-acts { margin-top: 0; }
+.historial h3 .count { margin-left: 4px; font: 500 12px/1 var(--font-mono); color: var(--fg-3); }
+.historial > .btn { margin-top: 8px; }
+@media (max-width: 600px) { .ahora-fila { grid-template-columns: minmax(0, 1fr); gap: 2px; } .ahora-pie { padding-left: 0; } }
 .pitch p { margin: 4px 0 0; font-size: 14px; line-height: 1.5; color: var(--fg); }
 .pitch .guion summary { cursor: pointer; color: var(--accent); font-size: 13.5px; font-weight: 600; }
 .pitch .guion p { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 13.5px; color: var(--fg-2); max-height: 420px; overflow: auto; }
@@ -2012,6 +2044,23 @@ Responde solo con JSON, sin texto antes ni después:
  "riesgos": ["2 a 4 objeciones o riesgos probables, cada uno con cómo responder"],
  "cierre": "cómo cerrar la reunión y qué siguiente paso pedir"}`;
 }
+/* «En qué va» y «Qué hacer ahora», arriba de la ficha del lead: corto y con el modelo rápido. */
+function promptAhora(o) {
+  const t = o.tarea;
+  return `${ZH_CORTO}
+
+Resume en qué va la relación de ZH con este lead y qué conviene hacer ahora. Usa solo lo que está en los datos y el historial; no inventes nombres, cifras ni fechas. Español de Chile, frases cortas.
+Fecha de hoy: ${todayKey()} (hora de Chile).
+${t ? `Próxima tarea agendada: ${t.titulo || accionLabel(tipoTarea(t.tipo))}, ${fechaTxt(t.fecha, t.hora)}.` : "No tiene tareas agendadas."}
+
+${leadContexto(o.lead, o.hist)}
+
+Responde solo con JSON, sin texto antes ni después:
+{"enQueVa": "una o dos frases, de 220 caracteres como máximo: en qué está la conversación, qué dijo o pidió el lead y cuándo fue el último contacto",
+ "queHacer": "una frase que empiece con un verbo, de 140 caracteres como máximo: lo próximo que conviene hacer; si la tarea agendada sirve, esa"}`;
+}
+const sanitizeAhora = (r) => { const o = r && typeof r === "object" ? r : {}; return { enQueVa: clip(String(o.enQueVa || "").trim(), 260), queHacer: clip(String(o.queHacer || "").trim(), 180) }; };
+
 function sanitizePreparacion(r) {
   const o = r && typeof r === "object" ? r : {};
   return { objetivo: String(o.objetivo || "").trim(), agenda: strArr(o.agenda, 6), preguntas: strArr(o.preguntas, 8), senales: strArr(o.senales, 5), riesgos: strArr(o.riesgos, 5), cierre: String(o.cierre || "").trim() };
@@ -2746,7 +2795,7 @@ function MetaFila({ label, n, meta }) {
   </div>`;
 }
 /* Esta semana: llamadas y reuniones agendadas, contra la meta por socio (Ajustes). */
-function SemanaPanel({ quien }) {
+function SemanaPanel({ quien, puntaje }) {
   const { acts, leadsById, nameOf, cfg, nav } = useCtx();
   const t = todayKey();
   const desde = inicioSemana(t);
@@ -2762,6 +2811,7 @@ function SemanaPanel({ quien }) {
     <div class="panel-body semana">
       <${MetaFila} label="Llamadas" n=${llamadas} meta=${ml} />
       <${MetaFila} label="Reuniones agendadas" n=${reuniones} meta=${mr} />
+      ${puntaje ? html`<div class="meta" title="Promedio del puntaje que Claude le dio a tus llamadas de los últimos 30 días"><div class="meta-top"><span>Tu puntaje en llamadas</span><b>${puntaje.promedio}<span class="muted"> · ${puntaje.n} en 30 días</span></b></div></div>` : null}
       <p class="small muted">${q ? `Quedan ${q} ${q === 1 ? "día hábil" : "días hábiles"}.` : "Fin de semana."} <button type="button" class="linkbtn" onClick=${() => nav("ajustes")}>${ml || mr ? "Cambiar las metas" : "Ponerse una meta"}</button></p>
     </div></section>`;
 }
@@ -3264,6 +3314,7 @@ function HoyView() {
   const { leads: todos, acts, drafts, openModal, nav, equipo, me, clientes, proyectos, cobros, solicitudes, clientesById, cfg, tareas, tareasPorLead, siguienteDe, leadsById, diasEnEtapa, openLead, openCliente, canWrite } = useCtx();
   useReloj(60000);
   const [quien, setQuien] = useState(() => { const v = ls.get("respHoy", ""); return respNombre(v) ? v : ""; });
+  const [proxAbierto, setProxAbierto] = useState(() => ls.get("hoyProximos", false) === true);
   useEffect(() => ls.set("respHoy", quien), [quien]);
   /* Lo de cada socio, más lo que todavía no tiene responsable. */
   const deQuien = (r) => !quien || !r || r === quien;
@@ -3271,6 +3322,7 @@ function HoyView() {
   const t = todayKey();
   const agenda = agendaClientes({ proyectos, cobros, clientesById }, cfg, 7);
   const agendaHoy = agenda.filter((x) => x.fecha <= t);
+  const agendaProx = agenda.filter((x) => x.fecha > t);
   const solAbiertas = solicitudes.filter((s) => SOL_ABIERTA.has(s.estado)).sort(solOrden);
   const vencidos = cobros.filter((x) => pagoVencido(x, cfg));
   /* Las tareas pendientes, más las «proxima» antiguas que todavía no son tarea. */
@@ -3281,9 +3333,7 @@ function HoyView() {
   const proximas = lista.filter((x) => x.fecha > t && diffDays(t, x.fecha) <= 7);
   const abiertos = leads.filter(contactable);
   const nuevos = abiertos.filter((l) => etapaDe(l) === "nuevo" && !siguienteDe(l)).sort((a, b) => String(b.creado).localeCompare(String(a.creado)));
-  const sinPlan = abiertos.filter((l) => etapaDe(l) !== "nuevo" && !siguienteDe(l)).sort((a, b) => String(a.ultimoContacto || "").localeCompare(String(b.ultimoContacto || "")));
   const porRevisar = drafts.filter((d) => d.estado === "por_revisar");
-  const semana = acts.filter((a) => CONTACTOS.has(a.tipo) && Date.now() - Date.parse(a.fecha) < 7 * 864e5).length;
   const evaluadas = acts.filter((a) => a.tipo === "llamada" && a.autor === me.id && a.analisis && a.analisis.evaluacion && Date.now() - Date.parse(a.fecha) < 30 * 864e5);
   const promedio = evaluadas.length ? Math.round(sum(evaluadas, (a) => a.analisis.evaluacion.puntaje) / evaluadas.length) : null;
   const paraHoy = atrasadas.length + deHoy.length;
@@ -3347,16 +3397,7 @@ function HoyView() {
         <li><p class="eyebrow">Paso 2</p><h3>Carga tus leads</h3><p>Uno por uno, desde una planilla CSV o pegando una lista o un correo del formulario: Claude los ordena.</p><button class="btn small" style="justify-self:start" onClick=${() => openModal({ type: "import" })}>Importar leads</button></li>
         <li><p class="eyebrow">Paso 3</p><h3>Llama y graba</h3><p>Transcribe la llamada en vivo: al detener, Claude la analiza, crea las tareas y mueve la etapa.</p><button class="btn small" style="justify-self:start" onClick=${() => openModal({ type: "newLead" })}>Agregar un lead</button></li>
       </ol>
-    </div></section>` : html`<div class="summary" role="list">
-      <span class=${cx("stat", atrasadas.length && "alert")} role="listitem"><b>${paraHoy}</b>${paraHoy === 1 ? "tarea" : "tareas"} para hoy${atrasadas.length ? ` · ${atrasadas.length} ${atrasadas.length === 1 ? "atrasada" : "atrasadas"}` : ""}</span>
-      <span class=${cx("stat", !nuevos.length && "zero")} role="listitem"><b>${nuevos.length}</b>por contactar</span>
-      <span class=${cx("stat", !sinPlan.length && "zero")} role="listitem"><b>${sinPlan.length}</b>sin tarea</span>
-      <span class=${cx("stat", !porRevisar.length && "zero")} role="listitem"><b>${porRevisar.length}</b>borradores por revisar</span>
-      <span class=${cx("stat", !semana && "zero")} role="listitem"><b>${semana}</b>contactos en 7 días</span>
-      ${promedio != null ? html`<span class="stat" role="listitem" title="Promedio del puntaje que Claude le dio a tus llamadas de los últimos 30 días"><b>${promedio}</b>tu puntaje en llamadas (${evaluadas.length})</span>` : null}
-      ${clientes.length ? html`<span class=${cx("stat", !solAbiertas.length && "zero")} role="listitem"><button onClick=${() => nav("soporte")}><b>${solAbiertas.length}</b> solicitudes abiertas</button></span>` : null}
-      ${vencidos.length ? html`<span class="stat alert" role="listitem"><button onClick=${() => nav("cobros")}><b>${money(sum(vencidos, (x) => x.monto))}</b> vencido</button></span>` : null}
-    </div>`}
+    </div></section>` : null}
 
     ${avisos.length ? html`<section class="avisos" aria-label="Avisos">${avisos.map((a) => html`<div class=${cx("aviso", a.tono)} key=${a.k}>
       <span class="aviso-ico"><${Icon} name=${a.icon} size=${15} /></span><p>${a.texto}</p>${a.accion}
@@ -3366,39 +3407,35 @@ function HoyView() {
 
     ${sinFirma && leads.length ? html`<div class="note warn"><${Icon} name="info" /><div>Completa tu firma en <button class="btn small ghost" style="min-height:0;padding:0;text-decoration:underline" onClick=${() => nav("ajustes")}>Ajustes</button> para que los correos salgan con tu nombre y teléfono.</div></div>` : null}
 
-    ${todos.length || clientes.length ? html`<div class="cols">
+    ${todos.length || clientes.length ? html`<div class="cols hoy-cols">
       <div class="stack">
-        <section class="panel" aria-label="Tareas"><div class="panel-head"><h2>Tareas</h2>${porLlamar ? html`<button type="button" class="btn small" onClick=${() => nav("llamar")}><${Icon} name="phone" />Llamar en serie · ${porLlamar}</button>` : html`<span class="eyebrow">${paraHoy} para hoy</span>`}</div>
+        <section class="panel lo-que-toca" aria-label="Lo que toca"><div class="panel-head"><h2>Lo que toca</h2>${porLlamar ? html`<button type="button" class="btn small" onClick=${() => nav("llamar")}><${Icon} name="phone" />Llamar en serie · ${porLlamar}</button>` : html`<span class="eyebrow">${paraHoy} para hoy</span>`}</div>
           <div class="panel-body">
             ${grupo("Atrasadas", atrasadas, "late")}
             ${deHoy.length ? grupo("Hoy", deHoy, "") : html`<p class="task-group">Hoy</p><p class="empty">${atrasadas.length ? "Nada más para hoy." : "No hay tareas para hoy."}</p>`}
-            ${grupo("Próximos 7 días", proximas.slice(0, 15), "")}
-          </div></section>
-        <section class="panel"><div class="panel-head"><h2>Por contactar</h2><span class="eyebrow">${nuevos.length}</span></div>
-          <div class="panel-body">${nuevos.length ? html`<div class="lrows">${nuevos.slice(0, 12).map((l) => html`<${LeadRow} key=${l.id} lead=${l} mode="new" />`)}</div>` : html`<p class="empty">Todos los leads nuevos tienen una tarea.</p>`}
-          ${nuevos.length > 12 ? html`<button class="btn small ghost" onClick=${() => nav("embudo")}>Ver los ${nuevos.length} en el embudo</button>` : null}</div></section>
-      </div>
-      <div class="stack">
-        <${SemanaPanel} quien=${quien} />
-        <${CalendarioPanel} />
-        ${estancados.length ? html`<section class="panel" aria-label="Estancados"><div class="panel-head"><h2>Estancados</h2><span class="eyebrow">${estancados.length}</span></div>
-          <div class="panel-body"><p class="small muted">Llevan ${DIAS_AVISO} días o más en la misma etapa, después de la reunión. Un llamado o un WhatsApp los mueve.</p>
-            <div class="lrows">${estancados.slice(0, 6).map((l) => { const s = siguienteDe(l); const d = diasEnEtapa(l); return html`<div class="lrow" key=${l.id}>
+            ${porRevisar.length ? html`<div class="hoy-grupo" aria-label="Por revisar"><p class="task-group">Por revisar · ${porRevisar.length}</p><${DraftList} items=${porRevisar.slice(0, 6)} />
+              ${porRevisar.length > 6 ? html`<button class="btn small ghost" onClick=${() => nav("borradores")}>Ver los ${porRevisar.length} borradores</button>` : null}</div>` : null}
+            ${agendaHoy.length || solAbiertas.length ? html`<div class="hoy-grupo" aria-label="Clientes"><p class=${cx("task-group", vencidos.length && "late")}>Clientes · ${agendaHoy.length + solAbiertas.length}</p>
+              ${agendaHoy.length ? html`<${AgendaList} items=${agendaHoy} limit=${6} empty="" />` : null}
+              ${solAbiertas.length ? html`<div class="irows">${solAbiertas.slice(0, 4).map((s) => html`<${SolRow} key=${s.id} s=${s} showCliente />`)}</div>` : null}
+              ${solAbiertas.length > 4 ? html`<button class="btn small ghost" onClick=${() => nav("soporte")}>Ver las ${solAbiertas.length} solicitudes</button>` : null}</div>` : null}
+            ${estancados.length ? html`<div class="hoy-grupo" aria-label="Se están enfriando"><p class="task-group warn">Se están enfriando · ${estancados.length}</p>
+              <p class="small muted">Llevan ${DIAS_AVISO} días o más en la misma etapa después de la reunión: un llamado o un WhatsApp los mueve.</p>
+              <div class="lrows">${estancados.slice(0, 5).map((l) => { const s = siguienteDe(l); const d = diasEnEtapa(l); return html`<div class="lrow" key=${l.id}>
               <button class="lrow-main" onClick=${() => openLead(l.id)}><span class="lrow-name">${leadTitulo(l)}</span><span class="lrow-sub">${etapaLabel(l.etapa)}${l.propuesta && l.propuesta.monto ? " · " + money(l.propuesta.monto) + " + IVA" : ""}</span>${s ? html`<span class="lrow-note">${s.titulo || accionLabel(s.tipo)} · ${cuandoTarea(s).txt}</span>` : html`<span class="lrow-note">Sin tarea</span>`}</button>
               <div class="lrow-side"><span class=${cx("tag", tonoDias(d))}>${etapaDe(l) === "propuesta" && l.propuesta ? `Enviada hace ${d} d` : `${d} d en la etapa`}</span></div>
-            </div>`; })}</div></div></section>` : null}
-        ${clientes.length ? html`<section class="panel"><div class="panel-head"><h2>Clientes: próximos 7 días</h2><span class="eyebrow">${agenda.length}</span></div>
-          <div class="panel-body"><${AgendaList} items=${agenda} limit=${10} empty="Sin hitos, entregas, facturas ni pagos en los próximos 7 días." />
-          ${agenda.length > 10 ? html`<button class="btn small ghost" onClick=${() => nav("proyectos")}>Ver proyectos</button>` : null}</div></section>
-        <section class="panel"><div class="panel-head"><h2>Soporte abierto</h2><span class="eyebrow">${solAbiertas.length}</span></div>
-          <div class="panel-body">${solAbiertas.length ? html`<div class="irows">${solAbiertas.slice(0, 6).map((s) => html`<${SolRow} key=${s.id} s=${s} showCliente />`)}</div>` : html`<p class="empty">No hay solicitudes abiertas.</p>`}
-          ${solAbiertas.length > 6 ? html`<button class="btn small ghost" onClick=${() => nav("soporte")}>Ver las ${solAbiertas.length}</button>` : null}</div></section>` : null}
-        <section class="panel"><div class="panel-head"><h2>Borradores por revisar</h2><span class="eyebrow">${porRevisar.length}</span></div>
-          <div class="panel-body">${porRevisar.length ? html`<${DraftList} items=${porRevisar.slice(0, 8)} />` : html`<p class="empty">Cuando Claude redacte un correo o un WhatsApp, aparecerá aquí para que lo revises antes de enviarlo.</p>`}</div></section>
-        <section class="panel"><div class="panel-head"><h2>Sin tarea</h2><span class="eyebrow">${sinPlan.length}</span></div>
-          <div class="panel-body">${sinPlan.length ? html`<div class="lrows">${sinPlan.slice(0, 8).map((l) => html`<${LeadRow} key=${l.id} lead=${l} mode="stale" />`)}</div>` : html`<p class="empty">Cada lead abierto tiene su próxima tarea.</p>`}</div></section>
+            </div>`; })}</div></div>` : null}
+            ${proximas.length || agendaProx.length ? html`<details class="hoy-proximos" open=${proxAbierto} onToggle=${(e) => { const o = e.currentTarget.open; if (o !== proxAbierto) { setProxAbierto(o); ls.set("hoyProximos", o); } }}><summary><span class="task-group">Próximos 7 días · ${proximas.length + agendaProx.length}</span></summary>
+              ${proximas.length ? html`<div class="tasks">${proximas.slice(0, 15).map((x) => html`<${TareaFila} key=${x.id || "v-" + x.leadId} t=${x} conLead />`)}</div>` : null}
+              ${agendaProx.length ? html`<${AgendaList} items=${agendaProx} limit=${10} empty="" />` : null}
+            </details>` : null}
+          </div></section>
+      </div>
+      <div class="stack">
+        <${SemanaPanel} quien=${quien} puntaje=${promedio != null ? { promedio, n: evaluadas.length } : null} />
+        <${CalendarioPanel} />
         <section class="panel"><div class="panel-head"><h2>Actividad reciente</h2></div>
-          <div class="panel-body"><${Feed} items=${acts} showLead limit=${10} /></div></section>
+          <div class="panel-body"><${Feed} items=${acts} showLead limit=${6} /></div></section>
       </div>
     </div>` : null}
   </div>`;
@@ -4100,9 +4137,10 @@ function LeadDrawer({ id, tab: initialTab, onClose }) {
   const [tab, setTab] = useState(initialTab === "tareas" ? "" : initialTab || "");
   const [listo, setListo] = useState(null);
   const [confirmDel, setConfirmDel] = useState(false);
+  const [histTodo, setHistTodo] = useState(false);
   const bodyRef = useRef(null);
 
-  useEffect(() => { setTab(initialTab === "tareas" ? "" : initialTab || ""); setListo(null); }, [id, initialTab]);
+  useEffect(() => { setTab(initialTab === "tareas" ? "" : initialTab || ""); setListo(null); setHistTodo(false); }, [id, initialTab]);
   useEffect(() => { if (listo && bodyRef.current) bodyRef.current.scrollTop = 0; }, [listo]);
   useEffect(() => {
     if (initialTab !== "tareas" || !bodyRef.current) return;
@@ -4163,8 +4201,9 @@ function LeadDrawer({ id, tab: initialTab, onClose }) {
       <div class="drawer-body" ref=${bodyRef}>
         ${listo ? html`<${ListoCard} r=${listo} lead=${lead} onClose=${() => setListo(null)} />` : null}
         ${noc ? html`<div class="note bad"><${Icon} name="info" /><div>Pidió no ser contactado${lead.noContactarDesde ? " (" + ago(lead.noContactarDesde) + ")" : ""}. No lo llames ni le escribas; puedes seguir anotando en el historial. La marca se quita en «Datos del lead».</div></div>` : null}
-        <section>
-          <h3 class="sr">Contacto</h3>
+        <section class="ahora" aria-label="Ahora">
+          <h3 class="sr">Ahora</h3>
+          ${etapaDe(lead) !== "ganado" && etapaDe(lead) !== "perdido" ? html`<${AhoraIA} lead=${lead} hist=${hist} />` : null}
           <div class="contact-lines">
             <div class="cline">
               <${Icon} name="phone" />
@@ -4191,12 +4230,12 @@ function LeadDrawer({ id, tab: initialTab, onClose }) {
         <${PropuestaBox} lead=${lead} />
         <${TareasLead} lead=${lead} abrirNueva=${initialTab === "tareas"} />
 
-        ${lead.dolor || lead.comoAyudamos || lead.guion ? html`<section class="pitch">
-          <h3>${lead.dolor || lead.comoAyudamos ? "Dolor y cómo ayudamos" : "Preparación"}</h3>
+        ${lead.dolor || lead.comoAyudamos || lead.guion ? html`<details class="pitch" open=${isOpen(lead) && RUTA.indexOf(etapaDe(lead)) < RUTA.indexOf("reunion_concretada")}>
+          <summary><h3>${lead.dolor || lead.comoAyudamos ? "Dolor y cómo ayudamos" : "Preparación"}</h3></summary>
           ${lead.dolor ? html`<div><span class="eyebrow">Dolor${isOpen(lead) && RUTA.indexOf(etapaDe(lead)) < RUTA.indexOf("reunion_concretada") ? " · por confirmar" : ""}</span><p>${lead.dolor}</p></div>` : null}
           ${lead.comoAyudamos ? html`<div><span class="eyebrow">Cómo ayudamos</span><p>${lead.comoAyudamos}</p></div>` : null}
           ${lead.guion ? html`<details class="guion"><summary>Guion y preparación</summary><p>${lead.guion}</p></details>` : null}
-        </section>` : null}
+        </details>` : null}
 
         <section class="work">
           <div class="work-tabs" role="tablist" aria-label="Registrar">
@@ -4215,7 +4254,8 @@ function LeadDrawer({ id, tab: initialTab, onClose }) {
 
         <${Archivos} dueno=${{ tipo: "lead", id: lead.id }} items=${lead.archivos} />
 
-        <section><h3>Historial</h3><${Feed} items=${hist} /></section>
+        <section class="historial"><h3>Historial${hist.length ? html` <span class="count">${hist.length}</span>` : null}</h3><${Feed} items=${hist} limit=${histTodo ? 0 : 5} />
+          ${hist.length > 5 && !histTodo ? html`<button type="button" class="btn small ghost" onClick=${() => setHistTodo(true)}>Ver los ${hist.length}</button>` : null}</section>
 
         <details class="data" open=${!lead.telefono && !lead.correo}>
           <summary>Datos del lead</summary>
@@ -4245,6 +4285,58 @@ function LeadDrawer({ id, tab: initialTab, onClose }) {
         </details>
       </div>
     </aside>
+  </div>`;
+}
+
+/* Arriba de la ficha: en qué va y qué hacer ahora. Con historial lo escribe Claude (el modelo
+   rápido) y queda en `resumenes/<id del lead>`; se vuelve a pedir solo si cambió algo: un contacto,
+   la próxima tarea o la etapa. Sin historial, o sin Claude, sale de los datos. */
+const ahoraPedidos = new Set();
+function AhoraIA({ lead, hist }) {
+  const { db, me, sampleState, siguienteDe, canWrite } = useCtx();
+  const sig = siguienteDe(lead);
+  const contactos = hist.filter((a) => a.tipo !== "etapa");
+  const ultimo = contactos[0];
+  const firma = [ultimo ? ultimo.id || ultimo.fecha : "", sig ? sig.id || `${sig.tipo}:${sig.fecha}` : "", etapaDe(lead)].join("|");
+  const [guardado, setGuardado] = useState(undefined);
+  const [pensando, setPensando] = useState(false);
+  useEffect(() => {
+    if (!db) { setGuardado(null); return undefined; }
+    let vivo = true;
+    setGuardado(undefined);
+    db.doc("resumenes/" + lead.id).get().then((s) => { if (vivo) setGuardado(s.exists ? s.data() : null); }, () => { if (vivo) setGuardado(null); });
+    return () => { vivo = false; };
+  }, [db, lead.id]);
+  const puede = !!sampleState.fn && contactos.length > 0;
+  const pedir = async () => {
+    if (!puede || pensando) return;
+    ahoraPedidos.add(lead.id + "|" + firma);
+    setPensando(true);
+    try {
+      const r = sanitizeAhora(await sampleState.fn.json(promptAhora({ lead, hist, tarea: sig }), { modelTier: "quick", cache: false }));
+      if (r.enQueVa) {
+        const doc = { ...r, firma, creado: nowISO(), por: me.id || null, autor: "claude" };
+        setGuardado(doc);
+        if (canWrite && db) db.doc("resumenes/" + lead.id).set(doc).catch(() => {});
+      }
+    } catch (e) { /* queda lo que sale de los datos */ }
+    setPensando(false);
+  };
+  useEffect(() => {
+    if (guardado === undefined || !puede || pensando || (guardado && guardado.firma === firma) || ahoraPedidos.has(lead.id + "|" + firma)) return;
+    pedir();
+  }, [guardado, firma, puede]);
+  const ia = guardado && guardado.firma === firma ? guardado : null;
+  const enQueVa = ia ? ia.enQueVa : ultimo ? `${actTitulo(ultimo)} ${ago(ultimo.fecha)}${ultimo.resumen ? ": " + clip(ultimo.resumen.replace(/\s+/g, " "), 170) : "."}` : "Todavía no hay contactos registrados.";
+  const cuando = sig ? (sig.fecha < todayKey() ? "atrasada" : `${cuandoTexto(sig.fecha)}${isHora(sig.hora) ? " a las " + sig.hora : ""}`) : "";
+  const queHacer = ia && ia.queHacer ? ia.queHacer : sig ? `${sig.titulo || accionLabel(tipoTarea(sig.tipo))} · ${cuando}` : isOpen(lead) ? "Agendar la próxima tarea." : "";
+  return html`<div class="ahora-ia" aria-live="polite">
+    <div class="ahora-fila"><span class="eyebrow">En qué va</span><p>${enQueVa}</p></div>
+    ${queHacer ? html`<div class="ahora-fila"><span class="eyebrow">Qué hacer</span><p>${queHacer}</p></div>` : null}
+    ${pensando || ia || puede ? html`<div class="ahora-pie">
+      ${pensando ? html`<${Thinking} text="Claude está leyendo el historial…" />` : ia ? html`<span class="ahora-claude"><${Icon} name="spark" size=${13} />Lo resumió Claude ${ago(ia.creado)}</span>` : null}
+      ${puede && !pensando ? html`<button type="button" class="linkbtn" onClick=${pedir}>${ia ? "Actualizar" : "Resumir con Claude"}</button>` : null}
+    </div>` : null}
   </div>`;
 }
 

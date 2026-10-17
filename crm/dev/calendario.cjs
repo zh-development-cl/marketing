@@ -180,7 +180,7 @@ const SEED = {
   const interno = pc.locator(".cev", { hasText: "Planificación semanal" });
   ok(await visto(interno.locator(".cev-meta", { hasText: "Solo el equipo" })) && (await interno.getByRole("button", { name: "Crear lead" }).count()) === 0, "una reunión del equipo no ofrece crear un lead");
   ok(await visto(pc.locator(".cal-pie", { hasText: "Actualizado" })), "y dice cuándo se leyó, con «Actualizar»");
-  const tareaHoy = page.locator(".panel[aria-label=Tareas] .task", { hasText: "Hostal Mora" });
+  const tareaHoy = page.locator(".lo-que-toca .task", { hasText: "Hostal Mora" });
   ok(await visto(tareaHoy.locator(`a[href="${MEET_H}"]`, { hasText: "Unirse a Meet" })), "en Tareas, la reunión de hoy tiene «Unirse a Meet»");
   ok(await visto(tareaHoy.locator(".resp.ok", { hasText: "Confirmó la invitación" })), "y dice que el lead confirmó la invitación");
   await shot(page, "c01-hoy-calendario.png");

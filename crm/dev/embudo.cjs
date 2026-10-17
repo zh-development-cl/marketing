@@ -97,9 +97,9 @@ const SEED = {
   };
 
   const page = await open({ name: "escritorio", seed: SEED });
-  const hoyPanel = page.locator(".panel", { has: page.locator("h2", { hasText: /^Tareas$/ }) });
+  const hoyPanel = page.locator(".lo-que-toca");
   ok(await hoyPanel.locator(".task", { hasText: "Vivero Sur" }).isVisible(), "un lead en pausa con fecha para retomarlo aparece en las tareas de hoy");
-  ok((await page.locator(".panel", { has: page.locator("h2", { hasText: /^Sin tarea$/ }) }).locator(".lrow", { hasText: "Ana Ruiz" }).count()) === 0, "y no cuenta como abierto sin tarea");
+  ok(!(await page.locator(".plan-aviso").innerText().catch(() => "")).includes("Ana Ruiz"), "y no cuenta como lead sin tarea");
   await page.locator(".toolbar .seg button", { hasText: "Nicolás" }).click();
   ok(await hoyPanel.locator(".task", { hasText: "Viña Cerro" }).isVisible() && (await hoyPanel.locator(".task", { hasText: "Vivero Sur" }).count()) === 0, "en Hoy cada socio puede ver solo lo suyo");
   ok(await hoyPanel.locator(".task", { hasText: "Viña Cerro" }).locator(".task-meta", { hasText: "Nicolás" }).isVisible(), "con quién la lleva");
@@ -216,6 +216,8 @@ const SEED = {
   await card(page, "Isabel Mora").locator(".kcard-top").click();
   await page.locator("#lead-title", { hasText: "Clínica Mar" }).waitFor();
   ok(true, "un clic abre la ficha del lead");
+  ok(!(await page.locator("details.pitch").evaluate((d) => d.open)), "con la reunión hecha, el dolor y el guion quedan plegados");
+  await page.locator("details.pitch > summary").click();
   const pitch = await page.locator(".pitch").innerText();
   ok(pitch.includes("Agendan las horas por teléfono") && pitch.includes("Agenda en línea con recordatorio"), "la ficha muestra el dolor y cómo ayudamos");
   ok((await page.locator("#lead-resp").evaluate((el) => el.options[el.selectedIndex].text)) === "Lo lleva Lorenzo", "y arriba, quién lo lleva");

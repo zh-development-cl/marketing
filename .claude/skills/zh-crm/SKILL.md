@@ -52,6 +52,9 @@ cargada). Todo lo que escribas se ve en vivo en la página. El detalle de campos
   búscala en la colección `equipo` (cada documento es la firma de un socio, con su `nombre`).
 - `responsable` (en leads, clientes, proyectos y solicitudes) es `"lorenzo"` o `"nicolas"`: los dos
   socios son los únicos responsables. Si no sabes quién lo lleva, `null`.
+- `resumenes/<id del lead>` guarda el «En qué va» y «Qué hacer» que la página muestra arriba de la
+  ficha. Lo escribe la página y se pone al día sola cuando hay un contacto nuevo: no lo edites. Si te
+  piden en qué va un lead, puedes leerlo, pero contrasta con el historial.
 
 ## Etapas y tareas
 

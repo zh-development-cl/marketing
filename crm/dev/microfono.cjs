@@ -154,7 +154,7 @@ const FRASES = ["hola andrea te llamo de zh por lo del inventario", "la verdad l
   await page.keyboard.press("Escape");
   await page.locator(".scrim").first().waitFor({ state: "detached" });
   await irA(page, "hoy");
-  ok(await page.locator(".summary .stat", { hasText: "tu puntaje en llamadas (1)" }).filter({ hasText: "67" }).isVisible(), "Hoy muestra tu puntaje promedio en llamadas");
+  ok(await page.locator(".panel[aria-label='Esta semana'] .meta", { hasText: "Tu puntaje en llamadas" }).filter({ hasText: "67" }).filter({ hasText: "1 en 30 días" }).isVisible(), "Hoy muestra tu puntaje promedio en llamadas, en «Esta semana»");
 
   /* ---------------- reunión con un cliente ---------------- */
   await irA(page, "clientes");

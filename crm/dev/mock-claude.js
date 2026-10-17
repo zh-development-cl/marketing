@@ -141,6 +141,10 @@
       atencion: ["Taller Norte lleva días con la propuesta sin respuesta", "Quedan leads nuevos sin llamar"],
       proximos: ["Llamar a Taller Norte por la propuesta", "Llamar a los leads nuevos de la lista", "Preparar la reunión del martes"],
     };
+    if (p.includes("Resume en qué va la relación de ZH con este lead")) {
+      window.__ahoraPedidos = (window.__ahoraPedidos || 0) + 1;
+      return { enQueVa: "Contestó la última llamada y quiere ver cómo cotizar más rápido; quedó en revisar la idea con su socio.", queHacer: "Llamarlo para confirmar si su socio puede estar en la reunión." };
+    }
     if (p.includes("Prepara a un socio de ZH Development para una reunión")) return {
       objetivo: "Entender cómo cotizan hoy y acordar si vale la pena una propuesta escrita.",
       agenda: ["5 min: presentarnos y confirmar el objetivo", "15 min: que muestre cómo cotiza hoy", "7 min: qué le cuesta y quién decide", "3 min: siguiente paso"],
@@ -425,7 +429,8 @@
     },
   });
 
-  const caps = { db, user, sample, downloads, permissions, ...(assets ? { assets } : {}), ...(mcp ? { mcp } : {}) };
+  /* Con window.__MOCK_SIN_CLAUDE = true la vista no tiene Claude (como si no se diera el permiso). */
+  const caps = { db, user, ...(window.__MOCK_SIN_CLAUDE ? {} : { sample }), downloads, permissions, ...(assets ? { assets } : {}), ...(mcp ? { mcp } : {}) };
   const memo = {};
   window.claude = Object.freeze({ use: (name) => (memo[name] = memo[name] || tick(30).then(() => caps[name] || null)) });
 })();

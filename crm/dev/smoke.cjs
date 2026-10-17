@@ -175,8 +175,8 @@ const ok = (cond, msg) => { if (!cond) errors.push("falló: " + msg); else notes
   await shot(page, "09-borradores.png");
   await irA(page, "hoy");
   await page.waitForTimeout(150);
-  ok((await page.locator(".panel", { has: page.locator("h2", { hasText: /^Por contactar$/ }) }).locator(".lrow").count()) === 1, "quien pidió no ser contactado sale de Hoy");
-  ok(await page.locator(".panel", { has: page.locator("h2", { hasText: /^Tareas$/ }) }).locator(".task", { hasText: "Mandar por WhatsApp el enlace" }).isVisible(), "Hoy lista las tareas del día");
+  ok((await page.locator(".lo-que-toca", { hasText: "Ferretería Sur" }).count()) === 0 && (await page.locator(".plan-aviso").count()) === 0, "quien pidió no ser contactado no aparece en Hoy ni en el aviso para planificar");
+  ok(await page.locator(".lo-que-toca .task", { hasText: "Mandar por WhatsApp el enlace" }).isVisible(), "Hoy lista las tareas del día en «Lo que toca»");
   await shot(page, "10-hoy.png");
   await noOverflow(page, "escritorio");
 

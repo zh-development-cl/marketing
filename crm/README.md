@@ -23,7 +23,7 @@ en Clientes, las solicitudes abiertas y los pagos vencidos.
 | Sección | Para qué |
 |---|---|
 | **Hoy** | Tres pestañas: Para hoy, Borradores y Métricas. |
-| Para hoy | Las tareas del día: atrasadas, de hoy y de los próximos 7 días, cada una con su círculo para completarla y su botón (llamar, revisar el borrador, agendar, «Unirse a Meet», «¿Se hizo?»), con un filtro para ver lo de Lorenzo o lo de Nicolás; **Avisos** arriba (la reunión de las próximas dos horas con su Meet, las invitaciones rechazadas y los pagos vencidos, cada uno con su botón; ver «Avisos y recordatorios»); **Esta semana**: las llamadas y las reuniones agendadas desde el lunes, contra la meta (ver «Propuestas, estancados, metas y archivos»); **Estancados**: los que llevan 7 días o más en la misma etapa después de la reunión; el **Calendario** de `contacto@zhdevelopment.cl` (hoy y los próximos 7 días, con el lead de cada reunión, Meet, la respuesta a la invitación y «Crear lead» para quien todavía no es lead); los leads por contactar, los que no tienen tarea, los borradores por revisar y la actividad reciente. Con clientes: pagos atrasados, cobros por facturar, hitos y garantías que terminan en los próximos 7 días, y el soporte abierto. Si hay leads abiertos sin tarea, el aviso «Planificar la semana» (ver «Planificar la semana»). |
+| Para hoy | **Una sola lista, «Lo que toca»**, en orden: lo atrasado; lo de hoy (las reuniones a su hora, las llamadas y lo demás), cada tarea con su círculo para completarla y su botón (llamar, revisar el borrador, agendar, «Unirse a Meet», «¿Se hizo?»); los borradores por revisar; lo de clientes que vence (pagos atrasados, cobros por facturar, hitos y garantías) y el soporte abierto; y los que **se están enfriando** (7 días o más en la misma etapa después de la reunión). Los **próximos 7 días** van plegados (se acuerda si los dejaste abiertos). Arriba, los **avisos** (la reunión de las próximas dos horas con su Meet, las invitaciones rechazadas y los pagos vencidos; ver «Avisos y recordatorios») y, si hay leads abiertos sin tarea, «Planificar la semana». Al lado, solo **Esta semana** (llamadas y reuniones agendadas contra la meta, y tu puntaje en llamadas), el **Calendario** de `contacto@zhdevelopment.cl` y la actividad reciente. El filtro de arriba muestra lo de Lorenzo o lo de Nicolás. |
 | Borradores | Correos y WhatsApp redactados con Claude o a mano, con vista previa y acciones de envío. |
 | Métricas | El embudo de hoy con su valor y el pronóstico ponderado por etapa; en el período elegido (7, 30 o 90 días, o 12 meses): llamadas y cuántas contestaron, reuniones, ganados, hasta dónde llegaron los leads nuevos, por qué se perdieron, la actividad de cada socio, el puntaje de las llamadas por criterio (y dónde mejorar) y, con clientes, lo vencido, lo por cobrar en 30 días y lo pagado. **Resumen con Claude**: para la reunión de los socios, un titular, lo que va bien, lo que preocupa y tres acciones para la próxima semana, solo con los datos del CRM (se puede copiar). |
 | **Llamar** | Las llamadas de hoy, una tras otra: primero las tareas de llamar atrasadas y de hoy, después los leads nuevos sin tarea (prioridad alta primero), solo con teléfono. Cada una muestra el teléfono grande, la tarea, el dolor, cómo ayudamos, el guion y los últimos contactos; «Contestó: registrar» abre el registro de la llamada (con «Transcribir en vivo»), «No contestó» deja el intento y el paso que sigue, «Pidió otro día» deja la llamada para el día y la hora que pidió, y al terminar pasa sola a la siguiente. «Saltar», la lista «Después» y el filtro por socio. En el teléfono está en la barra de abajo. |
@@ -47,10 +47,15 @@ flechas, Enter, Escape o las primeras letras. Un clic afuera solo cierra el men�
 queda el selector del sistema, que ahí es más cómodo.
 
 **Ficha del lead** (se abre al tocar un lead): arriba, la empresa, la persona, la etapa y quién lo
-lleva; teléfono y correo con copiar, llamar y WhatsApp; **la propuesta**, si se envió (ver
-«Propuestas, estancados, metas y archivos»); **las tareas** (ver «Tareas y flujo automático»); el
-dolor, cómo ayudamos y el guion, si están; los borradores, **los archivos** y el historial; y cuatro
-herramientas:
+lleva. Después, **una tarjeta con lo de ahora**: «En qué va» y «Qué hacer», el teléfono y el correo
+con copiar, llamar y WhatsApp, y los botones del resultado de una llamada. «En qué va» y «Qué hacer»
+los escribe Claude (el modelo rápido) con el historial y quedan guardados en `resumenes`: se vuelven a
+pedir solo cuando hay algo nuevo (un contacto, otra próxima tarea u otra etapa), o con «Actualizar».
+Sin historial, o sin Claude, salen de los datos: el último contacto y la próxima tarea (y si está
+atrasada). Los ganados y perdidos no la llevan. Luego **la propuesta**, si se envió (ver «Propuestas,
+estancados, metas y archivos»); **las tareas** (ver «Tareas y flujo automático»); el dolor, cómo
+ayudamos y el guion, plegables (abiertos mientras no hay reunión hecha); los borradores, **los
+archivos** y el historial (lo último, con «Ver los N» para todo); y cuatro herramientas:
 
 - **Registrar llamada:** con «Automático» prendido (lo normal), se toca «Transcribir en vivo», se
   habla y al tocar «Detener» Claude analiza la llamada y se guarda sola: la actividad con su
@@ -504,6 +509,7 @@ calendario `AAAA-MM-DD` en hora de Chile; marcas de tiempo en ISO. En todas las 
 | `equipo` | uno por usuario (id `u_…`) | `nombre`, `cargo`, `telefono`, `correo` (la firma) |
 | `diagnostico` | `microfono-<id de usuario>` | último resultado de «Transcribir en vivo»: `ok`, `paso`, `tipo`, `error`, `politica`, `enMarco`, `navegador`, `fecha` |
 | `archivo` | un documento guardado | `titulo`, `ruta`, `rama`, `commit`, `contenido`, `guardado`, `nota`: copias de documentos que salieron del repositorio público por tener datos de contacto (por ejemplo, el playbook y los guiones de la prospección de octubre de 2026). No se ven en la página; entran en el respaldo JSON |
+| `resumenes` | uno por lead (su id es el del lead) | `enQueVa`, `queHacer`, `firma` (el último contacto, la próxima tarea y la etapa con que se escribió: si cambian, se pide de nuevo), `creado`, `por`, `autor: "claude"`. Lo escribe la página; no hace falta tocarlo. |
 | `config` | `general` | `whatsappNegocios`, `agendaUrl`, `gmailCuenta` (la cuenta de Google de ZH: `contacto@zhdevelopment.cl`, cuyo calendario usa el CRM), `correosEquipo` (lista de correos del equipo), `recordatorioReunion` (`false` apaga el recordatorio por WhatsApp; si no está, va prendido), `metas` (`{llamadas, reuniones}`: por socio y por semana; 0 o vacío = sin meta), `abrirWhatsapp` (`app`, `web`), `garantiaDias` (60 si no está), `plazoPago` (30 si no está) |
 
 Borrar un cliente borra sus proyectos, cobros, mantenciones, solicitudes, borradores e historial
@@ -534,13 +540,15 @@ NODE_PATH=$(npm root -g) node crm/dev/tareas.cjs    # tareas y flujo automático
 NODE_PATH=$(npm root -g) node crm/dev/calendario.cjs # Google Calendar: unir eventos con leads, reservas de la web, mover, invitaciones, crear y mover eventos, permisos
 NODE_PATH=$(npm root -g) node crm/dev/mejoras.cjs   # buscar, llamar en serie, horarios libres, recordatorio, preparar con Claude, métricas, selección múltiple
 NODE_PATH=$(npm root -g) node crm/dev/seguimiento.cjs # propuesta enviada, días en la etapa y estancados, archivos, metas, WhatsApp de «No contestó» y resumen con Claude
+NODE_PATH=$(npm root -g) node crm/dev/ahora.cjs     # ficha ordenada («En qué va» y «Qué hacer» con Claude, guardado y al día) y Hoy como una sola lista
 NODE_PATH=$(npm root -g) node crm/dev/plan.cjs      # menú de cinco secciones y pestañas, y «Planificar la semana»: reparto, llamadas por día, teléfono y oscuro
 NODE_PATH=$(npm root -g) node crm/dev/menus.cjs     # menús desplegables: mouse, teclado, buscador, Escape y clic afuera, tarjetas, ventanas, teléfono y oscuro
 NODE_PATH=$(npm root -g) node crm/dev/avisos.cjs    # avisos de Hoy, recordatorios en pantalla, anotar en Google Calendar tareas, cobros e hitos, y qué hacer según cómo salió la llamada
 ```
 
 `crm/dev/mock-claude.js` imita `window.claude` (base de datos en memoria, Claude con respuestas
-fijas, usuario, descargas y archivos en memoria; `window.__MOCK_ASSETS` simula una vista sin
+fijas, usuario, descargas y archivos en memoria; `window.__MOCK_SIN_CLAUDE = true` simula una vista
+sin Claude; `window.__MOCK_ASSETS` simula una vista sin
 archivos o las fallas al subir; los recordatorios en pantalla dependen de la hora y vienen apagados
 salvo con `window.__MOCK_RECORDATORIOS = true`), con `window.__MOCK_MIC` el micrófono y el reconocimiento de voz, y
 con `window.__MOCK_MCP` el conector de Google Calendar (eventos con la forma de `list_events`,

@@ -1,6 +1,6 @@
 /* Prueba de la ronda de seguimiento con Playwright y el mock de window.claude (con archivos
    simulados). Recorre: los días en la etapa (aviso en la tarjeta, orden del embudo y el panel
-   «Estancados» de Hoy); «Propuesta enviada» (desde la tarea, con monto, enlace, PDF y seguimiento;
+   «Se están enfriando» de Hoy); «Propuesta enviada» (desde la tarea, con monto, enlace, PDF y seguimiento;
    al arrastrar, con «Solo mover»; la propuesta en la ficha, editarla y moverla); los archivos de la
    ficha del lead y del cliente (subir, tipo no aceptado, borrar, reintento, espacio lleno y una
    vista que no puede subir); las metas de la semana (Hoy y Ajustes); el WhatsApp que redacta Claude
@@ -140,7 +140,7 @@ const SEED = {
   const cuenta = async (label) => (await meta(label).locator(".meta-top b").innerText()).trim();
 
   /* ---------------- Hoy: estancados y la semana ---------------- */
-  const est = page.locator(".panel[aria-label=Estancados]");
+  const est = page.locator('.lo-que-toca .hoy-grupo[aria-label="Se están enfriando"]');
   await est.waitFor();
   ok((await est.locator(".lrow-name").allInnerTexts()).join("|") === "Óptica Central|Clínica Lagos|Taller Norte", "«Estancados» muestra los que llevan 7 días o más después de la reunión, el más antiguo primero");
   ok(await visto(est.locator(".lrow", { hasText: "Óptica Central" }).locator(".tag.late", { hasText: "25 d en la etapa" })), "con los días en la etapa (25: en rojo)");
@@ -169,7 +169,7 @@ const SEED = {
   ok(await esperar(page, () => { const b = document.querySelector(".panel[aria-label='Esta semana'] .meta .meta-top b"); return b && b.textContent.trim() === "3 de 5"; }), "con el filtro de Lorenzo, sus llamadas contra su meta (3 de 5)");
   ok((await cuenta("Reuniones agendadas")) === "1 de 1", "y las reuniones de sus leads (1 de 1)");
   await page.locator(".toolbar .seg button", { hasText: "Todo el equipo" }).click();
-  ok(await esperar(page, () => { const p = [...document.querySelectorAll(".cols .stack:last-child > .panel")].map((x) => x.getAttribute("aria-label") || x.querySelector("h2").textContent); return p.indexOf("Estancados") === 1; }), "«Estancados» va arriba, después de la semana");
+  ok(await esperar(page, () => !!document.querySelector('.lo-que-toca .hoy-grupo[aria-label="Se están enfriando"]')), "los estancados van en «Lo que toca», como «Se están enfriando»");
   await shot(page, "s01b-metas.png");
 
   /* ---------------- embudo: días en la etapa y orden ---------------- */
@@ -343,16 +343,16 @@ const SEED = {
   await sinScroll(tel, "teléfono, Hoy");
   await tel.locator(".panel[aria-label='Esta semana']").scrollIntoViewIfNeeded();
   await shot(tel, "s08-telefono-semana.png");
-  await tel.locator(".panel[aria-label=Estancados] .lrow-main", { hasText: "Clínica Lagos" }).click();
+  await tel.locator('.hoy-grupo[aria-label="Se están enfriando"] .lrow-main', { hasText: "Clínica Lagos" }).click();
   await tel.locator("#lead-title", { hasText: "Clínica Lagos" }).waitFor();
   await tel.locator(".drawer .prop-box").scrollIntoViewIfNeeded();
   await sinScroll(tel, "teléfono, ficha con la propuesta");
   await shot(tel, "s09-telefono-propuesta.png");
   await tel.close();
   const dark = await open({ name: "oscuro", seed: SEED, dark: true });
-  await dark.locator(".panel[aria-label=Estancados]").scrollIntoViewIfNeeded();
+  await dark.locator('.hoy-grupo[aria-label="Se están enfriando"]').scrollIntoViewIfNeeded();
   await shot(dark, "s10-oscuro-hoy.png");
-  await dark.locator(".panel[aria-label=Estancados] .lrow-main", { hasText: "Clínica Lagos" }).click();
+  await dark.locator('.hoy-grupo[aria-label="Se están enfriando"] .lrow-main', { hasText: "Clínica Lagos" }).click();
   await dark.locator("#lead-title", { hasText: "Clínica Lagos" }).waitFor();
   await dark.locator(".drawer .archivos").scrollIntoViewIfNeeded();
   await shot(dark, "s11-oscuro-ficha.png");

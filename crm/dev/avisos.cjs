@@ -184,6 +184,7 @@ const SEED = {
 
   /* ---------------- anotar una tarea desde su fila ---------------- */
   await irA(page, "hoy");
+  if (await page.locator(".hoy-proximos:not([open])").count()) await page.locator(".hoy-proximos > summary").click();
   const filaA = page.locator(".task", { hasText: "Primera llamada" });
   await filaA.getByRole("button", { name: "Anotar en Google Calendar: Primera llamada" }).click();
   ok(await toast(page, "Anotada en Google Calendar: Primera llamada"), "«Anotar en Google Calendar» en la fila de una tarea");
@@ -345,6 +346,7 @@ const SEED = {
 
   /* ---------------- sin calendario ---------------- */
   const sinCal = await open({ name: "sin-calendario", seed: SEED, rec: false });
+  await sinCal.locator(".hoy-proximos > summary").click();
   await sinCal.locator(".task", { hasText: "Primera llamada" }).waitFor();
   ok((await sinCal.getByRole("button", { name: /^Anotar en Google Calendar/ }).count()) === 0, "sin Google Calendar, no se ofrece anotar");
   ok((await sinCal.locator(".recs").count()) === 0, "y con los recordatorios apagados, no sale ninguno");
