@@ -1371,7 +1371,7 @@ const RESPUESTA = { accepted: ["Confirmó la invitación", "ok", "confirmó"], d
 /* El título de la tarea sale del evento: lo que va antes del primer « · » («Llamada de descubrimiento · …»). */
 const tituloDeEvento = (s, lead) => {
   const t = clip(String(s || "").split(" · ")[0].trim(), 80);
-  /* «VinoPrint · ZH Development»: lo de antes del « · » es el lead, no lo que se hace. */
+  /* «Panadería Rivas · ZH Development»: lo de antes del « · » es el lead, no lo que se hace. */
   return !t || (lead && [lead.empresa, lead.nombre].some((x) => x && fold(x) === fold(t))) ? "Reunión" : t;
 };
 /* Los invitados de afuera: ni la cuenta del calendario, ni el equipo, ni salas. */
@@ -7308,7 +7308,7 @@ function App() {
     if (!id) throw { code: "formato" };
     return { id, link: httpsOk(e && e.htmlLink) || (mover && previo.link) || "", fecha: d.fecha, hora: conHora ? d.hora : "" };
   }, [mcp, calListo, calCuenta, correoDeSocio, invalidarCal]);
-  /* Una tarea en el calendario: «Llamar a Pablo · Logística Integral», con la persona, el teléfono
+  /* Una tarea en el calendario: «Llamar a Gabriela · Panadería Rivas», con la persona, el teléfono
      y el detalle. */
   const datosTareaCal = (t, lead) => ({
     titulo: `${t.titulo || accionLabel(tipoTarea(t.tipo))} · ${leadTitulo(lead)}`,
