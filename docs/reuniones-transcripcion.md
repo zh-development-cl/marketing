@@ -40,9 +40,13 @@ Google Meet (contacto@)  ←  zh-reuniones (Vercel)  ←  conector «ZH Reunione
 ## Requisitos
 
 1. **Google Workspace Business Standard o superior** en zhdevelopment.cl (las ediciones más baratas
-   no transcriben). Revisar en admin.google.com → Facturación. En la consola de administración, en
-   Aplicaciones → Google Workspace → Google Meet → configuración de video de Meet → Transcripciones,
-   tiene que estar permitido transcribir.
+   no transcriben). La edición es del dominio, no de la cuenta con que se paga: lo que importa es
+   que **`contacto@` tenga la licencia**, porque organiza las reuniones y en su Drive quedan las
+   transcripciones. Prueba rápida: entrar a meet.google.com con `contacto@`, iniciar una reunión y
+   abrir «Actividades» (abajo a la derecha); si aparece «Transcripciones», está listo. Si no: en
+   admin.google.com (con la cuenta administradora del dominio) → Usuarios → `contacto@` →
+   Licencias, y en Aplicaciones → Google Workspace → Google Meet → configuración de video de Meet →
+   Transcripciones, permitir que se transcriba.
 2. **Las reuniones las organiza `contacto@`.** Solo se transcriben solas las reuniones de esa
    cuenta. Las que crea el CRM van a su calendario. Si en el CRM una reunión dice «No se
    transcribe», el detalle dice por qué (la organizó otra cuenta, o Google no lo permite). Las
