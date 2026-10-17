@@ -13,6 +13,7 @@
 const { chromium } = require("playwright");
 const fs = require("fs");
 const path = require("path");
+const { irA } = require("./ir.cjs");
 
 const PREVIEW = path.join(__dirname, "preview.html");
 const OUT = process.argv[2] || path.join(__dirname, "shots");
@@ -121,10 +122,9 @@ const SEED = {
   const store = (page) => page.evaluate(() => Object.fromEntries(window.__mockStore));
   const docs = (dump, col) => Object.entries(dump).filter(([k]) => k.startsWith(col + "/")).map(([k, v]) => ({ id: k.split("/")[1], ...v }));
   const esperar = (page, fn, arg, ms) => page.waitForFunction(fn, arg, { timeout: ms || 8000 }).then(() => true, () => false);
-  const nav = (page, re) => page.locator(".side .nav button", { hasText: re }).click();
   const cerrarFicha = async (page) => { await page.keyboard.press("Escape"); await page.locator(".drawer").waitFor({ state: "detached" }); };
   const abrirLead = async (page, empresa) => {
-    await nav(page, /^Embudo de leads/);
+    await irA(page, "embudo");
     await page.locator(".kcard.lead", { hasText: empresa }).locator(".kcard-titulo").click();
     await page.locator("#lead-title", { hasText: empresa }).waitFor();
   };
@@ -160,9 +160,9 @@ const SEED = {
   await shot(page, "m01-hoy.png");
 
   /* ---------------- llamar en serie ---------------- */
-  ok((await page.locator(".side .nav button", { hasText: "Llamar en serie" }).locator(".count").innerText()) === "4", "el menú muestra cuántas llamadas hay para hoy");
+  ok((await page.locator(".side .nav button", { hasText: /^Llamar/ }).locator(".count").innerText()) === "4", "el menú muestra cuántas llamadas hay para hoy");
   ok(await visto(page.locator(".panel[aria-label=Tareas] .panel-head button", { hasText: "Llamar en serie · 4" })), "y Hoy tiene el acceso a «Llamar en serie»");
-  await nav(page, /^Llamar en serie/);
+  await irA(page, "llamar");
   await page.locator("h1", { hasText: "Llamar en serie" }).waitFor();
   ok((await actual(page)) === "Viña Norte", "parte por la llamada atrasada");
   ok(await visto(page.locator(".fl-num", { hasText: "+56 9 3333 4444" })), "con el teléfono grande para marcar");
@@ -251,7 +251,7 @@ const SEED = {
   await cerrarFicha(page);
 
   /* ---------------- métricas ---------------- */
-  await nav(page, /^Métricas/);
+  await irA(page, "metricas");
   await page.locator("h1", { hasText: "Métricas" }).waitFor();
   await page.locator(".mtabla").first().waitFor();
   const kpi = async (t) => page.locator(".kpi", { hasText: t }).first().locator("b").innerText();
@@ -272,7 +272,7 @@ const SEED = {
   ok(await esperar(page, () => { const b = [...document.querySelectorAll(".kpi")].find((k) => k.textContent.includes("Ganados")); return b && b.textContent.includes("7 días"); }), "el período se cambia arriba");
 
   /* ---------------- selección múltiple en Leads ---------------- */
-  await nav(page, /^Leads/);
+  await irA(page, "leads");
   await page.locator("h1", { hasText: "Leads" }).waitFor();
   const filaL = (t) => page.locator("table.leads tbody tr", { hasText: t });
   await filaL("Molinos Sur").locator("td.sel input").check();
@@ -307,7 +307,7 @@ const SEED = {
   ok((await page.locator(".masivo").count()) === 0, "y «Quitar selección» los desmarca");
 
   /* ---------------- recordatorios apagados ---------------- */
-  await nav(page, /^Ajustes/);
+  await irA(page, "ajustes");
   await page.locator(".panel", { hasText: "Google Calendar" }).locator(".switch", { hasText: "Recordatorio por WhatsApp" }).locator("input").uncheck();
   ok(await toast(page, "Recordatorios desactivados"), "el recordatorio se apaga en Ajustes");
   await abrirLead(page, "Viña Norte");
@@ -335,17 +335,16 @@ const SEED = {
   await tel.locator(".topbar button[aria-label='Buscar']").click();
   ok(await visto(tel.locator(".cmdk")), "el buscador se abre desde la barra de arriba");
   await tel.keyboard.press("Escape");
-  await tel.locator(".tabs button", { hasText: /^Más/ }).click();
-  await tel.locator(".more button", { hasText: "Métricas" }).click();
+  await irA(tel, "metricas");
   await tel.locator(".mtabla").first().waitFor();
   const sw2 = await tel.evaluate(() => document.documentElement.scrollWidth);
   ok(sw2 <= 390, `teléfono, Métricas: sin scroll horizontal (${sw2} <= 390)`);
   await shot(tel, "m07-telefono-metricas.png");
   const dark = await open({ name: "oscuro", seed: SEED, mcp: { modo: "ok", eventos: EVENTOS }, dark: true });
-  await nav(dark, /^Métricas/);
+  await irA(dark, "metricas");
   await dark.locator(".mtabla").first().waitFor();
   await shot(dark, "m08-oscuro-metricas.png");
-  await nav(dark, /^Llamar en serie/);
+  await irA(dark, "llamar");
   await dark.locator(".llamar-card").waitFor();
   await shot(dark, "m09-oscuro-llamar.png");
 

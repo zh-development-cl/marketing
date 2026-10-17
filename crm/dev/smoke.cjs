@@ -10,6 +10,7 @@
 const { chromium } = require("playwright");
 const fs = require("fs");
 const path = require("path");
+const { irA } = require("./ir.cjs");
 
 const PREVIEW = path.join(__dirname, "preview.html");
 const OUT = process.argv[2] || path.join(__dirname, "shots");
@@ -57,7 +58,7 @@ const ok = (cond, msg) => { if (!cond) errors.push("falló: " + msg); else notes
   await shot(page, "01-hoy-vacio.png");
   ok(await page.locator(".onboard").isVisible(), "estado vacío con los tres pasos");
 
-  await page.locator(".side .nav button", { hasText: /^Ajustes/ }).click();
+  await irA(page, "ajustes");
   ok((await page.inputValue("#f-nombre")) === "Lorenzo Bozzo", "la firma toma el nombre del perfil");
   await page.fill("#f-cargo", "Socio fundador · Producto y negocio");
   await page.fill("#f-tel", "9 5555 1234");
@@ -135,7 +136,7 @@ const ok = (cond, msg) => { if (!cond) errors.push("falló: " + msg); else notes
   await page.waitForTimeout(100);
   await page.keyboard.press("Escape");
 
-  await page.locator(".side .nav button", { hasText: /^Hoy/ }).click();
+  await irA(page, "hoy");
   await page.locator(".page-head").getByRole("button", { name: "Importar" }).click();
   await page.fill("#imp-texto", "Matías Rojas, Ferretería Sur, 9 8765 4321\nCarolina Pérez, Transportes Andes\nDaniela Soto, Clínica Norte, dsoto@clinicanorte.cl");
   await page.getByRole("button", { name: "Ordenar con Claude" }).click();
@@ -145,7 +146,7 @@ const ok = (cond, msg) => { if (!cond) errors.push("falló: " + msg); else notes
   await page.getByRole("button", { name: "Agregar 2 leads" }).click();
   await toast(page, "2 leads agregados.");
 
-  await page.locator(".side .nav button", { hasText: /^Leads/ }).click();
+  await irA(page, "leads");
   await page.locator("table.leads tbody tr").first().waitFor();
   ok((await page.locator("table.leads tbody tr").count()) === 3, "la tabla muestra 3 leads");
   await shot(page, "07-leads.png");
@@ -164,22 +165,22 @@ const ok = (cond, msg) => { if (!cond) errors.push("falló: " + msg); else notes
   ok((await page.locator(".work-tabs button", { hasText: "Redactar" }).count()) === 0, "sin redactar ni llamar para quien pidió no ser contactado");
   await page.keyboard.press("Escape");
 
-  await page.locator(".side .nav button", { hasText: /^Embudo de leads/ }).click();
+  await irA(page, "embudo");
   await page.locator(".board .col").first().waitFor();
   await shot(page, "08-embudo.png");
-  await page.locator(".side .nav button", { hasText: /^Borradores/ }).click();
-  await page.locator(".side .nav button", { hasText: /^Borradores/ }).click();
+  await irA(page, "borradores");
+  await irA(page, "borradores");
   await page.locator(".seg button", { hasText: "Todos" }).click();
   ok((await page.locator(".ditem").count()) === 3, "Borradores lista el correo, el WhatsApp y el WhatsApp acordado en la llamada");
   await shot(page, "09-borradores.png");
-  await page.locator(".side .nav button", { hasText: /^Hoy/ }).click();
+  await irA(page, "hoy");
   await page.waitForTimeout(150);
   ok((await page.locator(".panel", { has: page.locator("h2", { hasText: /^Por contactar$/ }) }).locator(".lrow").count()) === 1, "quien pidió no ser contactado sale de Hoy");
   ok(await page.locator(".panel", { has: page.locator("h2", { hasText: /^Tareas$/ }) }).locator(".task", { hasText: "Mandar por WhatsApp el enlace" }).isVisible(), "Hoy lista las tareas del día");
   await shot(page, "10-hoy.png");
   await noOverflow(page, "escritorio");
 
-  await page.locator(".side .nav button", { hasText: /^Ajustes/ }).click();
+  await irA(page, "ajustes");
   await page.getByRole("button", { name: "Exportar leads (CSV)" }).click();
   await page.getByRole("button", { name: "Respaldo completo (JSON)" }).click();
   await page.waitForTimeout(300);
@@ -210,7 +211,7 @@ const ok = (cond, msg) => { if (!cond) errors.push("falló: " + msg); else notes
   await shot(phone, "11-movil-hoy.png");
   await noOverflow(phone, "teléfono, Hoy");
   ok(await phone.locator(".tabs").isVisible(), "barra inferior visible en el teléfono");
-  await phone.locator(".tabs button", { hasText: /^Leads/ }).click();
+  await irA(phone, "leads");
   await phone.locator(".only-narrow .lrow").first().waitFor();
   await noOverflow(phone, "teléfono, Leads");
   await phone.locator(".only-narrow .lrow-main").first().click();
@@ -223,7 +224,7 @@ const ok = (cond, msg) => { if (!cond) errors.push("falló: " + msg); else notes
   const dark = await open({ name: "oscuro", dark: true, seed: dump });
   await phone.close();
   await shot(dark, "14-oscuro-hoy.png");
-  await dark.locator(".side .nav button", { hasText: /^Borradores/ }).click();
+  await irA(dark, "borradores");
   await dark.locator(".seg button", { hasText: "Todos" }).click();
   await dark.locator(".ditem").first().click();
   await dark.locator("#draft-title").waitFor();

@@ -291,6 +291,38 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing:
 .check { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; color: var(--fg-2); }
 .check input { margin-top: 3px; accent-color: var(--btn); }
 
+/* Planificar la semana: el aviso (en Hoy y en Leads) y la ventana con el plan día por día. */
+.plan-aviso { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 14px; padding: 14px 16px; border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: var(--r-m); background: var(--surface); }
+.plan-aviso.corto { padding: 9px 12px; }
+.plan-aviso-ico { flex: none; display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); }
+.plan-aviso.corto .plan-aviso-ico { width: 28px; height: 28px; }
+.plan-aviso-txt { flex: 1 1 260px; min-width: 0; }
+.plan-aviso-txt b { font-weight: 600; }
+.plan-aviso-txt p { margin: 2px 0 0; color: var(--fg-2); font-size: 13.5px; }
+.plan-ajustes { display: grid; grid-template-columns: auto minmax(150px, 200px) auto; gap: 14px 22px; align-items: start; justify-content: start; }
+.plan-ajustes .seg { justify-self: start; }
+.plan-resumen { margin: 0; font-size: 14.5px; }
+.plan-dias { display: grid; margin: 0; padding: 0; list-style: none; border: 1px solid var(--line); border-radius: var(--r-m); overflow: hidden; }
+.plan-dias li { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 12px; padding: 10px 14px; }
+.plan-dias li + li { border-top: 1px solid var(--line); }
+.plan-dia { font-size: 13.5px; font-weight: 600; padding-top: 2px; }
+.plan-socios { display: grid; gap: 6px; min-width: 0; }
+.plan-socio { display: grid; grid-template-columns: 24px 22px minmax(0, 1fr); align-items: center; gap: 8px; min-width: 0; font-size: 13.5px; }
+.plan-socio > b { font-variant-numeric: tabular-nums; }
+.plan-nombres { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--fg-2); }
+.plan-leads summary { cursor: pointer; font-size: 13.5px; font-weight: 500; color: var(--fg-2); }
+.plan-lista { display: grid; gap: 4px; max-height: 240px; margin-top: 8px; overflow-y: auto; }
+@media (max-width: 600px) { .plan-ajustes { grid-template-columns: minmax(0, 1fr); } .plan-dias li { grid-template-columns: minmax(0, 1fr); gap: 6px; } .plan-socio { align-items: start; } .plan-nombres { white-space: normal; } }
+/* Pestañas de una sección (Hoy y Clientes): arriba del contenido, con una raya bajo la elegida. */
+.subnav-wrap { margin-bottom: 20px; }
+.subnav { display: flex; gap: 24px; overflow-x: auto; border-bottom: 1px solid var(--line); scrollbar-width: none; }
+.subnav::-webkit-scrollbar { display: none; }
+.subnav button { position: relative; flex: none; display: inline-flex; align-items: center; gap: 7px; padding: 2px 1px 12px; border: 0; background: none; color: var(--fg-3); font: 500 14.5px/1.2 var(--font-text); cursor: pointer; }
+.subnav button:hover { color: var(--fg); }
+.subnav button[aria-current="page"] { color: var(--fg); font-weight: 600; }
+.subnav button[aria-current="page"]::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; border-radius: 2px; background: var(--accent); }
+.subnav .count { min-width: 20px; padding: 2px 6px; border-radius: 999px; background: var(--sunken); color: var(--fg-2); font: 600 11px/1.2 var(--font-mono); text-align: center; font-variant-numeric: tabular-nums; }
+.subnav button[aria-current="page"] .count { background: var(--accent-soft); color: var(--accent); }
 .seg { display: inline-flex; padding: 3px; border-radius: 999px; background: var(--sunken); gap: 2px; }
 .seg button { min-height: 30px; padding: 0 14px; border: 0; border-radius: 999px; background: transparent; color: var(--fg-2); font-size: 13.5px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; }
 .seg button svg { width: 15px; height: 15px; }
@@ -550,8 +582,6 @@ details.data .grid-2 { margin-top: 14px; }
 .prose ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
 
 /* ---------- etapa con clientes ---------- */
-.nav-group { margin: 14px 10px 4px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.16em; text-transform: uppercase; color: var(--side-fg-2); opacity: 0.75; }
-.nav-group:first-child { margin-top: 0; }
 .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
 .kpi { display: grid; gap: 4px; align-content: start; padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--r-l); background: var(--surface); min-width: 0; }
 .kpi b { font: 600 22px/1.15 var(--font-display); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
@@ -624,13 +654,6 @@ body.arrastrando .recs { visibility: hidden; }
 .box { display: grid; gap: 10px; padding: 12px; border: 1px solid var(--line); border-radius: var(--r-m); background: var(--surface-2); }
 .box h4 { margin: 0; font: 500 11.5px/1.3 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--fg-3); }
 .split { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 6px 12px; }
-.more-wrap { position: fixed; inset: 0; z-index: 30; }
-.more-wrap .scrim { position: absolute; z-index: 0; background: rgba(7, 9, 15, 0.25); }
-.more { position: absolute; z-index: 1; right: max(10px, env(safe-area-inset-right, 0px)); bottom: calc(70px + env(safe-area-inset-bottom, 0px)); width: min(280px, calc(100% - 20px)); display: grid; gap: 2px; padding: 6px; border: 1px solid var(--line); border-radius: var(--r-l); background: var(--surface); box-shadow: var(--shadow); }
-.more button { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 44px; padding: 0 12px; border: 0; border-radius: 10px; background: transparent; color: var(--fg); font-size: 15px; font-weight: 500; text-align: left; }
-.more button svg { width: 18px; height: 18px; color: var(--fg-3); }
-.more button[aria-current="page"] { background: var(--sunken); }
-.more .count { margin-left: auto; font: 500 12px/1 var(--font-mono); color: var(--fg-3); }
 .board.fases { grid-auto-columns: minmax(164px, 1fr); }
 .board.fases .kcard { min-width: 0; }
 .board.fases .kcard b { overflow-wrap: anywhere; }
@@ -689,7 +712,6 @@ table.leads th.r { text-align: right; }
   .app.mini .side { padding: 16px 8px 14px; gap: 14px; }
   .app.mini .brand { justify-content: center; padding: 0; }
   .app.mini .brand-txt { display: none; }
-  .app.mini .nav-group { height: 1px; margin: 7px 12px; padding: 0; overflow: hidden; font-size: 0; background: var(--side-line); opacity: 1; }
   .app.mini .nav button { position: relative; flex-direction: column; justify-content: center; gap: 4px; padding: 8px 2px 7px; font-size: 10.5px; line-height: 1.15; text-align: center; }
   .app.mini .nav .lbl { display: none; }
   .app.mini .nav .lbl-c { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -3340,6 +3362,8 @@ function HoyView() {
       <span class="aviso-ico"><${Icon} name=${a.icon} size=${15} /></span><p>${a.texto}</p>${a.accion}
     </div>`)}</section>` : null}
 
+    <${PlanAviso} />
+
     ${sinFirma && leads.length ? html`<div class="note warn"><${Icon} name="info" /><div>Completa tu firma en <button class="btn small ghost" style="min-height:0;padding:0;text-decoration:underline" onClick=${() => nav("ajustes")}>Ajustes</button> para que los correos salgan con tu nombre y teléfono.</div></div>` : null}
 
     ${todos.length || clientes.length ? html`<div class="cols">
@@ -3504,6 +3528,7 @@ function LeadsView() {
         <option value="proxima">Por próxima tarea</option><option value="contacto">Último contacto</option><option value="creado">Más recientes</option><option value="nombre">Nombre</option>
       </select>
     </div>
+    <${PlanAviso} corto />
     <section class="panel">
       ${!list.length ? html`<div class="panel-body" style="padding-top:16px"><p class="empty">${leads.length ? "Ningún lead coincide con estos filtros." : "Todavía no hay leads. Agrega el primero o importa una lista."}</p></div>` : html`
       ${canWrite ? html`<div class="only-wide"><${AccionesMasivas} ids=${selVisibles} leads=${list} onListo=${() => setSelec([])} /></div>` : null}
@@ -3822,6 +3847,7 @@ function EmbudoView() {
       </select>
       <select id="emb-orden" class="select" aria-label="Ordenar" value=${orden} onChange=${(e) => setOrden(e.currentTarget.value)}>${ORDEN_EMBUDO.map(([v, t]) => html`<option value=${v}>${t}</option>`)}</select>
     </div>
+    <${PlanAviso} corto />
     <div class="board embudo" ref=${boardRef}>
       ${cols.map((e) => carril(e, false))}
       <div class="col-par">${cerradas.map((e) => carril(e, true))}</div>
@@ -6906,6 +6932,137 @@ function OtroDiaModal({ lead }) {
   </${Modal}>`;
 }
 
+/* ===================================================================== planificar la semana */
+
+/* Reparte los leads abiertos sin tarea entre los socios y les deja las llamadas agendadas día por
+   día (solo días hábiles), sin pasar de las llamadas por día de cada uno y contando las que ya
+   tienen. Un lead sin responsable queda con quien lo llama; el de un socio sigue con él. Primero
+   los de prioridad alta, después los que ya tienen guion o dolor, y los más antiguos. */
+const PLAN_DIAS_MAX = 40;
+const diaCorto = (k) => noDots(fmtShort.format(keyDate(k))).replace(",", "");
+const planificables = (leads, siguienteDe) => leads.filter((l) => contactable(l) && !!l.telefono && !siguienteDe(l));
+const ordenPlan = (a, b) => {
+  const p = (l) => (l.prioridad === "alta" ? 0 : l.prioridad === "baja" ? 2 : 1);
+  const listo = (l) => (l.guion || l.dolor ? 0 : 1);
+  return p(a) - p(b) || listo(a) - listo(b) || String(a.creado || "").localeCompare(String(b.creado || ""));
+};
+function armarPlan({ leads, socios, porDia, desde, ocupado }) {
+  const usados = {};
+  const libre = (s, f) => porDia - (ocupado[s + "|" + f] || 0) - (usados[s + "|" + f] || 0);
+  const dias = [];
+  for (let d = isWeekend(desde) ? addBusinessDays(desde, 1) : desde, i = 0; i < PLAN_DIAS_MAX; i += 1, d = addBusinessDays(d, 1)) dias.push(d);
+  const cuenta = Object.fromEntries(socios.map((s) => [s, 0]));
+  const items = [];
+  for (const l of leads) {
+    const opciones = socios.includes(l.responsable) ? [l.responsable] : l.responsable ? [] : socios;
+    let mejor = null;
+    for (const s of opciones) {
+      const f = dias.find((x) => libre(s, x) > 0);
+      if (f && (!mejor || f < mejor.f || (f === mejor.f && cuenta[s] < cuenta[mejor.s]))) mejor = { s, f };
+    }
+    if (!mejor) continue;
+    usados[mejor.s + "|" + mejor.f] = (usados[mejor.s + "|" + mejor.f] || 0) + 1;
+    cuenta[mejor.s] += 1;
+    items.push({ lead: l, socio: mejor.s, fecha: mejor.f, asignar: !l.responsable });
+  }
+  return items;
+}
+/* Desde cuándo: hoy (si es día hábil), el día hábil siguiente o el lunes que viene. */
+const opcionesDesde = () => {
+  const t = todayKey(), sig = addBusinessDays(t, 1), lun = proxLunes(t);
+  return [...(isWeekend(t) ? [] : [["hoy", "Hoy", t]]), ["sig", diffDays(t, sig) === 1 ? "Mañana" : "El lunes", sig], ...(lun !== sig ? [["lunes", "El lunes", lun]] : [])];
+};
+
+/* El aviso que lleva a planificar: en Hoy, con su explicación; en Leads, en una línea. */
+function PlanAviso({ corto }) {
+  const { leads, siguienteDe, openModal, canWrite } = useCtx();
+  if (!canWrite) return null;
+  const ps = planificables(leads, siguienteDe);
+  if (!ps.length) return null;
+  const sinResp = ps.filter((l) => !l.responsable).length;
+  const titulo = `${ps.length} ${ps.length === 1 ? "lead sin tarea" : "leads sin tarea"}${sinResp ? ` · ${sinResp} sin responsable` : ""}`;
+  return html`<div class=${cx("plan-aviso", corto && "corto")}>
+    <span class="plan-aviso-ico"><${Icon} name="cal" size=${corto ? 16 : 18} /></span>
+    <div class="plan-aviso-txt"><b>${titulo}</b>${corto ? null : html`<p>Repártelos y deja las llamadas agendadas día por día: Llamar en serie te las va mostrando.</p>`}</div>
+    <button type="button" class=${cx("btn", corto ? "small" : "primary")} onClick=${() => openModal({ type: "plan" })}><${Icon} name="cal" />Planificar la semana</button>
+  </div>`;
+}
+
+function PlanModal() {
+  const { leads, tareas, siguienteDe, api, closeModal, toast, cfg, nameOf } = useCtx();
+  const meta = Number((cfg.metas || {}).llamadas) || 0;
+  const [quien, setQuien] = useState("ambos");
+  const [porDiaTxt, setPorDiaTxt] = useState(() => String(ls.get("planPorDia", 0) || (meta ? Math.max(1, Math.ceil(meta / 5)) : 5)));
+  const desdes = opcionesDesde();
+  const [desdeK, setDesdeK] = useState(() => (!isWeekend(todayKey()) && Number(fmtHM.format(new Date()).slice(0, 2)) < 16 ? "hoy" : "sig"));
+  const [fuera, setFuera] = useState(() => new Set());
+  const [saving, setSaving] = useState(0);
+  const porDia = Math.max(1, Math.min(30, Math.round(Number(porDiaTxt)) || 0));
+  const socios = quien === "ambos" ? RESPONSABLES.map((r) => r[0]) : [quien];
+  const base = planificables(leads, siguienteDe).sort(ordenPlan);
+  const deOtro = base.filter((l) => l.responsable && !socios.includes(l.responsable));
+  const elegibles = base.filter((l) => !deOtro.includes(l));
+  const elegidos = elegibles.filter((l) => !fuera.has(l.id));
+  const sinTel = leads.filter((l) => contactable(l) && !l.telefono && !siguienteDe(l)).length;
+  const desde = (desdes.find((o) => o[0] === desdeK) || desdes[0])[2];
+  /* Lo que cada socio ya tiene agendado (llamadas pendientes), para no pasarse del día. */
+  const ocupado = {};
+  for (const t of tareas) {
+    if (!tareaPendiente(t) || tipoTarea(t.tipo) !== "llamar" || !t.fecha) continue;
+    const l = leads.find((x) => x.id === t.leadId);
+    const s = t.responsable || (l && l.responsable);
+    if (s) ocupado[s + "|" + t.fecha] = (ocupado[s + "|" + t.fecha] || 0) + 1;
+  }
+  const plan = armarPlan({ leads: elegidos, socios, porDia, desde, ocupado });
+  const dias = [...new Set(plan.map((x) => x.fecha))].sort();
+  const porSocio = Object.fromEntries(socios.map((s) => [s, plan.filter((x) => x.socio === s).length]));
+  const reparto = socios.filter((s) => porSocio[s]).map((s) => `${porSocio[s]} para ${nameOf(s)}`).join(" y ");
+  const rango = dias.length ? (dias.length === 1 ? `el ${diaCorto(dias[0])}` : `del ${diaCorto(dias[0])} al ${diaCorto(dias[dias.length - 1])}`) : "";
+  const alternar = (id) => setFuera((s) => { const n = new Set(s); if (n.has(id)) n.delete(id); else n.add(id); return n; });
+  const guardar = async () => {
+    if (!plan.length) return;
+    let i = 0;
+    try {
+      for (const it of plan) {
+        i += 1;
+        setSaving(i);
+        await api.createTarea({ leadId: it.lead.id, tipo: "llamar", titulo: etapaDe(it.lead) === "nuevo" ? PRIMERA_TAREA.llamar : "Retomar el contacto", nota: "", fecha: it.fecha, hora: "", responsable: it.socio, estado: "pendiente", origen: "plan" });
+        if (it.asignar) await api.updateLead(it.lead.id, { responsable: it.socio });
+      }
+      ls.set("planPorDia", porDia);
+      toast(`Quedaron ${plan.length} ${plan.length === 1 ? "llamada agendada" : "llamadas agendadas"}: ${reparto}, ${rango}.`);
+      closeModal();
+    } catch (e) {
+      toast(`${dbErrorText(e)} Quedaron agendadas ${i - 1} de ${plan.length}; vuelve a planificar para el resto.`, "bad");
+      setSaving(0);
+    }
+  };
+  return html`<${Modal} title="Planificar la semana" wide onClose=${closeModal} labelId="plan-title" foot=${html`<button class="btn ghost" onClick=${closeModal}>Cancelar</button><button class="btn primary" onClick=${guardar} disabled=${!plan.length || saving > 0}>${saving ? `Agendando ${saving} de ${plan.length}…` : plan.length ? `Agendar ${plan.length} ${plan.length === 1 ? "llamada" : "llamadas"}` : "Nada que agendar"}</button>`}>
+    <div class="modal-body plan">
+      <p class="small muted">Reparte los leads abiertos sin tarea y deja las llamadas agendadas día por día, solo en días hábiles y contando las que ya tienen. Llamar en serie te las va mostrando cada día.</p>
+      <div class="plan-ajustes">
+        <div class="field"><span>Quién llama</span><${Seg} label="Quién llama" value=${quien} onChange=${setQuien} options=${[["ambos", "Los dos"], ...RESPONSABLES.map(([id, n]) => [id, n])]} /></div>
+        <label class="field" for="plan-dia"><span>Llamadas por día${socios.length > 1 ? ", cada uno" : ""}</span><input id="plan-dia" class="input mono" type="number" inputmode="numeric" min="1" max="30" value=${porDiaTxt} onInput=${(e) => setPorDiaTxt(e.currentTarget.value)} />${meta ? html`<small class="hint">Su meta: ${meta} a la semana.</small>` : null}</label>
+        <div class="field"><span>Desde</span><${Chips} label="Desde" value=${desdeK} onChange=${setDesdeK} options=${desdes.map(([k, l]) => [k, l])} /></div>
+      </div>
+      ${plan.length ? html`<p class="plan-resumen"><b>${plan.length} ${plan.length === 1 ? "llamada" : "llamadas"}</b>: ${reparto}, ${rango}.</p>
+        <ol class="plan-dias">${dias.map((f) => html`<li key=${f}>
+          <b class="plan-dia">${cap(diaCorto(f))}</b>
+          <div class="plan-socios">${socios.map((s) => { const xs = plan.filter((x) => x.fecha === f && x.socio === s); return xs.length ? html`<div class="plan-socio" key=${s}>
+            <span class=${cx("avatar", respTono(s))} title=${nameOf(s)}>${iniciales(nameOf(s))}</span><b>${xs.length}</b>
+            <span class="plan-nombres">${xs.map((x) => leadTitulo(x.lead)).join(", ")}</span>
+          </div>` : null; })}</div>
+        </li>`)}</ol>` : html`<p class="empty">${elegibles.length ? "Elige al menos un lead." : "No hay leads abiertos sin tarea para planificar."}</p>`}
+      ${elegibles.length ? html`<details class="plan-leads"><summary>Leads incluidos: ${elegidos.length} de ${elegibles.length}</summary>
+        <div class="plan-lista">${elegibles.map((l) => html`<label class="check" key=${l.id}><input type="checkbox" checked=${!fuera.has(l.id)} onChange=${() => alternar(l.id)} />
+          <span>${leadTitulo(l)} <span class="small muted">· ${etapaLabel(l.etapa)}${l.responsable ? " · " + nameOf(l.responsable) : ""}${l.prioridad === "alta" ? " · prioridad alta" : ""}</span></span></label>`)}</div>
+      </details>` : null}
+      ${deOtro.length ? html`<p class="small muted">${deOtro.length} ${deOtro.length === 1 ? "lead es" : "leads son"} de ${[...new Set(deOtro.map((l) => nameOf(l.responsable)))].join(" y ")}: no se incluyen.</p>` : null}
+      ${sinTel ? html`<p class="small muted">${sinTel} sin teléfono ${sinTel === 1 ? "queda" : "quedan"} fuera: agrégalo en su ficha.</p>` : null}
+    </div>
+  </${Modal}>`;
+}
+
 /* ===================================================================== ajustes */
 
 function toCsv(leads, nameOf) {
@@ -7091,9 +7248,17 @@ function AjustesView() {
 /* [id, nombre, ícono, nombre corto para el menú contraído] */
 const VIEWS = [["hoy", "Hoy", "sun", "Hoy"], ["llamar", "Llamar en serie", "phone", "Llamar"], ["leads", "Leads", "list", "Leads"], ["embudo", "Embudo de leads", "funnel", "Embudo"], ["clientes", "Clientes", "building", "Clientes"], ["embudoClientes", "Embudo de clientes", "funnel", "Etapas"], ["proyectos", "Proyectos", "folder", "Proyectos"], ["soporte", "Soporte", "lifebuoy", "Soporte"], ["cobros", "Cobros", "coin", "Cobros"], ["borradores", "Borradores", "doc", "Borradores"], ["metricas", "Métricas", "chart", "Métricas"], ["ajustes", "Ajustes", "sliders", "Ajustes"]];
 const VIEW = Object.fromEntries(VIEWS.map((v) => [v[0], v]));
-const NAV_GROUPS = [["", ["hoy"]], ["Ventas", ["llamar", "leads", "embudo"]], ["Clientes", ["clientes", "embudoClientes", "proyectos", "soporte", "cobros"]], ["", ["borradores", "metricas", "ajustes"]]];
-const TABS_MOVIL = ["hoy", "llamar", "leads", "borradores"];
-const MAS_MOVIL = ["embudo", "clientes", "embudoClientes", "proyectos", "soporte", "cobros", "metricas", "ajustes"];
+/* El menú: cinco secciones con sus vistas (la primera es la que se abre). Hoy trae Borradores y
+   Métricas como pestañas; Clientes, Proyectos, Soporte y Cobros. [id, nombre, ícono, vistas] */
+const SECCIONES = [["hoy", "Hoy", "sun", ["hoy", "borradores", "metricas"]], ["llamar", "Llamar", "phone", ["llamar"]], ["leads", "Leads", "list", ["leads", "embudo"]], ["clientes", "Clientes", "building", ["clientes", "embudoClientes", "proyectos", "soporte", "cobros"]], ["ajustes", "Ajustes", "sliders", ["ajustes"]]];
+const seccionDe = (v) => (SECCIONES.find((s) => s[3].includes(v)) || SECCIONES[0])[0];
+/* Las pestañas de una sección: [vista, nombre, vistas en que se marca]. */
+const PESTANAS = {
+  hoy: [["hoy", "Para hoy", ["hoy"]], ["borradores", "Borradores", ["borradores"]], ["metricas", "Métricas", ["metricas"]]],
+  clientes: [["clientes", "Clientes", ["clientes", "embudoClientes"]], ["proyectos", "Proyectos", ["proyectos"]], ["soporte", "Soporte", ["soporte"]], ["cobros", "Cobros", ["cobros"]]],
+};
+/* Leads y Clientes se ven en tabla o en tablero: al volver, se abre la última que se usó. */
+const PARES = { leads: ["leads", "embudo"], clientes: ["clientes", "embudoClientes"] };
 const MAC = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent || "");
 /* ¿El foco está en un campo de texto? (los atajos de una tecla no se activan mientras se escribe). */
 const escribiendo = (el) => !!(el && el.closest && el.closest("input, textarea, select, [contenteditable=''], [contenteditable=true]"));
@@ -7114,7 +7279,6 @@ function App() {
   const [cobros, setCobros] = useState(null);
   const [mantenciones, setMantenciones] = useState(null);
   const [solicitudes, setSolicitudes] = useState(null);
-  const [mas, setMas] = useState(false);
   const [equipo, setEquipo] = useState({});
   const [cfg, setCfg] = useState({});
   const [dbError, setDbError] = useState(null);
@@ -7224,7 +7388,9 @@ function App() {
     return out;
   }, [api, me.canWrite]);
 
-  const nav = useCallback((v) => { setMas(false); setView(v); ls.set("view", v); try { history.replaceState(null, "", "#" + v); } catch (e) { /* sin historial */ } window.scrollTo({ top: 0 }); }, []);
+  /* Ir a una sección o pestaña: Leads y Clientes vuelven a la tabla o al tablero, lo último que se usó. */
+  const ir = (v) => { const par = PARES[v]; const u = par ? ls.get("par:" + v, "") : ""; nav(par && par.includes(u) ? u : v); };
+  const nav = useCallback((v) => { setView(v); ls.set("view", v); for (const [k, par] of Object.entries(PARES)) if (par.includes(v)) ls.set("par:" + k, v); try { history.replaceState(null, "", "#" + v); } catch (e) { /* sin historial */ } window.scrollTo({ top: 0 }); }, []);
   const openLead = useCallback((id, tab) => { setModal(null); setDrawer({ kind: "lead", id, tab: tab || "" }); }, []);
   const openCliente = useCallback((id, tab) => { setModal(null); setDrawer({ kind: "cliente", id, tab: tab || "" }); }, []);
   const openProyecto = useCallback((id) => { setModal(null); setDrawer({ kind: "proyecto", id }); }, []);
@@ -7272,7 +7438,7 @@ function App() {
   /* Escape cierra lo que esté encima. Lee el estado del último render (no el del último efecto),
      para que funcione aunque se apriete justo cuando se abre una ventana. */
   const abierto = useRef({});
-  abierto.current = { modal, drawer, mas };
+  abierto.current = { modal, drawer };
   useEffect(() => {
     const onKey = (e) => {
       const o = abierto.current;
@@ -7283,7 +7449,7 @@ function App() {
       }
       if (e.key === "/" && !e.metaKey && !e.ctrlKey && !e.altKey && !o.modal && !escribiendo(e.target)) { e.preventDefault(); setModal({ type: "buscar" }); return; }
       if (e.key !== "Escape") return;
-      if (o.modal) { setModal(null); e.preventDefault(); } else if (o.drawer) { setDrawer(null); e.preventDefault(); } else if (o.mas) { setMas(false); e.preventDefault(); }
+      if (o.modal) { setModal(null); e.preventDefault(); } else if (o.drawer) { setDrawer(null); e.preventDefault(); }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -7790,6 +7956,8 @@ function App() {
     soporte: (solicitudes || []).filter((s) => SOL_ABIERTA.has(s.estado)).length,
     cobros: (cobros || []).filter((x) => pagoVencido(x, cfg) || facturaAtrasada(x)).length,
   };
+  /* En el menú, lo que hay que hacer en cada sección (en Leads, los abiertos). */
+  const cuentaSeccion = { hoy: counts.hoy + counts.borradores, llamar: counts.llamar, leads: counts.leads, clientes: counts.soporte + counts.cobros, ajustes: 0 };
 
   /* La «proxima» de cada lead es su primera tarea pendiente: la tabla, el CSV, los respaldos y
      Claude la leen de ahí. Si alguien cambia las tareas, se pone al día sola (sin escribir de más). */
@@ -7970,7 +8138,7 @@ function App() {
         <div class="brand"><${Logo} /><div class="brand-txt"><b>ZH Development</b><span>CRM y clientes</span></div></div>
         <nav class="nav" aria-label="Secciones">
           <button type="button" class="nav-buscar" title=${mini ? `Buscar (${MAC ? "⌘" : "Ctrl+"}K)` : null} onClick=${() => openModal({ type: "buscar" })}><${Icon} name="search" size=${18} /><span class="lbl">Buscar</span><span class="lbl-c" aria-hidden="true">Buscar</span><kbd class="lbl">${MAC ? "⌘K" : "Ctrl K"}</kbd></button>
-          ${NAV_GROUPS.map(([g, vs], gi) => html`${g ? html`<p class="nav-group">${g}</p>` : gi && mini ? html`<p class="nav-group" aria-hidden="true"></p>` : null}${vs.map((v) => { const [, l, ic, corto] = VIEW[v]; return html`<button key=${v} aria-current=${view === v ? "page" : "false"} title=${mini ? l : null} onClick=${() => nav(v)}><${Icon} name=${ic} size=${18} /><span class="lbl">${l}</span><span class="lbl-c" aria-hidden="true">${corto || l}</span>${counts[v] ? html`<span class="count">${counts[v]}</span>` : null}</button>`; })}`)}
+          ${SECCIONES.map(([s, l, ic]) => html`<button key=${s} aria-current=${seccionDe(view) === s ? "page" : "false"} title=${mini ? l : null} onClick=${() => ir(s)}><${Icon} name=${ic} size=${18} /><span class="lbl">${l}</span><span class="lbl-c" aria-hidden="true">${l}</span>${cuentaSeccion[s] ? html`<span class="count">${cuentaSeccion[s]}</span>` : null}</button>`)}
         </nav>
         <div class="side-foot">
           <button class="btn primary" title="Nuevo lead" onClick=${() => openModal({ type: "newLead" })} disabled=${!wrapApi || !canWrite}><${Icon} name="plus" /><span>Nuevo lead</span></button>
@@ -7987,15 +8155,14 @@ function App() {
       </header>
       <main class="main" id="main">
         ${!canWrite && leads ? html`<div class="main-inner" style="margin-bottom:16px"><div class="note"><${Icon} name="info" /><div>Tienes acceso de solo lectura: puedes ver los leads, pero no cambiarlos.</div></div></div>` : null}
+        ${PESTANAS[seccionDe(view)] && leads ? html`<div class="main-inner subnav-wrap"><nav class="subnav" aria-label=${"Pestañas de " + (SECCIONES.find((s) => s[0] === seccionDe(view)) || [])[1]}>
+          ${PESTANAS[seccionDe(view)].map(([v, l, marca]) => html`<button key=${v} type="button" aria-current=${marca.includes(view) ? "page" : "false"} onClick=${() => ir(v)}>${l}${counts[v] ? html`<span class="count">${counts[v]}</span>` : null}</button>`)}
+        </nav></div>` : null}
         <${Boundary} name="esta sección">${body}</${Boundary}>
       </main>
       <nav class="tabs" aria-label="Secciones">
-        ${TABS_MOVIL.map((v) => { const [, l0, ic, corto] = VIEW[v]; const l = corto || l0; return html`<button key=${v} aria-current=${view === v ? "page" : "false"} onClick=${() => nav(v)}><${Icon} name=${ic} size=${20} />${l}${(v === "hoy" || v === "borradores") && counts[v] ? html`<span class="dot">${counts[v]}</span>` : null}</button>`; })}
-        <button aria-current=${MAS_MOVIL.includes(view) ? "page" : "false"} aria-expanded=${mas ? "true" : "false"} onClick=${() => setMas(!mas)}><${Icon} name="more" size=${20} />Más${counts.soporte + counts.cobros ? html`<span class="dot">${counts.soporte + counts.cobros}</span>` : null}</button>
+        ${SECCIONES.map(([s, l, ic]) => html`<button key=${s} aria-current=${seccionDe(view) === s ? "page" : "false"} onClick=${() => ir(s)}><${Icon} name=${ic} size=${20} />${l}${(s === "hoy" || s === "clientes") && cuentaSeccion[s] ? html`<span class="dot">${cuentaSeccion[s]}</span>` : null}</button>`)}
       </nav>
-      ${mas ? html`<div class="more-wrap"><div class="scrim" onClick=${() => setMas(false)}></div><div class="more" role="menu" aria-label="Más secciones">
-        ${MAS_MOVIL.map((v) => { const [, l, ic] = VIEW[v]; return html`<button key=${v} role="menuitem" aria-current=${view === v ? "page" : "false"} onClick=${() => nav(v)}><${Icon} name=${ic} size=${18} />${l}${counts[v] ? html`<span class="count">${counts[v]}</span>` : null}</button>`; })}
-      </div></div>` : null}
     </div>
     ${drawer && wrapApi ? html`<${Boundary} name="la ficha">
       ${drawer.kind === "cliente" ? html`<${ClienteDrawer} id=${drawer.id} tab=${drawer.tab} onClose=${closeDrawer} />` : drawer.kind === "proyecto" ? html`<${ProyectoDrawer} id=${drawer.id} onClose=${closeDrawer} />` : html`<${LeadDrawer} id=${drawer.id} tab=${drawer.tab} onClose=${closeDrawer} />`}
@@ -8008,6 +8175,7 @@ function App() {
       ${modal.type === "lost" ? html`<${LostModal} lead=${modal.lead} />` : null}
       ${modal.type === "noContesto" ? html`<${NoContestoModal} lead=${modal.lead} />` : null}
       ${modal.type === "otroDia" ? html`<${OtroDiaModal} lead=${modal.lead} />` : null}
+      ${modal.type === "plan" ? html`<${PlanModal} />` : null}
       ${modal.type === "agendar" ? html`<${AgendarModal} lead=${modal.lead} tarea=${modal.tarea} desdeEtapa=${!!modal.desdeEtapa} />` : null}
       ${modal.type === "reunionHecha" ? html`<${ReunionHechaModal} lead=${modal.lead} tarea=${modal.tarea} />` : null}
       ${modal.type === "propuesta" ? html`<${PropuestaModal} lead=${modal.lead} tarea=${modal.tarea} desdeEtapa=${!!modal.desdeEtapa} editar=${!!modal.editar} />` : null}

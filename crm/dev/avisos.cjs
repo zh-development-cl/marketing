@@ -15,6 +15,7 @@
 const { chromium } = require("playwright");
 const fs = require("fs");
 const path = require("path");
+const { irA } = require("./ir.cjs");
 
 const PREVIEW = path.join(__dirname, "preview.html");
 const OUT = process.argv[2] || path.join(__dirname, "shots");
@@ -117,7 +118,6 @@ const SEED = {
   const store = (page) => page.evaluate(() => Object.fromEntries(window.__mockStore));
   const docs = (dump, col) => Object.entries(dump).filter(([k]) => k.startsWith(col + "/")).map(([k, v]) => ({ id: k.split("/")[1], ...v }));
   const esperar = (page, fn, arg, ms) => page.waitForFunction(fn, arg, { timeout: ms || 8000 }).then(() => true, () => false);
-  const nav = (page, re) => page.locator(".side .nav button", { hasText: re }).click();
   const cerrarFicha = async (page) => { await page.keyboard.press("Escape"); await page.locator(".drawer").waitFor({ state: "detached" }); };
   const llamadas = (page, tool) => page.evaluate((t) => window.__mcpCalls.filter((c) => c.tipo === "call" && c.tool === t).map((c) => c.input), tool);
   const lsGet = (page, k) => page.evaluate((x) => { try { return JSON.parse(localStorage.getItem("zhcrm:" + x)); } catch (e) { return null; } }, k);
@@ -150,7 +150,7 @@ const SEED = {
     ok(await visto(rl.locator("button", { hasText: "Llamar" })), "con el botón para llamar");
     ok((await recs.filter({ hasText: "Óptica Central" }).count()) === 0, "a Lorenzo no le saltan las tareas de Nicolás");
     await shot(page, "a01-hoy-avisos.png");
-    await nav(page, /^Embudo de leads/);
+    await irA(page, "embudo");
     await page.locator("h1", { hasText: "Embudo de leads" }).waitFor();
     ok(await visto(recs.filter({ hasText: "Imprenta Sur" })), "el recordatorio sigue a la vista en otra sección");
     await rl.getByRole("button", { name: "En 10 min" }).click();
@@ -161,7 +161,7 @@ const SEED = {
     ok(await esperar(page, () => !document.querySelector(".recs")), "cerrar lo quita");
     ok(Object.keys((await lsGet(page, "avisados")) || {}).some((k) => k.startsWith("tar-c1|")), "y queda recordado en este navegador");
     /* El CRM vuelve a abrir en la última sección: se deja en Hoy. */
-    await nav(page, /^Hoy/);
+    await irA(page, "hoy");
     await page.getByRole("heading", { name: "Hoy", exact: true }).waitFor();
     await page.close();
     page = await open({ name: "avisos-recarga", seed: SEED, mcp: MCP, context: ctx });
@@ -171,7 +171,7 @@ const SEED = {
   } else notes.push("omitido: recordatorios (cerca de la medianoche)");
 
   /* ---------------- ajustes de avisos ---------------- */
-  await nav(page, /^Ajustes/);
+  await irA(page, "ajustes");
   const panelAv = page.locator(".panel[aria-label=Avisos]");
   await panelAv.waitFor();
   await panelAv.locator(".switch", { hasText: "Recordatorios en pantalla" }).locator("input").uncheck();
@@ -183,7 +183,7 @@ const SEED = {
   ok(await visto(panelAv.locator("p", { hasText: "anota la tarea en Google Calendar" })), "Ajustes explica cómo hacer que avise el teléfono");
 
   /* ---------------- anotar una tarea desde su fila ---------------- */
-  await nav(page, /^Hoy/);
+  await irA(page, "hoy");
   const filaA = page.locator(".task", { hasText: "Primera llamada" });
   await filaA.getByRole("button", { name: "Anotar en Google Calendar: Primera llamada" }).click();
   ok(await toast(page, "Anotada en Google Calendar: Primera llamada"), "«Anotar en Google Calendar» en la fila de una tarea");
@@ -243,7 +243,7 @@ const SEED = {
   await cerrarFicha(page);
 
   /* ---------------- «No contestó» con hora ---------------- */
-  await nav(page, /^Embudo de leads/);
+  await irA(page, "embudo");
   await page.locator(".kcard.lead", { hasText: "Viña Norte" }).locator('.kact[title="No contestó"]').click();
   await page.locator(".modal", { hasText: "No contestó: Bruno Díaz" }).waitFor();
   ok(await visto(page.locator(".modal .cadencia li.actual", { hasText: "Llamar mañana, a otra hora" })), "«No contestó» muestra la secuencia y marca el paso que toca");
@@ -317,12 +317,12 @@ const SEED = {
   await cerrarFicha(page);
 
   /* ---------------- Llamar en serie: también «Pidió otro día» ---------------- */
-  await nav(page, /^Llamar en serie/);
+  await irA(page, "llamar");
   await page.locator("h1", { hasText: "Llamar en serie" }).waitFor();
   ok(!(await page.locator(".llamar-card").count()) || await visto(page.locator(".llamar-acciones .btn", { hasText: "Pidió otro día" })), "«Llamar en serie» trae «Pidió otro día» junto a «No contestó»");
 
   /* ---------------- un cobro y un hito ---------------- */
-  await nav(page, /^Cobros/);
+  await irA(page, "cobros");
   const filaCob = page.locator(".irow", { hasText: "Pago intermedio (40%)" });
   await filaCob.getByRole("button", { name: "Anotar en Google Calendar: Pago intermedio (40%)" }).click();
   ok(await toast(page, "Quedó anotado en Google Calendar: Vence la factura 120: Pago intermedio (40%) · Clínica Norte"), "el vencimiento de una factura se anota desde Cobros");
@@ -332,7 +332,7 @@ const SEED = {
   ok(await esperar(page, () => { const c = window.__mockStore.get("cobros/cob-2"); return c.calendario && c.calendario.que === "vence" && c.calendario.id; }), "el cobro guarda el evento");
   ok(await visto(filaCob.locator("a[aria-label='Abrir en Google Calendar: Pago intermedio (40%)']")), "y la fila queda con el enlace");
   ok((await page.locator(".irow", { hasText: "Pago final (70%)" }).getByRole("button", { name: /Anotar en Google Calendar/ }).count()) === 0, "un pago ya vencido no se ofrece anotar");
-  await nav(page, /^Proyectos/);
+  await irA(page, "proyectos");
   await page.locator(".kcard", { hasText: "Agenda y fichas" }).click();
   await page.getByRole("button", { name: "Anotar en Google Calendar: Capacitación al equipo" }).click();
   ok(await toast(page, "Quedó anotado en Google Calendar: Capacitación al equipo"), "un hito se anota desde el proyecto");

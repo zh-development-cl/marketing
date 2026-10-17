@@ -112,6 +112,17 @@ más abajo).
    `actualizado` = ahora, `creadoPor: "claude"`. Si te piden programar la primera llamada, agrega
    la tarea `{tipo: "llamar", titulo: "Primera llamada", fecha, origen: "manual"}` y su `proxima`.
 
+**Planificar la semana** (lo mismo que hace el botón de la página): toma los leads abiertos, con
+teléfono, sin `noContactar` y sin tareas pendientes. Ordénalos: prioridad `alta` primero, después los
+que tienen `guion` o `dolor`, y los más antiguos (`creado`). Reparte entre los socios que llaman (o el
+que digan) en días hábiles desde el día que digan, sin pasar de las llamadas por día de cada uno (si no
+lo dicen, `config/general.metas.llamadas` / 5; sin meta, 5) y contando sus tareas de `llamar` ya
+pendientes ese día. Un lead sin `responsable` va al socio con el día libre más próximo (si empatan, al
+que lleva menos en el plan) y queda como su `responsable`; el de un socio sigue con él. Cada uno queda
+con `{tipo: "llamar", titulo: "Primera llamada" (por contactar) | "Retomar el contacto", fecha,
+hora: "", responsable, estado: "pendiente", origen: "plan"}`. Antes de escribir, muéstrale el plan al
+socio (día, socio y empresas) y espera su visto bueno; usa `batch`.
+
 **Registrar una llamada o una reunión** (con notas o una transcripción pegada; en la página,
 con «Automático», esto pasa solo al detener la grabación):
 1. Lee el lead, sus `actividades` (`where leadId == id`) y sus tareas pendientes.

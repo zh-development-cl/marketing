@@ -14,6 +14,7 @@
 const { chromium } = require("playwright");
 const fs = require("fs");
 const path = require("path");
+const { irA } = require("./ir.cjs");
 
 const PREVIEW = path.join(__dirname, "preview.html");
 const OUT = process.argv[2] || path.join(__dirname, "shots");
@@ -73,7 +74,6 @@ const SEED = {
   const toast = (page, text) => page.locator(".toast", { hasText: text }).first().waitFor({ timeout: 8000 }).then(() => true, () => false);
   const visto = (loc, ms) => loc.first().waitFor({ timeout: ms || 4000 }).then(() => true, () => false);
   const store = (page) => page.evaluate(() => Object.fromEntries(window.__mockStore));
-  const nav = (page, re) => page.locator(".side .nav button", { hasText: re }).click();
   const menu = (page) => page.locator(".menu-sel");
   const opcion = (page, texto) => page.locator('.menu-sel [role="option"]', { hasText: texto });
   const textos = (page) => page.locator('.menu-sel [role="option"] .ms-txt').allInnerTexts();
@@ -82,7 +82,7 @@ const SEED = {
   const dentro = (page) => page.evaluate(() => { const r = document.querySelector(".menu-sel").getBoundingClientRect(); return r.left >= 0 && r.top >= 0 && r.right <= document.documentElement.clientWidth && r.bottom <= window.innerHeight; });
 
   const page = await open({ name: "menus" });
-  await nav(page, /^Leads/);
+  await irA(page, "leads");
   await page.locator("#f-resp").waitFor();
 
   /* ---------------- un filtro con el mouse ---------------- */
@@ -157,7 +157,7 @@ const SEED = {
   await page.locator(".drawer").waitFor({ state: "detached" });
 
   /* ---------------- la inicial en una tarjeta del embudo ---------------- */
-  await page.locator('.side .nav button[title="Embudo de leads"]').click();
+  await irA(page, "embudo");
   await page.locator(".board.embudo").waitFor();
   await page.locator(".kcard.lead", { hasText: "Taller Norte" }).locator(".avatar").click();
   await menu(page).waitFor();
@@ -170,7 +170,7 @@ const SEED = {
   ok((await page.locator("#lead-title").count()) === 0, "sin abrir la ficha");
 
   /* ---------------- lista larga: buscador ---------------- */
-  await nav(page, /^Cobros/);
+  await irA(page, "cobros");
   await page.locator("#f-cob-cli").waitFor();
   await page.click("#f-cob-cli");
   await menu(page).waitFor();
@@ -189,7 +189,7 @@ const SEED = {
   await cerrado(page);
 
   /* ---------------- dentro de una ventana ---------------- */
-  await nav(page, /^Leads/);
+  await irA(page, "leads");
   await page.locator(".page-head .btn.primary", { hasText: "Nuevo lead" }).click();
   await page.locator(".modal").waitFor();
   await page.click("#nl-resp");
@@ -205,7 +205,7 @@ const SEED = {
 
   /* ---------------- con el dedo: el selector del teléfono ---------------- */
   const tel = await open({ name: "tactil", viewport: { width: 390, height: 844 }, touch: true });
-  await tel.locator(".tabs button", { hasText: /^Leads/ }).click();
+  await irA(tel, "leads");
   await tel.locator("#f-resp").waitFor();
   await tel.tap("#f-resp");
   await tel.waitForTimeout(400);
@@ -214,14 +214,14 @@ const SEED = {
 
   /* ---------------- oscuro y angosto ---------------- */
   const dark = await open({ name: "oscuro", dark: true });
-  await nav(dark, /^Leads/);
+  await irA(dark, "leads");
   await dark.click("#f-etapa");
   await menu(dark).waitFor();
   await dark.waitForTimeout(200);
   await shot(dark, "m05-oscuro.png");
   await dark.close();
   const angosto = await open({ name: "angosto", viewport: { width: 720, height: 900 } });
-  await angosto.locator(".tabs button", { hasText: /^Leads/ }).click();
+  await irA(angosto, "leads");
   await angosto.click("#f-resp");
   await menu(angosto).waitFor();
   ok(await dentro(angosto), "en una pantalla angosta, el menú cabe");

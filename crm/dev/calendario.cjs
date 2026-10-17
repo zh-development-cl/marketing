@@ -16,6 +16,7 @@
 const { chromium } = require("playwright");
 const fs = require("fs");
 const path = require("path");
+const { irA } = require("./ir.cjs");
 
 const PREVIEW = path.join(__dirname, "preview.html");
 const OUT = process.argv[2] || path.join(__dirname, "shots");
@@ -133,11 +134,10 @@ const SEED = {
   const docs = (dump, col) => Object.entries(dump).filter(([k]) => k.startsWith(col + "/")).map(([k, v]) => ({ id: k.split("/")[1], ...v }));
   const esperar = (page, fn, arg, ms) => page.waitForFunction(fn, arg, { timeout: ms || 8000 }).then(() => true, () => false);
   const llamadas = (page, tool) => page.evaluate((t) => window.__mcpCalls.filter((c) => c.tipo === "call" && c.tool === t), tool);
-  const nav = (page, re) => page.locator(".side .nav button", { hasText: re }).click();
   const panelCal = (page) => page.locator(".panel", { has: page.locator("h2", { hasText: /^Calendario$/ }) });
   const cerrarFicha = async (page) => { await page.keyboard.press("Escape"); await page.locator(".drawer").waitFor({ state: "detached" }); };
   const abrirLead = async (page, empresa) => {
-    await nav(page, /^Embudo de leads/);
+    await irA(page, "embudo");
     await page.locator(".kcard.lead", { hasText: empresa }).locator(".kcard-titulo").click();
     await page.locator("#lead-title", { hasText: empresa }).waitFor();
   };
@@ -303,7 +303,7 @@ const SEED = {
   await cerrarFicha(page);
 
   /* ---------------- Ajustes ---------------- */
-  await nav(page, /^Ajustes/);
+  await irA(page, "ajustes");
   await page.locator("h1", { hasText: "Ajustes" }).waitFor();
   ok((await page.inputValue("#c-equipo")) === "socio@zhdevelopment.cl, nicolas.socio@gmail.com", "Ajustes muestra los correos del equipo");
   ok(await visto(page.locator(".panel", { hasText: "Google Calendar" }).locator(".cal-pie", { hasText: "Lee las reuniones de contacto@zhdevelopment.cl" })), "y el estado de Google Calendar");
@@ -340,7 +340,7 @@ const SEED = {
   const ps = panelCal(sin);
   ok(await visto(ps.locator(".note", { hasText: "Google Calendar no está conectado en tu cuenta de claude.ai. Agrégalo en claude.ai → Ajustes → Conectores." })), "sin el conector, dice dónde agregarlo");
   ok((await ps.getByRole("button").count()) === 0, "sin un botón de reintentar que no puede funcionar");
-  await nav(sin, /^Embudo de leads/);
+  await irA(sin, "embudo");
   await sin.locator(".kcard.lead", { hasText: "Notaría Vega" }).locator(".kcard-titulo").click();
   await sin.locator("#lead-title", { hasText: "Notaría Vega" }).waitFor();
   await sin.locator(".tareas-box .sec-head button", { hasText: "Agendar reunión" }).click();

@@ -12,6 +12,7 @@
 const { chromium } = require("playwright");
 const fs = require("fs");
 const path = require("path");
+const { irA } = require("./ir.cjs");
 
 const PREVIEW = path.join(__dirname, "preview.html");
 const OUT = process.argv[2] || path.join(__dirname, "shots");
@@ -105,7 +106,7 @@ const SEED = {
   await page.locator(".toolbar .seg button", { hasText: "Todo el equipo" }).click();
   ok(await hoyPanel.locator(".task", { hasText: "Vivero Sur" }).isVisible(), "y volver a ver todo el equipo");
   /* ---------------- tabla ↔ tablero ---------------- */
-  await page.locator(".side .nav button", { hasText: /^Leads/ }).click();
+  await irA(page, "leads");
   await page.locator("h1", { hasText: "Leads" }).waitFor();
   await page.selectOption("#f-resp", NI);
   ok((await page.locator("table.leads tbody tr").count()) === 2, "en la tabla se filtra por responsable");
@@ -306,7 +307,7 @@ const SEED = {
   await shot(page, "e05-perdidos.png");
 
   /* ---------------- Proyectos: mismo arrastre ---------------- */
-  await page.locator(".side .nav button", { hasText: /^Proyectos/ }).click();
+  await irA(page, "proyectos");
   await page.locator(".board.fases .col").first().waitFor();
   await arrastrar(page, page.locator(".board.fases .kcard", { hasText: "Agenda de taller" }), page.locator('.board.fases [data-col="disenar"]'));
   await toast(page, "Agenda de taller: Diseñar.");
@@ -316,7 +317,7 @@ const SEED = {
   ok((await page.locator("#pro-title").count()) === 0, "y soltar no abre la ficha del proyecto");
 
   /* ---------------- embudo de clientes ---------------- */
-  await page.locator(".side .nav button", { hasText: /^Embudo de leads/ }).click();
+  await irA(page, "embudo");
   await page.locator(".board .linkbtn", { hasText: "Embudo de clientes →" }).click();
   await page.locator("h1", { hasText: "Embudo de clientes" }).waitFor();
   ok(true, "desde «Ganado» se pasa al embudo de clientes");
@@ -368,7 +369,7 @@ const SEED = {
   const muchos = { ...SEED };
   for (let i = 1; i <= 9; i++) muchos[`leads/lead-m${i}`] = base({ nombre: `Contacto ${i}`, empresa: `Empresa ${i}`, telefono: `+5691111020${i}`, etapa: "nuevo", responsable: null, creado: iso(-50 - i), actualizado: iso(-50 - i) });
   const larga = await open({ name: "columna larga", seed: muchos });
-  await larga.locator(".side .nav button", { hasText: /^Embudo de leads/ }).click();
+  await irA(larga, "embudo");
   await larga.locator("h1", { hasText: "Embudo de leads" }).waitFor();
   const cn = larga.locator('.board [data-col="nuevo"]');
   const medida = await cn.locator(".col-lista").evaluate((el) => ({ sh: el.scrollHeight, ch: el.clientHeight }));
@@ -385,14 +386,12 @@ const SEED = {
 
   /* ---------------- teléfono ---------------- */
   const phone = await open({ name: "teléfono", viewport: { width: 390, height: 844 }, touch: true, seed: SEED });
-  await phone.locator(".tabs button", { hasText: /^Más/ }).click();
-  await phone.locator(".more button", { hasText: /^Embudo de leads/ }).click();
+  await irA(phone, "embudo");
   await phone.locator("h1", { hasText: "Embudo" }).waitFor();
   await noOverflow(phone, "teléfono, Embudo");
   ok((await phone.locator(".page-head .lede").innerText()).includes("Mantén apretada"), "en el teléfono explica que hay que mantener apretada la tarjeta");
   await shot(phone, "e03-movil.png");
-  await phone.locator(".tabs button", { hasText: /^Más/ }).click();
-  await phone.locator(".more button", { hasText: /^Embudo de clientes/ }).click();
+  await irA(phone, "embudoClientes");
   await phone.locator("h1", { hasText: "Embudo de clientes" }).waitFor();
   await noOverflow(phone, "teléfono, Embudo de clientes");
 

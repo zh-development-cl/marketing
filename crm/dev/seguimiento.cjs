@@ -14,6 +14,7 @@
 const { chromium } = require("playwright");
 const fs = require("fs");
 const path = require("path");
+const { irA } = require("./ir.cjs");
 
 const PREVIEW = path.join(__dirname, "preview.html");
 const OUT = process.argv[2] || path.join(__dirname, "shots");
@@ -114,7 +115,6 @@ const SEED = {
   const store = (page) => page.evaluate(() => Object.fromEntries(window.__mockStore));
   const docs = (dump, col) => Object.entries(dump).filter(([k]) => k.startsWith(col + "/")).map(([k, v]) => ({ id: k.split("/")[1], ...v }));
   const esperar = (page, fn, arg, ms) => page.waitForFunction(fn, arg, { timeout: ms || 8000 }).then(() => true, () => false);
-  const nav = (page, re) => page.locator(".side .nav button", { hasText: re }).click();
   const card = (page, nombre) => page.locator(".kcard.lead", { hasText: nombre });
   const col = (page, id) => page.locator(`.board [data-col="${id}"]`);
   const cerrarFicha = async (page) => { await page.keyboard.press("Escape"); await page.locator(".drawer").waitFor({ state: "detached" }); };
@@ -160,7 +160,7 @@ const SEED = {
   ok(await toast(page, "Metas guardadas."), "las metas se guardan en Ajustes");
   let dump = await store(page);
   ok(JSON.stringify(dump["config/general"].metas) === JSON.stringify({ llamadas: 5, reuniones: 1 }), "como números, en la configuración del equipo");
-  await nav(page, /^Hoy/);
+  await irA(page, "hoy");
   await semana.waitFor();
   ok((await cuenta("Llamadas")) === "4 de 10" && await visto(meta("Llamadas").locator("small", { hasText: "Faltan 6" })), "para el equipo, la meta es la de los dos socios (4 de 10, faltan 6)");
   ok((await cuenta("Reuniones agendadas")) === "2 de 2" && await visto(meta("Reuniones agendadas").locator("small.ok", { hasText: "Meta cumplida" })), "y avisa cuando se cumple");
@@ -173,7 +173,7 @@ const SEED = {
   await shot(page, "s01b-metas.png");
 
   /* ---------------- embudo: días en la etapa y orden ---------------- */
-  await nav(page, /^Embudo de leads/);
+  await irA(page, "embudo");
   await page.locator("h1", { hasText: "Embudo de leads" }).waitFor();
   ok(await visto(card(page, "Taller Norte").locator(".tag", { hasText: "9 d en la etapa" })), "la tarjeta avisa los días en la etapa desde 7");
   ok(await visto(card(page, "Clínica Lagos").locator(".tag.warn", { hasText: "Enviada hace 16 d" })), "y en una propuesta, hace cuánto se envió");
@@ -281,7 +281,7 @@ const SEED = {
   ok(await page.evaluate(() => window.__mockPrompts.some((p) => p.includes("Lo llamamos y no contestó (3 intentos sin respuesta)") && p.includes("Sin presionar ni reprochar"))), "Claude sabe cuántas veces no contestó y que no debe presionar");
 
   /* ---------------- métricas: resumen con Claude ---------------- */
-  await nav(page, /^Métricas/);
+  await irA(page, "metricas");
   await page.locator(".mtabla").first().waitFor();
   await page.getByRole("button", { name: "Resumen con Claude" }).click();
   const res = page.locator(".panel.resumen");
@@ -297,7 +297,7 @@ const SEED = {
   ok((await page.locator(".panel.resumen").count()) === 0, "y «Cerrar» lo quita");
 
   /* ---------------- Hoy después de todo ---------------- */
-  await nav(page, /^Hoy/);
+  await irA(page, "hoy");
   await semana.waitFor();
   ok((await cuenta("Llamadas")) === "5 de 10", "la llamada sin respuesta de recién suma a la semana");
   ok((await est.locator(".lrow-name").allInnerTexts()).join("|") === "Óptica Central|Clínica Lagos", "Taller Norte sale de «Estancados» al mover la propuesta");
@@ -305,7 +305,7 @@ const SEED = {
 
   /* ---------------- archivos del cliente: reintento y espacio lleno ---------------- */
   const cli = await open({ name: "cliente", seed: SEED, assets: { fallaUnaVez: "store_unavailable" } });
-  await cli.locator(".side .nav button", { hasText: /^Clientes/ }).click();
+  await irA(cli, "clientes");
   await cli.locator("table.leads tbody tr", { hasText: "Clínica Norte" }).click();
   await cli.locator("#cli-title", { hasText: "Clínica Norte" }).waitFor();
   await cli.locator(".drawer .dtabs button", { hasText: "Archivos" }).click();
@@ -325,7 +325,7 @@ const SEED = {
 
   /* ---------------- una vista que no puede subir archivos ---------------- */
   const lector = await open({ name: "lector", seed: SEED, assets: { off: true } });
-  await nav(lector, /^Embudo de leads/);
+  await irA(lector, "embudo");
   await card(lector, "Clínica Lagos").locator(".kcard-titulo").click();
   await lector.locator("#lead-title", { hasText: "Clínica Lagos" }).waitFor();
   const archL = lector.locator(".drawer .archivos");

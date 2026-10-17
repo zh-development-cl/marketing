@@ -15,6 +15,7 @@
 const { chromium } = require("playwright");
 const fs = require("fs");
 const path = require("path");
+const { irA } = require("./ir.cjs");
 
 const PREVIEW = path.join(__dirname, "preview.html");
 const OUT = process.argv[2] || path.join(__dirname, "shots");
@@ -91,7 +92,6 @@ const SEED = {
   const docs = (dump, col) => Object.entries(dump).filter(([k]) => k.startsWith(col + "/")).map(([k, v]) => ({ id: k.split("/")[1], ...v }));
   const card = (page, nombre) => page.locator(".kcard.lead", { hasText: nombre });
   const col = (page, id) => page.locator(`.board [data-col="${id}"]`);
-  const nav = (page, re) => page.locator(".side .nav button", { hasText: re }).click();
   const cerrarFicha = async (page) => { await page.keyboard.press("Escape"); await page.locator(".drawer").waitFor({ state: "detached" }); };
   const centro = async (loc) => { const b = await loc.boundingBox(); return { x: b.x + b.width / 2, y: b.y + Math.min(b.height / 2, 30) }; };
   const arrastrar = async (page, desde, hasta) => {
@@ -108,14 +108,14 @@ const SEED = {
 
   /* ---------------- menú contraído y tablero de 7 columnas ---------------- */
   ok(await page.locator(".app.mini").count() === 1, "en una pantalla de 1360 px el menú lateral parte con solo íconos");
-  ok(await page.locator(".side .nav button .lbl-c", { hasText: "Embudo" }).first().isVisible(), "con el nombre corto bajo cada ícono");
-  await nav(page, /^Embudo de leads/);
+  ok((await page.locator(".side .nav button .lbl-c").allInnerTexts()).join("|") === "Buscar|Hoy|Llamar|Leads|Clientes|Ajustes", "con el nombre bajo cada ícono: las cinco secciones");
+  await irA(page, "embudo");
   await page.locator("h1", { hasText: "Embudo de leads" }).waitFor();
   const ancho = await page.locator(".board.embudo").evaluate((el) => ({ sw: el.scrollWidth, cw: el.clientWidth }));
   ok(ancho.sw <= ancho.cw + 1, `las 7 columnas caben sin deslizar el tablero (${ancho.sw} <= ${ancho.cw})`);
   await shot(page, "t01-embudo.png");
   await page.locator(".side-toggle").click();
-  ok(await page.locator(".app.mini").count() === 0 && await page.locator(".side .nav button .lbl", { hasText: "Embudo de leads" }).isVisible(), "el botón de abajo muestra el menú completo");
+  ok(await page.locator(".app.mini").count() === 0 && await page.locator(".side .nav button .lbl", { hasText: "Clientes" }).isVisible(), "el botón de abajo muestra el menú completo");
   ok((await page.evaluate(() => localStorage.getItem("zhcrm:menuMini"))) === "false", "y lo recuerda en este navegador");
   await page.locator(".side-toggle").click();
 
@@ -225,7 +225,7 @@ const SEED = {
   ok(dump["tareas/tar-g"].estado === "hecha", "arrastrar a «Reunión concretada» da por hecha la reunión");
 
   /* ---------------- Hoy: completar y deshacer ---------------- */
-  await nav(page, /^Hoy/);
+  await irA(page, "hoy");
   const tareasHoy = page.locator(".panel", { has: page.locator("h2", { hasText: /^Tareas$/ }) });
   ok(await tareasHoy.locator(".task-group.late", { hasText: "Atrasadas" }).isVisible(), "Hoy separa las tareas atrasadas");
   ok(await tareasHoy.locator(".task", { hasText: "Café Central" }).getByRole("button", { name: "¿Se hizo?" }).isVisible(), "una reunión pasada pide contar si se hizo");
@@ -298,7 +298,7 @@ const SEED = {
 
   /* ---------------- grabar y que se guarde solo ---------------- */
   const auto = await open({ name: "automático", seed: SEED, mic: { modo: "ok", frases: FRASES, cortar: false } });
-  await nav(auto, /^Embudo de leads/);
+  await irA(auto, "embudo");
   await card(auto, "Ferretería Andes").locator('.kact[title="Registrar llamada"]').click();
   await auto.locator("#lead-title", { hasText: "Ferretería Andes" }).waitFor();
   ok(await auto.locator(".work .switch input").isChecked(), "«Automático» viene prendido");
@@ -355,17 +355,17 @@ const SEED = {
   await cerrarFicha(auto);
 
   /* ---------------- no contestó: la tarea de llamar se cumple y queda otra ---------------- */
-  await nav(auto, /^Embudo de leads/);
+  await irA(auto, "embudo");
   await card(auto, "Ferretería Andes").waitFor();
   dump = await store(auto);
   await auto.close();
 
   /* ---------------- modo oscuro ---------------- */
   const dark = await open({ name: "oscuro", seed: SEED, dark: true });
-  await nav(dark, /^Embudo de leads/);
+  await irA(dark, "embudo");
   await dark.locator("h1", { hasText: "Embudo de leads" }).waitFor();
   await shot(dark, "t06-embudo-oscuro.png");
-  await nav(dark, /^Hoy/);
+  await irA(dark, "hoy");
   await shot(dark, "t07-hoy-oscuro.png");
   await dark.close();
 

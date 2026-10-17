@@ -12,6 +12,7 @@
 const { chromium } = require("playwright");
 const fs = require("fs");
 const path = require("path");
+const { irA } = require("./ir.cjs");
 
 const PREVIEW = path.join(__dirname, "preview.html");
 const OUT = process.argv[2] || path.join(__dirname, "shots");
@@ -74,7 +75,7 @@ const SEED = {
     ok(r.sw <= r.w + 1, `${label}: sin scroll horizontal (${r.sw} <= ${r.w})`);
   };
   /* Por el nombre exacto: «Clientes» no debe tomar «Embudo de clientes». */
-  const side = (page, name) => page.locator(".side .nav button", { hasText: new RegExp("^" + name) }).click();
+  const side = (page, name) => irA(page, { Leads: "leads", Soporte: "soporte", Cobros: "cobros", Clientes: "clientes", Proyectos: "proyectos", Ajustes: "ajustes" }[name]);
 
   /* ---------------- Hoy con un cliente sembrado ---------------- */
   const page = await open({ name: "escritorio", seed: SEED });
@@ -269,14 +270,13 @@ const SEED = {
   const reabierto = await store(phone);
   ok(reabierto[`cobros/cob-m-${manLS.id}-${MK}`].estado === "anulado", "al abrir de nuevo, la mensualidad anulada no se vuelve a generar");
   await noOverflow(phone, "teléfono, Hoy");
-  await phone.locator(".tabs button", { hasText: /^Más/ }).click();
-  await phone.locator(".more").waitFor();
-  await shot(phone, "c12-movil-mas.png");
-  await phone.locator(".more button", { hasText: /^Soporte/ }).click();
+  await irA(phone, "soporte");
+  ok((await phone.locator("nav.tabs button").allInnerTexts()).map((t) => t.replace(/\d+/g, "").trim()).join("|") === "Hoy|Llamar|Leads|Clientes|Ajustes", "en el teléfono, la barra de abajo trae las cinco secciones, sin «Más»");
+  ok(await phone.locator(".subnav button[aria-current=page]", { hasText: "Soporte" }).isVisible(), "y Soporte es una pestaña de Clientes");
+  await shot(phone, "c12-movil-pestanas.png");
   await phone.locator("h1", { hasText: "Soporte" }).waitFor();
   await noOverflow(phone, "teléfono, Soporte");
-  await phone.locator(".tabs button", { hasText: /^Más/ }).click();
-  await phone.locator(".more button", { hasText: /^Clientes/ }).click();
+  await irA(phone, "clientes");
   await phone.locator(".only-narrow .irow").first().waitFor();
   await noOverflow(phone, "teléfono, Clientes");
   await phone.locator(".only-narrow .irow-main", { hasText: "Clínica Norte" }).click();
