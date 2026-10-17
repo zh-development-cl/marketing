@@ -1,0 +1,35 @@
+/* Fichas firmadas (JWT con HMAC-SHA256): el registro de cada cliente OAuth, el estado del inicio de
+   sesión, los códigos y las llaves de acceso. No se guarda nada: lo que importa va firmado. La clave
+   sale de AUTH_SECRET o, si no está, del secreto del cliente de Google. */
+import { createHmac, createHash, timingSafeEqual } from "node:crypto";
+
+const b64u = (v) => Buffer.from(v).toString("base64url");
+const clave = () => {
+  const s = process.env.AUTH_SECRET || process.env.GOOGLE_CLIENT_SECRET;
+  if (!s) throw new Error("Falta GOOGLE_CLIENT_SECRET en Vercel.");
+  return createHmac("sha256", s).update("zh-reuniones/v1").digest();
+};
+
+export function firmar(datos, segundos) {
+  const ahora = Math.floor(Date.now() / 1000);
+  const h = b64u(JSON.stringify({ alg: "HS256", typ: "JWT" }));
+  const p = b64u(JSON.stringify({ ...datos, iat: ahora, ...(segundos ? { exp: ahora + segundos } : {}) }));
+  return `${h}.${p}.${b64u(createHmac("sha256", clave()).update(`${h}.${p}`).digest())}`;
+}
+
+export function verificar(token, tipo) {
+  const partes = String(token || "").split(".");
+  if (partes.length !== 3) return null;
+  const [h, p, s] = partes;
+  const esperada = createHmac("sha256", clave()).update(`${h}.${p}`).digest();
+  const dada = Buffer.from(s, "base64url");
+  if (dada.length !== esperada.length || !timingSafeEqual(dada, esperada)) return null;
+  let d;
+  try { d = JSON.parse(Buffer.from(p, "base64url").toString("utf8")); } catch { return null; }
+  if (!d || typeof d !== "object") return null;
+  if (d.exp && d.exp < Math.floor(Date.now() / 1000)) return null;
+  if (tipo && d.typ !== tipo) return null;
+  return d;
+}
+
+export const sha256b64u = (s) => createHash("sha256").update(String(s)).digest("base64url");

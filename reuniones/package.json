@@ -1,0 +1,7 @@
+{
+  "name": "zh-reuniones",
+  "private": true,
+  "type": "module",
+  "engines": { "node": "22.x" },
+  "scripts": { "test": "node --test" }
+}
