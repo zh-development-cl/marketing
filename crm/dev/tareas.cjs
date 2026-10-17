@@ -204,7 +204,10 @@ const SEED = {
   ok(dump["leads/lead-c"].etapa === "reunion_concretada" && dump["tareas/tar-r"].estado === "hecha", "y el lead pasa a «Reunión concretada» con la reunión hecha");
   ok((await page.locator(".work .field", { hasText: "Resultado" }).count()) === 0, "una reunión no pide el resultado de una llamada");
   await page.fill("#c-notas", "Vimos cómo cotizan hoy: todo por correo y planillas. Quieren una propuesta para ordenar las cotizaciones y los despachos entre bodegas.");
-  await page.getByRole("button", { name: "Analizar y guardar" }).click();
+  await page.getByRole("button", { name: "Armar el plan con Claude" }).click();
+  await page.locator(".work .plan").waitFor();
+  ok((await page.inputValue("#pl-etapa")) === "reunion_concretada" && (await page.locator("#pl-res").count()) === 0, "el plan de una reunión deja «Reunión concretada» y no pide el resultado de una llamada");
+  await page.getByRole("button", { name: "Confirmar y guardar" }).click();
   await page.locator(".done-card", { hasText: "Reunión guardada" }).waitFor();
   dump = await store(page);
   const pReunion = (await page.evaluate(() => window.__mockPrompts)).filter((x) => x.includes("Analiza esta reunión")).pop();
@@ -301,15 +304,19 @@ const SEED = {
   await irA(auto, "embudo");
   await card(auto, "Ferretería Andes").locator('.kact[title="Registrar llamada"]').click();
   await auto.locator("#lead-title", { hasText: "Ferretería Andes" }).waitFor();
-  ok(await auto.locator(".work .switch input").isChecked(), "«Automático» viene prendido");
+  ok((await auto.locator(".work .switch").count()) === 0, "no hay «Automático»: Claude arma el plan y tú confirmas");
   await auto.getByRole("button", { name: "Transcribir en vivo" }).click();
   await auto.locator(".live.on", { hasText: "Escuchando" }).waitFor();
   await auto.waitForFunction(() => { const t = document.querySelector("#c-trans"); return t && t.value.includes("Mándame la propuesta"); }, null, { timeout: 8000 });
   await auto.getByRole("button", { name: "Detener" }).first().click();
-  ok(await visto(auto.locator(".progreso", { hasText: "Claude está leyendo la llamada" }), 4000), "al detener, Claude analiza la llamada solo");
+  ok(await visto(auto.locator(".progreso", { hasText: "Claude está leyendo la llamada y armando el plan" }), 4000), "al detener, Claude lee la llamada solo");
+  await auto.locator(".work .plan").waitFor({ timeout: 10000 });
+  ok(!docs(await store(auto), "actividades").some((a) => a.leadId === "lead-a" && a.tipo === "llamada"), "y arma el plan, sin guardar nada antes de confirmar");
+  ok((await auto.inputValue("#pl-res")) === "contesto" && (await auto.inputValue("#pl-etapa")) === "reunion_agendada" && (await auto.inputValue("#pl-r-hora")) === "11:00", "el plan: contestó, «Reunión agendada» y la reunión a las 11:00");
+  await shot(auto, "t05-plan.png");
+  await auto.getByRole("button", { name: "Confirmar y guardar" }).click();
   await auto.locator(".done-card", { hasText: "Llamada guardada con el análisis de Claude" }).waitFor({ timeout: 10000 });
-  ok(true, "y se guarda sola, sin tocar nada más");
-  await shot(auto, "t05-automatico.png");
+  ok(true, "al confirmar, se guarda todo");
   dump = await store(auto);
   const act = docs(dump, "actividades").find((a) => a.leadId === "lead-a" && a.tipo === "llamada");
   ok(act && act.resultado === "contesto" && act.analisis && act.analisis.reunion && act.analisis.reunion.hora === "11:00", "la llamada queda como «Contestó», con su análisis");
@@ -331,14 +338,13 @@ const SEED = {
   /* ---------------- «no me interesa»: Claude sugiere, no mueve ---------------- */
   await card(auto, "Fletes Paz").locator('.kact[title="Registrar llamada"]').click();
   await auto.locator("#lead-title", { hasText: "Fletes Paz" }).waitFor();
-  await auto.getByRole("button", { name: "Contestó", exact: true }).click();
   await auto.fill("#c-notas", "Dijo que no me interesa, que ya lo resolvieron con su contador.");
-  await auto.getByRole("button", { name: "Analizar y guardar" }).click();
-  await auto.locator(".done-card", { hasText: "Claude sugiere pasarlo a «Perdido»" }).waitFor({ timeout: 10000 });
-  ok((await store(auto))["leads/lead-h"].etapa === "contactado", "si Claude sugiere «Perdido», lo propone en vez de moverlo solo");
-  await auto.locator(".done-card button", { hasText: "Pasar a Perdido" }).click();
+  await auto.getByRole("button", { name: "Armar el plan con Claude" }).click();
+  await auto.locator(".work .plan").waitFor({ timeout: 10000 });
+  ok((await auto.inputValue("#pl-etapa")) === "perdido" && (await store(auto))["leads/lead-h"].etapa === "contactado", "si no le interesa, el plan propone «Perdido», sin moverlo antes de confirmar");
+  await auto.getByRole("button", { name: "Confirmar y guardar" }).click();
   await auto.locator(".modal", { hasText: "Perdido: Hugo Paz" }).waitFor();
-  ok(true, "y con un clic se pasa a Perdido con su motivo");
+  ok(true, "al confirmar, pide el motivo de la pérdida");
   await auto.keyboard.press("Escape");
   await auto.locator(".modal").waitFor({ state: "detached" });
   await cerrarFicha(auto);
@@ -346,9 +352,10 @@ const SEED = {
   /* ---------------- quedaron en reunirse, sin día: tarea de agendar ---------------- */
   await card(auto, "Clínica Lagos").locator('.kact[title="Registrar llamada"]').click();
   await auto.locator("#lead-title", { hasText: "Clínica Lagos" }).waitFor();
-  await auto.getByRole("button", { name: "Contestó", exact: true }).click();
   await auto.fill("#c-notas", "Le interesa una demo. Quedé en que te escribo para agendar la próxima semana.");
-  await auto.getByRole("button", { name: "Analizar y guardar" }).click();
+  await auto.getByRole("button", { name: "Armar el plan con Claude" }).click();
+  await auto.locator(".work .plan").waitFor({ timeout: 10000 });
+  await auto.getByRole("button", { name: "Confirmar y guardar" }).click();
   await auto.locator(".done-card").waitFor({ timeout: 10000 });
   dump = await store(auto);
   ok(dump["leads/lead-i"].etapa === "contactado" && docs(dump, "tareas").some((x) => x.leadId === "lead-i" && x.tipo === "agendar" && x.fecha === T), "si quedaron en reunirse sin día, queda la tarea de agendar (para hoy) y el lead en «Contactado»");

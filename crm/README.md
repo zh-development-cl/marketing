@@ -66,18 +66,23 @@ estancados, metas y archivos»); **las tareas** (ver «Tareas y flujo automátic
 ayudamos y el guion, plegables (abiertos mientras no hay reunión hecha); los borradores, **los
 archivos** y el historial (lo último, con «Ver los N» para todo); y cuatro herramientas:
 
-- **Registrar llamada:** con «Automático» prendido (lo normal), se toca «Transcribir en vivo», se
-  habla y al tocar «Detener» Claude analiza la llamada y se guarda sola: la actividad con su
-  resumen y puntaje, las tareas que quedaron (con la reunión si se acordó día y hora), la etapa
-  que corresponde y los borradores de los correos y WhatsApp acordados. Arriba de la ficha queda
-  un resumen de lo que cambió. Con notas en vez de grabación, «Analizar y guardar» hace lo mismo.
-  Sin «Automático», «Analizar con Claude» muestra el análisis para elegir qué aplicar antes de
-  guardar. Si no contesta, deja la tarea de volver a llamar el día hábil siguiente; si pidió que
-  lo llamemos después, se elige el día y la hora y queda la tarea «Volver a llamar (lo pidió)»
-  (ver «Llamadas: qué hacer según cómo salió»).
+- **Registrar llamada:** se toca «Transcribir en vivo», se habla y al tocar «Detener» **Claude arma
+  el plan** (con notas en vez de grabación, «Armar el plan con Claude»): qué pasó, el resultado
+  (contestó, no contestó, pidió que lo llamemos…), la etapa, la reunión si quedó una con día y
+  hora, las tareas de ZH, lo que quedó en hacer el lead, los datos nuevos y el puntaje de la
+  llamada. **Nada se guarda ni se agenda hasta confirmar:** todo se puede corregir (el texto, el
+  resultado, la etapa, el día y la hora de la reunión, las tareas, agregar o quitar), y «Volver a
+  armar» lo pide de nuevo. Al confirmar quedan la llamada con su análisis, la etapa, las tareas, la
+  reunión (en el Google Calendar de la cuenta de ZH, con Meet, el lead y los correos del equipo de
+  Ajustes invitados, y la confirmación por WhatsApp o correo si se pidió) y los borradores de los
+  mensajes acordados; arriba de la ficha queda un resumen de lo que cambió. Si Claude propone
+  cerrar el lead (Perdido, Ganado o En pausa), al confirmar se abre su ventana (el motivo, el
+  cliente). Si no contesta, el plan trae la tarea de volver a llamar el día hábil siguiente. Sin
+  Claude, o para anotar rápido, queda «Registrar a mano» (plegado): el resultado, la duración y las
+  notas (ver «Llamadas: qué hacer según cómo salió»).
 - **Registrar reunión:** igual que la llamada, para la reunión de descubrimiento o de seguimiento
-  (por Meet o en persona): al guardar, el lead pasa a «Reunión concretada» y Claude saca las tareas,
-  como enviar la propuesta o el resumen.
+  (por Meet o en persona): el plan deja el lead en «Reunión concretada» y trae las tareas, como
+  enviar la propuesta o el resumen, y la próxima reunión si quedó una.
 - **Redactar:** con Claude, canal (WhatsApp o correo), objetivo (primer contacto, seguimiento,
   agendar reunión, confirmar reunión, enviar propuesta, recordatorio, reactivar, agradecer u otro),
   trato (tú o usted), diseño del correo e instrucciones libres. Claude recibe los datos del lead y
@@ -447,9 +452,8 @@ Ningún celular deja que otra app grabe una llamada, así que el CRM la escucha 
 1. En el computador, abre la ficha del lead → «Registrar llamada» → **«Transcribir en vivo»** y
    permite el micrófono.
 2. Llama desde el celular en altavoz, con el celular junto al computador.
-3. Al cortar, «Detener». El texto queda en «Transcripción», una línea por frase, y con
-   «Automático» Claude la analiza y la llamada se guarda sola, con sus tareas (Claude sabe que no
-   separa quién habla).
+3. Al cortar, «Detener». El texto queda en «Transcripción», una línea por frase, y Claude arma el
+   plan de la llamada para confirmarlo o corregirlo (Claude sabe que no separa quién habla).
 
 Funciona en Chrome o Edge, que pasan la voz a texto con su servicio de voz (Google o Microsoft);
 el audio no se guarda, solo el texto, y por defecto tampoco la transcripción completa: quedan las
@@ -553,6 +557,7 @@ NODE_PATH=$(npm root -g) node crm/dev/ahora.cjs     # ficha ordenada («En qué 
 NODE_PATH=$(npm root -g) node crm/dev/plan.cjs      # menú de cinco secciones y pestañas, y «Planificar la semana»: reparto, llamadas por día, teléfono y oscuro
 NODE_PATH=$(npm root -g) node crm/dev/menus.cjs     # menús desplegables: mouse, teclado, buscador, Escape y clic afuera, tarjetas, ventanas, teléfono y oscuro
 NODE_PATH=$(npm root -g) node crm/dev/avisos.cjs    # avisos de Hoy, recordatorios en pantalla, anotar en Google Calendar tareas, cobros e hitos, y qué hacer según cómo salió la llamada
+NODE_PATH=$(npm root -g) node crm/dev/registro.cjs  # el plan de Claude al registrar una llamada: editarlo, confirmar, la reunión en el calendario de ZH con Meet e invitados, no contestó y a mano
 ```
 
 `crm/dev/mock-claude.js` imita `window.claude` (base de datos en memoria, Claude con respuestas

@@ -84,20 +84,20 @@ const ok = (cond, msg) => { if (!cond) errors.push("falló: " + msg); else notes
   await shot(page, "02-ficha.png");
 
   await page.locator(".work-tabs button", { hasText: "Registrar llamada" }).click();
-  /* Sin «Automático»: se revisa el análisis antes de guardar. */
-  ok(await page.locator(".work .switch input").isChecked(), "«Automático» viene prendido");
-  await page.locator(".work .switch input").uncheck();
-  await page.getByRole("button", { name: "Contestó", exact: true }).click();
+  /* Claude arma el plan y se confirma: nada se guarda solo. */
+  ok((await page.locator(".work .switch").count()) === 0 && await page.getByRole("button", { name: "Armar el plan con Claude" }).isVisible(), "registrar la llamada es armar el plan con Claude, sin nada que guarde solo");
   await page.fill("#c-notas", "Coordina despachos con planillas y WhatsApp. Quiere ver el estado de cada pedido.");
-  await page.fill("#c-dur", "12");
   await page.getByRole("button", { name: "Agregar transcripción" }).click();
   await page.fill("#c-trans", "Carolina: Hoy los despachos los vemos en una planilla y por WhatsApp.\nLorenzo: ¿Cuántas bodegas tienen?\nCarolina: Tres.");
-  await page.getByRole("button", { name: "Analizar con Claude" }).click();
-  await page.locator(".work .analysis").waitFor();
-  ok(await page.locator(".work .suggest .check", { hasText: "Agendar la reunión" }).locator("input").isChecked(), "propone agendar la reunión que quedó acordada");
-  ok(await page.locator(".work .suggest .check", { hasText: "Tarea: Mandar por WhatsApp el enlace" }).locator("input").isChecked(), "y las tareas de ZH");
-  await shot(page, "03-analisis.png");
-  await page.getByRole("button", { name: "Guardar llamada" }).click();
+  await page.getByRole("button", { name: "Armar el plan con Claude" }).click();
+  await page.locator(".work .plan").waitFor();
+  ok((await page.inputValue("#pl-res")) === "contesto" && (await page.inputValue("#pl-etapa")) === "reunion_agendada", "el plan trae el resultado y la etapa que propone Claude");
+  ok((await page.inputValue("#pl-r-hora")) === "11:00" && !!(await page.inputValue("#pl-r-fecha")), "y la reunión que quedó acordada, con día y hora");
+  ok((await page.locator(".work .plan .t-tit").first().inputValue()) === "Mandar por WhatsApp el enlace de la reunión", "y las tareas de ZH");
+  ok((await page.locator(".work .plan .plan-nota", { hasText: "Google Calendar" }).count()) === 1, "y dice dónde queda la reunión");
+  await page.fill("#pl-dur", "12");
+  await shot(page, "03-plan.png");
+  await page.getByRole("button", { name: "Confirmar y guardar" }).click();
   await page.locator(".done-card").waitFor();
   ok((await page.inputValue("#lead-etapa")) === "reunion_agendada", "con la reunión acordada, el lead pasa a «Reunión agendada»");
   ok(await page.locator(".done-card", { hasText: "Reunión agendada" }).isVisible() && await page.locator(".done-card", { hasText: "Tarea nueva: Llamada de descubrimiento" }).isVisible(), "el resumen cuenta qué cambió y qué tareas salieron");

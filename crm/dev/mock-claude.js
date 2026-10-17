@@ -197,7 +197,8 @@
           valor: { nota: 3, comentario: "Conectó con el inventario." }, objeciones: { nota: 2, comentario: "Ante el precio, cambió de tema." }, cierre: { nota: 4, comentario: "Quedó una demo agendada." } },
         bien: ["Abrió con el motivo de la llamada"], mejorar: ["Ante «es caro», pregunta cuánto les cuesta hoy el problema"],
       };
-      const base = { puntos: [], necesidades: [], objeciones: [], compromisos: [], proximosPasos: [], datos: { cargo: "", empresa: "", correo: "", necesidad: "" }, evaluacion };
+      const base = { resultado: "contesto", puntos: [], necesidades: [], objeciones: [], compromisos: [], proximosPasos: [], datos: { cargo: "", empresa: "", correo: "", necesidad: "" }, evaluacion };
+      if (/Notas de quien llamó: [^\n]*no contest[oó]/i.test(p)) return { ...base, resultado: "no_contesto", resumen: "No contestó.", interes: "sin_datos", etapaSugerida: "", reunion: null, tareas: [], evaluacion: null };
       if (/no me interesa/i.test(p)) return { ...base, resumen: "Dijo que no le interesa por ahora.", interes: "bajo", etapaSugerida: "perdido", reunion: null, tareas: [] };
       if (/te escribo para agendar/i.test(p)) return { ...base, resumen: "Quiere ver una demo, pero no dio día.", interes: "medio", etapaSugerida: "contactado", reunion: null, tareas: [{ quien: "zh", que: "Coordinar el día de la demo", tipo: "agendar", fecha: "", hora: "" }] };
       return {

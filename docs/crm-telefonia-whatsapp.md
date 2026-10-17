@@ -71,8 +71,8 @@ aviso de grabación al empezar.
 1. En la ficha del lead, «Registrar llamada» → «Notas de la llamada».
 2. En el teléfono, toca el micrófono del teclado y dicta en 30 a 60 segundos lo que recuerdes, sin
    orden: qué necesita, qué le preocupa, qué quedaste en mandar.
-3. «Analizar con Claude» lo ordena: resumen, necesidades, objeciones, lo que prometimos, próximos
-   pasos, etapa y próxima acción. Revisas y guardas.
+3. «Armar el plan con Claude» lo ordena: qué pasó, el resultado, la etapa, la reunión si quedó
+   una, las tareas y lo que quedó en hacer el lead. Lo corriges si hace falta y confirmas.
 
 No se graba la voz del cliente, así que no hay nada que avisar ni audio que guardar. No cuesta nada
 y funciona desde hoy.
@@ -85,7 +85,7 @@ Teléfono del iPhone graba, y avisa a las dos personas). Lo que sí funciona sin
 1. En el computador, en Chrome o Edge, «Registrar llamada» → «Transcribir en vivo».
 2. Llamas desde el celular en altavoz, junto al computador. El CRM escucha y lo pasa a texto en
    español de Chile.
-3. Al cortar, «Detener» y «Analizar con Claude».
+3. Al cortar, «Detener»: Claude arma el plan de la llamada y tú lo confirmas o lo corriges.
 
 No suena ningún aviso y no cuesta nada. El audio no se guarda: el navegador lo manda a su servicio
 de voz (Google en Chrome, Microsoft en Edge) y vuelve solo el texto. La calidad es menor que una
@@ -181,10 +181,11 @@ reproduce un aviso obligatorio a las dos personas.
 3. **Al cortar:**
    - Dictas tus notas en «Registrar llamada» o, si tienes una transcripción, la pegas o subes un
      `.txt`, `.vtt` o `.srt`.
-   - Marcas el resultado. La transcripción completa se guarda solo si marcas esa opción.
-4. **«Analizar con Claude»:**
-   - Deja el resumen, lo que necesita, las objeciones, lo que prometimos y el siguiente paso.
-   - Propone la etapa y la próxima acción. Revisas y guardas.
+   - La transcripción completa se guarda solo si marcas esa opción.
+4. **«Armar el plan con Claude»:**
+   - Deja qué pasó, el resultado, lo que necesita, las objeciones y lo que quedó en hacer cada uno.
+   - Propone la etapa, la reunión (con Meet, en el calendario de ZH) y las tareas. Corriges lo que
+     haga falta y confirmas.
 5. **Si quedó en mandar algo:**
    - «Redactar con Claude» arma el correo o el WhatsApp con el contexto de la llamada.
    - Lo revisas en Borradores y lo mandas con «Copiar y abrir Gmail» o «Abrir en WhatsApp».

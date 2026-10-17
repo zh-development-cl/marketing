@@ -69,8 +69,6 @@ const FRASES = ["hola andrea te llamo de zh por lo del inventario", "la verdad l
   /* ---------------- llamada transcrita en vivo ---------------- */
   const page = await open({ name: "micrófono", seed: SEED, mic: { modo: "ok", frases: FRASES, cortar: true } });
   await abrirLlamada(page);
-  /* Aquí se prueba revisar antes de guardar; lo automático se prueba en tareas.cjs. */
-  await page.locator(".work .switch input").uncheck();
   await page.getByRole("button", { name: "Transcribir en vivo" }).click();
   await page.locator(".live.on", { hasText: "Escuchando" }).waitFor();
   await page.locator(".live-text").first().waitFor();
@@ -100,6 +98,9 @@ const FRASES = ["hola andrea te llamo de zh por lo del inventario", "la verdad l
   ok((await page.locator(".coach-pista").count()) === 0, "al usar la ayuda se apaga el aviso");
   await shot(page, "m03-apoyo.png");
   await page.getByRole("button", { name: "Detener" }).click();
+  await page.locator(".work .plan").waitFor({ timeout: 10000 });
+  ok(true, "al detener, Claude arma el plan solo");
+  await page.getByRole("button", { name: "Editar notas" }).click();
   await page.getByRole("button", { name: "Transcribir en vivo" }).waitFor();
   const trans = await page.inputValue("#c-trans");
   ok(trans === "Hola andrea te llamo de zh por lo del inventario\nLa verdad lo encuentro un poco caro\nNos interesa ver una demo la próxima semana\nMándame la propuesta al correo", "cada frase queda en su línea, con mayúscula y sin repetirse");
@@ -112,8 +113,9 @@ const FRASES = ["hola andrea te llamo de zh por lo del inventario", "la verdad l
   ok(await page.locator(".work .note", { hasText: "Recuperé lo que quedó sin guardar" }).isVisible(), "si se cierra la ficha, lo transcrito se recupera al volver");
   ok((await page.inputValue("#c-trans")) === trans, "la transcripción recuperada está completa");
 
-  await page.getByRole("button", { name: "Contestó", exact: true }).click();
-  await page.getByRole("button", { name: "Analizar con Claude" }).click();
+  await page.getByRole("button", { name: "Armar el plan con Claude" }).click();
+  await page.locator(".work .plan").waitFor();
+  await page.locator(".work .plan-detalle > summary").click();
   await page.locator(".work .analysis").waitFor();
   const prompts = await page.evaluate(() => window.__mockPrompts);
   const pLlamada = prompts[prompts.length - 1];
@@ -124,13 +126,14 @@ const FRASES = ["hola andrea te llamo de zh por lo del inventario", "la verdad l
   ok(await page.locator(".work .crit", { hasText: "Objeciones" }).locator("i.on").count() === 2, "cada criterio muestra su nota");
   ok(await page.locator(".work .analysis", { hasText: "Tareas de ZH" }).locator("li", { hasText: "Enviar la propuesta por correo" }).isVisible(), "lista las tareas de ZH");
   ok(await page.locator(".work .analysis", { hasText: "Tareas del lead" }).locator("li", { hasText: "Mandar la planilla de inventario" }).isVisible(), "y las del lead");
-  ok(await page.locator(".work .suggest label", { hasText: "Tarea: Enviar la propuesta por correo" }).locator("input").isChecked(), "propone crear las tareas de ZH");
-  ok((await page.locator(".work .suggest label", { hasText: "Tarea: Mandar la planilla" }).count()) === 0, "lo que quedó en hacer el lead no se vuelve tarea de ZH");
-  ok(await page.locator(".work .suggest label", { hasText: "Agendar la reunión" }).locator("input").isChecked(), "y agendar la reunión acordada");
-  ok(await page.locator(".work .suggest label", { hasText: "Que Claude deje redactados" }).locator("input").isChecked(), "y dejar redactado el correo acordado");
+  const titulos = await page.locator(".work .plan .t-tit").evaluateAll((els) => els.map((e) => e.value));
+  ok(titulos.includes("Enviar la propuesta por correo"), "el plan trae las tareas de ZH");
+  ok(!titulos.some((t) => t.includes("Mandar la planilla")) && await page.locator(".work .plan .plan-nota", { hasText: "Quedó en hacer Andrea: Mandar la planilla de inventario" }).isVisible(), "lo que quedó en hacer el lead no se vuelve tarea de ZH: se anota aparte");
+  ok((await page.inputValue("#pl-r-hora")) === "11:00" && await page.locator(".work .plan .switch", { hasText: "Agendarla" }).locator("input").isChecked(), "y la reunión acordada, para agendarla");
+  ok(await page.locator(".work .plan .check", { hasText: "Que Claude deje redactados" }).locator("input").isChecked(), "y dejar redactado el correo acordado");
   await page.locator(".work .eval").scrollIntoViewIfNeeded();
   await shot(page, "m04-evaluacion.png");
-  await page.getByRole("button", { name: "Guardar llamada" }).click();
+  await page.getByRole("button", { name: "Confirmar y guardar" }).click();
   await page.locator(".done-card").waitFor();
   await toast(page, "Quedó redactado 1 borrador");
   await page.waitForTimeout(250);

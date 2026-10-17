@@ -308,11 +308,12 @@ const SEED = {
   await page.locator("#lead-title", { hasText: "Clínica Lagos" }).waitFor();
   await page.locator(".drawer .cline .btn.primary", { hasText: "Registrar llamada" }).click();
   ok((await page.locator(".drawer .work").innerText()).includes("Es el número del lead: llámalo desde tu celular") && (await page.locator(".drawer .work .field", { hasText: "Línea" }).count()) === 0, "registrar la llamada ya no habla de una línea de negocios");
+  await page.locator(".drawer .a-mano > summary").click();
   await page.locator(".drawer .work .chip", { hasText: "Pidió que llamemos después" }).click();
   await page.locator(".drawer .volver-box").waitFor();
   await page.locator(".drawer .volver-box .chip", { hasText: "Mañana" }).click();
   await page.locator(".drawer .volver-box .horas .btn", { hasText: "16:00" }).click();
-  await page.locator(".drawer .work .btn.primary", { hasText: "Guardar llamada" }).click();
+  await page.locator(".drawer .a-mano .btn", { hasText: "Guardar llamada" }).click();
   ok(await toast(page, "Llamada guardada · 1 tarea nueva · Contactado."), "al guardar, queda la tarea y el lead pasa a «Contactado»");
   ok(await esperar(page, (o) => [...window.__mockStore].some(([k, v]) => k.startsWith("tareas/") && v.leadId === "lead-i" && v.titulo === "Volver a llamar (lo pidió)" && v.fecha === o && v.hora === "16:00" && v.calendario && v.calendario.id), habil(T, 1)), "la llamada que pidió, con su día y hora, anotada en el calendario");
   await cerrarFicha(page);

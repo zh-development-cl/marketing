@@ -181,12 +181,10 @@ const SEED = {
   await page.locator(".cola-item", { hasText: "Imprenta Sur" }).click();
   ok((await actual(page)) === "Imprenta Sur", "se puede elegir otra de la lista");
   await page.getByRole("button", { name: "Contestó: registrar" }).click();
-  await page.locator(".llamar-reg .switch input").uncheck();
-  await page.locator(".llamar-reg").getByRole("button", { name: "Contestó", exact: true }).click();
   await page.fill("#c-notas", "Le interesa. Quiere ver una demo la próxima semana; te escribo para agendar.");
-  await page.locator(".llamar-reg").getByRole("button", { name: "Analizar con Claude" }).click();
-  await page.locator(".llamar-reg .analysis").waitFor();
-  await page.locator(".llamar-reg").getByRole("button", { name: "Guardar llamada" }).click();
+  await page.locator(".llamar-reg").getByRole("button", { name: "Armar el plan con Claude" }).click();
+  await page.locator(".llamar-reg .plan").waitFor();
+  await page.locator(".llamar-reg").getByRole("button", { name: "Confirmar y guardar" }).click();
   ok(await visto(page.locator(".llamar-listo .done-card", { hasText: "Llamada guardada" }), 8000), "al guardar la llamada, queda el resumen arriba");
   ok(await esperar(page, () => { const h = document.querySelector(".llamar-card .fl-head h2"); return h && h.textContent === "Taller Norte"; }), "y pasa a la siguiente");
   dump = await store(page);

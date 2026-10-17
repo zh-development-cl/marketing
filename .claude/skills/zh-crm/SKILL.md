@@ -126,8 +126,8 @@ con `{tipo: "llamar", titulo: "Primera llamada" (por contactar) | "Retomar el co
 hora: "", responsable, estado: "pendiente", origen: "plan"}`. Antes de escribir, muéstrale el plan al
 socio (día, socio y empresas) y espera su visto bueno; usa `batch`.
 
-**Registrar una llamada o una reunión** (con notas o una transcripción pegada; en la página,
-con «Automático», esto pasa solo al detener la grabación):
+**Registrar una llamada o una reunión** (con notas o una transcripción pegada; en la página, al
+detener la grabación Claude arma el plan y el socio lo confirma o lo corrige antes de guardar):
 1. Lee el lead, sus `actividades` (`where leadId == id`) y sus tareas pendientes.
 2. Analiza solo lo dicho: `resumen` (2-3 frases), `puntos`, `necesidades`, `objeciones`,
    `compromisos`, `proximosPasos`, `interes` (`alto`, `medio`, `bajo`, `sin_datos`),
