@@ -60,12 +60,19 @@ const SEED = {
       return route.abort();
     });
     await page.addInitScript((o) => { window.__MOCK_SEED = o.seed; window.__MOCK_RECORDATORIOS = false; window.__MOCK_MCP = o.mcp; if (o.sinClaude) window.__MOCK_SIN_CLAUDE = true; }, { seed: SEED, mcp: opts.mcp || null, sinClaude: !!opts.sinClaude });
+    /* Cada aviso que aparece queda anotado: con Claude simulado, el borrador llega en un instante y
+       reemplaza el aviso anterior antes de que la prueba alcance a leerlo. */
+    await page.addInitScript(() => {
+      window.__avisos = [];
+      const mo = new MutationObserver(() => { for (const t of document.querySelectorAll(".toast")) { const x = t.innerText; if (x && !window.__avisos.includes(x)) window.__avisos.push(x); } });
+      document.addEventListener("DOMContentLoaded", () => mo.observe(document.body, { childList: true, subtree: true, characterData: true }));
+    });
     await page.goto("file://" + PREVIEW);
     await page.getByRole("heading", { name: "Hoy", exact: true }).waitFor({ timeout: 15000 });
     return page;
   }
   const shot = (page, name) => page.screenshot({ path: path.join(OUT, name), fullPage: false });
-  const toast = (page, text) => page.locator(".toast", { hasText: text }).first().waitFor({ timeout: 8000 }).then(() => true, () => false);
+  const toast = (page, text) => page.waitForFunction((t) => (window.__avisos || []).some((x) => x.includes(t)), text, { timeout: 8000 }).then(() => true, () => false);
   const store = (page) => page.evaluate(() => Object.fromEntries(window.__mockStore));
   const docs = (dump, col) => Object.entries(dump).filter(([k]) => k.startsWith(col + "/")).map(([k, v]) => ({ id: k.split("/")[1], ...v }));
   const llamadas = (page, tool) => page.evaluate((t) => (window.__mcpCalls || []).filter((c) => c.tipo === "call" && c.tool === t), tool);

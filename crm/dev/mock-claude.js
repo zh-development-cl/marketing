@@ -163,8 +163,8 @@
       respuesta: "Hola Marcela, gracias por avisar. Es un error del sistema y está cubierto por la garantía, así que lo corregimos sin costo. Te escribo apenas quede listo, hoy mismo.",
     };
     if (p.includes("Ordena las notas de una reunión")) return {
-      resumen: "Revisamos el avance del diseño. El cliente aprobó las pantallas principales.", acuerdos: ["Diseño aprobado"], pendientesZH: ["Enviar el calendario de pruebas"], pendientesCliente: ["Mandar el acceso al ERP"],
-      solicitudes: [{ titulo: "Agregar exportación a Excel", descripcion: "Pidieron exportar el reporte de ventas a Excel.", cobertura: "evolutivo" }], proximaReunion: plus(7),
+      resumen: "Revisamos el avance del diseño. El cliente aprobó las pantallas principales.", acuerdos: ["Diseño aprobado"], pendientesZH: [{ que: "Enviar el calendario de pruebas", fecha: plus(2) }], pendientesCliente: ["Mandar el acceso al ERP"],
+      solicitudes: [{ titulo: "Agregar exportación a Excel", descripcion: "Pidieron exportar el reporte de ventas a Excel.", cobertura: "evolutivo" }], proximaReunion: { fecha: plus(7), hora: "15:00" },
     };
     if (p.includes("CLIENTE actual de ZH")) {
       if (p.includes("Escribe un mensaje de WhatsApp")) return { texto: "Hola Marcela, te cuento que el diseño quedó aprobado y esta semana partimos con la construcción. ¿Nos puedes enviar el acceso al ERP antes del viernes?" };
@@ -310,7 +310,13 @@
      eventos: [...], fallaCrear: "<código>", fallaMover: "<código>", rechazarPermiso: true }.
      Los eventos tienen la forma que entrega list_events del conector real. window.__mcpCalls guarda
      cada llamada; window.__mcpRefrescar() simula la lectura siguiente (después de cambiar eventos). */
-  const mcpCfg = window.__MOCK_MCP;
+  /* ZH Reuniones simulado (el conector propio de las transcripciones de Meet), con
+     window.__MOCK_REU = { modo: "ok" | "aprobacion" | "sin_conector" | "error", transcripciones: [...],
+     textos: { <id>: { texto, participantes, intervenciones } }, fallaPreparar: { <código Meet>: "ajena" |
+     "sin_transcripcion" | "google_reconectar" } }. Las transcripciones tienen la forma que entrega el
+     servidor (reuniones/lib/reuniones.js). window.__reuPreparadas guarda los enlaces que se prepararon. */
+  const reuCfg = window.__MOCK_REU;
+  const mcpCfg = window.__MOCK_MCP || (reuCfg ? { modo: "sin_conector", eventos: [] } : null);
   let mcp = null;
   if (mcpCfg) {
     window.__mcpCalls = [];
@@ -356,11 +362,44 @@
       mcpCfg.eventos = [...(mcpCfg.eventos || []), ev];
       return ev;
     };
+    /* ZH Reuniones: sin __MOCK_REU, el conector no está agregado en claude.ai. */
+    const reuWatchers = new Set();
+    let reuAprobado = !reuCfg || reuCfg.modo !== "aprobacion";
+    window.__reuPreparadas = [];
+    const fallaReu = (code, message, extra) => ({ code, server: "ZH Reuniones", message: message || "simulado: " + code, ...(code === "server_unavailable" ? { retryable: true } : {}), ...(extra || {}) });
+    const listaReu = () => ({ transcripciones: clone((reuCfg && reuCfg.transcripciones) || []) });
+    const entregarReu = (w) => setTimeout(() => {
+      if (!reuWatchers.has(w)) return;
+      const m = reuCfg ? reuCfg.modo : "sin_conector";
+      if (m === "sin_conector") w.handler({ type: "error", error: fallaReu("server_not_connected") });
+      else if (m === "error") w.handler({ type: "error", error: fallaReu("tool_error", "La autorización de Google de la cuenta de ZH venció o se revocó: vuelve a conectarla desde la página de inicio de zh-reuniones.", { result: { isError: true, structuredContent: { error: "google_reconectar" } } }) });
+      else if (!reuAprobado) w.handler({ type: "error", error: fallaReu("approval_required") });
+      else w.handler({ type: "data", result: { content: [], structuredContent: listaReu(), payload: listaReu() } });
+    }, 30);
+    const llamarReu = async (tool, input) => {
+      const m = reuCfg ? reuCfg.modo : "sin_conector";
+      if (!["transcripciones", "leer_transcripcion", "preparar_reunion"].includes(tool)) throw fallaReu("not_in_manifest");
+      if (m === "sin_conector") throw fallaReu("server_not_connected");
+      if (tool === "transcripciones") { reuAprobado = true; for (const w of reuWatchers) entregarReu(w); return { content: [], payload: listaReu() }; }
+      if (!reuAprobado) throw fallaReu("approval_required");
+      if (tool === "preparar_reunion") {
+        const codigo = (/([a-z0-9]{3,}-[a-z0-9]{3,}-[a-z0-9]{3,})/.exec(String(input && input.meet)) || [])[1] || "";
+        const f = reuCfg.fallaPreparar && reuCfg.fallaPreparar[codigo];
+        if (f) throw fallaReu("tool_error", f === "ajena" ? "La reunión no es de la cuenta de Google de ZH: solo se transcriben solas las reuniones que organiza esa cuenta." : "Google no dejó prender la transcripción automática. La cuenta de ZH necesita Google Workspace Business Standard o superior, y la reunión tiene que ser suya.", { result: { isError: true, structuredContent: { error: f } } });
+        window.__reuPreparadas.push(input.meet);
+        return { content: [], payload: { codigo, transcripcion: "automatica", yaEstaba: false } };
+      }
+      const t = reuCfg.textos && reuCfg.textos[input && input.id];
+      if (!t) throw fallaReu("tool_error", "Falta la transcripción que hay que leer.", { result: { isError: true, structuredContent: { error: "sin_id" } } });
+      return { content: [], payload: { id: input.id, participantes: t.participantes || [], intervenciones: t.intervenciones || 0, texto: t.texto } };
+    };
+    window.__reuRefrescar = () => { for (const w of reuWatchers) entregarReu(w); };
     mcp = Object.freeze({
       watchTool(server, tool, input, handler) {
         if (typeof handler !== "function") throw new TypeError("handler");
         window.__mcpCalls.push({ tipo: "watch", server, tool, input: clone(input) });
         const w = { handler };
+        if (server === "ZH Reuniones" && tool === "transcripciones") { reuWatchers.add(w); entregarReu(w); return () => reuWatchers.delete(w); }
         if (server !== "Google Calendar" || tool !== "list_events") { setTimeout(() => handler({ type: "error", error: falla("not_in_manifest") }), 10); return () => {}; }
         watchers.add(w);
         entregar(w);
@@ -369,6 +408,7 @@
       async callTool(server, tool, input) {
         window.__mcpCalls.push({ tipo: "call", server, tool, input: clone(input) });
         await tick(60);
+        if (server === "ZH Reuniones") return llamarReu(tool, input);
         if (server !== "Google Calendar" || !["list_events", "create_event", "update_event"].includes(tool)) throw falla("not_in_manifest");
         if (mcpCfg.modo === "sin_conector") throw falla("server_not_connected");
         if (mcpCfg.modo === "reauth") throw falla("needs_reauth");
@@ -392,7 +432,7 @@
         ev.updated = new Date().toISOString();
         return { content: [], payload: clone(ev) };
       },
-      async invalidate(server, tool) { window.__mcpCalls.push({ tipo: "invalidate", server, tool }); for (const w of watchers) entregar(w); },
+      async invalidate(server, tool) { window.__mcpCalls.push({ tipo: "invalidate", server, tool }); if (server === "ZH Reuniones") { for (const w of reuWatchers) entregarReu(w); return; } for (const w of watchers) entregar(w); },
       async listTools() { return { servers: [{ server: "Google Calendar", authStatus: "connected", tools: ["list_events", "create_event", "update_event"].map((name) => ({ name, description: "" })) }] }; },
     });
     window.__mcpRefrescar = () => { for (const w of watchers) entregar(w); };

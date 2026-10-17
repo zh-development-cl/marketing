@@ -136,7 +136,9 @@ detener la grabación Claude arma el plan y el socio lo confirma o lo corrige an
    | propuesta | otro, fecha, hora}]`, solo lo acordado; si quedaron en reunirse sin día, una tarea
    `agendar`). Una transcripción de «Transcribir en vivo» (el micrófono del computador con el
    celular en altavoz) no separa quién habla y trae errores: deduce por el contexto qué dijo cada
-   uno y no uses lo que no se entienda.
+   uno y no uses lo que no se entienda. Una de Google Meet (las reuniones transcritas con ZH
+   Reuniones) trae el nombre de quien habla en cada línea: son de ZH los socios (los nombres de
+   `equipo`) y la cuenta de ZH; los demás, del lead o del cliente.
    Con transcripción, el `analisis` lleva también `evaluacion` de quien llamó: `criterios` con `{nota: 1-5 o null, comentario}` para `apertura`,
    `descubrimiento`, `escucha`, `valor`, `objeciones` y `cierre`; `bien` y `mejorar` (hasta 3
    cada uno); `puntaje` = promedio de las notas × 20, redondeado (no lo inventes). Con solo notas,
@@ -298,6 +300,12 @@ repositorio `zh-development-cl/propuestaszh` con su skill `zh-proposals`; guarda
   `garantiaDias` (o `config/general.garantiaDias`; 60 si no está).
 - **Soporte abierto:** solicitudes `nueva`, `en_curso` o `esperando_cliente`, primero las de
   prioridad alta.
+- **Tareas de clientes:** `tareas` pendientes con `clienteId` y sin `leadId` (lo que quedó en hacer
+  ZH en una reunión), con `fecha` ≤ hoy.
+- **Reuniones transcritas por registrar:** las ve la página (Hoy → «Reuniones transcritas»), con
+  el conector ZH Reuniones de claude.ai. `transcripciones/` guarda las ya registradas o descartadas
+  y `meets/` las reuniones a las que se les prendió la transcripción: los escribe la página; no los
+  toques.
 
 **Convertir un lead ganado en cliente.** Lo normal es hacerlo en la página: al pasar el lead a
 «Ganado» se abre el formulario. Si te lo piden a ti:
@@ -371,8 +379,11 @@ vuelve a crear.
 **Acta de una reunión con un cliente:** `set` en `actividades`: `{clienteId, proyectoId, tipo:
 "reunion", fecha, autor: "claude", resumen: <las notas>, acta: {resumen, acuerdos: [],
 pendientesZH: [], pendientesCliente: [], solicitudes: [{titulo, descripcion, cobertura}],
-proximaReunion: "AAAA-MM-DD" o ""}}`. Solo lo que se dijo. Si el socio quiere registrar las
-solicitudes que salieron, sigue la receta anterior con `canal: "reunion"`.
+proximaReunion: "AAAA-MM-DD" o "", proximaHora: "HH:MM" o ""}}`. Solo lo que se dijo. Si el socio
+quiere registrar las solicitudes que salieron, sigue la receta anterior con `canal: "reunion"`.
+Lo que quedó en hacer ZH, si el socio lo confirma, va como tareas del cliente: `{clienteId,
+proyectoId, tipo: "otro", titulo, fecha, hora: "", responsable, estado: "pendiente", origen:
+"reunion", actividadId}`, sin `leadId`.
 
 **Redactar para un cliente:** como en ventas, pero el borrador lleva `clienteId` y `contactoId`
 (el contacto principal; para cobros, el de `rol: "facturacion"` si existe) y, según el caso,

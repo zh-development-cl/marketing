@@ -31,8 +31,12 @@ export async function prepararReunion(args) {
   return { codigo, transcripcion: "automatica", yaEstaba };
 }
 
-/* Las transcripciones de los últimos días: id, código de la reunión, cuándo fue y si ya se puede
-   leer («lista») o Google todavía la está procesando. */
+/* El documento de Google Docs donde Google deja la transcripción (en el Drive de la cuenta de ZH;
+   no se borra a los 30 días como los registros de la reunión). */
+const docDe = (t) => { const u = String((t.docsDestination && t.docsDestination.exportUri) || ""); return /^https:\/\/docs\.google\.com\/[^\s"'<>]+$/.test(u) ? u : ""; };
+
+/* Las transcripciones de los últimos días: id, código de la reunión, cuándo fue, si ya se puede
+   leer («lista») o Google todavía la está procesando, y su documento. */
 export async function transcripciones(args) {
   const dias = Math.min(30, Math.max(1, Math.round(Number(args && args.dias)) || 14));
   const codigos = Array.isArray(args && args.codigos) ? [...new Set(args.codigos.map(codigoMeet).filter(Boolean))].slice(0, 20) : [];
@@ -60,7 +64,7 @@ export async function transcripciones(args) {
     const d = await meet(`${r.name}/transcripts`, { query: { pageSize: "100" } });
     for (const t of d.transcripts || []) {
       if (t.state !== "FILE_GENERATED" && t.state !== "ENDED") continue;
-      lista.push({ id: t.name, codigo, inicio: r.startTime, fin: r.endTime, estado: t.state === "FILE_GENERATED" ? "lista" : "procesando" });
+      lista.push({ id: t.name, codigo, inicio: r.startTime, fin: r.endTime, estado: t.state === "FILE_GENERATED" ? "lista" : "procesando", doc: docDe(t) });
     }
   }
   return { transcripciones: lista };

@@ -56,9 +56,11 @@ export async function atender(msg) {
       const res = await fn(params.arguments || {});
       return ok(id, { content: [{ type: "text", text: JSON.stringify(res) }], structuredContent: res, isError: false });
     } catch (e) {
+      /* El código va también en structuredContent: el CRM decide qué hacer según él, no según el texto. */
       const conocida = e instanceof Falla || e.code === "google_reconectar";
       if (!conocida) console.error("[zh-reuniones]", params.name, e && e.status, e && e.message);
-      return ok(id, { content: [{ type: "text", text: conocida ? e.message : "No se pudo hablar con Google Meet. Vuelve a intentar en un rato." }], isError: true });
+      const mensaje = conocida ? e.message : "No se pudo hablar con Google Meet. Vuelve a intentar en un rato.";
+      return ok(id, { content: [{ type: "text", text: mensaje }], structuredContent: { error: conocida ? e.code : "google", mensaje }, isError: true });
     }
   }
   if (notificacion) return null;

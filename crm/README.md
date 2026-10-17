@@ -23,7 +23,7 @@ en Clientes, las solicitudes abiertas y los pagos vencidos.
 | Sección | Para qué |
 |---|---|
 | **Hoy** | Tres pestañas: Para hoy, Borradores y Métricas. |
-| Para hoy | **Una sola lista, «Lo que toca»**, en orden: lo atrasado; lo de hoy (las reuniones a su hora, las llamadas y lo demás), cada tarea con su círculo para completarla y su botón (llamar, revisar el borrador, agendar, «Unirse a Meet», «¿Se hizo?»); los borradores por revisar; lo de clientes que vence (pagos atrasados, cobros por facturar, hitos y garantías) y el soporte abierto; y los que **se están enfriando** (7 días o más en la misma etapa después de la reunión). Los **próximos 7 días** van plegados (se acuerda si los dejaste abiertos). Arriba, los **avisos** (la reunión de las próximas dos horas con su Meet, las invitaciones rechazadas y los pagos vencidos; ver «Avisos y recordatorios») y, si hay leads abiertos sin tarea, «Planificar la semana». Al lado, solo **Esta semana** (llamadas y reuniones agendadas contra la meta, y tu puntaje en llamadas), el **Calendario** de `contacto@zhdevelopment.cl` y la actividad reciente. El filtro de arriba muestra lo de Lorenzo o lo de Nicolás. |
+| Para hoy | **Una sola lista, «Lo que toca»**, en orden: las **reuniones transcritas** por registrar (ver «Reuniones transcritas»); lo atrasado; lo de hoy (las reuniones a su hora, las llamadas y lo demás), cada tarea con su círculo para completarla y su botón (llamar, revisar el borrador, agendar, «Unirse a Meet», «¿Se hizo?»); los borradores por revisar; lo de clientes que vence (pagos atrasados, cobros por facturar, hitos y garantías) y el soporte abierto; y los que **se están enfriando** (7 días o más en la misma etapa después de la reunión). Los **próximos 7 días** van plegados (se acuerda si los dejaste abiertos). Arriba, los **avisos** (la reunión de las próximas dos horas con su Meet, las invitaciones rechazadas y los pagos vencidos; ver «Avisos y recordatorios») y, si hay leads abiertos sin tarea, «Planificar la semana». Al lado, solo **Esta semana** (llamadas y reuniones agendadas contra la meta, y tu puntaje en llamadas), el **Calendario** de `contacto@zhdevelopment.cl` y la actividad reciente. El filtro de arriba muestra lo de Lorenzo o lo de Nicolás. |
 | Borradores | Correos y WhatsApp redactados con Claude o a mano, con vista previa y acciones de envío. |
 | Métricas | El embudo de hoy con su valor y el pronóstico ponderado por etapa; en el período elegido (7, 30 o 90 días, o 12 meses): llamadas y cuántas contestaron, reuniones, ganados, hasta dónde llegaron los leads nuevos, por qué se perdieron, la actividad de cada socio, el puntaje de las llamadas por criterio (y dónde mejorar) y, con clientes, lo vencido, lo por cobrar en 30 días y lo pagado. **Resumen con Claude**: para la reunión de los socios, un titular, lo que va bien, lo que preocupa y tres acciones para la próxima semana, solo con los datos del CRM (se puede copiar). |
 | **Llamar** | Las llamadas de hoy, una tras otra: primero las tareas de llamar atrasadas y de hoy, después los leads nuevos sin tarea (prioridad alta primero), solo con teléfono. Cada una muestra el teléfono grande, la tarea, el dolor, cómo ayudamos, el guion y los últimos contactos; «Contestó: registrar» abre el registro de la llamada (con «Transcribir en vivo»), «No contestó» deja el intento y el paso que sigue, «Pidió otro día» deja la llamada para el día y la hora que pidió, y al terminar pasa sola a la siguiente. «Saltar», la lista «Después» y el filtro por socio. En el teléfono está en la barra de abajo. |
@@ -82,7 +82,9 @@ archivos** y el historial (lo último, con «Ver los N» para todo); y cuatro he
   notas (ver «Llamadas: qué hacer según cómo salió»).
 - **Registrar reunión:** igual que la llamada, para la reunión de descubrimiento o de seguimiento
   (por Meet o en persona): el plan deja el lead en «Reunión concretada» y trae las tareas, como
-  enviar la propuesta o el resumen, y la próxima reunión si quedó una.
+  enviar la propuesta o el resumen, y la próxima reunión si quedó una. Las reuniones por Meet de la
+  cuenta de ZH se transcriben solas y llegan desde Hoy con la transcripción (ver «Reuniones
+  transcritas»).
 - **Redactar:** con Claude, canal (WhatsApp o correo), objetivo (primer contacto, seguimiento,
   agendar reunión, confirmar reunión, enviar propuesta, recordatorio, reactivar, agradecer u otro),
   trato (tú o usted), diseño del correo e instrucciones libres. Claude recibe los datos del lead y
@@ -226,6 +228,44 @@ Calendar, y su cuenta conectada tiene que tener acceso a ese calendario.
 dos veces aunque haya dos personas con el CRM abierto (las tareas y leads que crea el calendario
 usan ids fijos: `tar-cal-<id>` y `lead-web-<id>`).
 
+## Reuniones transcritas (Google Meet)
+
+Con el conector propio **ZH Reuniones** (`reuniones/` en este repositorio, en Vercel; la puesta en
+marcha está en `docs/reuniones-transcripcion.md`), las reuniones por Meet quedan registradas sin
+grabar nada desde el computador:
+
+- **Antes:** en las reuniones de los próximos 14 días con un lead o un cliente (un invitado con el
+  correo del lead o de un contacto del cliente) que organiza la cuenta de ZH, el CRM prende la
+  transcripción automática de Google Meet (`preparar_reunion`), una vez por reunión. Google la
+  transcribe sola apenas empieza, con el nombre de cada uno, y avisa en la reunión. Hoy →
+  Calendario y la tarea de la reunión dicen «Se transcribe»; si no se pudo (la organizó otra
+  cuenta, o Google no lo permite), «No se transcribe» con el motivo, y se vuelve a intentar al día
+  siguiente. Las de otra cuenta y las del equipo solo no se tocan. Con ZH Reuniones conectado, la
+  invitación que crea el CRM dice que la reunión se transcribe.
+- **Después:** las transcripciones de los últimos 14 días (se leen al abrir y cada 10 minutos)
+  aparecen en Hoy, arriba de «Lo que toca», en **«Reuniones transcritas»**, unidas a su lead o
+  cliente (por `meets/`, el evento del calendario o la tarea con ese Meet). Las que Google todavía
+  prepara se ven sin botón.
+- **Registrar** abre la ficha con la transcripción (la lee de Google con `leer_transcripcion`) y
+  Claude arma solo, sabiendo quién habla por ZH:
+  - en un **lead**, el plan de siempre (qué pasó, etapa, tareas, la próxima reunión con Meet en el
+    calendario de la cuenta de ZH y el equipo invitado, la confirmación); la reunión queda con su
+    hora y duración reales, quién participó y el enlace al documento de Google Docs, y la tarea de
+    esa reunión queda hecha (la del mismo Meet o la de ese día, nunca una futura);
+  - en un **cliente**, el acta con las **tareas de ZH** (con día y responsable, editables) y la
+    **próxima reunión**, que se crea en Google Calendar con Meet invitando al contacto principal y
+    al equipo (sin calendario o sin hora, queda la tarea de agendarla).
+  Nada se guarda hasta confirmar. La transcripción completa se guarda solo si se marca.
+- **Asignar:** una transcripción que el CRM no reconoce se asigna a un lead o a un cliente con un
+  buscador. **Descartar** (con «Deshacer») la saca de la lista, por ejemplo una reunión interna.
+- **Ajustes → Transcripción de reuniones** dice si está conectado (cuántas transcripciones y cuántas
+  reuniones próximas se transcriben) y, si no, qué hacer: agregar el conector, «Permitir ZH
+  Reuniones», dejar las herramientas en «Permitir siempre» o volver a conectar la cuenta de Google.
+
+Las tareas de un cliente (las del acta) van con `clienteId` y sin `leadId`: se ven en Hoy (en «Lo
+que toca», con el nombre del cliente) y en la ficha del cliente («Tareas de ZH»), y el círculo las
+marca como hechas, con «Deshacer».
+
 ## Avisos y recordatorios
 
 Todo esto sale mientras el CRM está abierto; no se mandan correos. Para que el teléfono avise con
@@ -354,9 +394,10 @@ la ficha:
   garantía, recordatorio de pago, respuesta a una solicitud, coordinar reunión, pedir opinión,
   mantención u otro. Claude recibe los datos del cliente, el proyecto (etapa, hitos y garantía),
   el cobro (factura, vencimiento y total con IVA), la solicitud y el historial.
-- **Registrar reunión con acta:** se pegan o se dictan las notas y Claude arma el acta (resumen,
-  acuerdos, pendientes de ZH y del cliente, próxima reunión) y propone las solicitudes que
-  salieron, para crearlas con un clic.
+- **Registrar reunión con acta:** se pegan o se dictan las notas (o llega la transcripción de Meet,
+  desde Hoy) y Claude arma el acta (resumen, acuerdos, pendientes de ZH y del cliente, próxima
+  reunión). Al guardar quedan las tareas de ZH (con día y responsable), la próxima reunión en Google
+  Calendar con Meet y las solicitudes que salieron, cada cosa editable antes.
 
 **Proyectos.** Tablero por etapa: Por iniciar, Entender, Diseñar, Construir, Probar y Mejorar (en
 producción, en garantía); Cerrado, En pausa y Cancelado se ven con «Mostrar cerrados». Cada
@@ -510,14 +551,16 @@ calendario `AAAA-MM-DD` en hora de Chile; marcas de tiempo en ISO. En todas las 
 | Colección | Documento | Campos principales |
 |---|---|---|
 | `leads` | un lead | `nombre`, `empresa`, `cargo`, `telefono` (E.164, `+569…`), `correo`, `sitio`, `rubro`, `ciudad`, `origen` (`web`, `agenda`, `instagram`, `linkedin`, `referido`, `evento`, `prospeccion`, `otro`), `etapa` (`nuevo`, `contactado`, `reunion_agendada`, `reunion_concretada`, `propuesta`, `negociacion`, `ganado`, `perdido`, `pausa`; un `reunion` antiguo se lee como `reunion_agendada`), `prioridad` (`alta`, `media`, `baja`), `trato` (`tu`, `usted`), `necesidad` (lo que pide, confirmado), `dolor` (lo que suponemos), `comoAyudamos`, `guion`, `notas`, `responsable` (`lorenzo`, `nicolas` o `null`), `proxima` (copia de su primera tarea pendiente: `{tipo, fecha AAAA-MM-DD, hora, nota, tareaId}` o `null`; la página la pone al día sola, y una `proxima` sin `tareaId` se muestra como tarea), `intentos` (llamadas seguidas sin respuesta), `ultimoContacto`, `ultimoIntento`, `motivoPerdida` (`No responde`, `Mal timing`, `No hay fit`, `Está con la competencia`; vacío = falta; puede quedar un texto antiguo), `motivoDetalle` (lo que dijo), `inasistencias` (reuniones a las que no se presentó), `noContactar`, `noContactarDesde`, `valor`, `propuesta` (`{monto, fecha AAAA-MM-DD, enlace, archivo}`: lo enviado; `archivo` es el id del PDF), `archivos[]` (`{id, nombre, tipo, bytes, subido, por, etiqueta}`: `id` es el del archivo guardado en el artifact, que se abre en `/_blob/<id>`; `etiqueta` = `propuesta` o vacío), `caso` (id en `propuestaszh`), `clienteId` (si se convirtió), `creado`, `actualizado`, `creadoPor` |
-| `tareas` | una tarea de un lead | `leadId`, `tipo` (`llamar`, `whatsapp`, `correo`, `agendar`, `reunion`, `propuesta`, `otro`), `titulo`, `nota` (detalle interno), `fecha` (`AAAA-MM-DD`), `hora` (`HH:MM` o vacío), `duracion` (minutos, en reuniones), `responsable`, `estado` (`pendiente`, `hecha`, `descartada`), `resultado` (en reuniones: `no_se_presento`), `hecha` (ISO), `hechaPor`, `origen` (`llamada`, `reunion`, `no_contesto`, `plan`, `agendar`, `etapa`, `borrador`, `manual`, `migracion`, `calendario`, `agenda_web`, `recordatorio`), `actividadId` (la llamada o reunión de la que salió o que la cumplió), `borradorId` (el mensaje redactado para ella), `mensaje` (en WhatsApp: el texto listo, como el del recordatorio), `reunionId` (en el recordatorio: la reunión; su id es `tar-rec-<id de la reunión>`), `preparacion` y `preparada` (en reuniones: la preparación de Claude y cuándo se hizo), `calendario` (en las que no son reuniones, si se anotó en Google Calendar: `{id, link, fecha, hora}` del evento), `evento` (en reuniones unidas a Google Calendar: `{id, link, meet, respuesta, actualizado, propio, organizador}`, con `respuesta` = `needsAction`, `accepted`, `declined` o `tentative` del lead y `propio` = si lo organiza la cuenta del calendario) |
+| `tareas` | una tarea de un lead o de un cliente | `leadId` (o, en las de un cliente, `clienteId` y `proyectoId`, sin `leadId`: lo que quedó en hacer ZH en una reunión), `tipo` (`llamar`, `whatsapp`, `correo`, `agendar`, `reunion`, `propuesta`, `otro`), `titulo`, `nota` (detalle interno), `fecha` (`AAAA-MM-DD`), `hora` (`HH:MM` o vacío), `duracion` (minutos, en reuniones), `responsable`, `estado` (`pendiente`, `hecha`, `descartada`), `resultado` (en reuniones: `no_se_presento`), `hecha` (ISO), `hechaPor`, `origen` (`llamada`, `reunion`, `no_contesto`, `plan`, `agendar`, `etapa`, `borrador`, `manual`, `migracion`, `calendario`, `agenda_web`, `recordatorio`), `actividadId` (la llamada o reunión de la que salió o que la cumplió), `borradorId` (el mensaje redactado para ella), `mensaje` (en WhatsApp: el texto listo, como el del recordatorio), `reunionId` (en el recordatorio: la reunión; su id es `tar-rec-<id de la reunión>`), `preparacion` y `preparada` (en reuniones: la preparación de Claude y cuándo se hizo), `calendario` (en las que no son reuniones, si se anotó en Google Calendar: `{id, link, fecha, hora}` del evento), `evento` (en reuniones unidas a Google Calendar: `{id, link, meet, respuesta, actualizado, propio, organizador}`, con `respuesta` = `needsAction`, `accepted`, `declined` o `tentative` del lead y `propio` = si lo organiza la cuenta del calendario) |
 | `eventos` | uno por evento de Google Calendar (id del evento) | `leadId`, `tareaId`, `inicio` (ISO), `evActualizado` (el `updated` del evento que se vio), `actualizado` |
+| `meets` | uno por reunión de Meet a la que el CRM le prendió la transcripción (id = el código de Meet, `abc-defg-hij`) | `codigo`, `eventoId`, `titulo`, `inicio`, `fin`, `leadId` o `clienteId`, `estado` (`lista`, o por qué no: `ajena`, `sin_transcripcion`, `sin_enlace`), `detalle`, `preparada` (ISO) |
+| `transcripciones` | una por transcripción de Meet ya registrada o descartada (id `tr-<registro>~<transcripción>`) | `transcripcion` (el id de Google), `codigo`, `inicio`, `fin`, `doc` (el documento de Google Docs), `estado` (`registrada`, `descartada`), `leadId` o `clienteId`, `actividadId`, `por` |
 | `clientes` | un cliente | `nombre`, `razonSocial`, `rut`, `giro`, `direccion`, `ciudad`, `correoFacturacion`, `sitio`, `rubro`, `contactos[]` (`{id, nombre, cargo, correo, telefono, rol, principal}`, con `rol` = `decisor`, `usuario`, `facturacion`, `tecnico` u `otro`), `responsable`, `trato`, `leadIds[]`, `estado` (`activo`, `archivado`), `etapa` (embudo de clientes: `inicio`, `desarrollo`, `garantia`, `mantencion`, `propuesta`, `sin_servicio`; vacío o `null` = automática, según sus servicios), `propuesta` (`{titulo, valor}` en «Nueva propuesta»), `archivos[]` (como en los leads), `notas` |
 | `proyectos` | un proyecto | `clienteId`, `leadId`, `nombre`, `tipo` (`software`, `automatizacion`, `ia`, `web`, `procesos`, `consultoria`, `otro`), `valor`, `estado` (`por_iniciar`, `entender`, `disenar`, `construir`, `probar`, `mejorar`, `cerrado`, `pausado`, `cancelado`), `inicio`, `entregaEstimada`, `produccion` (desde aquí corre la garantía), `garantiaDias`, `cierre`, `hitos[]` (`{id, nombre, fecha, hecho, fechaHecho, calendario}`, con `calendario` = `{id, link, fecha, hora}` si se anotó), `enlaces[]` (`{id, titulo, url}`), `caso`, `alcance`, `responsable`, `notas` |
 | `cobros` | un cobro | `clienteId`, `proyectoId`, `mantencionId`, `solicitudId`, `tipo` (`anticipo`, `hito`, `cierre`, `mensualidad`, `evolutivo`, `otro`), `concepto`, `monto`, `fecha` (cuándo facturar), `estado` (`por_facturar`, `facturado`, `pagado`, `anulado`), `factura`, `fechaFactura`, `vence`, `fechaPago`, `notas`, `generado`, `ultimoRecordatorio`, `calendario` (si se anotó: `{id, link, fecha, hora, que}`, con `que` = `facturar` o `vence`). Las mensualidades usan el id `cob-m-<id de la mantención>-<AAAA-MM>` |
 | `mantenciones` | un plan mensual | `clienteId`, `proyectoId`, `plan`, `monto` (al mes), `incluye`, `inicio`, `diaCobro` (1-28), `estado` (`activa`, `pausada`, `terminada`), `fin`, `notas` |
 | `solicitudes` | un pedido de un cliente | `clienteId`, `proyectoId`, `titulo`, `descripcion`, `canal` (`correo`, `whatsapp`, `llamada`, `reunion`, `otro`), `tipo` (`error`, `cambio`, `consulta`, `acceso`, `otro`), `cobertura` (`garantia`, `mantencion`, `evolutivo`, `por_definir`), `prioridad` (`alta`, `media`, `baja`), `estado` (`nueva`, `en_curso`, `esperando_cliente`, `resuelta`, `descartada`), `responsable`, `horasEstimadas`, `horasReales`, `cotizacion` (`{monto, estado, cobroId}`, con `estado` = `por_enviar`, `enviada`, `aprobada` o `rechazada`), `resolucion`, `analisis`, `resuelta` (ISO) |
-| `actividades` | un contacto o cambio | `leadId` o `clienteId` (más `proyectoId`, `cobroId`, `solicitudId`), `tipo` (`llamada`, `whatsapp`, `correo`, `reunion`, `nota`, `etapa`, `cliente`, `proyecto`, `cobro`, `solicitud`), `fecha` (ISO), `autor`, `resultado` (en llamadas: `contesto`, `no_contesto`, `buzon`, `ocupado`, `volver` = pidió que llamemos después, `equivocado`), `linea` (solo en llamadas antiguas: ya no se usa), `duracion`, `resumen`, `transcripcion`, `grabacionAvisada`, `analisis`, `acta` (en reuniones con cliente: `{resumen, acuerdos[], pendientesZH[], pendientesCliente[], solicitudes[], proximaReunion}`), en llamadas y reuniones con leads `analisis` (`resumen`, `necesidades`, `objeciones`, `etapaSugerida`, `reunion` (`{fecha, hora, duracion, titulo}` o `null`), `tareas[]` con `{quien: zh|lead, que, tipo, fecha, hora}` y `evaluacion` con `{puntaje, criterios: {apertura, descubrimiento, escucha, valor, objeciones, cierre: {nota, comentario}}, bien[], mejorar[]}`), `accion` (en cobros y solicitudes), `de`, `a`, `borradorId` |
+| `actividades` | un contacto o cambio | `leadId` o `clienteId` (más `proyectoId`, `cobroId`, `solicitudId`), `tipo` (`llamada`, `whatsapp`, `correo`, `reunion`, `nota`, `etapa`, `cliente`, `proyecto`, `cobro`, `solicitud`), `fecha` (ISO; en una reunión de Meet, cuando empezó), `autor`, `resultado` (en llamadas: `contesto`, `no_contesto`, `buzon`, `ocupado`, `volver` = pidió que llamemos después, `equivocado`), `linea` (solo en llamadas antiguas: ya no se usa), `duracion`, `resumen`, `notas` (lo escrito, si no es el resumen), `transcripcion`, `meet` (en reuniones transcritas: `{codigo, transcripcion, doc, inicio, fin, participantes[]}`), `grabacionAvisada`, `analisis`, `acta` (en reuniones con cliente: `{resumen, acuerdos[], pendientesZH[], pendientesCliente[], solicitudes[], proximaReunion, proximaHora}`), en llamadas y reuniones con leads `analisis` (`resumen`, `necesidades`, `objeciones`, `etapaSugerida`, `reunion` (`{fecha, hora, duracion, titulo}` o `null`), `tareas[]` con `{quien: zh|lead, que, tipo, fecha, hora}` y `evaluacion` con `{puntaje, criterios: {apertura, descubrimiento, escucha, valor, objeciones, cierre: {nota, comentario}}, bien[], mejorar[]}`), `accion` (en cobros y solicitudes), `de`, `a`, `borradorId` |
 | `borradores` | un correo o WhatsApp | `leadId`, o `clienteId` con `contactoId`, `proyectoId`, `cobroId` y `solicitudId`; `canal` (`correo`, `whatsapp`), `estado` (`por_revisar`, `listo`, `enviado`, `descartado`), `objetivo` (a clientes: `avance`, `entrega`, `cobro`, `solicitud`, `reunion`, `feedback`, `mantencion`, `libre`), `instrucciones`, `firma` (id de usuario), `generadoPor`, `tareaId` (la tarea que cumple al enviarse); correo: `plantilla` (`carta`, `destacado`), `asunto`, `preheader`, `etiqueta`, `titular`, `saludo`, `parrafos[]`, `puntos[]`, `cta {texto, url}`, `cierre`, `posdata`; WhatsApp: `texto` |
 | `equipo` | uno por usuario (id `u_…`) | `nombre`, `cargo`, `telefono`, `correo` (la firma) |
 | `diagnostico` | `microfono-<id de usuario>` | último resultado de «Transcribir en vivo»: `ok`, `paso`, `tipo`, `error`, `politica`, `enMarco`, `navegador`, `fecha` |
@@ -558,6 +601,7 @@ NODE_PATH=$(npm root -g) node crm/dev/plan.cjs      # menú de cinco secciones y
 NODE_PATH=$(npm root -g) node crm/dev/menus.cjs     # menús desplegables: mouse, teclado, buscador, Escape y clic afuera, tarjetas, ventanas, teléfono y oscuro
 NODE_PATH=$(npm root -g) node crm/dev/avisos.cjs    # avisos de Hoy, recordatorios en pantalla, anotar en Google Calendar tareas, cobros e hitos, y qué hacer según cómo salió la llamada
 NODE_PATH=$(npm root -g) node crm/dev/registro.cjs  # el plan de Claude al registrar una llamada: editarlo, confirmar, la reunión en el calendario de ZH con Meet e invitados, no contestó y a mano
+NODE_PATH=$(npm root -g) node crm/dev/reuniones.cjs # reuniones transcritas con ZH Reuniones: preparar las de leads y clientes, Hoy, el plan y el acta con la transcripción, tareas del cliente, asignar, descartar, Ajustes y permisos
 ```
 
 `crm/dev/mock-claude.js` imita `window.claude` (base de datos en memoria, Claude con respuestas
@@ -566,7 +610,9 @@ sin Claude; `window.__MOCK_ASSETS` simula una vista sin
 archivos o las fallas al subir; los recordatorios en pantalla dependen de la hora y vienen apagados
 salvo con `window.__MOCK_RECORDATORIOS = true`), con `window.__MOCK_MIC` el micrófono y el reconocimiento de voz, y
 con `window.__MOCK_MCP` el conector de Google Calendar (eventos con la forma de `list_events`,
-`create_event` y `update_event`, y los casos sin permiso o sin conector). Las pruebas van a cada vista
+`create_event` y `update_event`, y los casos sin permiso o sin conector) y con `window.__MOCK_REU`
+el de ZH Reuniones (transcripciones y textos con la forma del servidor de `reuniones/`, fallas al
+preparar, sin permiso, sin conector o sin la cuenta de Google). Las pruebas van a cada vista
 por el menú, como una persona, con `irA(page, vista)` de `crm/dev/ir.cjs`. Al cerrarse, la ficha y
 las ventanas quedan un momento en pantalla para la salida (dentro de `.capa.saliendo`, sin recibir
 clics): después de cerrar una, las pruebas esperan a que se vaya (`waitFor({ state: "detached" })`)
@@ -579,8 +625,9 @@ Para publicar cambios se usa la herramienta Artifact de Claude con `file_path` =
 y `url` = la del CRM (desde otra conversación, sin `url` se crearía un artifact nuevo). Las
 capacidades declaradas son `db`, `user` (alcance `profile`), `sample`, `downloads`, `assets` (los
 archivos; solo para quienes pueden editar) y `mcp` con `Google Calendar` (`list_events`,
-`create_event`, `update_event`); al republicar sin pasar `capabilities` se conservan. Si se pasan,
-hay que repetirlas todas.
+`create_event`, `update_event`) y `ZH Reuniones` (`transcripciones`, `leer_transcripcion`,
+`preparar_reunion`); al republicar sin pasar `capabilities` se conservan. Si se pasan, hay que
+repetirlas todas.
 
 ## Próximos pasos posibles
 

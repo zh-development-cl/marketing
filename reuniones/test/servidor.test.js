@@ -174,13 +174,19 @@ test("si Google no deja transcribir, el error lo explica", async () => {
   const r = await (await rpc(llaves.access_token, "tools/call", { name: "preparar_reunion", arguments: { meet: "abc-defg-hij" } })).json();
   assert.equal(r.result.isError, true);
   assert.match(r.result.content[0].text, /Business Standard/);
+  assert.equal(r.result.structuredContent.error, "sin_transcripcion");
   rutas["https://meet.googleapis.com/v2/spaces/abc-defg-hij"] = () => resp(404, { error: { message: "not found", status: "NOT_FOUND" } });
   const r2 = await (await rpc(llaves.access_token, "tools/call", { name: "preparar_reunion", arguments: { meet: "abc-defg-hij" } })).json();
   assert.match(r2.result.content[0].text, /no es de la cuenta de Google de ZH/);
+  assert.equal(r2.result.structuredContent.error, "ajena");
+  rutas["https://meet.googleapis.com/v2/spaces/abc-defg-hij"] = () => resp(500, { error: { message: "backend", status: "INTERNAL" } });
+  const r4 = await (await rpc(llaves.access_token, "tools/call", { name: "preparar_reunion", arguments: { meet: "abc-defg-hij" } })).json();
+  assert.deepEqual(r4.result.structuredContent, { error: "google", mensaje: "No se pudo hablar con Google Meet. Vuelve a intentar en un rato." });
   process.env.GOOGLE_REFRESH_TOKEN = "revocada";
   olvidarToken();
   const r3 = await (await rpc(llaves.access_token, "tools/call", { name: "preparar_reunion", arguments: { meet: "abc-defg-hij" } })).json();
   assert.match(r3.result.content[0].text, /vuelve a conectarla/);
+  assert.equal(r3.result.structuredContent.error, "google_reconectar");
 });
 
 test("transcripciones lista las terminadas, con el código de la reunión", async () => {
@@ -193,9 +199,16 @@ test("transcripciones lista las terminadas, con el código de la reunión", asyn
     ] });
   };
   rutas["https://meet.googleapis.com/v2/spaces/S1"] = () => resp(200, { name: "spaces/S1", meetingCode: "abc-defg-hij" });
-  rutas["https://meet.googleapis.com/v2/conferenceRecords/c1/transcripts"] = () => resp(200, { transcripts: [{ name: "conferenceRecords/c1/transcripts/t1", state: "FILE_GENERATED" }, { name: "conferenceRecords/c1/transcripts/t2", state: "STARTED" }] });
+  rutas["https://meet.googleapis.com/v2/conferenceRecords/c1/transcripts"] = () => resp(200, { transcripts: [
+    { name: "conferenceRecords/c1/transcripts/t1", state: "FILE_GENERATED", docsDestination: { document: "d1", exportUri: "https://docs.google.com/document/d/d1/edit" } },
+    { name: "conferenceRecords/c1/transcripts/t2", state: "STARTED" },
+    { name: "conferenceRecords/c1/transcripts/t3", state: "ENDED", docsDestination: { exportUri: "javascript:alert(1)" } },
+  ] });
   const r = await (await rpc(llaves.access_token, "tools/call", { name: "transcripciones", arguments: { dias: 7 } })).json();
-  assert.deepEqual(r.result.structuredContent.transcripciones, [{ id: "conferenceRecords/c1/transcripts/t1", codigo: "abc-defg-hij", inicio: "2026-10-15T14:00:00Z", fin: "2026-10-15T14:40:00Z", estado: "lista" }]);
+  assert.deepEqual(r.result.structuredContent.transcripciones, [
+    { id: "conferenceRecords/c1/transcripts/t1", codigo: "abc-defg-hij", inicio: "2026-10-15T14:00:00Z", fin: "2026-10-15T14:40:00Z", estado: "lista", doc: "https://docs.google.com/document/d/d1/edit" },
+    { id: "conferenceRecords/c1/transcripts/t3", codigo: "abc-defg-hij", inicio: "2026-10-15T14:00:00Z", fin: "2026-10-15T14:40:00Z", estado: "procesando", doc: "" },
+  ]);
 });
 
 test("leer_transcripcion junta las frases por persona, con su nombre", async () => {
