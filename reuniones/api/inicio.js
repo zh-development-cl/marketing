@@ -1,23 +1,21 @@
-/* La página de inicio: qué falta para que funcione y la dirección del conector. */
-import { html, base, esc, equipo } from "../lib/http.js";
-import { tokenDatos } from "../lib/google.js";
+/* La página de inicio: qué falta para que funcione, la dirección del conector y dónde ver la de
+   TranscripTonic. */
+import { html, base, esc, listo } from "../lib/http.js";
+import { hayAlmacen, redis } from "../lib/almacen.js";
 
 export async function GET(req) {
   const b = base(req);
-  const cliente = !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
-  const cuenta = process.env.GOOGLE_CUENTA || "";
-  const personas = equipo().length;
-  let google = "falta";
-  if (cliente && process.env.GOOGLE_REFRESH_TOKEN) {
-    try { await tokenDatos(); google = "ok"; } catch (e) { google = e.code === "google_reconectar" ? "reconectar" : "error"; }
+  const clave = listo();
+  let bd = "falta";
+  if (hayAlmacen()) {
+    try { bd = (await redis("PING")) === "PONG" ? "ok" : "error"; } catch { bd = "error"; }
   }
   const fila = (ok, texto) => `<li><span class="${ok ? "ok" : "bad"}">${ok ? "Listo" : "Falta"}</span> · ${texto}</li>`;
   return html(`<h1>ZH Reuniones</h1>
-<p>Transcripciones de Google Meet de las reuniones de ZH Development, para el CRM.</p>
+<p>Recibe las transcripciones de las reuniones de Google Meet que guarda TranscripTonic (la extensión de Chrome) y se las entrega al CRM de ZH Development.</p>
 <div class="card"><ul>
-${fila(cliente, "Cliente de Google (GOOGLE_CLIENT_ID y GOOGLE_CLIENT_SECRET)")}
-${fila(!!cuenta && personas > 0, `Cuenta de ZH y equipo (GOOGLE_CUENTA${cuenta ? ": " + esc(cuenta) : ""}; EQUIPO: ${personas} ${personas === 1 ? "persona" : "personas"})`)}
-${fila(google === "ok", google === "reconectar" ? "Cuenta de Google de ZH: la autorización venció, vuelve a conectarla" : "Cuenta de Google de ZH conectada (GOOGLE_REFRESH_TOKEN)")}
-</ul>${cliente && cuenta ? `<a class="btn" href="/api/google/conectar">Conectar la cuenta de Google de ZH</a>` : ""}</div>
+${fila(clave, "Clave del equipo (CLAVE_EQUIPO en Vercel, de 16 caracteres o más)")}
+${fila(bd === "ok", bd === "error" ? "Base de datos: está creada, pero no responde" : "Base de datos para las transcripciones (Vercel → Storage → Upstash for Redis)")}
+</ul>${clave ? `<a class="btn" href="/api/equipo">Ver la dirección para TranscripTonic</a>` : ""}</div>
 <div class="card"><p>En claude.ai → Configuración → Conectores → Agregar conector personalizado, con el nombre <b>ZH Reuniones</b> y esta dirección:</p><p><code>${esc(b)}/mcp</code></p></div>`);
 }

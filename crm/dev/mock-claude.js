@@ -310,11 +310,10 @@
      eventos: [...], fallaCrear: "<código>", fallaMover: "<código>", rechazarPermiso: true }.
      Los eventos tienen la forma que entrega list_events del conector real. window.__mcpCalls guarda
      cada llamada; window.__mcpRefrescar() simula la lectura siguiente (después de cambiar eventos). */
-  /* ZH Reuniones simulado (el conector propio de las transcripciones de Meet), con
+  /* ZH Reuniones simulado (el conector propio: las transcripciones que manda TranscripTonic), con
      window.__MOCK_REU = { modo: "ok" | "aprobacion" | "sin_conector" | "error", transcripciones: [...],
-     textos: { <id>: { texto, participantes, intervenciones } }, fallaPreparar: { <código Meet>: "ajena" |
-     "sin_transcripcion" | "google_reconectar" } }. Las transcripciones tienen la forma que entrega el
-     servidor (reuniones/lib/reuniones.js). window.__reuPreparadas guarda los enlaces que se prepararon. */
+     textos: { <id>: { texto, participantes, intervenciones } } }. Las transcripciones tienen la forma
+     que entrega el servidor (reuniones/lib/reuniones.js); «error» es la base sin crear (sin_almacen). */
   const reuCfg = window.__MOCK_REU;
   const mcpCfg = window.__MOCK_MCP || (reuCfg ? { modo: "sin_conector", eventos: [] } : null);
   let mcp = null;
@@ -365,32 +364,24 @@
     /* ZH Reuniones: sin __MOCK_REU, el conector no está agregado en claude.ai. */
     const reuWatchers = new Set();
     let reuAprobado = !reuCfg || reuCfg.modo !== "aprobacion";
-    window.__reuPreparadas = [];
     const fallaReu = (code, message, extra) => ({ code, server: "ZH Reuniones", message: message || "simulado: " + code, ...(code === "server_unavailable" ? { retryable: true } : {}), ...(extra || {}) });
     const listaReu = () => ({ transcripciones: clone((reuCfg && reuCfg.transcripciones) || []) });
     const entregarReu = (w) => setTimeout(() => {
       if (!reuWatchers.has(w)) return;
       const m = reuCfg ? reuCfg.modo : "sin_conector";
       if (m === "sin_conector") w.handler({ type: "error", error: fallaReu("server_not_connected") });
-      else if (m === "error") w.handler({ type: "error", error: fallaReu("tool_error", "La autorización de Google de la cuenta de ZH venció o se revocó: vuelve a conectarla desde la página de inicio de zh-reuniones.", { result: { isError: true, structuredContent: { error: "google_reconectar" } } }) });
+      else if (m === "error") w.handler({ type: "error", error: fallaReu("tool_error", "Falta crear la base de ZH Reuniones en Vercel (Storage → Upstash for Redis).", { result: { isError: true, structuredContent: { error: "sin_almacen" } } }) });
       else if (!reuAprobado) w.handler({ type: "error", error: fallaReu("approval_required") });
       else w.handler({ type: "data", result: { content: [], structuredContent: listaReu(), payload: listaReu() } });
     }, 30);
     const llamarReu = async (tool, input) => {
       const m = reuCfg ? reuCfg.modo : "sin_conector";
-      if (!["transcripciones", "leer_transcripcion", "preparar_reunion"].includes(tool)) throw fallaReu("not_in_manifest");
+      if (!["transcripciones", "leer_transcripcion"].includes(tool)) throw fallaReu("not_in_manifest");
       if (m === "sin_conector") throw fallaReu("server_not_connected");
       if (tool === "transcripciones") { reuAprobado = true; for (const w of reuWatchers) entregarReu(w); return { content: [], payload: listaReu() }; }
       if (!reuAprobado) throw fallaReu("approval_required");
-      if (tool === "preparar_reunion") {
-        const codigo = (/([a-z0-9]{3,}-[a-z0-9]{3,}-[a-z0-9]{3,})/.exec(String(input && input.meet)) || [])[1] || "";
-        const f = reuCfg.fallaPreparar && reuCfg.fallaPreparar[codigo];
-        if (f) throw fallaReu("tool_error", f === "ajena" ? "La reunión no es de la cuenta de Google de ZH: solo se transcriben solas las reuniones que organiza esa cuenta." : "Google no dejó prender la transcripción automática. La cuenta de ZH necesita Google Workspace Business Standard o superior, y la reunión tiene que ser suya.", { result: { isError: true, structuredContent: { error: f } } });
-        window.__reuPreparadas.push(input.meet);
-        return { content: [], payload: { codigo, transcripcion: "automatica", yaEstaba: false } };
-      }
       const t = reuCfg.textos && reuCfg.textos[input && input.id];
-      if (!t) throw fallaReu("tool_error", "Falta la transcripción que hay que leer.", { result: { isError: true, structuredContent: { error: "sin_id" } } });
+      if (!t) throw fallaReu("tool_error", "La transcripción ya no está: se borra sola 14 días después de llegar.", { result: { isError: true, structuredContent: { error: "no_existe" } } });
       return { content: [], payload: { id: input.id, participantes: t.participantes || [], intervenciones: t.intervenciones || 0, texto: t.texto } };
     };
     window.__reuRefrescar = () => { for (const w of reuWatchers) entregarReu(w); };

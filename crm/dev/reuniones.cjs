@@ -1,13 +1,15 @@
-/* Prueba de las reuniones transcritas con ZH Reuniones (el conector propio de las transcripciones de
-   Google Meet), con Playwright, el mock de window.claude, Google Calendar simulado y ZH Reuniones
-   simulado. Recorre: el CRM prende la transcripción automática en las próximas reuniones con leads y
-   clientes que organiza la cuenta de ZH (no en las de otra cuenta ni en las internas) y anota por
-   qué no pudo; Hoy lista las reuniones transcritas por registrar; «Registrar» abre la ficha del lead
-   con la transcripción y Claude arma el plan (con quién habla por ZH), y al confirmar queda la reunión
-   con su hora real, el documento y la transcripción registrada; la de un cliente abre su acta, con
-   las tareas de ZH (con responsable) y la próxima reunión en Google Calendar con Meet; una reunión
-   sin asociar se asigna a un lead; descartar y deshacer; Ajustes y los estados sin permiso, sin
-   conector y sin la cuenta de Google; teléfono y modo oscuro. Usa datos inventados.
+/* Prueba de las reuniones transcritas con ZH Reuniones (el conector propio: recibe las transcripciones
+   que manda TranscripTonic, la extensión de Chrome que guarda los subtítulos de Google Meet), con
+   Playwright, el mock de window.claude, Google Calendar simulado y ZH Reuniones simulado. Recorre: el
+   CRM anota en meets/ las próximas reuniones con Meet de leads y clientes (no las internas); Hoy lista
+   las transcripciones por registrar, unidas a su lead o cliente por la hora y el título, junta las
+   copias de una misma reunión y no muestra las internas ni las ya registradas; «Registrar» abre la
+   ficha del lead con la transcripción y Claude arma el plan (con quién habla por ZH), y al confirmar
+   queda la reunión con su hora real y la transcripción registrada (y su copia, como repetida); la de
+   un cliente abre su acta, con las tareas de ZH (con responsable) y la próxima reunión en Google
+   Calendar con Meet; una reunión sin asociar se asigna a un lead y una mal unida se cambia; descartar
+   y deshacer; Ajustes y los estados sin permiso, sin conector y sin la base; teléfono y modo oscuro.
+   Usa datos inventados.
 
    Uso:
      python3 crm/dev/build_preview.py
@@ -33,7 +35,6 @@ const keyFmt = new Intl.DateTimeFormat("en-CA", { timeZone: TZ, year: "numeric",
 const hmFmt = new Intl.DateTimeFormat("en-GB", { timeZone: TZ, hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
 const T = keyFmt.format(new Date());
 const addDays = (k, n) => { const d = new Date(k + "T12:00:00Z"); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
-const addBusinessDays = (k, n) => { let d = k; let i = 0; while (i < n) { d = addDays(d, 1); const w = new Date(d + "T12:00:00Z").getUTCDay(); if (w !== 0 && w !== 6) i += 1; } return d; };
 const iso = (n) => new Date(Date.now() + n * 864e5).toISOString();
 const haceMin = (m) => new Date(Date.now() - m * 6e4).toISOString();
 const fmtCL = new Intl.DateTimeFormat("en-CA", { timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
@@ -49,42 +50,44 @@ const ANTES = iso(-1);
 const evento = (o) => ({
   status: "confirmed", eventType: "DEFAULT", organizer: { email: CUENTA, self: true }, creator: { email: CUENTA, self: true },
   htmlLink: "https://www.google.com/calendar/event?eid=" + o.id, created: ANTES, updated: ANTES,
-  start: { dateTime: chile(o.fecha, o.hora), timeZone: TZ }, end: { dateTime: chile(o.fecha, o.fin), timeZone: TZ },
+  start: o.start || { dateTime: chile(o.fecha, o.hora), timeZone: TZ }, end: o.end || { dateTime: chile(o.fecha, o.fin), timeZone: TZ },
   ...o,
 });
 const yo = { email: CUENTA, self: true, responseStatus: "accepted" };
 const lead = (o) => ({ cargo: "", correo: "", telefono: "", origen: "prospeccion", trato: "tu", intentos: 0, proxima: null, prioridad: "media", necesidad: "", responsable: "lorenzo", etapa: "contactado", creado: iso(-10), actualizado: iso(-1), creadoPor: ME, ...o });
 
-/* Las transcripciones, como las entrega el servidor (reuniones/lib/reuniones.js). */
-const DOC1 = "https://docs.google.com/document/d/doc-andrea/edit";
-const T1 = { id: "conferenceRecords/cr-lead/transcripts/tr-1", codigo: "ddd-eeee-fff", inicio: haceMin(180), fin: haceMin(140), estado: "lista", doc: DOC1 };
-const T2 = { id: "conferenceRecords/cr-cli/transcripts/tr-2", codigo: "ggg-hhhh-iii", inicio: haceMin(26 * 60), fin: haceMin(26 * 60 - 35), estado: "lista", doc: "" };
-const T3 = { id: "conferenceRecords/cr-sin/transcripts/tr-3", codigo: "jjj-kkkk-lll", inicio: haceMin(300), fin: haceMin(270), estado: "lista", doc: "" };
-const T4 = { id: "conferenceRecords/cr-proc/transcripts/tr-4", codigo: "mmm-nnnn-ooo", inicio: haceMin(60), fin: haceMin(20), estado: "procesando", doc: "" };
-const T5 = { id: "conferenceRecords/cr-vieja/transcripts/tr-9", codigo: "qqq-rrrr-sss", inicio: haceMin(4000), fin: haceMin(3970), estado: "lista", doc: "" };
+/* Las transcripciones, como las entrega el servidor (reuniones/lib/reuniones.js): el título es el de la
+   reunión en Meet. T1b es la copia de T1 que guardó otra persona (entró 3 minutos después). */
+const tr = (id, titulo, desde, hasta, n, codigo = "") => ({ id, titulo, codigo, software: "Google Meet", inicio: haceMin(desde), fin: haceMin(hasta), estado: "lista", participantes: [], intervenciones: n });
+const T1 = tr("tt-lead1-a1a1a1a1", "Diagnóstico · Ferretería Andes y ZH Development", 180, 140, 4);
+const T1b = tr("tt-lead1b-b1b1b1b1", "Diagnóstico · Ferretería Andes y ZH Development", 177, 141, 2);
+const T2 = tr("tt-cli2-c2c2c2c2", "Avance semanal · Logística Sur", 26 * 60, 26 * 60 - 35, 4);
+const T3 = tr("tt-sin3-d3d3d3d3", "Conversación con Bruno", 300, 270, 2);
+const T4 = tr("tt-int4-e4e4e4e4", "Planificación del equipo", 118, 92, 6);
+const T5 = tr("tt-vieja5-f5f5f5f5", "Diagnóstico · Imprenta Sur y ZH Development", 4000, 3970, 3);
+const T6 = tr("tt-vieja6-a6a6a6a6", "Diagnóstico · Imprenta Sur y ZH Development", 3998, 3971, 2);
 const TEXTOS = {
-  [T1.id]: { participantes: ["Lorenzo Bozzo", "Andrea Fuentes"], intervenciones: 4, texto: "Lorenzo Bozzo: Hola Andrea, gracias por el tiempo. Cuéntanos cómo coordinan hoy los despachos.\nAndrea Fuentes: Hoy todo va por planillas y WhatsApp, y se nos pierden pedidos.\nLorenzo Bozzo: Entiendo. Te mandamos una propuesta esta semana con alcance, plazo y precio.\nAndrea Fuentes: Perfecto, y yo te mando la planilla de despachos." },
-  [T2.id]: { participantes: ["Lorenzo Bozzo", "Marcela Rojas"], intervenciones: 4, texto: "Lorenzo Bozzo: Marcela, ¿cómo vieron el diseño?\nMarcela Rojas: Lo aprobamos. Necesitamos exportar el reporte de ventas a Excel.\nLorenzo Bozzo: Eso lo cotizamos aparte. Te mando el calendario de pruebas el lunes.\nMarcela Rojas: Perfecto. Nos vemos en una semana, a las 15:00." },
+  [T1.id]: { participantes: ["Contacto ZH Development", "Andrea Fuentes"], intervenciones: 4, texto: "Contacto ZH Development: Hola Andrea, gracias por el tiempo. Cuéntanos cómo coordinan hoy los despachos.\nAndrea Fuentes: Hoy todo va por planillas y WhatsApp, y se nos pierden pedidos.\nContacto ZH Development: Entiendo. Te mandamos una propuesta esta semana con alcance, plazo y precio.\nAndrea Fuentes: Perfecto, y yo te mando la planilla de despachos." },
+  [T2.id]: { participantes: ["Contacto ZH Development", "Marcela Rojas"], intervenciones: 4, texto: "Contacto ZH Development: Marcela, ¿cómo vieron el diseño?\nMarcela Rojas: Lo aprobamos. Necesitamos exportar el reporte de ventas a Excel.\nContacto ZH Development: Eso lo cotizamos aparte. Te mando el calendario de pruebas el lunes.\nMarcela Rojas: Perfecto. Nos vemos en una semana, a las 15:00." },
   [T3.id]: { participantes: ["Nicolás", "Bruno Díaz"], intervenciones: 2, texto: "Nicolás: Hola, ¿me escuchan bien?\nBruno Díaz: Sí, perfecto. Queremos ver con calma lo de las bodegas de la viña, porque hoy todo se anota en papel y se pierde." },
 };
 const fechaT1 = keyFmt.format(new Date(T1.inicio));
 const MEET1 = "https://meet.google.com/ddd-eeee-fff";
+const ID1 = `ddd-eeee-fff~${fechaT1}`;
+const ID2 = `ggg-hhhh-iii~${keyFmt.format(new Date(T2.inicio))}`;
+const ID5 = `jjj-kkkk-lll~${keyFmt.format(new Date(T5.inicio))}`;
 const EVENTOS = [
-  /* Con un lead, organizada por la cuenta de ZH: se le prende la transcripción. */
+  /* Próximas, con un lead y con un cliente: quedan anotadas en meets/. */
   evento({ id: "evfutura1", summary: "Revisión de propuesta · Ferretería Andes y ZH Development", fecha: addDays(T, 1), hora: "10:00", fin: "10:30", conferenceUrl: "https://meet.google.com/aaa-bbbb-ccc",
     attendees: [yo, { email: "andrea@ferreteriaandes.cl", displayName: "Andrea Fuentes", responseStatus: "accepted" }] }),
-  /* Con un cliente (un contacto suyo invitado): también. */
   evento({ id: "evcliente1", summary: "Avance del proyecto · Logística Sur", fecha: addDays(T, 2), hora: "15:00", fin: "15:45", conferenceUrl: "https://meet.google.com/ppp-qqqq-rrr",
     attendees: [yo, { email: "marcela@logisticasur.cl", displayName: "Marcela Rojas", responseStatus: "accepted" }] }),
-  /* La organizó otra cuenta: no se toca. */
+  /* La organizó otra cuenta, con un lead: también se anota (la extensión transcribe igual). */
   evento({ id: "evajena1", summary: "Reunión · Viña Norte", fecha: addDays(T, 3), hora: "11:00", fin: "11:30", conferenceUrl: "https://meet.google.com/sss-tttt-uuu", organizer: { email: "socio@zhdevelopment.cl" }, creator: { email: "socio@zhdevelopment.cl" },
     attendees: [{ email: "socio@zhdevelopment.cl", organizer: true, responseStatus: "accepted" }, yo, { email: "bruno@vinanorte.cl", responseStatus: "needsAction" }] }),
-  /* Solo el equipo: no se transcribe. */
-  evento({ id: "evinterno1", summary: "Planificación semanal", fecha: addDays(T, 1), hora: "08:00", fin: "08:30", conferenceUrl: "https://meet.google.com/vvv-wwww-xxx",
+  /* Solo el equipo: no se anota, y su transcripción (T4, de hace un rato) no se muestra. */
+  evento({ id: "evinterno1", summary: "Planificación semanal", start: { dateTime: haceMin(120), timeZone: TZ }, end: { dateTime: haceMin(90), timeZone: TZ }, conferenceUrl: "https://meet.google.com/vvv-wwww-xxx",
     attendees: [yo, { email: EQUIPO[0], responseStatus: "accepted" }, { email: EQUIPO[1], responseStatus: "accepted" }] }),
-  /* Google no deja transcribirla (por la edición de Workspace): queda anotado y se ve en el calendario. */
-  evento({ id: "evfalla1", summary: "Diagnóstico · Imprenta Sur y ZH Development", fecha: addDays(T, 4), hora: "12:00", fin: "12:30", conferenceUrl: "https://meet.google.com/yyy-zzzz-aaa",
-    attendees: [yo, { email: "clara@imprentasur.cl", responseStatus: "needsAction" }] }),
 ];
 
 const SEED = {
@@ -98,14 +101,14 @@ const SEED = {
   "clientes/cli-1": { nombre: "Logística Sur", razonSocial: "Logística Sur SpA", rut: "", rubro: "Logística", ciudad: "Santiago", contactos: [{ id: "ct-1", nombre: "Marcela Rojas", cargo: "Gerenta de operaciones", correo: "marcela@logisticasur.cl", telefono: "+56933330001", rol: "decisor", principal: true }],
     responsable: "lorenzo", trato: "tu", estado: "activo", notas: "", leadIds: [], creado: iso(-60), actualizado: iso(-2), creadoPor: ME },
   "proyectos/pro-1": { clienteId: "cli-1", nombre: "Portal de despachos", tipo: "software", valor: 4500000, estado: "construir", inicio: addDays(T, -40), entregaEstimada: addDays(T, 30), produccion: "", garantiaDias: 60, hitos: [], enlaces: [], responsable: "lorenzo", creado: iso(-40), actualizado: iso(-2), creadoPor: ME },
-  /* Lo que el CRM ya preparó antes: así se sabe de quién es cada transcripción. */
-  "meets/ddd-eeee-fff": { codigo: "ddd-eeee-fff", eventoId: "evpasado1", titulo: "Diagnóstico · Ferretería Andes y ZH Development", inicio: T1.inicio, fin: T1.fin, leadId: "lead-a", clienteId: null, estado: "lista", preparada: iso(-3) },
-  "meets/ggg-hhhh-iii": { codigo: "ggg-hhhh-iii", eventoId: "evpasado2", titulo: "Avance semanal · Logística Sur", inicio: T2.inicio, fin: T2.fin, leadId: null, clienteId: "cli-1", estado: "lista", preparada: iso(-4) },
-  "meets/mmm-nnnn-ooo": { codigo: "mmm-nnnn-ooo", eventoId: "evpasado3", titulo: "Demo · Viña Norte", inicio: T4.inicio, fin: T4.fin, leadId: "lead-b", clienteId: null, estado: "lista", preparada: iso(-1) },
-  /* Una ya registrada: no vuelve a aparecer. */
-  "transcripciones/tr-cr-vieja~tr-9": { transcripcion: T5.id, codigo: T5.codigo, inicio: T5.inicio, fin: T5.fin, estado: "registrada", leadId: "lead-c", clienteId: null, actividadId: "act-x" },
+  /* Lo que el CRM ya anotó antes (una por reunión y día): así se sabe de quién es cada transcripción. */
+  ["meets/" + ID1]: { codigo: "ddd-eeee-fff", eventoId: "evpasado1", titulo: "Diagnóstico · Ferretería Andes y ZH Development", inicio: haceMin(180), fin: haceMin(140), leadId: "lead-a", clienteId: null },
+  ["meets/" + ID2]: { codigo: "ggg-hhhh-iii", eventoId: "evpasado2", titulo: "Avance semanal · Logística Sur", inicio: T2.inicio, fin: T2.fin, leadId: null, clienteId: "cli-1" },
+  ["meets/" + ID5]: { codigo: "jjj-kkkk-lll", eventoId: "evpasado5", titulo: "Diagnóstico · Imprenta Sur y ZH Development", inicio: T5.inicio, fin: T5.fin, leadId: "lead-c", clienteId: null },
+  /* Una ya registrada: ni ella ni otra copia de esa reunión (T6) vuelven a aparecer. */
+  ["transcripciones/tr-" + T5.id]: { transcripcion: T5.id, codigo: "jjj-kkkk-lll", inicio: T5.inicio, fin: T5.fin, reunion: "m:" + ID5, estado: "registrada", leadId: "lead-c", clienteId: null, actividadId: "act-x" },
 };
-const REU = { modo: "ok", transcripciones: [T1, T2, T3, T4, T5], textos: TEXTOS, fallaPreparar: { "yyy-zzzz-aaa": "sin_transcripcion" } };
+const REU = { modo: "ok", transcripciones: [T1, T1b, T2, T3, T4, T5, T6], textos: TEXTOS };
 
 (async () => {
   fs.mkdirSync(OUT, { recursive: true });
@@ -147,65 +150,74 @@ const REU = { modo: "ok", transcripciones: [T1, T2, T3, T4, T5], textos: TEXTOS,
   const grupoDe = (page) => page.locator('.hoy-grupo[aria-label="Reuniones transcritas"]');
   const fila = (page, texto) => grupoDe(page).locator(".trans", { hasText: texto });
 
-  /* ---------------- preparar las próximas reuniones y Hoy ---------------- */
+  /* ---------------- Hoy y las reuniones anotadas ---------------- */
   const page = await open({ name: "reuniones", mcp: { modo: "ok", eventos: EVENTOS }, reu: REU });
   const grupo = grupoDe(page);
   await grupo.waitFor({ timeout: 10000 });
   ok((await grupo.locator(".task-group").innerText()).includes("Reuniones transcritas · 3"), "Hoy cuenta las 3 reuniones transcritas por registrar");
-  ok(await fila(page, "Ferretería Andes").isVisible() && await fila(page, "Logística Sur").isVisible(), "cada una unida a su lead o a su cliente");
-  ok(await fila(page, "Reunión sin asociar").getByRole("button", { name: "Asignar" }).isVisible(), "la que el CRM no reconoce se asigna");
-  ok(await grupo.locator(".trans.proc", { hasText: "Google todavía prepara la transcripción" }).isVisible() && (await grupo.locator(".trans.proc button.primary").count()) === 0, "la que Google todavía prepara se ve, sin botón");
-  ok((await grupo.locator(".trans").count()) === 4, "la ya registrada no aparece");
+  ok(await fila(page, "Ferretería Andes").isVisible() && await fila(page, "Logística Sur").isVisible(), "cada una unida a su lead o a su cliente, por la hora y el título");
+  ok((await fila(page, "Ferretería Andes").count()) === 1, "las dos copias de la misma reunión se muestran una vez");
+  ok(await fila(page, "Reunión sin asociar").getByRole("button", { name: "Asignar" }).isVisible() && await fila(page, "Reunión sin asociar").locator(".muted", { hasText: "Conversación con Bruno" }).isVisible(), "la que el CRM no reconoce se asigna, con el título que tenía en Meet");
+  ok((await grupo.locator(".trans").count()) === 3, "la interna, la ya registrada y la copia de esa no aparecen");
   ok((await page.locator(".lede").innerText()).includes("3 reuniones transcritas por registrar"), "el resumen de Hoy las menciona");
   await shot(page, "t01-hoy.png");
 
-  await page.waitForFunction(() => window.__mockStore.has("meets/aaa-bbbb-ccc") && window.__mockStore.has("meets/ppp-qqqq-rrr") && window.__mockStore.has("meets/yyy-zzzz-aaa"), null, { timeout: 15000 }).catch(() => {});
-  const prep = await page.evaluate(() => window.__reuPreparadas);
-  ok(prep.includes("https://meet.google.com/aaa-bbbb-ccc") && prep.includes("https://meet.google.com/ppp-qqqq-rrr"), "el CRM prende la transcripción de las próximas reuniones con un lead y con un cliente");
-  ok(!prep.some((x) => /sss-tttt-uuu|vvv-wwww-xxx/.test(x)), "no en la que organizó otra cuenta ni en la del equipo solo");
+  const fA = `meets/aaa-bbbb-ccc~${addDays(T, 1)}`;
+  const fC = `meets/ppp-qqqq-rrr~${addDays(T, 2)}`;
+  const fB = `meets/sss-tttt-uuu~${addDays(T, 3)}`;
+  await page.waitForFunction((ks) => ks.every((k) => window.__mockStore.has(k)), [fA, fC, fB], { timeout: 15000 }).catch(() => {});
   let dump = await store(page);
-  const mA = dump["meets/aaa-bbbb-ccc"] || {};
-  const mC = dump["meets/ppp-qqqq-rrr"] || {};
-  ok(mA.estado === "lista" && mA.leadId === "lead-a" && mA.eventoId === "evfutura1" && mC.estado === "lista" && mC.clienteId === "cli-1", "meets/ recuerda cada reunión preparada, con su lead o su cliente");
-  ok((dump["meets/yyy-zzzz-aaa"] || {}).estado === "sin_transcripcion" && /Business Standard/.test((dump["meets/yyy-zzzz-aaa"] || {}).detalle || ""), "y por qué no se pudo en la que Google no deja transcribir");
-  const calPanel = page.locator('section[aria-label="Calendario"]');
-  ok(await calPanel.locator(".cev", { hasText: "Ferretería Andes" }).locator(".resp", { hasText: "Se transcribe" }).isVisible(), "el calendario de Hoy dice qué reuniones se transcriben");
-  ok(await calPanel.locator(".cev", { hasText: "Imprenta Sur" }).locator(".resp", { hasText: "No se transcribe" }).isVisible(), "y cuáles no");
+  const mA = dump[fA] || {};
+  const mC = dump[fC] || {};
+  ok(mA.leadId === "lead-a" && mA.eventoId === "evfutura1" && mA.codigo === "aaa-bbbb-ccc" && mC.clienteId === "cli-1" && !("estado" in mA), "meets/ anota cada próxima reunión con Meet, con su lead o su cliente, sin llamar al servidor");
+  ok((dump[fB] || {}).leadId === "lead-b", "también la que organizó otra cuenta");
+  ok(!Object.keys(dump).some((k) => k.startsWith("meets/vvv-wwww-xxx")), "pero no la del equipo solo");
+  ok((await page.locator('section[aria-label="Calendario"] .resp', { hasText: "transcribe" }).count()) === 0, "el calendario ya no dice si se transcribe (depende de quién entre con la extensión)");
+  ok((await llamadas(page, "preparar_reunion")).length === 0, "y nada intenta prender la transcripción");
 
   /* ---------------- registrar la de un lead: el plan con la transcripción ---------------- */
   await fila(page, "Ferretería Andes").getByRole("button", { name: "Registrar" }).click();
   await page.locator("#lead-title", { hasText: "Ferretería Andes" }).waitFor();
   await page.locator(".work .plan").waitFor({ timeout: 10000 });
-  ok(await page.locator(".work .meet-nota a", { hasText: "Abrir en Google Docs" }).getAttribute("href") === DOC1, "la ficha dice que es la reunión de Meet y enlaza el documento de la transcripción");
+  ok((await page.locator(".work .meet-nota").innerText()).includes("guardados con TranscripTonic"), "la ficha dice de dónde salió la transcripción");
   let ps = await prompts(page);
   const pR = ps.find((p) => p.includes("Analiza esta reunión") && p.includes("se nos pierden pedidos"));
-  ok(pR && pR.includes("de Google Meet") && pR.includes("Por ZH hablan Lorenzo, Nicolás") && pR.includes("participaron Lorenzo Bozzo, Andrea Fuentes"), "Claude recibe la transcripción de Meet y sabe quién habla por ZH");
+  ok(pR && pR.includes("de los subtítulos de Google Meet") && pR.includes("Por ZH hablan Lorenzo, Nicolás") && pR.includes("y quien entró con la cuenta de ZH (su nombre lleva «ZH Development»)") && pR.includes("«You» o «Tú» es quien guardó la transcripción") && pR.includes("participaron Contacto ZH Development, Andrea Fuentes"), "Claude recibe la transcripción y sabe quién habla por ZH");
   dump = await store(page);
-  ok(!docs(dump, "actividades").some((a) => a.leadId === "lead-a" && a.tipo === "reunion") && !dump["transcripciones/tr-cr-lead~tr-1"], "armar el plan no guarda nada");
+  ok(!docs(dump, "actividades").some((a) => a.leadId === "lead-a" && a.tipo === "reunion") && !dump["transcripciones/tr-" + T1.id], "armar el plan no guarda nada");
   ok((await page.inputValue("#pl-dur")) === "40" && (await page.inputValue("#pl-etapa")) === "reunion_concretada", "la duración sale de la reunión y la etapa es «Reunión concretada»");
   await shot(page, "t02-plan-meet.png");
   await page.getByRole("button", { name: "Confirmar y guardar" }).click();
   await page.locator(".done-card", { hasText: "Reunión guardada con el análisis de Claude" }).waitFor({ timeout: 10000 });
   dump = await store(page);
   const actR = docs(dump, "actividades").find((a) => a.leadId === "lead-a" && a.tipo === "reunion");
-  ok(actR && actR.meet && actR.meet.codigo === "ddd-eeee-fff" && actR.meet.doc === DOC1 && actR.fecha === T1.inicio && actR.duracion === 40, "la reunión queda con su hora real, la duración y el documento");
-  ok(actR && !actR.transcripcion && actR.analisis && actR.meet.participantes.join("|") === "Lorenzo Bozzo|Andrea Fuentes", "con el análisis y quién participó, sin la transcripción completa");
-  const regA = dump["transcripciones/tr-cr-lead~tr-1"] || {};
-  ok(regA.estado === "registrada" && regA.leadId === "lead-a" && actR && regA.actividadId === actR.id, "la transcripción queda registrada, unida a la actividad");
-  ok(dump["tareas/tar-reu-a"].estado === "hecha", "la reunión de esa transcripción queda hecha");
+  ok(actR && actR.meet && actR.meet.codigo === "ddd-eeee-fff" && actR.meet.transcripcion === T1.id && !("doc" in actR.meet) && actR.fecha === T1.inicio && actR.duracion === 40, "la reunión queda con su hora real, la duración y el código de Meet de la reunión anotada");
+  ok(actR && !actR.transcripcion && actR.analisis && actR.meet.participantes.join("|") === "Contacto ZH Development|Andrea Fuentes", "con el análisis y quién participó, sin la transcripción completa");
+  const regA = dump["transcripciones/tr-" + T1.id] || {};
+  ok(regA.estado === "registrada" && regA.leadId === "lead-a" && actR && regA.actividadId === actR.id && regA.reunion === "m:" + ID1, "la transcripción queda registrada, unida a la actividad y a la reunión");
+  const regB = dump["transcripciones/tr-" + T1b.id] || {};
+  ok(regB.estado === "repetida" && regB.repetidaDe === T1.id, "y su copia, como repetida");
+  ok(dump["tareas/tar-reu-a"].estado === "hecha", "la tarea de esa reunión queda hecha");
   ok(docs(dump, "tareas").some((x) => x.leadId === "lead-a" && x.tipo === "reunion" && x.estado === "pendiente" && x.fecha === addDays(T, 1)), "y la de mañana sigue pendiente");
   ok(dump["leads/lead-a"].etapa === "reunion_concretada" && docs(dump, "tareas").some((x) => x.leadId === "lead-a" && x.tipo === "propuesta" && x.estado === "pendiente"), "el lead pasa a «Reunión concretada» con la tarea de la propuesta");
-  ok(await page.locator(".historial .feed-title", { hasText: "Reunión por Meet · 40 min" }).isVisible() && (await page.locator(".historial .feed-doc a").first().getAttribute("href")) === DOC1, "el historial la muestra como reunión por Meet, con el enlace a la transcripción");
+  ok(await page.locator(".historial .feed-title", { hasText: "Reunión por Meet · 40 min" }).isVisible() && (await page.locator(".historial .feed-doc").count()) === 0, "el historial la muestra como reunión por Meet");
   await cerrarFicha(page);
-  ok((await fila(page, "Ferretería Andes").count()) === 0, "ya no está en «Reuniones transcritas»");
+  ok((await fila(page, "Ferretería Andes").count()) === 0, "ya no está en «Reuniones transcritas», ni su copia");
+
+  /* ---------------- una mal unida se cambia ---------------- */
+  await fila(page, "Logística Sur").getByRole("button", { name: "No es de aquí" }).click();
+  await page.locator(".modal", { hasText: "¿De quién es esta reunión?" }).waitFor();
+  ok(await page.locator(".modal", { hasText: "Avance semanal · Logística Sur" }).isVisible(), "«No es de aquí» abre el selector para registrarla en otro lead o cliente");
+  await page.locator(".modal").getByRole("button", { name: "Cancelar" }).click();
+  await page.locator(".modal").waitFor({ state: "detached" });
 
   /* ---------------- registrar la de un cliente: el acta, las tareas y la próxima reunión ---------------- */
   await fila(page, "Logística Sur").getByRole("button", { name: "Registrar" }).click();
   await page.locator("#cli-title", { hasText: "Logística Sur" }).waitFor();
   await page.locator(".work .analysis").waitFor({ timeout: 10000 });
   ps = await prompts(page);
-  const pA = ps.find((p) => p.includes("Ordena las notas de una reunión") && p.includes("TRANSCRIPCIÓN DE GOOGLE MEET") && p.includes("Lo aprobamos"));
-  ok(pA && pA.includes("Por ZH hablan Lorenzo, Nicolás") && pA.includes("los demás son del cliente"), "Claude arma el acta con la transcripción de Meet");
+  const pA = ps.find((p) => p.includes("Ordena las notas de una reunión") && p.includes("TRANSCRIPCIÓN DE LA REUNIÓN POR GOOGLE MEET (subtítulos) del") && p.includes("Lo aprobamos"));
+  ok(pA && pA.includes("Por ZH hablan Lorenzo, Nicolás") && pA.includes("Los demás son del cliente"), "Claude arma el acta con la transcripción");
   ok((await page.locator(".work .acta-tarea .t-tit").first().inputValue()) === "Enviar el calendario de pruebas" && (await page.locator(".work .acta-tarea .t-fecha").first().inputValue()) === addDays(T, 2), "lo que quedó en hacer ZH llega como tarea, con su día");
   ok((await page.locator(".work .acta-tarea .t-tipo").first().inputValue()) === "lorenzo", "con el responsable del cliente");
   ok((await page.inputValue("#ac-r-fecha")) === addDays(T, 7) && (await page.inputValue("#ac-r-hora")) === "15:00", "y la próxima reunión con su día y hora");
@@ -220,13 +232,13 @@ const REU = { modo: "ok", transcripciones: [T1, T2, T3, T4, T5], textos: TEXTOS,
   const ci = ce.input || {};
   ok(ci.calendarId === CUENTA && ci.addGoogleMeetUrl === true && ci.summary === "Reunión de seguimiento · Logística Sur y ZH Development" && ci.startTime === `${addDays(T, 7)}T15:00:00`, "la próxima reunión se crea en el calendario de la cuenta de ZH, con Meet");
   ok(JSON.stringify(ci.attendees) === JSON.stringify([{ email: "marcela@logisticasur.cl", displayName: "Marcela Rojas" }, ...EQUIPO.map((email) => ({ email }))]), "invita al contacto principal y al equipo");
-  ok(String(ci.description || "").includes("Usamos la transcripción de Google Meet para registrar los acuerdos."), "la invitación avisa que la reunión se transcribe");
+  ok(String(ci.description || "").includes("Transcribimos la reunión para registrar los acuerdos."), "la invitación avisa que la reunión se transcribe");
   dump = await store(page);
   const tc = docs(dump, "tareas").find((x) => x.clienteId === "cli-1" && !x.leadId);
   ok(tc && tc.titulo === "Enviar el calendario de pruebas" && tc.responsable === "nicolas" && tc.fecha === addDays(T, 2) && tc.origen === "reunion" && tc.proyectoId === "pro-1", "la tarea de ZH queda en el cliente, con el responsable elegido");
   const actC = docs(dump, "actividades").find((a) => a.clienteId === "cli-1" && a.tipo === "reunion");
   ok(actC && actC.meet && actC.meet.codigo === "ggg-hhhh-iii" && actC.acta && !("tareasZH" in actC.acta) && actC.resumen.startsWith("Revisamos el avance del diseño") && actC.fecha === T2.inicio, "la reunión queda con el acta, su hora real y el resumen del acta");
-  ok((dump["transcripciones/tr-cr-cli~tr-2"] || {}).clienteId === "cli-1" && docs(dump, "solicitudes").some((s) => s.titulo === "Agregar exportación a Excel" && s.canal === "reunion"), "la transcripción queda registrada y la solicitud en Soporte");
+  ok((dump["transcripciones/tr-" + T2.id] || {}).clienteId === "cli-1" && docs(dump, "solicitudes").some((s) => s.titulo === "Agregar exportación a Excel" && s.canal === "reunion"), "la transcripción queda registrada y la solicitud en Soporte");
   const box = page.locator('.drawer .tareas-box[aria-label="Tareas de ZH"]');
   ok(await box.locator(".task", { hasText: "Enviar el calendario de pruebas" }).isVisible(), "la ficha del cliente muestra sus tareas de ZH");
   await box.locator(".task", { hasText: "Enviar el calendario de pruebas" }).locator(".tick").click();
@@ -251,7 +263,7 @@ const REU = { modo: "ok", transcripciones: [T1, T2, T3, T4, T5], textos: TEXTOS,
   await fila(page, "Reunión sin asociar").getByRole("button", { name: "Descartar la transcripción" }).click();
   ok(await toast(page, "Transcripción descartada"), "se puede descartar (por ejemplo, una reunión interna)");
   await fila(page, "Reunión sin asociar").waitFor({ state: "detached", timeout: 5000 }).catch(() => {});
-  ok((await fila(page, "Reunión sin asociar").count()) === 0 && ((await store(page))["transcripciones/tr-cr-sin~tr-3"] || {}).estado === "descartada", "y queda anotada como descartada");
+  ok((await fila(page, "Reunión sin asociar").count()) === 0 && ((await store(page))["transcripciones/tr-" + T3.id] || {}).estado === "descartada", "y queda anotada como descartada");
   await page.locator(".toast button", { hasText: "Deshacer" }).click();
   await fila(page, "Reunión sin asociar").waitFor({ timeout: 5000 }).catch(() => {});
   ok(await fila(page, "Reunión sin asociar").isVisible(), "deshacer la devuelve a la lista");
@@ -260,39 +272,40 @@ const REU = { modo: "ok", transcripciones: [T1, T2, T3, T4, T5], textos: TEXTOS,
   await irA(page, "ajustes");
   const aj = page.locator('section[aria-label="Transcripción de reuniones"]');
   await aj.waitFor();
-  ok(/Conectado: 5 transcripciones en los últimos 14 días/.test(await aj.innerText()), "Ajustes dice que ZH Reuniones está conectado y cuántas transcripciones hay");
-  ok((await aj.innerText()).includes("docs/reuniones-transcripcion.md"), "y dónde está la guía para ponerlo en marcha");
+  ok(/Conectado: llegaron 7 transcripciones en los últimos 14 días/.test(await aj.innerText()), "Ajustes dice que ZH Reuniones está conectado y cuántas transcripciones llegaron");
+  ok((await aj.innerText()).includes("TranscripTonic") && (await aj.innerText()).includes("docs/reuniones-transcripcion.md"), "explica lo de la extensión y dónde está la guía");
   await aj.scrollIntoViewIfNeeded();
   await page.waitForTimeout(400);
   await shot(page, "t04-ajustes.png");
   await page.context().close();
 
-  /* ---------------- sin permiso, sin conector y sin la cuenta de Google ---------------- */
+  /* ---------------- sin permiso, sin conector y sin la base ---------------- */
   const apr = await open({ name: "permiso", mcp: { modo: "ok", eventos: [] }, reu: { modo: "aprobacion", transcripciones: [T3], textos: TEXTOS } });
   await irA(apr, "ajustes");
   const ajA = apr.locator('section[aria-label="Transcripción de reuniones"]');
   await ajA.locator(".reu-aviso", { hasText: "Falta tu permiso para que este CRM use ZH Reuniones." }).waitFor({ timeout: 8000 });
   await ajA.getByRole("button", { name: "Permitir ZH Reuniones" }).click();
-  await ajA.locator(".cal-pie", { hasText: "Conectado: 1 transcripción" }).waitFor({ timeout: 8000 }).catch(() => {});
-  ok(await ajA.locator(".cal-pie", { hasText: "Conectado: 1 transcripción" }).isVisible(), "sin permiso, «Permitir ZH Reuniones» lo conecta");
+  await ajA.locator(".cal-pie", { hasText: "Conectado: llegó 1 transcripción" }).waitFor({ timeout: 8000 }).catch(() => {});
+  ok(await ajA.locator(".cal-pie", { hasText: "Conectado: llegó 1 transcripción" }).isVisible(), "sin permiso, «Permitir ZH Reuniones» lo conecta");
   await apr.context().close();
 
-  const sinCon = await open({ name: "sin-conector", mcp: { modo: "ok", eventos: [] } });
+  const sinCon = await open({ name: "sin-conector", mcp: { modo: "ok", eventos: EVENTOS } });
   ok((await grupoDe(sinCon).count()) === 0, "sin el conector, Hoy no muestra reuniones transcritas");
   await irA(sinCon, "ajustes");
   const ajS = sinCon.locator('section[aria-label="Transcripción de reuniones"] .reu-aviso');
   await ajS.waitFor({ timeout: 8000 });
   ok((await ajS.innerText()).includes("ZH Reuniones no está conectado en tu cuenta de claude.ai") && (await ajS.innerText()).includes("https://zh-reuniones.vercel.app/mcp"), "Ajustes dice cómo agregar el conector, con su dirección");
-  ok((await llamadas(sinCon, "preparar_reunion")).length === 0, "y no intenta preparar reuniones");
+  await sinCon.waitForTimeout(3500);
+  ok(!Object.keys(await store(sinCon)).some((k) => k.startsWith("meets/aaa-bbbb-ccc") || k.startsWith("meets/ppp-qqqq-rrr")), "y no anota reuniones mientras no está conectado");
   await sinCon.context().close();
 
-  const sinCuenta = await open({ name: "sin-cuenta", mcp: { modo: "ok", eventos: [] }, reu: { modo: "error", transcripciones: [], textos: {} } });
-  await irA(sinCuenta, "ajustes");
-  const ajC = sinCuenta.locator('section[aria-label="Transcripción de reuniones"] .reu-aviso');
+  const sinBase = await open({ name: "sin-base", mcp: { modo: "ok", eventos: [] }, reu: { modo: "error", transcripciones: [], textos: {} } });
+  await irA(sinBase, "ajustes");
+  const ajC = sinBase.locator('section[aria-label="Transcripción de reuniones"] .reu-aviso');
   await ajC.waitFor({ timeout: 8000 });
-  ok((await ajC.innerText()).includes("vuelve a conectarla desde la página de inicio de zh-reuniones"), "si el servidor perdió la cuenta de Google, Ajustes lo dice");
-  ok((await ajC.locator("a", { hasText: "Abrir ZH Reuniones" }).getAttribute("href")) === "https://zh-reuniones.vercel.app", "con el enlace a la página del servidor para volver a conectarla");
-  await sinCuenta.context().close();
+  ok((await ajC.innerText()).includes("Falta crear la base de ZH Reuniones en Vercel"), "si falta la base del servidor, Ajustes lo dice");
+  ok((await ajC.locator("a", { hasText: "Abrir ZH Reuniones" }).getAttribute("href")) === "https://zh-reuniones.vercel.app", "con el enlace a la página del servidor");
+  await sinBase.context().close();
 
   /* ---------------- teléfono y modo oscuro ---------------- */
   const tel = await open({ name: "teléfono", viewport: { width: 390, height: 844 }, touch: true, mcp: { modo: "ok", eventos: EVENTOS }, reu: REU });

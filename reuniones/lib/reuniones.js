@@ -1,107 +1,98 @@
-/* Lo que hace el conector con las reuniones de Google Meet de la cuenta de ZH. No guarda nada: cada
-   llamada pregunta a Google. Google borra los registros de una reunión 30 días después. */
-import { meet, codigoMeet } from "./google.js";
+/* Las transcripciones que manda TranscripTonic (la extensión de Chrome que guarda los subtítulos de
+   Google Meet, con el nombre de quien habla) al terminar cada reunión. Esperan en la base hasta que
+   se registran en el CRM y se borran solas a los DIAS días. */
+import { createHash } from "node:crypto";
+import { Falla } from "./http.js";
+import { redis, varios } from "./almacen.js";
 
-export class Falla extends Error {
-  constructor(mensaje, code) { super(mensaje); this.code = code || "falla"; }
+export const DIAS = 14;
+const MAX_TEXTO = 300000;
+const INDICE = "zhr:idx";
+const llaveDe = (id) => `zhr:t:${id}`;
+const limpiar = (v, n) => String(v == null ? "" : v).replace(/[\u0000-\u001f\u007f]+/g, " ").replace(/\s+/g, " ").trim().slice(0, n);
+export const codigoMeet = (s) => { const m = String(s || "").match(/\b([a-z]{3,}-[a-z]{3,}-[a-z]{3,})\b/i); return m ? m[1].toLowerCase() : ""; };
+
+/* El cuerpo «advanced» trae los bloques; el «simple», el texto ya armado («Nombre (hora)\ntexto»). */
+function bloquesDe(v, campoTexto) {
+  if (Array.isArray(v)) return v.slice(0, 50000).map((b) => ({ quien: b && b.personName, texto: b && b[campoTexto] }));
+  return String(v || "").split(/\n\s*\n/).map((bloque) => {
+    const [cabeza = "", ...resto] = bloque.split("\n");
+    const m = cabeza.match(/^(.*?)\s*\(([^()]*)\)\s*$/);
+    return m ? { quien: m[1], texto: resto.join(" ") } : { quien: "", texto: bloque };
+  });
 }
 
-/* Prende la transcripción automática de una reunión: Google la transcribe sola apenas empieza, con
-   el nombre de cada participante. Solo para reuniones de la cuenta de ZH (la que organiza). */
-export async function prepararReunion(args) {
-  const codigo = codigoMeet(args && args.meet);
-  if (!codigo) throw new Falla("Falta el enlace de Google Meet de la reunión.", "sin_enlace");
-  let espacio;
-  try {
-    espacio = await meet(`spaces/${codigo}`);
-  } catch (e) {
-    if (e.status === 403 || e.status === 404) throw new Falla("La reunión no es de la cuenta de Google de ZH: solo se transcriben solas las reuniones que organiza esa cuenta.", "ajena");
-    throw e;
+/* Una línea por intervención: las frases seguidas de la misma persona van juntas. */
+function intervenciones(bloques) {
+  const lineas = [];
+  for (const b of bloques) {
+    const texto = limpiar(b.texto, 20000);
+    if (!texto) continue;
+    const quien = limpiar(b.quien, 80) || "Participante";
+    const ultima = lineas[lineas.length - 1];
+    if (ultima && ultima.quien === quien) ultima.texto += " " + texto;
+    else lineas.push({ quien, texto });
   }
-  const t = espacio.config && espacio.config.artifactConfig && espacio.config.artifactConfig.transcriptionConfig;
-  const yaEstaba = !!t && t.autoTranscriptionGeneration === "ON";
-  if (!yaEstaba) {
-    try {
-      await meet(espacio.name, { method: "PATCH", query: { updateMask: "config.artifactConfig.transcriptionConfig.autoTranscriptionGeneration" }, body: { config: { artifactConfig: { transcriptionConfig: { autoTranscriptionGeneration: "ON" } } } } });
-    } catch (e) {
-      if (e.status === 400 || e.status === 403 || e.status === 412) throw new Falla("Google no dejó prender la transcripción automática. La cuenta de ZH necesita Google Workspace Business Standard o superior, y la reunión tiene que ser suya.", "sin_transcripcion");
-      throw e;
-    }
-  }
-  return { codigo, transcripcion: "automatica", yaEstaba };
+  return lineas;
 }
 
-/* El documento de Google Docs donde Google deja la transcripción (en el Drive de la cuenta de ZH;
-   no se borra a los 30 días como los registros de la reunión). */
-const docDe = (t) => { const u = String((t.docsDestination && t.docsDestination.exportUri) || ""); return /^https:\/\/docs\.google\.com\/[^\s"'<>]+$/.test(u) ? u : ""; };
+/* Solo las fechas ISO: las del cuerpo «simple» vienen en el formato del computador, sin zona horaria. */
+const iso = (v) => (typeof v === "string" && /^\d{4}-\d{2}-\d{2}T/.test(v) ? Date.parse(v) : NaN);
 
-/* Las transcripciones de los últimos días: id, código de la reunión, cuándo fue, si ya se puede
-   leer («lista») o Google todavía la está procesando, y su documento. */
+/* Guarda lo que llega del webhook. La misma reunión mandada otra vez (por ejemplo, desde «Last 10
+   meetings») reemplaza a la anterior. */
+export async function guardarTranscripcion(d) {
+  if (!d || typeof d !== "object" || Array.isArray(d)) throw new Falla("Falta la transcripción.", "sin_datos");
+  const lineas = intervenciones(bloquesDe(d.transcript, "transcriptText"));
+  if (!lineas.length) return { guardada: false, motivo: "La reunión no tiene nada transcrito." };
+  const chat = intervenciones(bloquesDe(d.chatMessages, "chatMessageText"));
+  const bloques = Array.isArray(d.transcript) ? d.transcript : [];
+  const ahora = Date.now();
+  let fin = iso(d.meetingEndTimestamp);
+  if (!Number.isFinite(fin)) fin = iso(bloques.length ? bloques[bloques.length - 1].timestamp : "");
+  if (!Number.isFinite(fin) || fin > ahora + 300000) fin = ahora;
+  let inicio = iso(d.meetingStartTimestamp);
+  if (!Number.isFinite(inicio)) inicio = iso(bloques.length ? bloques[0].timestamp : "");
+  if (!Number.isFinite(inicio) || inicio > fin) inicio = fin;
+  const titulo = limpiar(d.meetingTitle, 200);
+  const software = limpiar(d.meetingSoftware, 40) || "Google Meet";
+  const id = `tt-${inicio.toString(36)}-${createHash("sha256").update(`${titulo}|${inicio}|${software}`).digest("hex").slice(0, 8)}`;
+  let texto = lineas.map((l) => `${l.quien}: ${l.texto}`).join("\n");
+  if (chat.length) texto += "\n\n[Chat de la reunión]\n" + chat.map((l) => `${l.quien}: ${l.texto}`).join("\n");
+  if (texto.length > MAX_TEXTO) texto = texto.slice(0, MAX_TEXTO) + "\n[transcripción recortada]";
+  const doc = { id, titulo, codigo: codigoMeet(titulo), software, inicio: new Date(inicio).toISOString(), fin: new Date(fin).toISOString(), recibida: new Date(ahora).toISOString(), participantes: [...new Set(lineas.map((l) => l.quien))].slice(0, 40), intervenciones: lineas.length, texto };
+  await varios([
+    ["SET", llaveDe(id), JSON.stringify(doc), "EX", DIAS * 86400],
+    ["ZADD", INDICE, inicio, id],
+    ["ZREMRANGEBYSCORE", INDICE, "-inf", ahora - DIAS * 864e5],
+    ["ZREMRANGEBYRANK", INDICE, 0, -501],
+  ]);
+  return { guardada: true, id };
+}
+
+/* Las transcripciones de los últimos días, sin el texto: id, título de la reunión, cuándo fue y quiénes hablaron. */
 export async function transcripciones(args) {
-  const dias = Math.min(30, Math.max(1, Math.round(Number(args && args.dias)) || 14));
-  const codigos = Array.isArray(args && args.codigos) ? [...new Set(args.codigos.map(codigoMeet).filter(Boolean))].slice(0, 20) : [];
-  const filtro = [`start_time>="${new Date(Date.now() - dias * 864e5).toISOString()}"`];
-  if (codigos.length === 1) filtro.push(`space.meeting_code = "${codigos[0]}"`);
-  const registros = [];
-  let pagina = "";
-  for (let i = 0; i < 5; i += 1) {
-    const d = await meet("conferenceRecords", { query: { filter: filtro.join(" AND "), pageSize: "100", ...(pagina ? { pageToken: pagina } : {}) } });
-    registros.push(...(d.conferenceRecords || []));
-    pagina = d.nextPageToken || "";
-    if (!pagina) break;
-  }
-  const codigoDe = new Map();
+  const dias = Math.min(30, Math.max(1, Math.round(Number(args && args.dias)) || DIAS));
+  const ids = await redis("ZRANGEBYSCORE", INDICE, Date.now() - dias * 864e5, "+inf");
   const lista = [];
-  for (const r of registros) {
-    if (!r.endTime) continue;
-    if (!codigoDe.has(r.space)) {
-      let c = "";
-      try { c = (await meet(r.space)).meetingCode || ""; } catch { c = ""; }
-      codigoDe.set(r.space, c);
-    }
-    const codigo = codigoDe.get(r.space);
-    if (codigos.length && !codigos.includes(codigo)) continue;
-    const d = await meet(`${r.name}/transcripts`, { query: { pageSize: "100" } });
-    for (const t of d.transcripts || []) {
-      if (t.state !== "FILE_GENERATED" && t.state !== "ENDED") continue;
-      lista.push({ id: t.name, codigo, inicio: r.startTime, fin: r.endTime, estado: t.state === "FILE_GENERATED" ? "lista" : "procesando", doc: docDe(t) });
+  if (Array.isArray(ids) && ids.length) {
+    for (const crudo of (await redis("MGET", ...ids.slice(-200).map(llaveDe))) || []) {
+      let t;
+      try { t = JSON.parse(crudo); } catch { t = null; }
+      if (!t || !t.id) continue;
+      lista.push({ id: t.id, titulo: t.titulo, codigo: t.codigo, software: t.software, inicio: t.inicio, fin: t.fin, estado: "lista", participantes: t.participantes, intervenciones: t.intervenciones });
     }
   }
+  lista.sort((a, b) => Date.parse(b.inicio) - Date.parse(a.inicio));
   return { transcripciones: lista };
 }
 
-/* El texto de una transcripción: una línea por intervención, con el nombre de quien habla (las
-   frases seguidas de la misma persona van juntas). */
+/* El texto de una transcripción: «Nombre: lo que dijo», una línea por intervención, y el chat al final. */
 export async function leerTranscripcion(args) {
   const id = String((args && args.id) || "");
-  if (!/^conferenceRecords\/[\w-]+\/transcripts\/[\w-]+$/.test(id)) throw new Falla("Falta la transcripción que hay que leer.", "sin_id");
-  const conferencia = id.split("/transcripts/")[0];
-  const nombres = new Map();
-  let pagina = "";
-  for (let i = 0; i < 10; i += 1) {
-    const d = await meet(`${conferencia}/participants`, { query: { pageSize: "250", ...(pagina ? { pageToken: pagina } : {}) } });
-    for (const p of d.participants || []) nombres.set(p.name, (p.signedinUser && p.signedinUser.displayName) || (p.anonymousUser && p.anonymousUser.displayName) || (p.phoneUser && p.phoneUser.displayName) || "");
-    pagina = d.nextPageToken || "";
-    if (!pagina) break;
-  }
-  const lineas = [];
-  let largo = 0;
-  pagina = "";
-  for (let i = 0; i < 300; i += 1) {
-    const d = await meet(`${id}/entries`, { query: { pageSize: "100", ...(pagina ? { pageToken: pagina } : {}) } });
-    for (const e of d.transcriptEntries || []) {
-      const texto = String(e.text || "").replace(/\s+/g, " ").trim();
-      if (!texto) continue;
-      const quien = nombres.get(e.participant) || "Participante";
-      const ultima = lineas[lineas.length - 1];
-      if (ultima && ultima.quien === quien) ultima.texto += " " + texto;
-      else lineas.push({ quien, texto });
-      largo += texto.length;
-    }
-    pagina = d.nextPageToken || "";
-    if (!pagina || largo > 400000) break;
-  }
-  let texto = lineas.map((l) => `${l.quien}: ${l.texto}`).join("\n");
-  if (texto.length > 300000) texto = texto.slice(0, 300000) + "\n[transcripción recortada]";
-  return { id, participantes: [...new Set(lineas.map((l) => l.quien))], intervenciones: lineas.length, texto };
+  if (!/^tt-[a-z0-9]+-[a-f0-9]{8}$/.test(id)) throw new Falla("Falta la transcripción que hay que leer.", "sin_id");
+  let t;
+  try { t = JSON.parse(await redis("GET", llaveDe(id))); } catch { t = null; }
+  if (!t) throw new Falla(`La transcripción ya no está: se borra sola ${DIAS} días después de llegar.`, "no_existe");
+  return { id: t.id, titulo: t.titulo, participantes: t.participantes, intervenciones: t.intervenciones, texto: t.texto };
 }

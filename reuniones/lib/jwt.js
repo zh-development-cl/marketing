@@ -1,13 +1,13 @@
 /* Fichas firmadas (JWT con HMAC-SHA256): el registro de cada cliente OAuth, el estado del inicio de
    sesión, los códigos y las llaves de acceso. No se guarda nada: lo que importa va firmado. La clave
-   sale de AUTH_SECRET o, si no está, del secreto del cliente de Google. */
+   sale de la clave del equipo (y de AUTH_SECRET, si está): si cambia, ninguna llave sirve más. */
 import { createHmac, createHash, timingSafeEqual } from "node:crypto";
 
 const b64u = (v) => Buffer.from(v).toString("base64url");
 const clave = () => {
-  const s = process.env.AUTH_SECRET || process.env.GOOGLE_CLIENT_SECRET;
-  if (!s) throw new Error("Falta GOOGLE_CLIENT_SECRET en Vercel.");
-  return createHmac("sha256", s).update("zh-reuniones/v1").digest();
+  const s = process.env.CLAVE_EQUIPO;
+  if (!s) throw new Error("Falta CLAVE_EQUIPO en Vercel.");
+  return createHmac("sha256", `${process.env.AUTH_SECRET || ""}|${s}`).update("zh-reuniones/v2").digest();
 };
 
 export function firmar(datos, segundos) {

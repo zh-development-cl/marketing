@@ -93,8 +93,9 @@ grabación directa y no separa quién habla, así que conviene un lugar tranquil
 deja usar el micrófono, el plan B es la escritura por voz de Google Docs (Herramientas → Escritura
 por voz), pegando el texto en el CRM.
 
-Las **reuniones por Google Meet** no necesitan nada de esto: Google Meet las transcribe solo, con
-el nombre de cada uno, y la transcripción llega al CRM. Ver `docs/reuniones-transcripcion.md`.
+Las **reuniones por Google Meet** no necesitan nada de esto: la extensión TranscripTonic guarda los
+subtítulos de Meet con el nombre de cada uno y la transcripción llega sola al CRM. Ver
+`docs/reuniones-transcripcion.md`.
 
 ### Transcribir la conversación completa sin aviso
 

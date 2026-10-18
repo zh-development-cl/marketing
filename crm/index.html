@@ -1755,24 +1755,24 @@ function calAnotarTexto(e) {
 }
 
 /* ---------- ZH Reuniones: el conector propio de ZH (zh-reuniones.vercel.app, carpeta reuniones/ del
-   repositorio marketing). Prende la transcripción automática de Google Meet en las reuniones que
-   organiza la cuenta de ZH y lee las transcripciones, con el nombre de quien habla. Vercel no guarda
-   nada: cada transcripción se lee de Google al registrarla (Google borra los registros de una reunión
-   a los 30 días; el documento de la transcripción queda en el Drive de la cuenta). */
+   repositorio marketing). TranscripTonic, la extensión de Chrome, guarda los subtítulos de cada
+   reunión de Google Meet, con el nombre de quien habla, y al terminar se los manda a ZH Reuniones,
+   que los guarda 14 días. El CRM los lee de ahí para registrarlos. */
 const ZHR = "ZH Reuniones";
 const ZHR_URL = "https://zh-reuniones.vercel.app";
 const ZHR_DIAS = 14;
 const codigoMeet = (u) => { const m = /(?:^|meet\.google\.com\/)([a-z0-9]{3,}-[a-z0-9]{3,}-[a-z0-9]{3,})(?=$|[/?#\s])/i.exec(String(u || "").trim()); return m ? m[1].toLowerCase() : ""; };
-const idTransOk = (id) => /^conferenceRecords\/[\w-]{1,100}\/transcripts\/[\w-]{1,100}$/.test(String(id || ""));
-/* transcripciones/<doc>: lo que se hizo con cada transcripción de Meet (registrada o descartada). */
-const docTrans = (id) => "tr-" + String(id).replace(/^conferenceRecords\//, "").replace("/transcripts/", "~");
+const idTransOk = (id) => /^tt-[a-z0-9]{1,20}-[a-f0-9]{8}$/.test(String(id || ""));
+/* transcripciones/<doc>: lo que se hizo con cada transcripción (registrada, descartada o repetida). */
+const docTrans = (id) => "tr-" + String(id);
+/* Una transcripción de la lista: el título es el de la reunión en Meet (el del evento del calendario,
+   o el código de Meet si no tiene). */
 function normTrans(t) {
   if (!t || typeof t !== "object" || !idTransOk(t.id)) return null;
   const ini = Date.parse(t.inicio);
   const fin = Date.parse(t.fin);
   if (isNaN(ini)) return null;
-  const doc = String(t.doc || "");
-  return { id: t.id, codigo: codigoMeet(t.codigo), inicio: new Date(ini).toISOString(), fin: isNaN(fin) ? "" : new Date(fin).toISOString(), ini, finMs: isNaN(fin) ? ini : fin, lista: t.estado === "lista", doc: /^https:\/\/docs\.google\.com\/[^\s"'<>]+$/.test(doc) ? doc : "" };
+  return { id: t.id, codigo: codigoMeet(t.codigo), tituloMeet: clip(String(t.titulo || "").trim(), 200), inicio: new Date(ini).toISOString(), fin: isNaN(fin) ? "" : new Date(fin).toISOString(), ini, finMs: isNaN(fin) ? ini : Math.max(ini, fin), lista: true, participantes: strArr(t.participantes, 40), intervenciones: Number(t.intervenciones) || 0 };
 }
 const minutosTrans = (t) => { const a = Date.parse(t.inicio); const b = Date.parse(t.fin); return isNaN(a) || isNaN(b) ? 0 : Math.max(1, Math.round((b - a) / 6e4)); };
 /* «Hoy a las 10:30», «el vie 16 oct a las 15:00»: cuándo empezó una reunión transcrita. */
@@ -1791,11 +1791,9 @@ function reuErrorText(e) {
   if (c === "formato") return "ZH Reuniones respondió en un formato que el CRM no reconoce.";
   return "No se pudo hablar con ZH Reuniones por un problema temporal.";
 }
-/* El código de una falla de ZH Reuniones (ajena, sin_transcripcion, google_reconectar…): viene en
-   structuredContent, para no depender del texto. */
+/* El código de una falla de ZH Reuniones (sin_almacen, no_existe…): viene en structuredContent, para
+   no depender del texto. */
 const codigoReu = (e) => { const s = e && e.code === "tool_error" && e.result && typeof e.result === "object" ? e.result.structuredContent : null; return s && typeof s.error === "string" ? s.error : ""; };
-/* Las reuniones a las que no se les pudo prender la transcripción: no se reintentan hasta el día siguiente. */
-const MEET_SIN = { ajena: "La reunión no es de la cuenta de ZH", sin_transcripcion: "Google no deja transcribirla", sin_enlace: "Sin enlace de Meet" };
 
 const ls = {
   get(k, d) { try { const v = localStorage.getItem("zhcrm:" + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
@@ -2033,15 +2031,20 @@ function promptRevision(o) {
   return `${ZH_CONTEXTO}\n\n${ZH_TONO}\n\nFecha de hoy: ${todayKey()} (hora de Chile).\n\n${o.contexto || leadContexto(o.lead, o.hist)}\n\nEste es el borrador actual de ${o.canal === "whatsapp" ? "un mensaje de WhatsApp" : "un correo"} (JSON):\n${JSON.stringify(actual, null, 1)}\n\nCambios que pide quien escribe: ${o.pedido}\n\nAplica los cambios y conserva lo demás. Responde solo con el borrador completo en el mismo formato JSON.`;
 }
 const ETAPAS_PROMPT = `"nuevo" (por contactar), "contactado", "reunion_agendada" (quedó una reunión con día), "reunion_concretada" (ya se hizo la reunión), "propuesta" (se le envió la propuesta), "negociacion", "ganado", "perdido" o "pausa"`;
+/* Quién habla por ZH en una transcripción de Meet: los socios, la cuenta de ZH (su nombre lleva «ZH
+   Development») y quien guardó la transcripción, que TranscripTonic a veces deja como «You» o «Tú». */
+const PORZH = (equipo) => `Por ZH hablan ${(equipo || []).filter((x) => x !== "ZH Development").join(", ") || "los socios"} y quien entró con la cuenta de ZH (su nombre lleva «ZH Development»); «You» o «Tú» es quien guardó la transcripción, que también es de ZH.`;
+
 /* Análisis de una llamada o de una reunión con un lead: resumen, tareas acordadas, la reunión si
    quedó agendada, la etapa y la evaluación de quien habló por ZH. */
 function promptLlamada(o) {
   const enReunion = o.modo === "reunion";
   const t = todayKey();
   const quien = enReunion ? "estuvo por ZH en la reunión" : "llamó";
-  /* Una transcripción de Google Meet trae el nombre de quien habla: se le dice a Claude quiénes son de ZH. */
+  /* Una transcripción de Meet (los subtítulos, guardados con TranscripTonic) trae el nombre de quien
+     habla: se le dice a Claude quiénes son de ZH. */
   const m = o.meet;
-  const origen = m ? ` (de Google Meet, de la reunión del ${fmtLong.format(keyDate(keyOf(m.inicio))).replace(",", "")} a las ${fmtHM.format(new Date(m.inicio))}: cada línea parte con el nombre de quien habla${m.participantes && m.participantes.length ? `; participaron ${m.participantes.join(", ")}` : ""}. Por ZH hablan ${(o.equipo || []).join(", ") || "los socios"} o quien entró con la cuenta de ZH; los demás son del lead o de su empresa. Google puede equivocarse en alguna palabra o nombre: no uses lo que no se entienda)`
+  const origen = m ? ` (de los subtítulos de Google Meet, de la reunión del ${fmtLong.format(keyDate(keyOf(m.inicio))).replace(",", "")} a las ${fmtHM.format(new Date(m.inicio))}: cada línea parte con el nombre de quien habla${m.participantes && m.participantes.length ? `; participaron ${m.participantes.join(", ")}` : ""}. ${PORZH(o.equipo)} Los demás son del lead o de su empresa. Los subtítulos pueden equivocarse en alguna palabra o nombre: no uses lo que no se entienda)`
     : o.enVivo ? " (hecha en vivo con el micrófono del computador: no separa quién habla y puede traer palabras mal reconocidas; deduce por el contexto qué dijo el lead y qué dijo ZH, y no uses lo que no se entienda)" : "";
   return `${ZH_CONTEXTO}\n\nEres el asistente comercial de ZH. Analiza ${enReunion ? "esta reunión con un lead (por Google Meet o en persona)" : "esta llamada con un lead"} y deja lo necesario para el seguimiento: las tareas que quedaron, la reunión si se agendó y la etapa. Usa solo lo que está en las notas o en la transcripción: no inventes. Hoy es ${fmtLong.format(keyDate(t))} (${t}) y son las ${ahoraHM()} en Chile.\n\n${leadContexto(o.lead, o.hist)}\n\n${enReunion ? "REUNIÓN" : `LLAMADA\nResultado: ${resultadoLabel(o.resultado) || "sin registrar"}`}\nNotas de quien ${quien}: ${o.notas || "(sin notas)"}\nTranscripción${origen}:\n${o.transcripcion ? clip(o.transcripcion, m ? 140000 : 90000) : "(sin transcripción)"}\n\nResponde solo con JSON con esta forma:\n{${enReunion ? "" : '"resultado": "contesto | no_contesto | buzon | ocupado | volver | equivocado", '}"resumen": "2 o 3 frases", "puntos": ["lo más importante que se dijo"], "necesidades": ["qué necesita o qué le duele, con sus palabras si es posible"], "objeciones": ["dudas o reparos"], "compromisos": ["lo que prometimos hacer nosotros"], "proximosPasos": ["acciones concretas"], "interes": "alto | medio | bajo | sin_datos", "etapaSugerida": "una etapa", "reunion": {"fecha": "AAAA-MM-DD", "hora": "HH:MM", "duracion": 30, "titulo": "para qué es la reunión, en pocas palabras"}, "tareas": [{"quien": "zh | lead", "que": "acción concreta, empezando con un verbo", "tipo": "llamar | whatsapp | correo | agendar | propuesta | otro", "fecha": "AAAA-MM-DD o vacío", "hora": "HH:MM o vacío"}], "datos": {"cargo": "", "empresa": "", "correo": "", "necesidad": ""}, "evaluacion": {"criterios": {${CRITERIOS.map((c) => `"${c[0]}": {"nota": "1 a 5, o null", "comentario": "por qué, en una frase"}`).join(", ")}}, "bien": ["lo que hizo bien"], "mejorar": ["consejo para la próxima"]}}\nReglas:\n${enReunion ? "" : '- "resultado": cómo terminó la llamada: "contesto" si hubo conversación con el lead (aunque haya sido corta), "volver" si pidió que lo llamemos en otro momento, "no_contesto", "buzon" u "ocupado" si no se pudo hablar con él, y "equivocado" si el número no era suyo. Si arriba ya viene un resultado registrado, úsalo salvo que las notas digan claramente otra cosa.\n'}- "reunion": solo si quedó acordada una ${enReunion ? "próxima " : ""}reunión con día (y hora, si se dijo); si no, null. Si quedaron en reunirse pero sin día, usa null y agrega una tarea de tipo "agendar". La reunión no se repite en "tareas".\n- "tareas": solo lo que quedó acordado, con quién lo hace: "zh" es ZH (quien ${quien}) y "lead" es el lead. Tipos: "llamar" (volver a llamarlo), "whatsapp" o "correo" (mandarle un mensaje: un resumen, información, la invitación), "agendar" (coordinar el día y la hora de una reunión), "propuesta" (preparar y enviar la propuesta) u "otro". Pon "fecha" y "hora" solo si se dijeron o se deducen con claridad ("el viernes" es la fecha de ese viernes); si no, déjalas vacías.\n- "etapaSugerida": ${ETAPAS_PROMPT}. ${enReunion ? 'Después de una reunión que se hizo, lo normal es "reunion_concretada".' : 'Si quedó una reunión con día, "reunion_agendada"; si contestó y no quedó una reunión, "contactado".'} Usa "perdido" solo si dijo claramente que no le interesa, y "pausa" si pidió retomarlo más adelante.\n- "datos": solo lo que se dijo explícitamente; deja vacío lo demás.\n- "evaluacion": evalúa a quien ${quien}, solo si hay transcripción; con solo notas, usa null. Nota de 1 a 5 por criterio, o null si no se puede juzgar: ${CRITERIOS.map((c) => `${c[0]} (${c[2]})`).join("; ")}. "bien": hasta 3 cosas concretas que hizo bien. "mejorar": hasta 3 consejos concretos para la próxima ${enReunion ? "reunión" : "llamada"}, con una frase de ejemplo cuando sirva. Sé justo: si la transcripción no separa voces, deduce por el contexto quién habla y no castigues lo que no se puede saber.`;
 }
@@ -2108,7 +2111,7 @@ function promptActa(o) {
   const t = todayKey();
   /* Con Meet, la transcripción trae el nombre de quien habla: se le dice a Claude quiénes son de ZH. */
   const m = o.meet;
-  const tx = m && o.transcripcion ? `\n\nTRANSCRIPCIÓN DE GOOGLE MEET de la reunión del ${fmtLong.format(keyDate(keyOf(m.inicio))).replace(",", "")} a las ${fmtHM.format(new Date(m.inicio))} (cada línea parte con el nombre de quien habla${m.participantes && m.participantes.length ? `; participaron ${m.participantes.join(", ")}` : ""}. Por ZH hablan ${(o.equipo || []).join(", ") || "los socios"} o quien entró con la cuenta de ZH; los demás son del cliente. Google puede equivocarse en alguna palabra o nombre: no uses lo que no se entienda)\n${clip(o.transcripcion, 140000)}` : "";
+  const tx = m && o.transcripcion ? `\n\nTRANSCRIPCIÓN DE LA REUNIÓN POR GOOGLE MEET (subtítulos) del ${fmtLong.format(keyDate(keyOf(m.inicio))).replace(",", "")} a las ${fmtHM.format(new Date(m.inicio))} (cada línea parte con el nombre de quien habla${m.participantes && m.participantes.length ? `; participaron ${m.participantes.join(", ")}` : ""}. ${PORZH(o.equipo)} Los demás son del cliente. Los subtítulos pueden equivocarse en alguna palabra o nombre: no uses lo que no se entienda)\n${clip(o.transcripcion, 140000)}` : "";
   return `${ZH_CONTEXTO}\n\nOrdena las notas de una reunión con un cliente de ZH${m ? " (por Google Meet, con su transcripción)" : ""} en un acta breve y deja las tareas que quedaron. Usa solo lo que se dijo: no inventes acuerdos, fechas ni montos.\nHoy es ${fmtLong.format(keyDate(t))} (${t}), hora de Chile.\n\n${clienteContexto(o.cliente, o)}\n\nNOTAS DE LA REUNIÓN${o.enVivo ? " (incluyen una transcripción en vivo con el micrófono del computador: no separa quién habla y puede traer palabras mal reconocidas; deduce por el contexto qué dijo cada uno)" : ""}\n${clip(o.notas, 20000) || "(sin notas)"}${tx}\n\nResponde solo con JSON:\n{"resumen": "2 o 3 frases", "acuerdos": [""], "pendientesZH": [{"que": "lo que quedó en hacer ZH, empezando con un verbo", "fecha": "AAAA-MM-DD o vacío"}], "pendientesCliente": ["lo que quedó en hacer el cliente"], "solicitudes": [{"titulo": "", "descripcion": "", "cobertura": "garantia | mantencion | evolutivo | por_definir"}], "proximaReunion": {"fecha": "AAAA-MM-DD", "hora": "HH:MM o vacío"}}\nReglas:\n- "pendientesZH": cada cosa concreta que quedó en hacer ZH; "fecha" solo si se dijo o se deduce con claridad ("el viernes" es la fecha de ese viernes).\n- "solicitudes": solo pedidos concretos del cliente que haya que registrar como solicitud (un error, un cambio, un acceso); si no hay, deja [].\n- "proximaReunion": solo si quedó acordada otra reunión con día; si no, null.`;
 }
 
@@ -2735,7 +2738,6 @@ function Feed({ items, showLead, limit }) {
         ${a.acta && !showLead ? html`<details style="margin-top:6px"><summary class="small" style="cursor:pointer;color:var(--accent)">Acta de la reunión</summary><${ActaView} a=${a.acta} /></details>` : null}
         ${an && an.resumen && !showLead ? html`<details style="margin-top:6px"><summary class="small" style="cursor:pointer;color:var(--accent)">Análisis de Claude${an.interes && an.interes !== "sin_datos" ? " · interés " + an.interes : ""}${an.evaluacion ? ` · desempeño ${an.evaluacion.puntaje}/100` : ""}</summary><${AnalysisView} a=${an} /></details>` : null}
         ${a.transcripcion && !showLead ? html`<details style="margin-top:6px"><summary class="small" style="cursor:pointer;color:var(--fg-3)">Transcripción (${Math.round(a.transcripcion.length / 1000)} mil caracteres)</summary><p class="feed-text">${a.transcripcion}</p></details>` : null}
-        ${a.meet && httpsOk(a.meet.doc) && !showLead ? html`<p class="small feed-doc"><a href=${httpsOk(a.meet.doc)} target="_blank" rel="noopener"><${Icon} name="doc" size=${13} />Transcripción de Google Meet (Google Docs)</a></p>` : null}
       </div>
     </div>`;
   })}</div>`;
@@ -2800,7 +2802,7 @@ function LeadRow({ lead, mode }) {
    derecha hace lo que toca: llamar, revisar el borrador, agendar, entrar a Meet o contar cómo fue
    la reunión. Una reunión unida a Google Calendar muestra si el lead aceptó la invitación. */
 function TareaFila({ t, conLead, onEditar }) {
-  const { leadsById, clientesById, openLead, openCliente, openDraft, completarTarea, canWrite, cfg, nameOf, drafts, cal, calListo, crearEventoDeReunion, sampleState, prepararReunion, toast, anotarTarea, meets } = useCtx();
+  const { leadsById, clientesById, openLead, openCliente, openDraft, completarTarea, canWrite, cfg, nameOf, drafts, cal, calListo, crearEventoDeReunion, sampleState, prepararReunion, toast, anotarTarea } = useCtx();
   const [creando, setCreando] = useState(false);
   const [preparando, setPreparando] = useState(false);
   const [anotando, setAnotando] = useState(false);
@@ -2850,7 +2852,7 @@ function TareaFila({ t, conLead, onEditar }) {
     <button type="button" class=${cx("tick", t.estado === "hecha" && "on")} disabled=${!pend || !canWrite} title=${pend ? (tipo === "agendar" ? "Agendar la reunión" : tipo === "reunion" ? "¿Se hizo la reunión?" : "Marcar como hecha") : ""} aria-label=${(pend ? "Completar: " : "Hecha: ") + titulo} onClick=${() => completarTarea(t)}><${Icon} name="check" size=${12} /></button>
     <div class="task-main">
       <div class="task-title"><${Icon} name=${TIPO_TAREA[tipo][2]} size=${15} />${onEditar && pend ? html`<button type="button" title="Editar la tarea" onClick=${onEditar}>${titulo}</button>` : html`<span>${titulo}</span>`}</div>
-      <div class="task-meta">${conLead && lead ? html`<button type="button" onClick=${() => openLead(lead.id)}>${leadTitulo(lead)}</button> · ` : conLead && cli ? html`<button type="button" onClick=${() => openCliente(cli.id)}>${clienteName(cli)}</button> · ` : null}<span class=${c.tono}>${c.txt}</span>${t.responsable ? " · " + nameOf(t.responsable) : ""}${pend && t.origen === "llamada" ? " · acordado en una llamada" : pend && t.origen === "reunion" ? " · acordado en una reunión" : pend && t.origen === "agenda_web" ? " · agendó por la web" : ""}${pend && ev ? (resp && resp[0] ? html` · <span class=${cx("resp", resp[1])}>${resp[0]}</span>` : " · en Google Calendar") : null}${pend && !pasada && ev && ev.meet && meets[codigoMeet(ev.meet)] && meets[codigoMeet(ev.meet)].estado === "lista" ? " · se transcribe" : null}${pend && anotada ? " · en Google Calendar" : null}</div>
+      <div class="task-meta">${conLead && lead ? html`<button type="button" onClick=${() => openLead(lead.id)}>${leadTitulo(lead)}</button> · ` : conLead && cli ? html`<button type="button" onClick=${() => openCliente(cli.id)}>${clienteName(cli)}</button> · ` : null}<span class=${c.tono}>${c.txt}</span>${t.responsable ? " · " + nameOf(t.responsable) : ""}${pend && t.origen === "llamada" ? " · acordado en una llamada" : pend && t.origen === "reunion" ? " · acordado en una reunión" : pend && t.origen === "agenda_web" ? " · agendó por la web" : ""}${pend && ev ? (resp && resp[0] ? html` · <span class=${cx("resp", resp[1])}>${resp[0]}</span>` : " · en Google Calendar") : null}${pend && anotada ? " · en Google Calendar" : null}</div>
       ${t.nota ? html`<p class="task-nota">${t.nota}</p>` : mensaje && pend ? html`<p class="task-nota msg">${mensaje}</p>` : null}
       ${t.preparacion && pend ? html`<details class="prep"><summary>Preparación de Claude${t.preparada ? " · " + ago(t.preparada) : ""}</summary><p>${t.preparacion}</p>
         ${canWrite && sampleState.fn ? html`<button type="button" class="linkbtn" onClick=${preparar} disabled=${preparando}>${preparando ? "Preparando…" : "Volver a prepararla"}</button>` : null}</details>` : null}
@@ -3142,39 +3144,32 @@ function CalEstado({ detalle }) {
   </div>`;
 }
 
-/* ZH Reuniones en Ajustes: si está conectado, qué hace y lo último que pasó; si no, qué hacer según el código. */
+/* ZH Reuniones en Ajustes: si está conectado, cuántas transcripciones llegaron; si no, qué hacer según el código. */
 function ReuEstado() {
-  const { reu, reuPrep, meets, permitirReuniones, refrescarReuniones, abrirPermisos } = useCtx();
+  const { reu, permitirReuniones, refrescarReuniones, abrirPermisos } = useCtx();
   const e = reu.error || {};
   if (reu.estado === "off") return html`<div class="note"><${Icon} name="info" /><div>Esta vista no tiene acceso a los conectores. Abre el CRM desde claude.ai.</div></div>`;
   if (reu.estado === "cargando") return html`<p class="empty">Conectando con ZH Reuniones…</p>`;
   if (reu.estado === "error") {
     const boton = e.code === "approval_required" || e.code === "consent_required" ? html`<button type="button" class="btn small primary" onClick=${permitirReuniones}>Permitir ZH Reuniones</button>`
       : e.code === "not_in_manifest" ? html`<button type="button" class="btn small" onClick=${abrirPermisos}>Abrir permisos</button>`
-      : codigoReu(e) === "google_reconectar" ? html`<a class="btn small" href=${ZHR_URL} target="_blank" rel="noopener"><${Icon} name="ext" />Abrir ZH Reuniones</a>`
+      : codigoReu(e) === "sin_almacen" ? html`<a class="btn small" href=${ZHR_URL} target="_blank" rel="noopener"><${Icon} name="ext" />Abrir ZH Reuniones</a>`
       : !e.code || CAL_REINTENTAR.has(e.code) ? html`<button type="button" class="btn small" onClick=${refrescarReuniones}>Volver a intentar</button>` : null;
     return html`<div class="note warn reu-aviso"><${Icon} name="info" /><div><p>${reuErrorText(e)}</p>${boton ? html`<div class="actions">${boton}</div>` : null}</div></div>`;
   }
   const ahora = Date.now();
-  const proximas = Object.values(meets).filter((m) => m && m.estado === "lista" && (Date.parse(m.fin) || Date.parse(m.inicio) || 0) > ahora).length;
   const n = (reu.lista || []).length;
-  const pe = reuPrep.error;
-  return html`<div>
-    <div class="cal-pie">
-      <span>Conectado: ${n} ${n === 1 ? "transcripción" : "transcripciones"} en los últimos ${ZHR_DIAS} días y ${proximas} ${proximas === 1 ? "reunión próxima" : "reuniones próximas"} con la transcripción prendida.</span>
-      <span class=${reu.error ? "resp warn" : ""}>${reu.error ? `No se pudo actualizar: es lo de ${ago(new Date(reu.storedAt || ahora).toISOString())}.` : `Actualizado ${ago(new Date(reu.storedAt || ahora).toISOString())}.`}</span>
-      <button type="button" class="linkbtn" onClick=${refrescarReuniones}>Actualizar</button>
-    </div>
-    ${pe ? html`<div class="note warn reu-aviso"><${Icon} name="info" /><div>${pe.code === "approval_required" ? "Para que el CRM prenda la transcripción solo, en claude.ai → Ajustes → Conectores → ZH Reuniones deja «Transcribir una reunión» en «Permitir siempre»." : `${MEET_SIN[codigoReu(pe)] ? "A la última reunión que se intentó no se le pudo prender la transcripción. " : ""}${reuErrorText(pe)}`}</div></div>` : null}
+  return html`<div class="cal-pie">
+    <span>Conectado: ${n === 1 ? "llegó 1 transcripción" : `llegaron ${n} transcripciones`} en los últimos ${ZHR_DIAS} días.</span>
+    <span class=${reu.error ? "resp warn" : ""}>${reu.error ? `No se pudo actualizar: es lo de ${ago(new Date(reu.storedAt || ahora).toISOString())}.` : `Actualizado ${ago(new Date(reu.storedAt || ahora).toISOString())}.`}</span>
+    <button type="button" class="linkbtn" onClick=${refrescarReuniones}>Actualizar</button>
   </div>`;
 }
 
 /* Un evento del calendario: la hora, el lead (o los invitados), la respuesta, Meet y «Crear lead». */
 function EventoFila({ ev }) {
-  const { leadDeEvento, openLead, openModal, canWrite, equipoCorreos, meets } = useCtx();
+  const { leadDeEvento, openLead, openModal, canWrite, equipoCorreos } = useCtx();
   const lead = leadDeEvento(ev);
-  /* Si ZH Reuniones le prendió la transcripción (o por qué no se pudo). */
-  const mt = ev.meet ? meets[codigoMeet(ev.meet)] : null;
   const fuera = deAfuera(ev, equipoCorreos);
   const inv = lead ? ev.invitados.find((a) => a.correo === String(lead.correo || "").toLowerCase()) : fuera[0];
   const resp = inv && RESPUESTA[inv.respuesta];
@@ -3194,7 +3189,7 @@ function EventoFila({ ev }) {
     <div class="cev-main">
       ${lead ? html`<button type="button" class="cev-titulo" onClick=${() => openLead(lead.id)}>${leadTitulo(lead)}</button>`
         : ev.link ? html`<a class="cev-titulo" href=${ev.link} target="_blank" rel="noopener" title="Abrir en Google Calendar">${ev.titulo}</a>` : html`<span class="cev-titulo">${ev.titulo}</span>`}
-      <span class="cev-meta">${lead ? (ev.link ? html`<a href=${ev.link} target="_blank" rel="noopener" title="Abrir en Google Calendar">${tituloDeEvento(ev.titulo, lead)}</a>` : tituloDeEvento(ev.titulo, lead)) : quien}${resp && resp[0] ? html` · <span class=${cx("resp", resp[1])}>${resp[0]}</span>` : null}${enCurso ? html` · <span class="resp today">Ahora</span>` : null}${mt && !termino ? (mt.estado === "lista" ? html` · <span class="resp ok" title="Google Meet la transcribe sola, con el nombre de cada uno">Se transcribe</span>` : MEET_SIN[mt.estado] ? html` · <span class="resp warn" title=${mt.detalle || MEET_SIN[mt.estado]}>No se transcribe</span>` : null) : null}</span>
+      <span class="cev-meta">${lead ? (ev.link ? html`<a href=${ev.link} target="_blank" rel="noopener" title="Abrir en Google Calendar">${tituloDeEvento(ev.titulo, lead)}</a>` : tituloDeEvento(ev.titulo, lead)) : quien}${resp && resp[0] ? html` · <span class=${cx("resp", resp[1])}>${resp[0]}</span>` : null}${enCurso ? html` · <span class="resp today">Ahora</span>` : null}</span>
     </div>
     ${meet || crear ? html`<div class="cev-side">
       ${meet ? html`<a class="btn small primary" href=${ev.meet} target="_blank" rel="noopener"><${Icon} name="meet" />Meet</a>` : null}
@@ -3645,7 +3640,7 @@ function Recordatorios({ conFicha }) {
 
 /* Una reunión de Meet ya transcrita: «Registrar» abre la ficha con la transcripción y Claude arma el
    plan (lead) o el acta (cliente); nada se guarda hasta confirmarlo. Una reunión que el CRM no
-   reconoce se asigna a un lead o a un cliente; una interna o de prueba se descarta. */
+   reconoce (o que unió a quien no era) se asigna a mano; una interna o de prueba se descarta. */
 function TransFila({ t }) {
   const { registrarTranscripcion, descartarTranscripcion, canWrite, openModal, openLead, openCliente } = useCtx();
   const quien = t.lead ? leadTitulo(t.lead) : t.cliente ? clienteName(t.cliente) : "";
@@ -3655,7 +3650,7 @@ function TransFila({ t }) {
     <span class="trans-ico" aria-hidden="true"><${Icon} name="meet" size=${15} /></span>
     <div class="trans-main">
       <p class="trans-titulo">${quien ? html`<button type="button" class="linkbtn" onClick=${abrir}>${quien}</button>` : html`<b>Reunión sin asociar</b>`}${t.titulo ? html`<span class="muted"> · ${quien ? tituloDeEvento(t.titulo, t.lead || { empresa: quien }) : clip(t.titulo, 80)}</span>` : null}</p>
-      <p class="trans-meta">${cap(cuandoTrans(t))}${min ? ` · ${min} min` : ""}${t.cliente ? " · cliente" : ""}${t.lista ? "" : " · Google todavía prepara la transcripción"}</p>
+      <p class="trans-meta">${cap(cuandoTrans(t))}${min ? ` · ${min} min` : ""}${t.cliente ? " · cliente" : ""}${quien ? html` · <button type="button" class="linkbtn" title="Registrarla en otro lead o cliente" onClick=${() => openModal({ type: "asignarTrans", t })}>No es de aquí</button>` : null}</p>
     </div>
     ${t.lista && canWrite ? html`<div class="trans-acts">
       <button type="button" class="btn small primary" onClick=${() => (quien ? registrarTranscripcion(t) : openModal({ type: "asignarTrans", t }))}><${Icon} name="spark" />${quien ? "Registrar" : "Asignar"}</button>
@@ -3793,7 +3788,7 @@ function HoyView() {
         <section class="panel lo-que-toca" aria-label="Lo que toca"><div class="panel-head"><h2>Lo que toca</h2>${porLlamar ? html`<button type="button" class="btn small" onClick=${() => nav("llamar")}><${Icon} name="phone" />Llamar en serie · ${porLlamar}</button>` : html`<span class="eyebrow">${paraHoy} para hoy</span>`}</div>
           <div class="panel-body">
             ${transPendientes.length ? html`<div class="hoy-grupo" aria-label="Reuniones transcritas"><p class="task-group claude">Reuniones transcritas · ${transListas.length}</p>
-              <p class="small muted">Google Meet las transcribió con el nombre de cada uno. Al registrarla, Claude arma el plan o el acta y tú lo confirmas.</p>
+              <p class="small muted">TranscripTonic las guardó con el nombre de quien habla. Al registrarla, Claude arma el plan o el acta y tú lo confirmas.</p>
               <div class="trans-lista">${transPendientes.slice(0, 6).map((x) => html`<${TransFila} key=${x.id} t=${x} />`)}</div></div>` : null}
             ${grupo("Atrasadas", atrasadas, "late")}
             ${deHoy.length ? grupo("Hoy", deHoy, "") : html`<p class="task-group">Hoy</p><p class="empty">${atrasadas.length ? "Nada más para hoy." : "No hay tareas para hoy."}</p>`}
@@ -5195,17 +5190,16 @@ function RegistroContacto({ lead, hist, onDone, modo, meet: meet0 }) {
     }, (e) => {
       if (!vivo) return;
       setFase("");
-      toast(`No se pudo leer la transcripción de Meet. ${reuErrorText(e)}`, "bad");
+      toast(`No se pudo leer la transcripción de la reunión. ${reuErrorText(e)}`, "bad");
     });
     return () => { vivo = false; };
   }, []);
 
-  /* Una reunión de Meet queda con su hora real y con lo necesario para volver a la transcripción (el
-     documento de Google Docs que queda en el Drive de la cuenta de ZH). */
+  /* Una reunión de Meet queda con su hora real, quiénes hablaron y de qué transcripción salió. */
   const datosMeet = () => {
     if (!meet) return {};
     const m = meetRef.current || meet;
-    return { fecha: meet.inicio, meet: clean({ codigo: meet.codigo, transcripcion: meet.id, doc: meet.doc || "", inicio: meet.inicio, fin: meet.fin || "", participantes: (m.participantes || []).slice(0, 12) }) };
+    return { fecha: meet.inicio, meet: clean({ codigo: meet.codigo || undefined, transcripcion: meet.id, inicio: meet.inicio, fin: meet.fin || "", participantes: (m.participantes || []).slice(0, 12) }) };
   };
   const contactoAhora = (now) => { if (!meet || !meet.fin) return now; const u = String(lead.ultimoContacto || ""); return u > meet.fin ? u : meet.fin; };
 
@@ -5329,8 +5323,8 @@ function RegistroContacto({ lead, hist, onDone, modo, meet: meet0 }) {
 
   const hayTexto = !!(notas.trim() || trans.trim());
   const ocupado = !!fase;
-  const progreso = fase ? html`<div class="progreso" role="status"><${Thinking} text=${fase === "leyendo" ? "Leyendo la transcripción de Google Meet…" : fase === "analizando" ? `Claude está leyendo la ${nombreReg} y armando el plan…` : "Guardando…"} />${fase === "analizando" ? html`<button class="btn small ghost" onClick=${() => ctl.current && ctl.current.abort()}>Detener</button>` : null}</div>` : null;
-  const notaMeet = meet ? html`<div class="note meet-nota"><${Icon} name="meet" /><div>Reunión de Google Meet de ${cuandoTrans(meet)}${minutosTrans(meet) ? ` (${minutosTrans(meet)} min)` : ""}. La transcripción trae el nombre de quien habla en cada línea.${meet.doc ? html` <a href=${meet.doc} target="_blank" rel="noopener">Abrir en Google Docs</a>` : null}</div></div>` : null;
+  const progreso = fase ? html`<div class="progreso" role="status"><${Thinking} text=${fase === "leyendo" ? "Leyendo la transcripción de la reunión…" : fase === "analizando" ? `Claude está leyendo la ${nombreReg} y armando el plan…` : "Guardando…"} />${fase === "analizando" ? html`<button class="btn small ghost" onClick=${() => ctl.current && ctl.current.abort()}>Detener</button>` : null}</div>` : null;
+  const notaMeet = meet ? html`<div class="note meet-nota"><${Icon} name="meet" /><div>Reunión de Google Meet de ${cuandoTrans(meet)}${minutosTrans(meet) ? ` (${minutosTrans(meet)} min)` : ""}. La transcripción (los subtítulos de Meet, guardados con TranscripTonic) trae el nombre de quien habla en cada línea.</div></div>` : null;
 
   if (plan) {
     return html`<div class="work-body">
@@ -5347,7 +5341,7 @@ function RegistroContacto({ lead, hist, onDone, modo, meet: meet0 }) {
       <a class="btn small" href=${"tel:" + lead.telefono}><${Icon} name="phone" />Llamar</a>
       <span class="small muted" style="flex-basis:100%">Es el número del lead: llámalo desde tu celular. En el computador, «Llamar» abre la app de teléfono si la tienes enlazada; si no, márcalo a mano.</span>
     </div>` : null}
-    ${notaMeet || (esReunion ? html`<p class="small muted">Las reuniones por Meet de la cuenta de ZH se transcriben solas y aparecen en Hoy, en «Reuniones transcritas». Si no, toca «Transcribir en vivo» y deja esta pestaña abierta, o pega tus notas o la transcripción.</p>` : null)}
+    ${notaMeet || (esReunion ? html`<p class="small muted">Las reuniones por Meet se transcriben solas si quien entra tiene TranscripTonic en su Chrome, y aparecen en Hoy, en «Reuniones transcritas». Si no, toca «Transcribir en vivo» y deja esta pestaña abierta, o pega tus notas o la transcripción.</p>` : null)}
     ${previo ? html`<div class="note"><${Icon} name="info" /><div>Recuperé lo que quedó sin guardar de esta ${nombreReg}.</div></div>` : null}
     ${meet ? null : html`<${LiveTranscriber} onStart=${() => setShowTrans(true)} onText=${(x) => {
       setEnVivo(true);
@@ -6064,7 +6058,7 @@ function ClientLogger({ cliente, hist, onDone, meet: meet0 }) {
       setTrans(r.texto);
       if (sampleState.fn && canWrite && r.texto.trim().length >= 80) ordenarRef.current(true);
       else setBusy("");
-    }, (e) => { if (!vivo) return; setBusy(""); toast(`No se pudo leer la transcripción de Meet. ${reuErrorText(e)}`, "bad"); });
+    }, (e) => { if (!vivo) return; setBusy(""); toast(`No se pudo leer la transcripción de la reunión. ${reuErrorText(e)}`, "bad"); });
     return () => { vivo = false; };
   }, []);
   useEffect(() => ls.set("guardarTrans", guardarTrans), [guardarTrans]);
@@ -6081,7 +6075,7 @@ function ClientLogger({ cliente, hist, onDone, meet: meet0 }) {
       const resumen = meet ? (acta && acta.resumen) || nt || "Reunión por Google Meet." : nt;
       const actaG = acta ? (({ tareasZH, ...x }) => x)(acta) : null;
       const m = meetRef.current || meet;
-      const datosMeet = meet ? { fecha: meet.inicio, duracion: minutosTrans(meet) || null, meet: clean({ codigo: meet.codigo, transcripcion: meet.id, doc: meet.doc || "", inicio: meet.inicio, fin: meet.fin || "", participantes: ((m && m.participantes) || []).slice(0, 12) }) } : {};
+      const datosMeet = meet ? { fecha: meet.inicio, duracion: minutosTrans(meet) || null, meet: clean({ codigo: meet.codigo || undefined, transcripcion: meet.id, inicio: meet.inicio, fin: meet.fin || "", participantes: ((m && m.participantes) || []).slice(0, 12) }) } : {};
       const actId = await api.addAct({ clienteId: cliente.id, proyectoId: pid, tipo, resumen, ...(meet && nt && nt !== resumen ? { notas: nt } : {}), acta: actaG, transcripcion: trans.trim() && guardarTrans ? recortarTrans(trans) : null, ...datosMeet });
       if (meet) await marcarTranscripcion(meet, { clienteId: cliente.id }, actId);
       const base = { clienteId: cliente.id, proyectoId: pid, tipo: "otro", hora: "", estado: "pendiente", origen: "reunion", actividadId: actId };
@@ -6127,15 +6121,15 @@ function ClientLogger({ cliente, hist, onDone, meet: meet0 }) {
   const donde = !prox || !prox.usar ? "" : !calListo ? "Google Calendar no está conectado en esta vista: queda la tarea de agendarla." : !isHora(prox.hora) ? "Ponle hora para crearla en Google Calendar; si no, queda la tarea de agendarla."
     : `Se crea en el Google Calendar de ${calCuenta}, con Meet. Invitados: ${[correoP, ...invitadosEquipo.filter((x) => x !== correoP)].filter(Boolean).join(", ") || "nadie más"}.${correoP ? "" : " El contacto principal no tiene correo: no le llega la invitación."}`;
   return html`<div class="work-body">
-    ${meet ? html`<div class="note meet-nota"><${Icon} name="meet" /><div>Reunión de Google Meet de ${cuandoTrans(meet)}${minutosTrans(meet) ? ` (${minutosTrans(meet)} min)` : ""}. La transcripción trae el nombre de quien habla en cada línea.${meet.doc ? html` <a href=${meet.doc} target="_blank" rel="noopener">Abrir en Google Docs</a>` : null}</div></div>` : null}
+    ${meet ? html`<div class="note meet-nota"><${Icon} name="meet" /><div>Reunión de Google Meet de ${cuandoTrans(meet)}${minutosTrans(meet) ? ` (${minutosTrans(meet)} min)` : ""}. La transcripción (los subtítulos de Meet, guardados con TranscripTonic) trae el nombre de quien habla en cada línea.</div></div>` : null}
     ${previo ? html`<div class="note"><${Icon} name="info" /><div>Recuperé lo que quedó sin guardar de este registro.</div></div>` : null}
     ${meet ? null : html`<div class="field"><span>Tipo</span><${Chips} label="Tipo" value=${tipo} onChange=${(v) => { setTipo(v); if (v !== "reunion") setActa(null); }} options=${REGISTROS_CLIENTE} /></div>`}
     ${ps.length ? html`<label class="field" for="cl-pro"><span>Proyecto</span><select id="cl-pro" class="select" value=${proyectoId} onChange=${(e) => setProyectoId(e.currentTarget.value)}><option value="">Sin proyecto</option>${ps.map((p) => html`<option value=${p.id}>${p.nombre || "Proyecto"}</option>`)}</select></label>` : null}
     ${!meet && (tipo === "reunion" || tipo === "llamada") ? html`<${LiveTranscriber} onText=${(x) => { setEnVivo(true); setTexto((t) => (t.trim() ? t.replace(/\s+$/, "") + "\n" : "") + x); }} />` : null}
     <label class="field" for="cl-texto"><span>${tipo === "reunion" ? (meet ? "Tus notas (opcional)" : "Notas de la reunión") : tipo === "nota" ? "Nota" : "Qué pasó"}</span><textarea id="cl-texto" class="textarea" rows=${meet ? 3 : 5} value=${texto} onInput=${(e) => setTexto(e.currentTarget.value)} placeholder=${tipo === "reunion" ? (meet ? "Lo que la transcripción no dice: impresiones, contexto" : "Lo que se habló, en desorden: acuerdos, pedidos, fechas, quién hace qué") : ""}></textarea>
       ${tipo === "reunion" ? html`<small class="hint">«Ordenar en acta» saca los acuerdos, lo pendiente de cada lado, las tareas de ZH, la próxima reunión y las solicitudes que hay que registrar.</small>` : null}</label>
-    ${trans ? html`<details class="trans-box"><summary>Transcripción de Google Meet · ${Math.max(1, Math.round(trans.length / 1000))} mil caracteres</summary><textarea class="textarea mono-off" rows="8" aria-label="Transcripción de Google Meet" value=${trans} onInput=${(e) => { transRef.current = e.currentTarget.value; setTrans(e.currentTarget.value); }}></textarea></details>` : null}
-    ${tipo === "reunion" && sampleState.fn ? html`<div class="actions">${busy ? html`<${Thinking} text=${busy === "leyendo" ? "Leyendo la transcripción de Google Meet…" : "Claude está ordenando el acta…"} />${busy === "ordenando" ? html`<button class="btn small ghost" onClick=${() => ctl.current && ctl.current.abort()}>Detener</button>` : null}` : html`<button class="btn small claude" onClick=${() => ordenar()} disabled=${!texto.trim() && !trans.trim()}><${Icon} name="spark" />${acta ? "Volver a ordenar" : "Ordenar en acta con Claude"}</button>`}</div>` : busy === "leyendo" ? html`<${Thinking} text="Leyendo la transcripción de Google Meet…" />` : null}
+    ${trans ? html`<details class="trans-box"><summary>Transcripción de la reunión · ${Math.max(1, Math.round(trans.length / 1000))} mil caracteres</summary><textarea class="textarea mono-off" rows="8" aria-label="Transcripción de la reunión" value=${trans} onInput=${(e) => { transRef.current = e.currentTarget.value; setTrans(e.currentTarget.value); }}></textarea></details>` : null}
+    ${tipo === "reunion" && sampleState.fn ? html`<div class="actions">${busy ? html`<${Thinking} text=${busy === "leyendo" ? "Leyendo la transcripción de la reunión…" : "Claude está ordenando el acta…"} />${busy === "ordenando" ? html`<button class="btn small ghost" onClick=${() => ctl.current && ctl.current.abort()}>Detener</button>` : null}` : html`<button class="btn small claude" onClick=${() => ordenar()} disabled=${!texto.trim() && !trans.trim()}><${Icon} name="spark" />${acta ? "Volver a ordenar" : "Ordenar en acta con Claude"}</button>`}</div>` : busy === "leyendo" ? html`<${Thinking} text="Leyendo la transcripción de la reunión…" />` : null}
     ${acta ? html`<${ActaView} a=${acta} />
       <div class="plan-bloque acta-tareas">
         <div class="plan-bloque-head"><h4>Tareas de ZH</h4><button type="button" class="btn small" onClick=${() => setTareasA((x) => [...x, { titulo: "", fecha: addBusinessDays(todayKey(), 2), responsable: respDef }])}><${Icon} name="plus" />Agregar tarea</button></div>
@@ -7968,10 +7962,10 @@ function AjustesView() {
           <label class="switch" style="margin-top:12px"><input type="checkbox" checked=${cfg.recordatorioReunion !== false} disabled=${!canWrite} onChange=${async (e) => { const v = e.currentTarget.checked; try { await api.setConfig({ ...cfg, recordatorioReunion: v }); toast(v ? "Recordatorios activados." : "Recordatorios desactivados."); } catch (x) { toast(dbErrorText(x), "bad"); } }} />Recordatorio por WhatsApp el día hábil anterior a cada reunión (una tarea con el mensaje listo, que envías tú)</label>
           <p class="small muted" style="margin-top:10px">Cada reunión del calendario con un lead queda como su tarea, con el botón de Meet y la respuesta a la invitación, y el lead pasa a «Reunión agendada». Las reservas de zhdevelopment.cl crean su lead. Al agendar desde el CRM, el evento se crea con Meet e invita al lead y al equipo; al cambiar el día, se mueve.</p></div></section>
 
-      <section class="panel" aria-label="Transcripción de reuniones"><div class="panel-head"><h2>Transcripción de reuniones</h2><span class="eyebrow">ZH Reuniones · Google Meet</span></div>
+      <section class="panel" aria-label="Transcripción de reuniones"><div class="panel-head"><h2>Transcripción de reuniones</h2><span class="eyebrow">ZH Reuniones · TranscripTonic</span></div>
         <div class="panel-body"><${ReuEstado} />
-          <p class="small muted" style="margin-top:10px">En las reuniones por Meet con leads y clientes que organiza ${calCuenta}, el CRM prende la transcripción automática de Google Meet: Google transcribe solo, con el nombre de cada participante, y avisa en la reunión que se está transcribiendo. Al terminar, la reunión aparece en Hoy, en «Reuniones transcritas»: Claude arma el plan (lead) o el acta con las tareas (cliente) y tú lo confirmas o lo corriges. El servidor no guarda las transcripciones: se leen de Google al registrarlas, y el documento queda en el Drive de ${calCuenta}.</p>
-          <p class="small muted">La puesta en marcha (Google Cloud, Vercel y el conector en claude.ai) está en <span class="mono">docs/reuniones-transcripcion.md</span> del repositorio marketing.</p></div></section>
+          <p class="small muted" style="margin-top:10px">TranscripTonic, una extensión gratis de Chrome, guarda los subtítulos de cada reunión de Google Meet con el nombre de quien habla y, al terminar, se los manda a ZH Reuniones. La reunión aparece en Hoy, en «Reuniones transcritas», unida a su lead o cliente por la hora y el título del evento: Claude arma el plan (lead) o el acta con las tareas (cliente) y tú lo confirmas o lo corriges. Tiene que estar en el Chrome de quien entra a la reunión, con la dirección de ZH Reuniones en «webhooks» (<a href=${ZHR_URL} target="_blank" rel="noopener">zh-reuniones.vercel.app</a> → «Ver la dirección para TranscripTonic»). La invitación avisa que se transcribe; dilo también al empezar. Las transcripciones se borran solas de ZH Reuniones a los ${ZHR_DIAS} días.</p>
+          <p class="small muted">La puesta en marcha (la extensión, Vercel y el conector en claude.ai) está en <span class="mono">docs/reuniones-transcripcion.md</span> del repositorio marketing.</p></div></section>
 
       <section class="panel"><div class="panel-head"><h2>Clientes y cobros</h2><span class="eyebrow">Garantía, plazos e IVA</span></div>
         <div class="panel-body">
@@ -8076,7 +8070,6 @@ function App() {
   const [reu, setReu] = useState({ estado: "cargando", lista: null, storedAt: 0, error: null });
   const [meets, setMeets] = useState(null);
   const [transReg, setTransReg] = useState(null);
-  const [reuPrep, setReuPrep] = useState({ error: null, fecha: "" });
   /* Menú lateral con solo íconos: por defecto en pantallas de menos de 1500 px, para que el embudo quepa entero. */
   const [mini, setMini] = useState(() => { const v = ls.get("menuMini", null); return v == null ? window.innerWidth < 1500 : !!v; });
   const alternarMenu = () => { const v = !mini; ls.set("menuMini", v); setMini(v); };
@@ -8447,8 +8440,9 @@ function App() {
     return lead ? { lead } : null;
   }, [leadDeEvento, clientePorCorreo, clientesById, equipoCorreos]);
 
-  /* ---------- ZH Reuniones: las transcripciones de Meet de los últimos 14 días. Se leen al abrir, cada
-     10 minutos y al volver a la pestaña; sin permiso o sin conector, se muestra en Ajustes qué hacer. */
+  /* ---------- ZH Reuniones: las transcripciones que llegaron en los últimos 14 días (las manda
+     TranscripTonic al terminar cada reunión). Se leen al abrir, cada 10 minutos y al volver a la
+     pestaña; sin permiso o sin conector, se muestra en Ajustes qué hacer. */
   const reuInput = useMemo(() => ({ dias: ZHR_DIAS }), []);
   const recibirReu = useCallback((res) => {
     const p = res && res.payload;
@@ -8489,49 +8483,105 @@ function App() {
   }, [mcp]);
   /* Los nombres del equipo, para que Claude sepa quién habla por ZH en una transcripción de Meet. */
   const nombresEquipo = useMemo(() => [...new Set([...RESPONSABLES.map((r) => r[1]), ...Object.values(equipo).map((x) => String((x && x.nombre) || "").trim()).filter(Boolean), "ZH Development"])], [equipo]);
-  /* De quién es una transcripción: de la reunión que el CRM preparó (meets/), del evento del calendario
-     con ese Meet o de la tarea de la reunión. Una reunión solo con el equipo no se muestra. */
-  const duenoDeTrans = useCallback((t) => {
-    const m = meets && meets[t.codigo];
-    if (m && m.leadId && leadsById[m.leadId]) return { lead: leadsById[m.leadId], titulo: m.titulo || "" };
-    if (m && m.clienteId && clientesById[m.clienteId]) return { cliente: clientesById[m.clienteId], titulo: m.titulo || "" };
-    const ev = t.codigo ? (cal.eventos || []).find((e) => codigoMeet(e.meet) === t.codigo) : null;
-    if (ev) {
+  /* Las reuniones con las que se puede cruzar una transcripción: las que el CRM anotó en meets/ (una
+     por reunión y día, con su lead o cliente) y las del calendario que se está leyendo. */
+  const reunionesConocidas = useMemo(() => {
+    const lista = [];
+    const vistas = new Set();
+    for (const [id, m] of Object.entries(meets || {})) {
+      const ini = Date.parse(m && m.inicio);
+      if (!m || isNaN(ini)) continue;
+      const d = m.leadId && leadsById[m.leadId] ? { lead: leadsById[m.leadId] } : m.clienteId && clientesById[m.clienteId] ? { cliente: clientesById[m.clienteId] } : null;
+      if (!d) continue;
+      vistas.add(id);
+      lista.push({ clave: "m:" + id, codigo: m.codigo || "", titulo: m.titulo || "", ini, fin: Date.parse(m.fin) || ini + DURACION_REUNION * 6e4, ...d });
+    }
+    for (const ev of cal.eventos || []) {
+      if (ev.todoElDia || !ev.meet || ev.estado === "cancelled" || esAnotacion(ev)) continue;
+      const codigo = codigoMeet(ev.meet);
+      const id = codigo ? `${codigo}~${keyOf(ev.inicio)}` : "";
+      if (id && vistas.has(id)) continue;
       const d = duenoDeEvento(ev);
-      if (d) return { ...d, titulo: ev.titulo };
-      if (!deAfuera(ev, equipoCorreos).length) return { interna: true, titulo: ev.titulo };
+      lista.push({ clave: id ? "m:" + id : "e:" + ev.id, codigo, titulo: ev.titulo || "", ini: ev.ini, fin: ev.fin, ...(d || (deAfuera(ev, equipoCorreos).length ? {} : { interna: true })) });
+    }
+    return lista;
+  }, [meets, leadsById, clientesById, cal.eventos, duenoDeEvento, equipoCorreos]);
+  /* De quién es una transcripción. Primero, la reunión que se cruza en el tiempo con ella (con 20
+     minutos de margen), mejor si tiene el mismo código de Meet o el mismo título; si ninguna se
+     cruza, una del mismo lead o cliente con ese código o ese título (las reuniones que se repiten
+     usan el mismo enlace). «clave» identifica la reunión de ese día, para juntar copias. Una reunión
+     solo con el equipo no se muestra. */
+  const duenoDeTrans = useCallback((t) => {
+    const tt = fold(t.tituloMeet || "").replace(/\s+/g, " ").trim();
+    let mejor = null;
+    let puntos = 0;
+    let cruza = false;
+    for (const c of reunionesConocidas) {
+      const ct = fold(c.titulo).replace(/\s+/g, " ").trim();
+      const mismoCodigo = !!t.codigo && c.codigo === t.codigo;
+      const mismoTitulo = tt.length >= 6 && ct === tt;
+      const cruce = Math.min(t.finMs, c.fin + 20 * 6e4) - Math.max(t.ini, c.ini - 20 * 6e4);
+      let p = 0;
+      if (cruce > 0) p = 300 + (mismoCodigo ? 1000 : 0) + (mismoTitulo ? 500 : tt.length >= 6 && ct.length >= 6 && (ct.includes(tt) || tt.includes(ct)) ? 200 : 0) + Math.min(cruce / 6e4, 120);
+      else if (c.lead || c.cliente) p = mismoCodigo ? 100 : mismoTitulo ? 50 : 0;
+      if (p > puntos) { puntos = p; mejor = c; cruza = cruce > 0; }
+    }
+    const delDia = (base) => `${base}~${keyOf(t.inicio)}`;
+    if (mejor) {
+      const quien = mejor.lead ? { lead: mejor.lead } : mejor.cliente ? { cliente: mejor.cliente } : mejor.interna ? { interna: true } : {};
+      return { ...quien, titulo: mejor.titulo || t.tituloMeet, codigo: t.codigo || (cruza && mejor.codigo) || "", clave: cruza ? mejor.clave : delDia(t.codigo ? "m:" + t.codigo : "t:" + tt) };
     }
     const tarea = t.codigo ? (tareas || []).find((x) => x.evento && codigoMeet(x.evento.meet) === t.codigo && leadsById[x.leadId]) : null;
-    if (tarea) return { lead: leadsById[tarea.leadId], titulo: tarea.titulo || "" };
-    return { titulo: (m && m.titulo) || (ev && ev.titulo) || "" };
-  }, [meets, leadsById, clientesById, cal.eventos, duenoDeEvento, equipoCorreos, tareas]);
-  /* Las transcripciones que faltan por registrar (las listas y las que Google todavía prepara). */
+    if (tarea) return { lead: leadsById[tarea.leadId], titulo: tarea.titulo || t.tituloMeet, clave: delDia("m:" + t.codigo) };
+    return { titulo: t.tituloMeet, clave: t.codigo ? delDia("m:" + t.codigo) : "" };
+  }, [reunionesConocidas, tareas, leadsById]);
+  /* Las transcripciones que faltan por registrar. Dos copias de la misma reunión (por ejemplo, Lorenzo
+     y Nicolás con la extensión) se muestran una vez, la más completa; y una reunión ya registrada o
+     descartada no vuelve aunque llegue otra copia. */
   const transPendientes = useMemo(() => {
     if (!reu.lista || !transReg) return [];
-    return reu.lista.filter((t) => !transReg[docTrans(t.id)]).map((t) => ({ ...t, ...duenoDeTrans(t) })).filter((t) => !t.interna).sort((a, b) => (b.lista - a.lista) || (b.ini - a.ini));
+    const hechas = new Set(Object.values(transReg).map((x) => x && x.reunion).filter(Boolean));
+    const grupos = [];
+    for (const t of reu.lista) {
+      if (transReg[docTrans(t.id)]) continue;
+      const x = { ...t, ...duenoDeTrans(t) };
+      if (x.interna || (x.clave && hechas.has(x.clave))) continue;
+      const g = grupos.find((y) => (x.clave ? y.clave === x.clave : !y.clave && fold(y.tituloMeet) === fold(x.tituloMeet) && Math.min(y.finMs, x.finMs) > Math.max(y.ini, x.ini)));
+      if (!g) grupos.push({ ...x, dups: [] });
+      else if (x.intervenciones > g.intervenciones) { const dups = [...g.dups, g.id]; Object.assign(g, x, { dups }); }
+      else g.dups.push(x.id);
+    }
+    return grupos.sort((a, b) => b.ini - a.ini);
   }, [reu.lista, transReg, duenoDeTrans]);
   /* «Registrar»: abre la ficha del lead (Registrar reunión) o del cliente (Registrar) con la
      transcripción; Claude arma el plan o el acta y nada se guarda hasta confirmarlo. */
   const registrarTranscripcion = useCallback((t, dest) => {
     const d = dest || (t.lead ? { tipo: "lead", id: t.lead.id } : t.cliente ? { tipo: "cliente", id: t.cliente.id } : null);
     if (!d) return;
-    const meet = { id: t.id, codigo: t.codigo, inicio: t.inicio, fin: t.fin, doc: t.doc || "", titulo: t.titulo || "" };
+    const meet = { id: t.id, codigo: t.codigo, inicio: t.inicio, fin: t.fin, titulo: t.titulo || "", clave: t.clave || "", dups: t.dups || [] };
     setModal(null);
     setDrawer(d.tipo === "cliente" ? { kind: "cliente", id: d.id, tab: "registrar", meet } : { kind: "lead", id: d.id, tab: "reunion", meet });
   }, []);
+  /* Lo que se hizo con una transcripción y sus copias: «registrada» (con su actividad), «descartada» o
+     «repetida» (otra copia de una reunión ya registrada). */
+  const guardarDestino = useCallback(async (t, datos) => {
+    const base = { codigo: t.codigo || "", inicio: t.inicio, fin: t.fin || "", reunion: t.clave || null, leadId: null, clienteId: null, ...datos };
+    await wrapApi.setTranscripcion(docTrans(t.id), { ...base, transcripcion: t.id });
+    for (const id of (t.dups || []).filter(idTransOk)) await wrapApi.setTranscripcion(docTrans(id), { ...base, transcripcion: id, ...(base.estado === "registrada" ? { estado: "repetida", repetidaDe: t.id } : {}) });
+  }, [wrapApi]);
   const descartarTranscripcion = useCallback(async (t) => {
     if (!wrapApi) return;
-    const id = docTrans(t.id);
     try {
-      await wrapApi.setTranscripcion(id, { transcripcion: t.id, codigo: t.codigo, inicio: t.inicio, fin: t.fin, estado: "descartada", leadId: null, clienteId: null });
-      toast("Transcripción descartada: no se registra.", "", { label: "Deshacer", fn: async () => { try { await wrapApi.deleteTranscripcion(id); toast("Listo: volvió a «Reuniones transcritas»."); } catch (e) { toast(dbErrorText(e), "bad"); } } });
+      await guardarDestino(t, { estado: "descartada" });
+      const ids = [t.id, ...(t.dups || [])].filter(idTransOk).map(docTrans);
+      toast("Transcripción descartada: no se registra.", "", { label: "Deshacer", fn: async () => { try { for (const id of ids) await wrapApi.deleteTranscripcion(id); toast("Listo: volvió a «Reuniones transcritas»."); } catch (e) { toast(dbErrorText(e), "bad"); } } });
     } catch (e) { toast(dbErrorText(e), "bad"); }
-  }, [wrapApi, toast]);
+  }, [wrapApi, toast, guardarDestino]);
   /* Al confirmar el plan o el acta: la transcripción queda registrada, unida a su actividad. */
   const marcarTranscripcion = useCallback(async (meet, dueno, actividadId) => {
     if (!wrapApi || !meet || !idTransOk(meet.id)) return;
-    try { await wrapApi.setTranscripcion(docTrans(meet.id), { transcripcion: meet.id, codigo: meet.codigo || "", inicio: meet.inicio, fin: meet.fin || "", doc: meet.doc || "", estado: "registrada", leadId: dueno.leadId || null, clienteId: dueno.clienteId || null, actividadId: actividadId || null }); } catch (e) { console.error("[crm] transcripción", e); }
-  }, [wrapApi]);
+    try { await guardarDestino(meet, { estado: "registrada", leadId: dueno.leadId || null, clienteId: dueno.clienteId || null, actividadId: actividadId || null }); } catch (e) { console.error("[crm] transcripción", e); }
+  }, [wrapApi, guardarDestino]);
 
   /* Crea el evento de una reunión (con Meet, y el lead y el equipo invitados) o lo mueve. Devuelve
      el evento o lanza el error del conector: nunca se repite solo. */
@@ -8544,8 +8594,8 @@ function App() {
     else {
       const correo = String(lead.correo || "").trim().toLowerCase();
       const invitados = [...(isEmail(correo) ? [{ email: correo, displayName: lead.nombre || undefined }] : []), ...invitadosEquipo.filter((x) => x !== correo).map((email) => ({ email }))];
-      /* Con ZH Reuniones, Google Meet transcribe la reunión: la invitación lo dice. */
-      const descripcion = `Reunión con ZH Development por Google Meet.${reuListo ? "\nUsamos la transcripción de Google Meet para registrar los acuerdos." : ""}\nzhdevelopment.cl`;
+      /* Con ZH Reuniones, la reunión se transcribe (TranscripTonic): la invitación lo dice. */
+      const descripcion = `Reunión con ZH Development por Google Meet.${reuListo ? "\nTranscribimos la reunión para registrar los acuerdos." : ""}\nzhdevelopment.cl`;
       res = await mcp.callTool(GCAL, "create_event", clean({ ...base, summary: d.resumen, description: descripcion, attendees: invitados.length ? invitados : undefined, addGoogleMeetUrl: true }));
     }
     invalidarCal();
@@ -9013,50 +9063,36 @@ function App() {
     return () => clearTimeout(timer);
   }, [wrapApi, canWrite, cal, leads, tareas, registro]);
 
-  /* ---------- ZH Reuniones: prende la transcripción automática de Meet en las reuniones de los
-     próximos 14 días con leads y clientes que organiza la cuenta de ZH (Google la transcribe sola
-     apenas empieza, con el nombre de cada uno). Una vez por reunión: meets/ recuerda lo hecho; lo que
-     no se pudo se vuelve a intentar al día siguiente, y una falla pasajera, a los 15 minutos. */
+  /* ---------- ZH Reuniones: las reuniones con Meet de leads y clientes (de hoy a 14 días) quedan
+     anotadas en meets/, una por reunión y día, con su lead o cliente. Así una transcripción que llega
+     después se une a quien corresponde aunque el evento ya no esté en lo que se lee del calendario. */
   const reuUlt = useRef({});
   reuUlt.current = { cal, meets, duenoDeEvento };
-  const reuSync = useRef({ corriendo: false, intentos: new Map() });
-  const pasadaReuniones = async () => {
+  const reuSync = useRef({ corriendo: false });
+  const anotarReuniones = async () => {
     const { cal: c, meets: ms, duenoDeEvento: dueno } = reuUlt.current;
-    if (!mcp || !c || c.estado !== "ok" || !c.eventos || !ms) return;
+    if (!c || c.estado !== "ok" || !c.eventos || !ms) return;
     const ahora = Date.now();
-    const intentos = reuSync.current.intentos;
     let n = 0;
     for (const ev of c.eventos) {
-      if (n >= 6) break;
-      if (ev.todoElDia || !ev.hora || ev.estado === "cancelled" || esAnotacion(ev) || !ev.propio || ev.fin <= ahora || ev.ini - ahora > ZHR_DIAS * 864e5) continue;
+      if (n >= 10) break;
+      if (ev.todoElDia || !ev.hora || ev.estado === "cancelled" || esAnotacion(ev) || ev.fin <= ahora - 6 * 36e5 || ev.ini - ahora > ZHR_DIAS * 864e5) continue;
       const codigo = codigoMeet(ev.meet);
-      if (!codigo) continue;
-      const m = ms[codigo];
-      if (m && (m.estado === "lista" || ahora - (Date.parse(m.preparada) || 0) < 864e5)) continue;
-      if (ahora - (intentos.get(codigo) || 0) < 15 * 6e4) continue;
-      const d = dueno(ev);
+      const d = codigo ? dueno(ev) : null;
       if (!d) continue;
-      intentos.set(codigo, ahora);
+      const id = `${codigo}~${keyOf(ev.inicio)}`;
+      const datos = { codigo, eventoId: ev.id, titulo: clip(ev.titulo, 140), inicio: ev.inicio, fin: new Date(ev.fin).toISOString(), leadId: d.lead ? d.lead.id : null, clienteId: d.cliente ? d.cliente.id : null };
+      const m = ms[id];
+      if (m && ["eventoId", "titulo", "inicio", "fin", "leadId", "clienteId"].every((k) => (m[k] || null) === (datos[k] || null))) continue;
       n += 1;
-      const base = { codigo, eventoId: ev.id, titulo: clip(ev.titulo, 140), inicio: ev.inicio, fin: new Date(ev.fin).toISOString(), leadId: d.lead ? d.lead.id : null, clienteId: d.cliente ? d.cliente.id : null, preparada: nowISO() };
-      try {
-        await mcp.callTool(ZHR, "preparar_reunion", { meet: ev.meet });
-        await wrapApi.setMeet(codigo, { ...base, estado: "lista" });
-        setReuPrep({ error: null, fecha: nowISO() });
-      } catch (e) {
-        const k = codigoReu(e);
-        setReuPrep({ error: e || {}, fecha: nowISO() });
-        if (MEET_SIN[k]) { await wrapApi.setMeet(codigo, { ...base, estado: k, detalle: clip(String((e && e.message) || ""), 300) }); continue; }
-        /* Sin permiso, sin la cuenta de Google o sin respuesta: nada más por ahora. */
-        break;
-      }
+      await wrapApi.setMeet(id, datos);
     }
   };
   const sincronizarReuniones = async () => {
     const s = reuSync.current;
     if (s.corriendo) return;
     s.corriendo = true;
-    try { await pasadaReuniones(); } catch (e) { console.error("[crm] reuniones", e); } finally { s.corriendo = false; }
+    try { await anotarReuniones(); } catch (e) { console.error("[crm] reuniones", e); } finally { s.corriendo = false; }
   };
   useEffect(() => {
     if (!wrapApi || !canWrite || !reuListo || cal.estado !== "ok" || meets === null || leads === null || clientes === null) return undefined;
@@ -9068,7 +9104,7 @@ function App() {
     db, api: wrapApi, me, yo, leads: leads || [], leadsById, acts, drafts, equipo, cfg, sampleState, setSampleState, downloads, toast, nameOf, team, redactarTareas,
     tareas: tareas || [], tareasPorLead, siguienteDe, completarTarea, marcarTarea, agendarReunion, moverEtapa, cerrarTareasDe,
     cal, calCuenta, calListo, equipoCorreos, registro: registro || {}, leadDeEvento, permitirCalendario, refrescarCalendario, abrirPermisos, moverReunion, crearEventoDeReunion, recordatorio, prepararReunion, escribirEvento, invitadosEquipo, tareasPorCliente,
-    reu, reuListo, reuPrep, meets: meets || {}, transReg: transReg || {}, transPendientes, permitirReuniones, refrescarReuniones, leerTranscripcion, nombresEquipo, registrarTranscripcion, descartarTranscripcion, marcarTranscripcion, duenoDeEvento,
+    reu, reuListo, meets: meets || {}, transReg: transReg || {}, transPendientes, permitirReuniones, refrescarReuniones, leerTranscripcion, nombresEquipo, registrarTranscripcion, descartarTranscripcion, marcarTranscripcion, duenoDeEvento,
     anotarEnCalendario, anotarTarea, anotarCobro, cobroCal, devolverLlamada,
     assets, subirArchivo, borrarArchivo, guardarPropuesta, diasEnEtapa,
     clientes: clientes || [], clientesById, proyectos: proyectos || [], proyectosById, cobros: cobros || [], mantenciones: mantenciones || [], solicitudes: solicitudes || [],

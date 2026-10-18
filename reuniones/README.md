@@ -1,52 +1,56 @@
 # zh-reuniones
 
-El conector «ZH Reuniones»: un servidor MCP en Vercel (https://zh-reuniones.vercel.app) que prende
-la transcripción automática de Google Meet en las reuniones de la cuenta de ZH y lee las
-transcripciones, con el nombre de quien habla. El CRM lo usa a través del conector de claude.ai
-(capacidad `mcp`). La puesta en marcha está en `docs/reuniones-transcripcion.md`.
+El conector «ZH Reuniones»: un servidor MCP en Vercel (https://zh-reuniones.vercel.app) que recibe
+las transcripciones de las reuniones de Google Meet y se las entrega al CRM a través del conector de
+claude.ai (capacidad `mcp`). Las transcripciones las hace **TranscripTonic**, una extensión gratis y
+de código abierto de Chrome que guarda los subtítulos de Meet con el nombre de quien habla y, al
+terminar cada reunión, los manda a este servidor (su «webhook»). No hace falta Google Workspace
+Business Standard ni Google Cloud. La puesta en marcha está en `docs/reuniones-transcripcion.md`.
 
-No guarda nada: los clientes OAuth, los códigos y las llaves son fichas firmadas (JWT con HMAC), y
-las transcripciones se piden a Google en cada llamada.
+Las transcripciones esperan en una base Upstash Redis del proyecto (se crea en Vercel → Storage) y se
+borran solas a los 14 días. Los clientes OAuth, los códigos y las llaves son fichas firmadas (JWT
+con HMAC): eso no se guarda.
 
 ## Herramientas (MCP)
 
 | Herramienta | Entrada | Respuesta |
 |---|---|---|
-| `preparar_reunion` | `{meet}`: enlace o código de Meet | `{codigo, transcripcion: "automatica", yaEstaba}`. Prende `autoTranscriptionGeneration` del espacio (`PATCH spaces/{space}`). |
-| `transcripciones` | `{dias?: 1-30 (14), codigos?: [...]}` | `{transcripciones: [{id, codigo, inicio, fin, estado: "lista" \| "procesando", doc}]}`: las de reuniones terminadas, con el documento de Google Docs. |
-| `leer_transcripcion` | `{id}`: `conferenceRecords/…/transcripts/…` | `{id, participantes, intervenciones, texto}`: una línea por intervención, «Nombre: lo que dijo». |
+| `transcripciones` | `{dias?: 1-30 (14)}` | `{transcripciones: [{id, titulo, codigo, software, inicio, fin, estado: "lista", participantes, intervenciones}]}`, sin el texto. `titulo` es el de la reunión en Meet (el del evento del calendario o el código de Meet); `codigo`, el código si el título lo es. |
+| `leer_transcripcion` | `{id}`: `tt-…` | `{id, titulo, participantes, intervenciones, texto}`: una línea por intervención, «Nombre: lo que dijo», y el chat de la reunión al final. |
 
 Una falla conocida vuelve con `isError: true`, el mensaje en `content` y
-`structuredContent: {error, mensaje}`, con `error` = `ajena` (la reunión no es de la cuenta),
-`sin_transcripcion` (Google no lo permite: edición de Workspace o reunión ajena), `sin_enlace`,
-`sin_id`, `google_reconectar` (falta o venció la autorización de la cuenta) o `google`.
+`structuredContent: {error, mensaje}`, con `error` = `sin_almacen` (falta crear la base),
+`no_existe` (ya se borró), `sin_id` o `almacen` (la base no respondió).
 
 ## Rutas
 
 | Ruta | Qué hace |
 |---|---|
-| `/` | Estado: qué falta configurar y la dirección del conector. |
+| `/` | Estado: qué falta configurar, la dirección del conector y el enlace a la dirección para TranscripTonic. |
+| `/api/transcripcion?t=<token>` | El webhook de TranscripTonic (POST, cuerpo «advanced» o «simple»). El token sale de `CLAVE_EQUIPO`. La misma reunión mandada otra vez reemplaza a la anterior; una sin nada transcrito no se guarda. |
+| `/api/equipo` | Con la clave del equipo, muestra la dirección del webhook para pegarla en la extensión. |
 | `/mcp` | El conector (JSON-RPC por POST, sin sesión). Sin llave válida: 401 con `WWW-Authenticate` y `resource_metadata`. |
 | `/.well-known/oauth-protected-resource[/mcp]`, `/.well-known/oauth-authorization-server` | Descubrimiento (RFC 9728 y RFC 8414). |
 | `/api/oauth/register` | Registro dinámico (RFC 7591): solo las direcciones de regreso de claude.ai, claude.com y locales. |
-| `/api/oauth/authorize` → `/api/oauth/google` | Inicio de sesión con Google (solo `EQUIPO` y `GOOGLE_CUENTA`) y código de 5 minutos con PKCE S256. |
-| `/api/oauth/token` | Llave de acceso de 1 hora y de renovación de 60 días. Quien sale de `EQUIPO` deja de renovar. |
-| `/api/google/conectar` → `/api/google/callback` | Conectar la cuenta de ZH (solo `GOOGLE_CUENTA`, con todos los permisos): muestra una vez la llave para `GOOGLE_REFRESH_TOKEN`. |
+| `/api/oauth/authorize` | Pide la clave del equipo y entrega un código de 5 minutos con PKCE S256. Desde el décimo intento equivocado en una hora, la misma dirección queda bloqueada una hora. |
+| `/api/oauth/token` | Llave de acceso de 1 hora y de renovación de 60 días. Si cambia la clave del equipo, ninguna sirve más. |
 
-Sin `GOOGLE_CLIENT_ID` y `GOOGLE_CLIENT_SECRET`, las rutas de inicio de sesión responden 503 con lo
-que falta.
+Sin `CLAVE_EQUIPO` (o con menos de 16 caracteres), las rutas de conexión y el webhook responden 503
+con lo que falta.
 
 ## Variables de entorno
 
-`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_CUENTA` (la cuenta de ZH), `EQUIPO` (correos de
-quienes pueden usar el conector, separados por comas), `GOOGLE_REFRESH_TOKEN` (la autorización de
-la cuenta de ZH), `AUTH_SECRET` (opcional; si no está, las fichas se firman con el secreto de
-Google) y `BASE_URL` (opcional; si no está, la dirección sale de la solicitud).
+| Variable | Qué es |
+|---|---|
+| `CLAVE_EQUIPO` | La clave del equipo (Sensitive, 16 caracteres o más). Con ella se conecta el conector en claude.ai y de ella salen el token del webhook y la firma de las llaves. |
+| `KV_REST_API_URL`, `KV_REST_API_TOKEN` | La base Upstash Redis; las deja Vercel al crearla y conectarla al proyecto (también sirven `UPSTASH_REDIS_REST_URL` y `UPSTASH_REDIS_REST_TOKEN`). |
+| `AUTH_SECRET` | Opcional: se suma a la clave del equipo para firmar las llaves. |
+| `BASE_URL` | Opcional; si no está, la dirección sale de la solicitud. |
 
 ## Desarrollo y despliegue
 
 ```bash
-cd reuniones && npm test     # node --test, con Google simulado y correos inventados
+cd reuniones && npm test     # node --test, con la base simulada y datos inventados
 ```
 
 El proyecto de Vercel es `zh-reuniones` (equipo zh-dev-projects), con Node 22 y sin paso de

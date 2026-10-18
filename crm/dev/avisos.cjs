@@ -289,13 +289,15 @@ const SEED = {
   await page.locator(".modal .check", { hasText: "Claude redacta un WhatsApp para confirmarle" }).locator("input").check();
   await shot(page, "a07-otro-dia.png");
   await page.locator(".modal .btn.primary", { hasText: "Guardar" }).click();
-  ok(await toast(page, "Taller Norte: llamarlo el lun") && await toast(page, "a las 10:00. Quedó anotado en Google Calendar."), "el aviso dice cuándo y que quedó en el calendario");
+  /* Un domingo, «El lunes» es mañana: el CRM lo dice así. */
+  const cuandoLunes = lunes === addDays(T, 1) ? "mañana" : "el lun";
+  ok(await toast(page, "Taller Norte: llamarlo " + cuandoLunes) && await toast(page, "a las 10:00. Quedó anotado en Google Calendar."), "el aviso dice cuándo y que quedó en el calendario");
   ok(await esperar(page, (o) => [...window.__mockStore].some(([k, v]) => k.startsWith("tareas/") && v.leadId === "lead-d" && v.titulo === "Volver a llamar (lo pidió)" && v.fecha === o && v.hora === "10:00" && v.calendario && v.calendario.id), lunes), "queda la llamada de ese día a esa hora, anotada en el calendario");
   dump = await store(page);
   ok(dump["tareas/tar-d1"].estado === "hecha" && dump["leads/lead-d"].intentos === 0 && !!dump["leads/lead-d"].ultimoContacto, "la llamada de hoy queda hecha y cuenta como contacto");
   ok(docs(dump, "actividades").some((a) => a.leadId === "lead-d" && a.tipo === "llamada" && a.resultado === "volver" && /^Pidió que lo llamemos (el lun, \d+ \w+|mañana) a las 10:00\. Está en terreno/.test(a.resumen)), "y en el historial: «Pidió que lo llamemos…», con la nota");
   ok(await esperar(page, () => [...window.__mockStore].some(([k, v]) => k.startsWith("borradores/") && v.leadId === "lead-d" && v.canal === "whatsapp" && v.tareaId)), "Claude deja el WhatsApp de confirmación, unido a su tarea");
-  ok(await page.evaluate(() => window.__mockPrompts.some((p) => p.includes("pidió que lo llamemos el lun") && p.includes("Sin presionar"))), "con el día y la hora que pidió");
+  ok(await page.evaluate((o) => window.__mockPrompts.some((p) => p.includes("pidió que lo llamemos " + o) && p.includes("Sin presionar")), cuandoLunes), "con el día y la hora que pidió");
 
   /* ---------------- me llamó y no contesté ---------------- */
   await page.locator(".drawer .quick-acts button", { hasText: "Me llamó y no contesté" }).click();

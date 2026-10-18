@@ -1,5 +1,5 @@
 /* El conector MCP (HTTP, sin sesión). Sin llave válida responde 401 con dónde autorizarse. */
-import { json, base, equipo, configurado } from "../lib/http.js";
+import { json, base, listo } from "../lib/http.js";
 import { verificar } from "../lib/jwt.js";
 import { atender } from "../lib/mcp.js";
 
@@ -9,13 +9,13 @@ const sinAcceso = (req) => new Response(JSON.stringify({ error: "invalid_token",
 });
 
 function usuario(req) {
-  if (!configurado()) return null;
+  if (!listo()) return null;
   const m = (req.headers.get("authorization") || "").match(/^Bearer\s+(\S+)$/i);
   const t = m && verificar(m[1], "acceso");
-  if (!t || !equipo().includes(t.e)) return null;
+  if (!t) return null;
   /* La llave es para este conector (mismo servidor), aunque la dirección traiga otra forma. */
   try { if (t.aud && new URL(t.aud).host !== new URL(base(req)).host) return null; } catch { return null; }
-  return t.e;
+  return t.e || "equipo";
 }
 
 export async function POST(req) {

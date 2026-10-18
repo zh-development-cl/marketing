@@ -82,8 +82,8 @@ archivos** y el historial (lo último, con «Ver los N» para todo); y cuatro he
   notas (ver «Llamadas: qué hacer según cómo salió»).
 - **Registrar reunión:** igual que la llamada, para la reunión de descubrimiento o de seguimiento
   (por Meet o en persona): el plan deja el lead en «Reunión concretada» y trae las tareas, como
-  enviar la propuesta o el resumen, y la próxima reunión si quedó una. Las reuniones por Meet de la
-  cuenta de ZH se transcriben solas y llegan desde Hoy con la transcripción (ver «Reuniones
+  enviar la propuesta o el resumen, y la próxima reunión si quedó una. Las reuniones por Meet se
+  transcriben solas con TranscripTonic y llegan desde Hoy con la transcripción (ver «Reuniones
   transcritas»).
 - **Redactar:** con Claude, canal (WhatsApp o correo), objetivo (primer contacto, seguimiento,
   agendar reunión, confirmar reunión, enviar propuesta, recordatorio, reactivar, agradecer u otro),
@@ -230,37 +230,41 @@ usan ids fijos: `tar-cal-<id>` y `lead-web-<id>`).
 
 ## Reuniones transcritas (Google Meet)
 
-Con el conector propio **ZH Reuniones** (`reuniones/` en este repositorio, en Vercel; la puesta en
-marcha está en `docs/reuniones-transcripcion.md`), las reuniones por Meet quedan registradas sin
-grabar nada desde el computador:
+**TranscripTonic**, una extensión gratis de Chrome, guarda los subtítulos de cada reunión de Google
+Meet con el nombre de quien habla y, al terminar, se los manda al conector propio **ZH Reuniones**
+(`reuniones/` en este repositorio, en Vercel), que los guarda 14 días. La puesta en marcha está en
+`docs/reuniones-transcripcion.md`. No hace falta Google Workspace Business Standard ni grabar nada
+desde el CRM, pero quien entra a la reunión tiene que tener la extensión en su Chrome:
 
-- **Antes:** en las reuniones de los próximos 14 días con un lead o un cliente (un invitado con el
-  correo del lead o de un contacto del cliente) que organiza la cuenta de ZH, el CRM prende la
-  transcripción automática de Google Meet (`preparar_reunion`), una vez por reunión. Google la
-  transcribe sola apenas empieza, con el nombre de cada uno, y avisa en la reunión. Hoy →
-  Calendario y la tarea de la reunión dicen «Se transcribe»; si no se pudo (la organizó otra
-  cuenta, o Google no lo permite), «No se transcribe» con el motivo, y se vuelve a intentar al día
-  siguiente. Las de otra cuenta y las del equipo solo no se tocan. Con ZH Reuniones conectado, la
-  invitación que crea el CRM dice que la reunión se transcribe.
-- **Después:** las transcripciones de los últimos 14 días (se leen al abrir y cada 10 minutos)
-  aparecen en Hoy, arriba de «Lo que toca», en **«Reuniones transcritas»**, unidas a su lead o
-  cliente (por `meets/`, el evento del calendario o la tarea con ese Meet). Las que Google todavía
-  prepara se ven sin botón.
-- **Registrar** abre la ficha con la transcripción (la lee de Google con `leer_transcripcion`) y
-  Claude arma solo, sabiendo quién habla por ZH:
+- **Antes:** las reuniones con Meet de los próximos 14 días con un lead o un cliente (un invitado
+  con el correo del lead o de un contacto del cliente) quedan anotadas en `meets/`, una por reunión
+  y día, con su lead o cliente; las del equipo solo, no. No se llama al servidor. Con ZH Reuniones
+  conectado, la invitación que crea el CRM dice que la reunión se transcribe (dilo también al
+  empezar: Google no avisa).
+- **Después:** las transcripciones que llegaron en los últimos 14 días (se leen al abrir y cada 10
+  minutos) aparecen en Hoy, arriba de «Lo que toca», en **«Reuniones transcritas»**, unidas a su
+  lead o cliente por la hora y el título: la reunión de `meets/` o del calendario que se cruza con
+  la transcripción (con 20 minutos de margen), mejor si tiene el mismo título; si ninguna se cruza,
+  una del mismo código de Meet o el mismo título (las que se repiten usan el mismo enlace). Dos
+  copias de la misma reunión (Lorenzo y Nicolás con la extensión) se ven una vez, la más completa;
+  las del equipo solo no se muestran.
+- **Registrar** abre la ficha con la transcripción (`leer_transcripcion`) y Claude arma solo,
+  sabiendo quién habla por ZH (los socios, la cuenta de ZH y «You», que es quien la guardó):
   - en un **lead**, el plan de siempre (qué pasó, etapa, tareas, la próxima reunión con Meet en el
     calendario de la cuenta de ZH y el equipo invitado, la confirmación); la reunión queda con su
-    hora y duración reales, quién participó y el enlace al documento de Google Docs, y la tarea de
-    esa reunión queda hecha (la del mismo Meet o la de ese día, nunca una futura);
+    hora y duración reales y quién participó, y la tarea de esa reunión queda hecha (la del mismo
+    Meet o la de ese día, nunca una futura);
   - en un **cliente**, el acta con las **tareas de ZH** (con día y responsable, editables) y la
     **próxima reunión**, que se crea en Google Calendar con Meet invitando al contacto principal y
     al equipo (sin calendario o sin hora, queda la tarea de agendarla).
   Nada se guarda hasta confirmar. La transcripción completa se guarda solo si se marca.
 - **Asignar:** una transcripción que el CRM no reconoce se asigna a un lead o a un cliente con un
-  buscador. **Descartar** (con «Deshacer») la saca de la lista, por ejemplo una reunión interna.
-- **Ajustes → Transcripción de reuniones** dice si está conectado (cuántas transcripciones y cuántas
-  reuniones próximas se transcriben) y, si no, qué hacer: agregar el conector, «Permitir ZH
-  Reuniones», dejar las herramientas en «Permitir siempre» o volver a conectar la cuenta de Google.
+  buscador; si la unió a quien no era, «No es de aquí» abre el mismo buscador. **Descartar** (con
+  «Deshacer») la saca de la lista, por ejemplo una reunión interna. Una reunión registrada o
+  descartada no vuelve aunque llegue otra copia.
+- **Ajustes → Transcripción de reuniones** dice si está conectado (cuántas transcripciones llegaron)
+  y, si no, qué hacer: agregar el conector, «Permitir ZH Reuniones», dejar las herramientas en
+  «Permitir siempre» o crear la base del servidor en Vercel.
 
 Las tareas de un cliente (las del acta) van con `clienteId` y sin `leadId`: se ven en Hoy (en «Lo
 que toca», con el nombre del cliente) y en la ficha del cliente («Tareas de ZH»), y el círculo las
@@ -394,8 +398,8 @@ la ficha:
   garantía, recordatorio de pago, respuesta a una solicitud, coordinar reunión, pedir opinión,
   mantención u otro. Claude recibe los datos del cliente, el proyecto (etapa, hitos y garantía),
   el cobro (factura, vencimiento y total con IVA), la solicitud y el historial.
-- **Registrar reunión con acta:** se pegan o se dictan las notas (o llega la transcripción de Meet,
-  desde Hoy) y Claude arma el acta (resumen, acuerdos, pendientes de ZH y del cliente, próxima
+- **Registrar reunión con acta:** se pegan o se dictan las notas (o llega la transcripción de la
+  reunión, desde Hoy) y Claude arma el acta (resumen, acuerdos, pendientes de ZH y del cliente, próxima
   reunión). Al guardar quedan las tareas de ZH (con día y responsable), la próxima reunión en Google
   Calendar con Meet y las solicitudes que salieron, cada cosa editable antes.
 
@@ -553,8 +557,8 @@ calendario `AAAA-MM-DD` en hora de Chile; marcas de tiempo en ISO. En todas las 
 | `leads` | un lead | `nombre`, `empresa`, `cargo`, `telefono` (E.164, `+569…`), `correo`, `sitio`, `rubro`, `ciudad`, `origen` (`web`, `agenda`, `instagram`, `linkedin`, `referido`, `evento`, `prospeccion`, `otro`), `etapa` (`nuevo`, `contactado`, `reunion_agendada`, `reunion_concretada`, `propuesta`, `negociacion`, `ganado`, `perdido`, `pausa`; un `reunion` antiguo se lee como `reunion_agendada`), `prioridad` (`alta`, `media`, `baja`), `trato` (`tu`, `usted`), `necesidad` (lo que pide, confirmado), `dolor` (lo que suponemos), `comoAyudamos`, `guion`, `notas`, `responsable` (`lorenzo`, `nicolas` o `null`), `proxima` (copia de su primera tarea pendiente: `{tipo, fecha AAAA-MM-DD, hora, nota, tareaId}` o `null`; la página la pone al día sola, y una `proxima` sin `tareaId` se muestra como tarea), `intentos` (llamadas seguidas sin respuesta), `ultimoContacto`, `ultimoIntento`, `motivoPerdida` (`No responde`, `Mal timing`, `No hay fit`, `Está con la competencia`; vacío = falta; puede quedar un texto antiguo), `motivoDetalle` (lo que dijo), `inasistencias` (reuniones a las que no se presentó), `noContactar`, `noContactarDesde`, `valor`, `propuesta` (`{monto, fecha AAAA-MM-DD, enlace, archivo}`: lo enviado; `archivo` es el id del PDF), `archivos[]` (`{id, nombre, tipo, bytes, subido, por, etiqueta}`: `id` es el del archivo guardado en el artifact, que se abre en `/_blob/<id>`; `etiqueta` = `propuesta` o vacío), `caso` (id en `propuestaszh`), `clienteId` (si se convirtió), `creado`, `actualizado`, `creadoPor` |
 | `tareas` | una tarea de un lead o de un cliente | `leadId` (o, en las de un cliente, `clienteId` y `proyectoId`, sin `leadId`: lo que quedó en hacer ZH en una reunión), `tipo` (`llamar`, `whatsapp`, `correo`, `agendar`, `reunion`, `propuesta`, `otro`), `titulo`, `nota` (detalle interno), `fecha` (`AAAA-MM-DD`), `hora` (`HH:MM` o vacío), `duracion` (minutos, en reuniones), `responsable`, `estado` (`pendiente`, `hecha`, `descartada`), `resultado` (en reuniones: `no_se_presento`), `hecha` (ISO), `hechaPor`, `origen` (`llamada`, `reunion`, `no_contesto`, `plan`, `agendar`, `etapa`, `borrador`, `manual`, `migracion`, `calendario`, `agenda_web`, `recordatorio`), `actividadId` (la llamada o reunión de la que salió o que la cumplió), `borradorId` (el mensaje redactado para ella), `mensaje` (en WhatsApp: el texto listo, como el del recordatorio), `reunionId` (en el recordatorio: la reunión; su id es `tar-rec-<id de la reunión>`), `preparacion` y `preparada` (en reuniones: la preparación de Claude y cuándo se hizo), `calendario` (en las que no son reuniones, si se anotó en Google Calendar: `{id, link, fecha, hora}` del evento), `evento` (en reuniones unidas a Google Calendar: `{id, link, meet, respuesta, actualizado, propio, organizador}`, con `respuesta` = `needsAction`, `accepted`, `declined` o `tentative` del lead y `propio` = si lo organiza la cuenta del calendario) |
 | `eventos` | uno por evento de Google Calendar (id del evento) | `leadId`, `tareaId`, `inicio` (ISO), `evActualizado` (el `updated` del evento que se vio), `actualizado` |
-| `meets` | uno por reunión de Meet a la que el CRM le prendió la transcripción (id = el código de Meet, `abc-defg-hij`) | `codigo`, `eventoId`, `titulo`, `inicio`, `fin`, `leadId` o `clienteId`, `estado` (`lista`, o por qué no: `ajena`, `sin_transcripcion`, `sin_enlace`), `detalle`, `preparada` (ISO) |
-| `transcripciones` | una por transcripción de Meet ya registrada o descartada (id `tr-<registro>~<transcripción>`) | `transcripcion` (el id de Google), `codigo`, `inicio`, `fin`, `doc` (el documento de Google Docs), `estado` (`registrada`, `descartada`), `leadId` o `clienteId`, `actividadId`, `por` |
+| `meets` | una por reunión con Meet de un lead o un cliente y día (id = `<código de Meet>~<AAAA-MM-DD>`, como `abc-defg-hij~2026-10-20`), para unir las transcripciones | `codigo`, `eventoId`, `titulo`, `inicio`, `fin`, `leadId` o `clienteId` |
+| `transcripciones` | una por transcripción ya registrada, descartada o repetida (id `tr-<id de la transcripción>`, como `tr-tt-mgv3k2a1-0a1b2c3d`) | `transcripcion` (el id de ZH Reuniones), `codigo`, `inicio`, `fin`, `reunion` (la reunión de ese día: `m:<id de meets>`, `e:<id del evento>` o `t:<título>~<día>`), `estado` (`registrada`, `descartada`, `repetida`: otra copia de una reunión ya registrada), `repetidaDe`, `leadId` o `clienteId`, `actividadId`, `por` |
 | `clientes` | un cliente | `nombre`, `razonSocial`, `rut`, `giro`, `direccion`, `ciudad`, `correoFacturacion`, `sitio`, `rubro`, `contactos[]` (`{id, nombre, cargo, correo, telefono, rol, principal}`, con `rol` = `decisor`, `usuario`, `facturacion`, `tecnico` u `otro`), `responsable`, `trato`, `leadIds[]`, `estado` (`activo`, `archivado`), `etapa` (embudo de clientes: `inicio`, `desarrollo`, `garantia`, `mantencion`, `propuesta`, `sin_servicio`; vacío o `null` = automática, según sus servicios), `propuesta` (`{titulo, valor}` en «Nueva propuesta»), `archivos[]` (como en los leads), `notas` |
 | `proyectos` | un proyecto | `clienteId`, `leadId`, `nombre`, `tipo` (`software`, `automatizacion`, `ia`, `web`, `procesos`, `consultoria`, `otro`), `valor`, `estado` (`por_iniciar`, `entender`, `disenar`, `construir`, `probar`, `mejorar`, `cerrado`, `pausado`, `cancelado`), `inicio`, `entregaEstimada`, `produccion` (desde aquí corre la garantía), `garantiaDias`, `cierre`, `hitos[]` (`{id, nombre, fecha, hecho, fechaHecho, calendario}`, con `calendario` = `{id, link, fecha, hora}` si se anotó), `enlaces[]` (`{id, titulo, url}`), `caso`, `alcance`, `responsable`, `notas` |
 | `cobros` | un cobro | `clienteId`, `proyectoId`, `mantencionId`, `solicitudId`, `tipo` (`anticipo`, `hito`, `cierre`, `mensualidad`, `evolutivo`, `otro`), `concepto`, `monto`, `fecha` (cuándo facturar), `estado` (`por_facturar`, `facturado`, `pagado`, `anulado`), `factura`, `fechaFactura`, `vence`, `fechaPago`, `notas`, `generado`, `ultimoRecordatorio`, `calendario` (si se anotó: `{id, link, fecha, hora, que}`, con `que` = `facturar` o `vence`). Las mensualidades usan el id `cob-m-<id de la mantención>-<AAAA-MM>` |
@@ -601,7 +605,7 @@ NODE_PATH=$(npm root -g) node crm/dev/plan.cjs      # menú de cinco secciones y
 NODE_PATH=$(npm root -g) node crm/dev/menus.cjs     # menús desplegables: mouse, teclado, buscador, Escape y clic afuera, tarjetas, ventanas, teléfono y oscuro
 NODE_PATH=$(npm root -g) node crm/dev/avisos.cjs    # avisos de Hoy, recordatorios en pantalla, anotar en Google Calendar tareas, cobros e hitos, y qué hacer según cómo salió la llamada
 NODE_PATH=$(npm root -g) node crm/dev/registro.cjs  # el plan de Claude al registrar una llamada: editarlo, confirmar, la reunión en el calendario de ZH con Meet e invitados, no contestó y a mano
-NODE_PATH=$(npm root -g) node crm/dev/reuniones.cjs # reuniones transcritas con ZH Reuniones: preparar las de leads y clientes, Hoy, el plan y el acta con la transcripción, tareas del cliente, asignar, descartar, Ajustes y permisos
+NODE_PATH=$(npm root -g) node crm/dev/reuniones.cjs # reuniones transcritas con ZH Reuniones: meets/, Hoy (unir por hora y título, juntar copias), el plan y el acta con la transcripción, tareas del cliente, asignar, descartar, Ajustes y permisos
 ```
 
 `crm/dev/mock-claude.js` imita `window.claude` (base de datos en memoria, Claude con respuestas
@@ -611,8 +615,8 @@ archivos o las fallas al subir; los recordatorios en pantalla dependen de la hor
 salvo con `window.__MOCK_RECORDATORIOS = true`), con `window.__MOCK_MIC` el micrófono y el reconocimiento de voz, y
 con `window.__MOCK_MCP` el conector de Google Calendar (eventos con la forma de `list_events`,
 `create_event` y `update_event`, y los casos sin permiso o sin conector) y con `window.__MOCK_REU`
-el de ZH Reuniones (transcripciones y textos con la forma del servidor de `reuniones/`, fallas al
-preparar, sin permiso, sin conector o sin la cuenta de Google). Las pruebas van a cada vista
+el de ZH Reuniones (transcripciones y textos con la forma del servidor de `reuniones/`, sin permiso,
+sin conector o sin la base del servidor). Las pruebas van a cada vista
 por el menú, como una persona, con `irA(page, vista)` de `crm/dev/ir.cjs`. Al cerrarse, la ficha y
 las ventanas quedan un momento en pantalla para la salida (dentro de `.capa.saliendo`, sin recibir
 clics): después de cerrar una, las pruebas esperan a que se vaya (`waitFor({ state: "detached" })`)
@@ -625,8 +629,8 @@ Para publicar cambios se usa la herramienta Artifact de Claude con `file_path` =
 y `url` = la del CRM (desde otra conversación, sin `url` se crearía un artifact nuevo). Las
 capacidades declaradas son `db`, `user` (alcance `profile`), `sample`, `downloads`, `assets` (los
 archivos; solo para quienes pueden editar) y `mcp` con `Google Calendar` (`list_events`,
-`create_event`, `update_event`) y `ZH Reuniones` (`transcripciones`, `leer_transcripcion`,
-`preparar_reunion`); al republicar sin pasar `capabilities` se conservan. Si se pasan, hay que
+`create_event`, `update_event`) y `ZH Reuniones` (`transcripciones`, `leer_transcripcion`); al
+republicar sin pasar `capabilities` se conservan. Si se pasan, hay que
 repetirlas todas.
 
 ## Próximos pasos posibles
