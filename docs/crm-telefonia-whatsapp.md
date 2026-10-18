@@ -82,15 +82,18 @@ y funciona desde hoy.
 Ninguna app del celular puede grabar una llamada (Apple y Google lo bloquean; solo la app
 Teléfono del iPhone graba, y avisa a las dos personas). Lo que sí funciona sin comprar nada:
 
-1. En el computador, en Chrome o Edge, «Registrar llamada» → «Transcribir en vivo».
-2. Llamas desde el celular en altavoz, junto al computador. El CRM escucha y lo pasa a texto en
-   español de Chile.
-3. Al cortar, «Detener»: Claude arma el plan de la llamada y tú lo confirmas o lo corriges.
+1. En el computador, en Chrome o Edge, «Registrar llamada» → «Transcribir en vivo». Se abre la
+   página de ZH Reuniones en otra pestaña (claude.ai no deja que el CRM use el micrófono; esa
+   página sí). La primera vez pide la clave del equipo y el permiso del micrófono.
+2. Tocas «Empezar» y llamas desde el celular en altavoz, junto al computador. La página escucha y
+   lo pasa a texto en español de Chile.
+3. Al cortar, «Terminar» y vuelves al CRM: la transcripción llega sola a la ficha, Claude arma el
+   plan de la llamada y tú lo confirmas o lo corriges.
 
 No suena ningún aviso y no cuesta nada. El audio no se guarda: el navegador lo manda a su servicio
 de voz (Google en Chrome, Microsoft en Edge) y vuelve solo el texto. La calidad es menor que una
-grabación directa y no separa quién habla, así que conviene un lugar tranquilo. Si claude.ai no
-deja usar el micrófono, el plan B es la escritura por voz de Google Docs (Herramientas → Escritura
+grabación directa y no separa quién habla, así que conviene un lugar tranquilo. Sin ZH Reuniones
+conectado en claude.ai, el plan B es la escritura por voz de Google Docs (Herramientas → Escritura
 por voz), pegando el texto en el CRM.
 
 Las **reuniones por Google Meet** no necesitan nada de esto: la extensión TranscripTonic guarda los

@@ -8,3 +8,4 @@ renders/
 .env.*
 crm/dev/preview.html
 crm/dev/shots/
+reuniones/dev/*.png

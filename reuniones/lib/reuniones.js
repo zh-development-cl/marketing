@@ -1,8 +1,9 @@
-/* Las transcripciones que manda TranscripTonic (la extensión de Chrome que guarda los subtítulos de
-   Google Meet, con el nombre de quien habla) al terminar cada reunión. Esperan en el almacén hasta
-   que se registran en el CRM y se borran a los DIAS días de llegar. Cada una es un archivo
-   (transcripciones/<id>.json) y todas están en un índice sin el texto (indice.json): el CRM solo lee
-   el índice para saber qué llegó, y el texto, al registrar una. */
+/* Las transcripciones: las de Google Meet que manda TranscripTonic (la extensión de Chrome que guarda
+   los subtítulos, con el nombre de quien habla) al terminar cada reunión, y las de «Transcribir en
+   vivo» (/vivo), que escucha una llamada o una reunión presencial y la pasa a texto para un lead o un
+   cliente del CRM. Esperan en el almacén hasta que se registran en el CRM y se borran a los DIAS días
+   de llegar. Cada una es un archivo (transcripciones/<id>.json) y todas están en un índice sin el
+   texto (indice.json): el CRM solo lee el índice para saber qué llegó, y el texto, al registrar una. */
 import { createHash } from "node:crypto";
 import { Falla } from "./http.js";
 import { guardarJson, leerJson, cambiarJson, listar, borrar } from "./almacen.js";
@@ -88,24 +89,56 @@ export async function guardarTranscripcion(d) {
   let texto = lineas.map((l) => `${l.quien}: ${l.texto}`).join("\n");
   if (chat.length) texto += "\n\n[Chat de la reunión]\n" + chat.map((l) => `${l.quien}: ${l.texto}`).join("\n");
   if (texto.length > MAX_TEXTO) texto = texto.slice(0, MAX_TEXTO) + "\n[transcripción recortada]";
-  const doc = { id, titulo, codigo: codigoMeet(titulo), software, inicio: new Date(inicio).toISOString(), fin: new Date(fin).toISOString(), recibida: new Date(ahora).toISOString(), participantes: [...new Set(lineas.map((l) => l.quien))].slice(0, 40), intervenciones: lineas.length, texto };
-  const { texto: _, ...resumen } = doc;
-  /* Primero el texto y después el índice: si el índice falla, el archivo suelto se borra con el barrido. */
-  await guardarJson(TEXTO(id), doc, CACHE_TEXTO);
-  await cambiarJson(INDICE, (lista) => [...(Array.isArray(lista) ? lista : []).filter((t) => vigente(t) && t.id !== id), resumen].slice(-MAX_INDICE), CACHE_INDICE);
+  const doc = { id, origen: "meet", tipo: "reunion", titulo, codigo: codigoMeet(titulo), software, inicio: new Date(inicio).toISOString(), fin: new Date(fin).toISOString(), recibida: new Date(ahora).toISOString(), participantes: [...new Set(lineas.map((l) => l.quien))].slice(0, 40), intervenciones: lineas.length, texto };
+  await guardarDoc(doc);
   try { await barrer(); } catch (e) { console.error("[zh-reuniones] barrer", e && e.message); }
   return { guardada: true, id };
 }
 
-/* Las transcripciones de los últimos días, sin el texto: id, título de la reunión, cuándo fue y quiénes hablaron. */
+/* Primero el texto y después el índice: si el índice falla, el archivo suelto se borra con el barrido. */
+async function guardarDoc(doc) {
+  const { texto: _, ...resumen } = doc;
+  await guardarJson(TEXTO(doc.id), doc, CACHE_TEXTO);
+  await cambiarJson(INDICE, (lista) => [...(Array.isArray(lista) ? lista : []).filter((t) => vigente(t) && t.id !== doc.id), resumen].slice(-MAX_INDICE), CACHE_INDICE);
+}
+
+/* Lo que manda la página «Transcribir en vivo»: las frases que reconoció el navegador, sin el nombre
+   de quien habla, para el lead o el cliente `ref` (su id en el CRM). La misma, mandada otra vez,
+   reemplaza a la anterior. No barre el almacén: las llamadas pueden ser muchas y cada barrido se cobra. */
+export const REF = /^[A-Za-z0-9_.~:@+-]{1,100}$/;
+export async function guardarEnVivo(d) {
+  if (!d || typeof d !== "object" || Array.isArray(d)) throw new Falla("Falta la transcripción.", "sin_datos");
+  const ref = d.ref == null || d.ref === "" ? "" : String(d.ref);
+  if (ref && !REF.test(ref)) throw new Falla("El lead o cliente de la transcripción no es válido.", "sin_ref");
+  const tipo = d.tipo === "reunion" ? "reunion" : "llamada";
+  const frases = (Array.isArray(d.lineas) ? d.lineas.slice(0, 20000) : []).map((x) => limpiar(x, 20000)).filter(Boolean);
+  if (!frases.length) return { guardada: false, motivo: "No se transcribió nada." };
+  const ahora = Date.now();
+  let fin = iso(d.fin);
+  if (!Number.isFinite(fin) || fin > ahora + 300000) fin = ahora;
+  let inicio = iso(d.inicio);
+  if (!Number.isFinite(inicio) || inicio > fin) inicio = fin;
+  if (vieja(inicio)) return { guardada: false, motivo: `La transcripción es de hace más de ${DIAS} días.` };
+  const id = `tt-${inicio.toString(36)}-${createHash("sha256").update(`vivo|${ref}|${inicio}|${tipo}`).digest("hex").slice(0, 8)}`;
+  let texto = frases.join("\n");
+  if (texto.length > MAX_TEXTO) texto = texto.slice(0, MAX_TEXTO) + "\n[transcripción recortada]";
+  await guardarDoc({ id, origen: "vivo", tipo, ...(ref ? { ref } : {}), titulo: tipo === "llamada" ? "Llamada" : "Reunión", codigo: "", software: "ZH Reuniones", inicio: new Date(inicio).toISOString(), fin: new Date(fin).toISOString(), recibida: new Date(ahora).toISOString(), participantes: [], intervenciones: frases.length, texto });
+  return { guardada: true, id };
+}
+
+/* De dónde viene una transcripción y para quién: Meet (TranscripTonic) o en vivo, para un lead o cliente. */
+const procedencia = (t) => ({ origen: t.origen === "vivo" ? "vivo" : "meet", tipo: t.tipo === "llamada" ? "llamada" : "reunion", ...(t.ref ? { ref: t.ref } : {}) });
+
+/* Las transcripciones de los últimos días, sin el texto: id, título, cuándo fue y quiénes hablaron.
+   Con `fresco`, el índice se lee directo del almacén y no del caché (para ver una recién llegada). */
 export async function transcripciones(args) {
   const dias = Math.min(30, Math.max(1, Math.round(Number(args && args.dias)) || DIAS));
   const desde = Date.now() - dias * 864e5;
-  const indice = await leerJson(INDICE);
+  const indice = await leerJson(INDICE, { directo: !!(args && args.fresco === true) });
   const todas = Array.isArray(indice) ? indice : [];
   const lista = todas
     .filter((t) => vigente(t) && Date.parse(t.inicio) >= desde)
-    .map((t) => ({ id: t.id, titulo: t.titulo, codigo: t.codigo, software: t.software, inicio: t.inicio, fin: t.fin, estado: "lista", participantes: t.participantes, intervenciones: t.intervenciones }))
+    .map((t) => ({ id: t.id, ...procedencia(t), titulo: t.titulo, codigo: t.codigo, software: t.software, inicio: t.inicio, fin: t.fin, estado: "lista", participantes: t.participantes, intervenciones: t.intervenciones }))
     .sort((a, b) => Date.parse(b.inicio) - Date.parse(a.inicio));
   if (todas.some((t) => !vigente(t))) {
     try { await quitarViejas(); } catch (e) { console.error("[zh-reuniones] limpiar", e && e.message); }
@@ -113,11 +146,12 @@ export async function transcripciones(args) {
   return { transcripciones: lista };
 }
 
-/* El texto de una transcripción: «Nombre: lo que dijo», una línea por intervención, y el chat al final. */
+/* El texto de una transcripción. Las de Meet: «Nombre: lo que dijo», una línea por intervención, y el
+   chat al final. Las en vivo: una frase por línea, sin el nombre de quien habla. */
 export async function leerTranscripcion(args) {
   const id = String((args && args.id) || "");
   if (!ID.test(id)) throw new Falla("Falta la transcripción que hay que leer.", "sin_id");
   const t = await leerJson(TEXTO(id));
   if (!vigente(t)) throw new Falla(`La transcripción ya no está: se borra sola ${DIAS} días después de llegar.`, "no_existe");
-  return { id: t.id, titulo: t.titulo, participantes: t.participantes, intervenciones: t.intervenciones, texto: t.texto };
+  return { id: t.id, ...procedencia(t), titulo: t.titulo, participantes: t.participantes, intervenciones: t.intervenciones, texto: t.texto };
 }

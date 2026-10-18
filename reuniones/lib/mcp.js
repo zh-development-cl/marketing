@@ -8,14 +8,14 @@ export const HERRAMIENTAS = [
   {
     name: "transcripciones",
     title: "Transcripciones de las reuniones",
-    description: "Lista las transcripciones de las reuniones de ZH (Google Meet, guardadas con TranscripTonic) que llegaron en los últimos días (14 si no se dice): título de la reunión, cuándo fue y quiénes hablaron.",
-    inputSchema: { type: "object", properties: { dias: { type: "integer", minimum: 1, maximum: 30, description: "Cuántos días hacia atrás." } }, additionalProperties: false },
+    description: "Lista las transcripciones que llegaron en los últimos días (14 si no se dice), sin el texto: las reuniones de Google Meet (origen «meet», guardadas con TranscripTonic) y las llamadas o reuniones transcritas en vivo desde el CRM (origen «vivo», con «ref», el id del lead o cliente). Cada una trae tipo (reunion o llamada), título, cuándo fue y quiénes hablaron.",
+    inputSchema: { type: "object", properties: { dias: { type: "integer", minimum: 1, maximum: 30, description: "Cuántos días hacia atrás." }, fresco: { type: "boolean", description: "Leer directo del almacén, sin caché, para ver una que acaba de llegar." } }, additionalProperties: false },
     annotations: { title: "Transcripciones de las reuniones", readOnlyHint: true, openWorldHint: false },
   },
   {
     name: "leer_transcripcion",
     title: "Leer una transcripción",
-    description: "Devuelve el texto de una transcripción: una línea por intervención, con el nombre de quien habla, y el chat de la reunión al final.",
+    description: "Devuelve el texto de una transcripción. Las de Meet traen una línea por intervención, con el nombre de quien habla, y el chat de la reunión al final; las en vivo, una frase por línea, sin el nombre de quien habla.",
     inputSchema: { type: "object", properties: { id: { type: "string", description: "El id que entrega «transcripciones» (tt-…)." } }, required: ["id"], additionalProperties: false },
     annotations: { title: "Leer una transcripción", readOnlyHint: true, openWorldHint: false },
   },
@@ -36,8 +36,8 @@ export async function atender(msg) {
     return ok(id, {
       protocolVersion: version,
       capabilities: { tools: { listChanged: false } },
-      serverInfo: { name: "zh-reuniones", title: "ZH Reuniones", version: "2.0.0" },
-      instructions: "Transcripciones de las reuniones de ZH Development por Google Meet (guardadas con la extensión TranscripTonic), con el nombre de quien habla, para registrarlas en el CRM.",
+      serverInfo: { name: "zh-reuniones", title: "ZH Reuniones", version: "2.1.0" },
+      instructions: "Transcripciones de ZH Development para registrarlas en el CRM: las reuniones por Google Meet (guardadas con la extensión TranscripTonic, con el nombre de quien habla) y las llamadas o reuniones transcritas en vivo desde el CRM.",
     });
   }
   if (method.startsWith("notifications/")) return null;

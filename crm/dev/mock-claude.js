@@ -246,10 +246,14 @@
      window.__MOCK_MIC = { modo: "ok", frases: [...], cortar: true } el micrófono entrega un tono y
      el reconocimiento dicta las frases (con «cortar», termina la sesión como Chrome tras un
      silencio, para probar que se retoma). Otros modos: "bloqueado" (claude.ai no deja usar el
-     micrófono), "sin_micro" y "sin_soporte" (navegador sin reconocimiento de voz). */
+     micrófono y se nota al pedirlo), "politica" (como en claude.ai: la política de permisos ya dice
+     que no, antes de pedirlo), "sin_micro" y "sin_soporte" (navegador sin reconocimiento de voz). */
   const mic = window.__MOCK_MIC;
   if (mic) {
     window.__srStarts = 0;
+    if (mic.modo === "politica") {
+      try { Object.defineProperty(document, "permissionsPolicy", { value: Object.freeze({ allowsFeature: (f) => f !== "microphone" }), configurable: true }); } catch (e) { /* sin política simulada */ }
+    }
     if (mic.modo === "sin_soporte") {
       window.SpeechRecognition = undefined;
       window.webkitSpeechRecognition = undefined;
@@ -257,7 +261,7 @@
       if (!navigator.mediaDevices) Object.defineProperty(navigator, "mediaDevices", { value: {}, configurable: true });
       navigator.mediaDevices.getUserMedia = async () => {
         await tick(60);
-        if (mic.modo === "bloqueado") throw new DOMException("Permission denied by permissions policy", "NotAllowedError");
+        if (mic.modo === "bloqueado" || mic.modo === "politica") throw new DOMException("Permission denied by permissions policy", "NotAllowedError");
         if (mic.modo === "sin_micro") throw new DOMException("Requested device not found", "NotFoundError");
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
         const osc = ctx.createOscillator();

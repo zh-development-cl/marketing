@@ -66,8 +66,8 @@ estancados, metas y archivos»); **las tareas** (ver «Tareas y flujo automátic
 ayudamos y el guion, plegables (abiertos mientras no hay reunión hecha); los borradores, **los
 archivos** y el historial (lo último, con «Ver los N» para todo); y cuatro herramientas:
 
-- **Registrar llamada:** se toca «Transcribir en vivo», se habla y al tocar «Detener» **Claude arma
-  el plan** (con notas en vez de grabación, «Armar el plan con Claude»): qué pasó, el resultado
+- **Registrar llamada:** se toca «Transcribir en vivo» (se abre ZH Reuniones en otra pestaña), se
+  habla y al tocar «Terminar» la transcripción vuelve sola y **Claude arma el plan** (con notas en vez de grabación, «Armar el plan con Claude»): qué pasó, el resultado
   (contestó, no contestó, pidió que lo llamemos…), la etapa, la reunión si quedó una con día y
   hora, las tareas de ZH, lo que quedó en hacer el lead, los datos nuevos y el puntaje de la
   llamada. **Nada se guarda ni se agenda hasta confirmar:** todo se puede corregir (el texto, el
@@ -262,6 +262,10 @@ desde el CRM, pero quien entra a la reunión tiene que tener la extensión en su
   buscador; si la unió a quien no era, «No es de aquí» abre el mismo buscador. **Descartar** (con
   «Deshacer») la saca de la lista, por ejemplo una reunión interna. Una reunión registrada o
   descartada no vuelve aunque llegue otra copia.
+- **En vivo:** las llamadas y reuniones en persona transcritas con «Transcribir en vivo» (ver
+  «Llamadas y transcripción») llegan por el mismo conector, con el lead o cliente desde cuya ficha
+  se abrió la página (`ref`): se unen a ese, sin cruzarlas con el calendario, y sin él quedan sin
+  asociar. Con alguna llamada, el grupo de Hoy se llama «Reuniones y llamadas transcritas».
 - **Ajustes → Transcripción de reuniones** dice si está conectado (cuántas transcripciones llegaron)
   y, si no, qué hacer: agregar el conector, «Permitir ZH Reuniones», dejar las herramientas en
   «Permitir siempre» o revisar el almacén del servidor en Vercel.
@@ -492,24 +496,33 @@ pasó. Según cómo salió la llamada:
 
 ## Llamadas y transcripción
 
-Ningún celular deja que otra app grabe una llamada, así que el CRM la escucha desde el computador:
+Ningún celular deja que otra app grabe una llamada, así que se escucha desde el computador. Como
+claude.ai no deja que el CRM use el micrófono, lo hace la página «Transcribir en vivo» de ZH
+Reuniones (`reuniones/`, el mismo servidor que recibe las reuniones de Meet):
 
-1. En el computador, abre la ficha del lead → «Registrar llamada» → **«Transcribir en vivo»** y
-   permite el micrófono.
-2. Llama desde el celular en altavoz, con el celular junto al computador.
-3. Al cortar, «Detener». El texto queda en «Transcripción», una línea por frase, y Claude arma el
-   plan de la llamada para confirmarlo o corregirlo (Claude sabe que no separa quién habla).
+1. En el computador, abre la ficha del lead → «Registrar llamada» → **«Transcribir en vivo»**. Se
+   abre ZH Reuniones en otra pestaña con el lead y el tipo (llamada o reunión). La primera vez en
+   ese navegador pide la clave del equipo (dura 6 meses) y Chrome pide permiso para el micrófono.
+2. Toca «Empezar» y llama desde el celular en altavoz, junto al computador.
+3. Al cortar, «Terminar». La transcripción queda en ZH Reuniones para ese lead, una línea por
+   frase. Al volver a la pestaña del CRM, la ficha la lee sola (sin caché) y Claude arma el plan de
+   la llamada para confirmarlo o corregirlo (sabe que no separa quién habla). Si la ficha ya no
+   estaba abierta, la llamada aparece en Hoy, en «Reuniones y llamadas transcritas», unida al lead:
+   «Registrar» abre «Registrar llamada» con ella.
 
-Funciona en Chrome o Edge, que pasan la voz a texto con su servicio de voz (Google o Microsoft);
-el audio no se guarda, solo el texto, y por defecto tampoco la transcripción completa: quedan las
-notas y el análisis. Si Chrome corta la escucha tras un silencio, se retoma sola. Lo que se va
-transcribiendo queda en el navegador hasta guardar la llamada, por si se cierra la ficha. Lo mismo
-sirve para las reuniones con leads («Registrar reunión») y con clientes («Registrar» → Reunión o
-Llamada).
+Funciona en Chrome o Edge, que pasan la voz a texto con su servicio de voz (Google o Microsoft).
+El audio no se guarda, solo el texto, que ZH Reuniones borra a los 14 días; en el CRM, por defecto,
+quedan las notas y el análisis, sin la transcripción completa. Si Chrome corta la escucha tras un
+silencio, se retoma sola. Lo transcrito queda en ese navegador hasta mandarlo: si la pestaña se
+cierra a medias, al volver ofrece mandarlo. Lo mismo sirve para las reuniones en persona con leads
+(«Registrar reunión») y con clientes («Registrar» → Reunión o Llamada; en una reunión, Claude arma
+el acta).
 
-Si claude.ai o el navegador no dejan usar el micrófono, el CRM lo dice y muestra el plan B: la
-escritura por voz de Google Docs, pegando el texto al final. Cada intento deja su resultado en
-`diagnostico/microfono-<usuario>` de la base, para revisarlo sin capturas de pantalla.
+Sin ZH Reuniones conectado, «Transcribir en vivo» intenta usar el micrófono desde el CRM y, como
+claude.ai no lo deja, muestra el plan B: la escritura por voz de Google Docs, pegando el texto al
+final. Cada intento deja su resultado en `diagnostico/microfono-<usuario>` de la base, para
+revisarlo sin capturas de pantalla. El «Apoyo en vivo» de abajo solo funciona cuando el CRM mismo
+escucha (no con la página de ZH Reuniones).
 
 También se puede dictar las notas justo al cortar (micrófono del teclado del teléfono) o pegar una
 transcripción hecha en otra herramienta. Las demás opciones, sus costos y lo legal están en
@@ -564,7 +577,7 @@ calendario `AAAA-MM-DD` en hora de Chile; marcas de tiempo en ISO. En todas las 
 | `cobros` | un cobro | `clienteId`, `proyectoId`, `mantencionId`, `solicitudId`, `tipo` (`anticipo`, `hito`, `cierre`, `mensualidad`, `evolutivo`, `otro`), `concepto`, `monto`, `fecha` (cuándo facturar), `estado` (`por_facturar`, `facturado`, `pagado`, `anulado`), `factura`, `fechaFactura`, `vence`, `fechaPago`, `notas`, `generado`, `ultimoRecordatorio`, `calendario` (si se anotó: `{id, link, fecha, hora, que}`, con `que` = `facturar` o `vence`). Las mensualidades usan el id `cob-m-<id de la mantención>-<AAAA-MM>` |
 | `mantenciones` | un plan mensual | `clienteId`, `proyectoId`, `plan`, `monto` (al mes), `incluye`, `inicio`, `diaCobro` (1-28), `estado` (`activa`, `pausada`, `terminada`), `fin`, `notas` |
 | `solicitudes` | un pedido de un cliente | `clienteId`, `proyectoId`, `titulo`, `descripcion`, `canal` (`correo`, `whatsapp`, `llamada`, `reunion`, `otro`), `tipo` (`error`, `cambio`, `consulta`, `acceso`, `otro`), `cobertura` (`garantia`, `mantencion`, `evolutivo`, `por_definir`), `prioridad` (`alta`, `media`, `baja`), `estado` (`nueva`, `en_curso`, `esperando_cliente`, `resuelta`, `descartada`), `responsable`, `horasEstimadas`, `horasReales`, `cotizacion` (`{monto, estado, cobroId}`, con `estado` = `por_enviar`, `enviada`, `aprobada` o `rechazada`), `resolucion`, `analisis`, `resuelta` (ISO) |
-| `actividades` | un contacto o cambio | `leadId` o `clienteId` (más `proyectoId`, `cobroId`, `solicitudId`), `tipo` (`llamada`, `whatsapp`, `correo`, `reunion`, `nota`, `etapa`, `cliente`, `proyecto`, `cobro`, `solicitud`), `fecha` (ISO; en una reunión de Meet, cuando empezó), `autor`, `resultado` (en llamadas: `contesto`, `no_contesto`, `buzon`, `ocupado`, `volver` = pidió que llamemos después, `equivocado`), `linea` (solo en llamadas antiguas: ya no se usa), `duracion`, `resumen`, `notas` (lo escrito, si no es el resumen), `transcripcion`, `meet` (en reuniones transcritas: `{codigo, transcripcion, doc, inicio, fin, participantes[]}`), `grabacionAvisada`, `analisis`, `acta` (en reuniones con cliente: `{resumen, acuerdos[], pendientesZH[], pendientesCliente[], solicitudes[], proximaReunion, proximaHora}`), en llamadas y reuniones con leads `analisis` (`resumen`, `necesidades`, `objeciones`, `etapaSugerida`, `reunion` (`{fecha, hora, duracion, titulo}` o `null`), `tareas[]` con `{quien: zh|lead, que, tipo, fecha, hora}` y `evaluacion` con `{puntaje, criterios: {apertura, descubrimiento, escucha, valor, objeciones, cierre: {nota, comentario}}, bien[], mejorar[]}`), `accion` (en cobros y solicitudes), `de`, `a`, `borradorId` |
+| `actividades` | un contacto o cambio | `leadId` o `clienteId` (más `proyectoId`, `cobroId`, `solicitudId`), `tipo` (`llamada`, `whatsapp`, `correo`, `reunion`, `nota`, `etapa`, `cliente`, `proyecto`, `cobro`, `solicitud`), `fecha` (ISO; en una reunión de Meet, cuando empezó), `autor`, `resultado` (en llamadas: `contesto`, `no_contesto`, `buzon`, `ocupado`, `volver` = pidió que llamemos después, `equivocado`), `linea` (solo en llamadas antiguas: ya no se usa), `duracion`, `resumen`, `notas` (lo escrito, si no es el resumen), `transcripcion`, `meet` (en reuniones transcritas: `{codigo, transcripcion, doc, inicio, fin, participantes[]}`), `vivo` (en las transcritas con «Transcribir en vivo»: `{transcripcion, inicio, fin}`), `grabacionAvisada`, `analisis`, `acta` (en reuniones con cliente: `{resumen, acuerdos[], pendientesZH[], pendientesCliente[], solicitudes[], proximaReunion, proximaHora}`), en llamadas y reuniones con leads `analisis` (`resumen`, `necesidades`, `objeciones`, `etapaSugerida`, `reunion` (`{fecha, hora, duracion, titulo}` o `null`), `tareas[]` con `{quien: zh|lead, que, tipo, fecha, hora}` y `evaluacion` con `{puntaje, criterios: {apertura, descubrimiento, escucha, valor, objeciones, cierre: {nota, comentario}}, bien[], mejorar[]}`), `accion` (en cobros y solicitudes), `de`, `a`, `borradorId` |
 | `borradores` | un correo o WhatsApp | `leadId`, o `clienteId` con `contactoId`, `proyectoId`, `cobroId` y `solicitudId`; `canal` (`correo`, `whatsapp`), `estado` (`por_revisar`, `listo`, `enviado`, `descartado`), `objetivo` (a clientes: `avance`, `entrega`, `cobro`, `solicitud`, `reunion`, `feedback`, `mantencion`, `libre`), `instrucciones`, `firma` (id de usuario), `generadoPor`, `tareaId` (la tarea que cumple al enviarse); correo: `plantilla` (`carta`, `destacado`), `asunto`, `preheader`, `etiqueta`, `titular`, `saludo`, `parrafos[]`, `puntos[]`, `cta {texto, url}`, `cierre`, `posdata`; WhatsApp: `texto` |
 | `equipo` | uno por usuario (id `u_…`) | `nombre`, `cargo`, `telefono`, `correo` (la firma) |
 | `diagnostico` | `microfono-<id de usuario>` | último resultado de «Transcribir en vivo»: `ok`, `paso`, `tipo`, `error`, `politica`, `enMarco`, `navegador`, `fecha` |
@@ -595,6 +608,7 @@ python3 crm/dev/build_preview.py                    # arma crm/dev/preview.html 
 NODE_PATH=$(npm root -g) node crm/dev/smoke.cjs     # leads, llamadas y borradores (capturas en crm/dev/shots)
 NODE_PATH=$(npm root -g) node crm/dev/clientes.cjs  # etapa con clientes: lead ganado, proyecto, cobros, soporte, acta
 NODE_PATH=$(npm root -g) node crm/dev/microfono.cjs # transcribir en vivo, con micrófono simulado
+NODE_PATH=$(npm root -g) node crm/dev/envivo.cjs    # «Transcribir en vivo» con ZH Reuniones: el botón abre su página, la ficha espera y carga la transcripción, Hoy, el cliente y el plan B
 NODE_PATH=$(npm root -g) node crm/dev/embudo.cjs    # embudos de leads y de clientes, y Proyectos: carriles, arrastrar (mouse y dedo), montos, filtros, responsables, no contestó y motivos de pérdida
 NODE_PATH=$(npm root -g) node crm/dev/tareas.cjs    # tareas y flujo automático: grabar y guardar solo, agendar, ¿se hizo?, propuesta y deshacer, menú contraído
 NODE_PATH=$(npm root -g) node crm/dev/calendario.cjs # Google Calendar: unir eventos con leads, reservas de la web, mover, invitaciones, crear y mover eventos, permisos

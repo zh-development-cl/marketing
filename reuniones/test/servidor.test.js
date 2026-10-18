@@ -15,6 +15,8 @@ const webhook = await import("../api/transcripcion.js");
 const equipoPag = await import("../api/equipo.js");
 const wellKnown = await import("../api/well-known.js");
 const inicio = await import("../api/inicio.js");
+const vivo = await import("../api/vivo.js");
+const vivoGuardar = await import("../api/vivo-guardar.js");
 
 const CLAVE = "Prueba1$";
 const H = "https://zh.test";
@@ -393,6 +395,88 @@ test("lo que cumple 14 días se borra: del índice al listar y los archivos suel
   const nueva = await (await mandar(reunion({ meetingTitle: "Otra reunión" }))).json();
   assert.ok(!archivos.has("transcripciones/tt-suelta-0123abcd.json"));
   assert.deepEqual((await llamar(llaves.access_token, "transcripciones", {})).structuredContent.transcripciones.map((t) => t.id), [nueva.id]);
+});
+
+/* La página «Transcribir en vivo»: la clave una vez por navegador y la cookie que deja. */
+async function galletaVivo() {
+  const r = await postForm(vivo, "/vivo?ref=lead-1&tipo=llamada", { clave: CLAVE, ref: "lead-1", tipo: "llamada" });
+  return (r.headers.get("set-cookie") || "").split(";")[0];
+}
+const mandarVivo = (galleta, cuerpo, tipo = "application/json") => vivoGuardar.POST(new Request(H + "/api/vivo-guardar", { method: "POST", body: typeof cuerpo === "string" ? cuerpo : JSON.stringify(cuerpo), headers: { "content-type": tipo, ...(galleta ? { cookie: galleta } : {}) } }));
+
+test("«Transcribir en vivo» pide la clave una vez y deja la cookie del equipo", async () => {
+  assert.equal((await get(vivo, "/vivo?ref=lead-1&tipo=llamada")).status, 503);
+  await conClave();
+  const pide = await get(vivo, "/vivo?ref=lead-1&tipo=llamada");
+  assert.equal(pide.status, 200);
+  assert.match(pide.headers.get("content-security-policy"), /form-action 'self';/);
+  assert.doesNotMatch(pide.headers.get("content-security-policy"), /script-src/);
+  assert.match(await pide.text(), /name="clave"/);
+  const mala = await postForm(vivo, "/vivo", { clave: "no-es", ref: "lead-1", tipo: "llamada" });
+  assert.equal(mala.status, 403);
+  assert.equal(mala.headers.get("set-cookie"), null);
+  const buena = await postForm(vivo, "/vivo", { clave: CLAVE, ref: "lead-1", tipo: "llamada" });
+  assert.equal(buena.status, 303);
+  assert.equal(buena.headers.get("location"), "/vivo?ref=lead-1&tipo=llamada");
+  assert.match(buena.headers.get("set-cookie"), /^zhr_equipo=[^;]+; Path=\/; Max-Age=15552000; HttpOnly; Secure; SameSite=Lax$/);
+  const galleta = buena.headers.get("set-cookie").split(";")[0];
+  const pagina = await vivo.GET(new Request(H + "/vivo?ref=lead-1&tipo=llamada", { headers: { cookie: galleta } }));
+  assert.equal(pagina.status, 200);
+  const csp = pagina.headers.get("content-security-policy");
+  assert.match(csp, /script-src 'nonce-[A-Za-z0-9+/=]+'; connect-src 'self'/);
+  const texto = await pagina.text();
+  assert.ok(texto.includes(`<script nonce="${csp.match(/'nonce-([^']+)'/)[1]}">`));
+  assert.ok(texto.includes('{"ref":"lead-1","tipo":"llamada"}'));
+  assert.match(texto, /celular en altavoz/);
+  const rara = await (await vivo.GET(new Request(H + "/vivo?ref=lead%201%3Cx&tipo=reunion", { headers: { cookie: galleta } }))).text();
+  assert.ok(rara.includes('{"ref":"","tipo":"reunion"}'));
+  assert.match(rara, /sin asociar/);
+  assert.equal((await vivo.GET(new Request(H + "/vivo", { headers: { cookie: galleta + "x" } }))).status, 200);
+});
+
+test("lo transcrito en vivo se guarda solo con la cookie y en JSON, como llamada del lead", async () => {
+  await conClave();
+  const galleta = await galletaVivo();
+  const cuerpo = { ref: "lead-1", tipo: "llamada", inicio: hace(12), fin: hace(1), lineas: ["Hola, ¿hablo con Ana?", "  ", "Sí, con ella."] };
+  assert.equal((await mandarVivo("", cuerpo)).status, 401);
+  assert.equal((await mandarVivo(galleta, "lineas=hola", "application/x-www-form-urlencoded")).status, 415);
+  contar();
+  const r = await mandarVivo(galleta, cuerpo);
+  assert.equal(r.status, 200);
+  const g = await r.json();
+  assert.deepEqual([g.ok, g.guardada], [true, true]);
+  assert.deepEqual([ops.escrituras, ops.listados], [2, 0]);
+  const otra = await (await mandarVivo(galleta, cuerpo)).json();
+  assert.equal(otra.id, g.id);
+  const { llaves } = await conectarConector();
+  const [t] = (await llamar(llaves.access_token, "transcripciones", {})).structuredContent.transcripciones;
+  assert.deepEqual({ id: t.id, origen: t.origen, tipo: t.tipo, ref: t.ref, titulo: t.titulo, intervenciones: t.intervenciones, participantes: t.participantes }, { id: g.id, origen: "vivo", tipo: "llamada", ref: "lead-1", titulo: "Llamada", intervenciones: 2, participantes: [] });
+  assert.ok(Math.abs(Date.parse(t.fin) - (Date.now() - 60000)) < 5000);
+  const leida = await llamar(llaves.access_token, "leer_transcripcion", { id: g.id });
+  assert.equal(leida.structuredContent.texto, "Hola, ¿hablo con Ana?\nSí, con ella.");
+  assert.equal(leida.structuredContent.origen, "vivo");
+  const vacia = await (await mandarVivo(galleta, { ...cuerpo, lineas: ["   "] })).json();
+  assert.deepEqual([vacia.ok, vacia.guardada], [true, false]);
+  const mala = await mandarVivo(galleta, { ...cuerpo, ref: "lead 1" });
+  assert.equal(mala.status, 400);
+  assert.equal((await mala.json()).code, "sin_ref");
+  const sinLead = await (await mandarVivo(galleta, { lineas: ["Una reunión sin lead."], tipo: "reunion" })).json();
+  const lista = (await llamar(llaves.access_token, "transcripciones", {})).structuredContent.transcripciones;
+  const suelta = lista.find((x) => x.id === sinLead.id);
+  assert.deepEqual([suelta.tipo, suelta.ref, suelta.titulo], ["reunion", undefined, "Reunión"]);
+});
+
+test("las de Meet dicen de dónde vienen, y «fresco» lee el índice sin caché", async () => {
+  await conClave();
+  await mandar(reunion());
+  const { llaves } = await conectarConector();
+  contar();
+  const [t] = (await llamar(llaves.access_token, "transcripciones", {})).structuredContent.transcripciones;
+  assert.deepEqual([t.origen, t.tipo, t.ref], ["meet", "reunion", undefined]);
+  assert.deepEqual([ops.cache, ops.directas], [1, 0]);
+  contar();
+  await llamar(llaves.access_token, "transcripciones", { dias: 1, fresco: true });
+  assert.deepEqual([ops.cache, ops.directas], [0, 1]);
 });
 
 test("los errores llevan su código: sin id, ya no está, almacén caído y sin almacén", async () => {

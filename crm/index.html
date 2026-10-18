@@ -1767,12 +1767,14 @@ const idTransOk = (id) => /^tt-[a-z0-9]{1,20}-[a-f0-9]{8}$/.test(String(id || ""
 const docTrans = (id) => "tr-" + String(id);
 /* Una transcripción de la lista: el título es el de la reunión en Meet (el del evento del calendario,
    o el código de Meet si no tiene). */
+/* De dónde viene: «meet» (TranscripTonic) o «vivo» («Transcribir en vivo», para el lead o cliente «ref»). */
+const refTransOk = (x) => /^[A-Za-z0-9_.~:@+-]{1,100}$/.test(String(x || ""));
 function normTrans(t) {
   if (!t || typeof t !== "object" || !idTransOk(t.id)) return null;
   const ini = Date.parse(t.inicio);
   const fin = Date.parse(t.fin);
   if (isNaN(ini)) return null;
-  return { id: t.id, codigo: codigoMeet(t.codigo), tituloMeet: clip(String(t.titulo || "").trim(), 200), inicio: new Date(ini).toISOString(), fin: isNaN(fin) ? "" : new Date(fin).toISOString(), ini, finMs: isNaN(fin) ? ini : Math.max(ini, fin), lista: true, participantes: strArr(t.participantes, 40), intervenciones: Number(t.intervenciones) || 0 };
+  return { id: t.id, origen: t.origen === "vivo" ? "vivo" : "meet", tipo: t.tipo === "llamada" ? "llamada" : "reunion", ref: refTransOk(t.ref) ? t.ref : "", codigo: codigoMeet(t.codigo), tituloMeet: clip(String(t.titulo || "").trim(), 200), inicio: new Date(ini).toISOString(), fin: isNaN(fin) ? "" : new Date(fin).toISOString(), ini, finMs: isNaN(fin) ? ini : Math.max(ini, fin), lista: true, participantes: strArr(t.participantes, 40), intervenciones: Number(t.intervenciones) || 0 };
 }
 const minutosTrans = (t) => { const a = Date.parse(t.inicio); const b = Date.parse(t.fin); return isNaN(a) || isNaN(b) ? 0 : Math.max(1, Math.round((b - a) / 6e4)); };
 /* «Hoy a las 10:30», «el vie 16 oct a las 15:00»: cuándo empezó una reunión transcrita. */
@@ -3647,9 +3649,9 @@ function TransFila({ t }) {
   const abrir = t.lead ? () => openLead(t.lead.id) : t.cliente ? () => openCliente(t.cliente.id) : null;
   const min = minutosTrans(t);
   return html`<div class=${cx("trans", !t.lista && "proc")}>
-    <span class="trans-ico" aria-hidden="true"><${Icon} name="meet" size=${15} /></span>
+    <span class="trans-ico" aria-hidden="true"><${Icon} name=${t.origen === "vivo" ? (t.tipo === "llamada" ? "phone" : "mic") : "meet"} size=${15} /></span>
     <div class="trans-main">
-      <p class="trans-titulo">${quien ? html`<button type="button" class="linkbtn" onClick=${abrir}>${quien}</button>` : html`<b>Reunión sin asociar</b>`}${t.titulo ? html`<span class="muted"> · ${quien ? tituloDeEvento(t.titulo, t.lead || { empresa: quien }) : clip(t.titulo, 80)}</span>` : null}</p>
+      <p class="trans-titulo">${quien ? html`<button type="button" class="linkbtn" onClick=${abrir}>${quien}</button>` : html`<b>${t.origen === "vivo" && t.tipo === "llamada" ? "Llamada" : "Reunión"} sin asociar</b>`}${t.titulo && (quien || t.origen !== "vivo") ? html`<span class="muted"> · ${quien ? tituloDeEvento(t.titulo, t.lead || { empresa: quien }) : clip(t.titulo, 80)}</span>` : null}</p>
       <p class="trans-meta">${cap(cuandoTrans(t))}${min ? ` · ${min} min` : ""}${t.cliente ? " · cliente" : ""}${quien ? html` · <button type="button" class="linkbtn" title="Registrarla en otro lead o cliente" onClick=${() => openModal({ type: "asignarTrans", t })}>No es de aquí</button>` : null}</p>
     </div>
     ${t.lista && canWrite ? html`<div class="trans-acts">
@@ -3703,6 +3705,9 @@ function HoyView() {
     return !!c && deQuien(x.responsable || c.responsable);
   }).sort(tareaOrden);
   const transListas = transPendientes.filter((x) => x.lista);
+  /* Con llamadas transcritas en vivo, el grupo ya no es solo de reuniones. */
+  const conLlamadas = transListas.some((x) => x.origen === "vivo" && x.tipo === "llamada");
+  const grupoTrans = conLlamadas ? "Reuniones y llamadas transcritas" : "Reuniones transcritas";
   const atrasadas = lista.filter((x) => x.fecha && x.fecha < t);
   const deHoy = lista.filter((x) => x.fecha === t);
   const proximas = lista.filter((x) => x.fecha > t && diffDays(t, x.fecha) <= 7);
@@ -3742,7 +3747,7 @@ function HoyView() {
   if (vencidos.length > 3) avisos.push({ k: "c-mas", tono: "late", icon: "coin", texto: `Y ${vencidos.length - 3} ${vencidos.length - 3 === 1 ? "pago vencido más" : "pagos vencidos más"}.`, accion: html`<button type="button" class="btn small" onClick=${() => nav("cobros")}>Ver cobros</button>` });
 
   const frase = [];
-  if (transListas.length) frase.push(`${transListas.length} ${transListas.length === 1 ? "reunión transcrita" : "reuniones transcritas"} por registrar`);
+  if (transListas.length) frase.push(`${transListas.length} ${conLlamadas ? (transListas.length === 1 ? "llamada transcrita" : "transcripciones") : transListas.length === 1 ? "reunión transcrita" : "reuniones transcritas"} por registrar`);
   if (paraHoy) frase.push(`${paraHoy} ${paraHoy === 1 ? "tarea" : "tareas"} para hoy${atrasadas.length ? ` (${atrasadas.length} ${atrasadas.length === 1 ? "atrasada" : "atrasadas"})` : ""}`);
   if (nuevos.length) frase.push(`${nuevos.length} ${nuevos.length === 1 ? "lead" : "leads"} por contactar`);
   if (agendaHoy.length) frase.push(`${agendaHoy.length} ${agendaHoy.length === 1 ? "pendiente de clientes" : "pendientes de clientes"}`);
@@ -3787,8 +3792,8 @@ function HoyView() {
       <div class="stack">
         <section class="panel lo-que-toca" aria-label="Lo que toca"><div class="panel-head"><h2>Lo que toca</h2>${porLlamar ? html`<button type="button" class="btn small" onClick=${() => nav("llamar")}><${Icon} name="phone" />Llamar en serie · ${porLlamar}</button>` : html`<span class="eyebrow">${paraHoy} para hoy</span>`}</div>
           <div class="panel-body">
-            ${transPendientes.length ? html`<div class="hoy-grupo" aria-label="Reuniones transcritas"><p class="task-group claude">Reuniones transcritas · ${transListas.length}</p>
-              <p class="small muted">TranscripTonic las guardó con el nombre de quien habla. Al registrarla, Claude arma el plan o el acta y tú lo confirmas.</p>
+            ${transPendientes.length ? html`<div class="hoy-grupo" aria-label=${grupoTrans}><p class="task-group claude">${grupoTrans} · ${transListas.length}</p>
+              <p class="small muted">${conLlamadas ? "Las de Meet traen el nombre de quien habla; las de «Transcribir en vivo», no." : "TranscripTonic las guardó con el nombre de quien habla."} Al registrarla, Claude arma el plan o el acta y tú lo confirmas.</p>
               <div class="trans-lista">${transPendientes.slice(0, 6).map((x) => html`<${TransFila} key=${x.id} t=${x} />`)}</div></div>` : null}
             ${grupo("Atrasadas", atrasadas, "late")}
             ${deHoy.length ? grupo("Hoy", deHoy, "") : html`<p class="task-group">Hoy</p><p class="empty">${atrasadas.length ? "Nada más para hoy." : "No hay tareas para hoy."}</p>`}
@@ -4622,7 +4627,7 @@ function LeadDrawer({ id, tab: initialTab, meet, onClose }) {
             ${noc ? null : html`<button type="button" title="Redactar un correo o un WhatsApp con Claude" aria-pressed=${tab === "redactar" ? "true" : "false"} onClick=${() => setTab(tab === "redactar" ? "" : "redactar")}><${Icon} name="spark" />Redactar</button>`}
             <button type="button" aria-pressed=${tab === "otro" ? "true" : "false"} onClick=${() => setTab(tab === "otro" ? "" : "otro")}><${Icon} name="note" />Nota</button>
           </div>
-          ${(tab === "llamada" && !noc) || tab === "reunion" ? html`<${RegistroContacto} key=${tab} modo=${tab} lead=${lead} hist=${hist} meet=${tab === "reunion" ? meetVivo : null} onDone=${(r) => { setTab(""); if (r) setListo(r); }} />` : null}
+          ${(tab === "llamada" && !noc) || tab === "reunion" ? html`<${RegistroContacto} key=${tab} modo=${tab} lead=${lead} hist=${hist} meet=${meetVivo && tab === (meetVivo.origen === "vivo" && meetVivo.tipo === "llamada" ? "llamada" : "reunion") ? meetVivo : null} onDone=${(r) => { setTab(""); if (r) setListo(r); }} />` : null}
           ${tab === "redactar" && !noc ? html`<${Composer} lead=${lead} hist=${hist} onDone=${() => setTab("")} />` : null}
           ${tab === "otro" ? html`<${OtherLogger} lead=${lead} onDone=${() => setTab("")} />` : null}
           ${!tab ? html`<div class="work-body"><p class="small muted">Graba la llamada o la reunión y Claude deja las tareas, la etapa y los borradores listos. También puedes pedirle un correo o un WhatsApp, o anotar algo que mandaste por fuera.</p></div>` : null}
@@ -4732,8 +4737,10 @@ function cleanTranscript(raw) {
 
 /* «Transcribir en vivo»: con el celular en altavoz junto al computador, el CRM escucha con el
    micrófono del computador y el reconocimiento de voz del navegador lo pasa a texto (Chrome y Edge
-   usan el servicio de voz de Google o de Microsoft). El audio no se guarda: solo el texto. Si
-   claude.ai o el navegador no dejan usar el micrófono, muestra el plan B con Google Docs. */
+   usan el servicio de voz de Google o de Microsoft). El audio no se guarda: solo el texto. claude.ai
+   no deja que el CRM use el micrófono: con ZH Reuniones conectado (`externo`), el botón abre su página
+   «Transcribir en vivo» en otra pestaña, que sí puede escuchar, y la transcripción vuelve sola a la
+   ficha. Sin ZH Reuniones, muestra el plan B con Google Docs. */
 const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition || null;
 const MIC_FALLAS = {
   politica: "claude.ai no deja que el CRM use el micrófono.",
@@ -4750,7 +4757,7 @@ const politicaMic = () => { try { const p = document.permissionsPolicy || docume
 const mmss = (s) => `${Math.floor(s / 60)}:${pad2(s % 60)}`;
 const pantallaTactil = () => { try { return matchMedia("(pointer: coarse)").matches; } catch (e) { return false; } };
 
-function LiveTranscriber({ onText, onStart, onStop, children }) {
+function LiveTranscriber({ onText, onStart, onStop, children, externo, tipo, esperando, onEsperar, onRevisar }) {
   const { api } = useCtx();
   const [fase, setFase] = useState("listo");
   const [interim, setInterim] = useState("");
@@ -4914,6 +4921,15 @@ function LiveTranscriber({ onText, onStart, onStop, children }) {
   };
 
   if (fase === "listo") {
+    if (externo && (politicaMic() === false || !SpeechRec || MIC_PLAN_B.has(falla))) {
+      return html`<div class="live">
+        <div class="live-row">
+          <a class="btn small" href=${externo} target="_blank" rel="noopener" onClick=${() => onEsperar && onEsperar(Date.now())}><${Icon} name="mic" />Transcribir en vivo</a>
+          <span class="small muted">${pantallaTactil() ? "Ábrelo en el computador: si llamas desde este mismo celular, la llamada ocupa el micrófono." : `Se abre ZH Reuniones en otra pestaña y escucha ${tipo === "reunion" ? "la conversación" : "la llamada con el celular en altavoz al lado"}. Al tocar «Terminar» allá, la transcripción llega sola aquí.`}</span>
+        </div>
+        ${esperando ? html`<div class="note" role="status"><${Icon} name="info" /><div>Esperando la transcripción de ZH Reuniones. Cuando toques «Terminar» en esa pestaña y vuelvas aquí, se carga sola. <button type="button" class="linkbtn" onClick=${onRevisar}>Revisar ahora</button></div></div>` : null}
+      </div>`;
+    }
     return html`<div class="live">
       ${falla ? html`<div class=${cx("note", MIC_PLAN_B.has(falla) ? "warn" : "bad")} role="alert"><${Icon} name="info" /><div><b>${MIC_FALLAS[falla]}</b>${MIC_PLAN_B.has(falla) ? html`<span style="display:block;margin-top:4px">Mientras tanto, con la escritura por voz de Google Docs:</span><ol class="live-pasos">${MIC_PASOS_B.map((x) => html`<li>${x}</li>`)}</ol>` : null}</div></div>` : null}
       <div class="live-row">
@@ -5063,13 +5079,16 @@ function PlanClaude({ plan, set, lead, esReunion, an, nuevosDatos, conTranscripc
 }
 
 function RegistroContacto({ lead, hist, onDone, modo, meet: meet0 }) {
-  const { api, toast, sampleState, setSampleState, canWrite, redactarTareas, tareasPorLead, yo, me, changeStage, calListo, anotarTarea, agendarReunion, leerTranscripcion, nombresEquipo, marcarTranscripcion } = useCtx();
+  const { api, toast, sampleState, setSampleState, canWrite, redactarTareas, tareasPorLead, yo, me, changeStage, calListo, anotarTarea, agendarReunion, leerTranscripcion, nombresEquipo, marcarTranscripcion, reu, transReg, reuListo, revisarReuniones } = useCtx();
   const esReunion = modo === "reunion";
   const nombreReg = esReunion ? "reunión" : "llamada";
   const llave = (esReunion ? "reunion:" : "llamada:") + lead.id;
-  /* Una reunión de Meet transcrita (desde «Reuniones transcritas» en Hoy): se lee su transcripción y
-     Claude arma el plan solo. Lo que quedó sin guardar en el navegador no se mezcla con ella. */
-  const [meet] = useState(() => (esReunion && meet0 && idTransOk(meet0.id) ? meet0 : null));
+  /* Una transcripción de ZH Reuniones (una reunión de Meet desde «Reuniones transcritas» en Hoy, o la
+     que llega de «Transcribir en vivo»): se lee y Claude arma el plan solo. Lo que quedó sin guardar
+     en el navegador no se mezcla con ella. La de «Transcribir en vivo» no trae quién habla. */
+  const [meet, setMeet] = useState(() => (meet0 && idTransOk(meet0.id) && (esReunion ? meet0.tipo !== "llamada" : meet0.origen === "vivo" && meet0.tipo === "llamada") ? meet0 : null));
+  const vivoT = !!meet && meet.origen === "vivo";
+  const [esperando, setEsperando] = useState(0);
   const meetRef = useRef(null);
   const [previo] = useState(() => (meet ? null : borradorLocal(llave)));
   const [resultado, setResultado] = useState(esReunion ? "realizada" : "");
@@ -5178,9 +5197,9 @@ function RegistroContacto({ lead, hist, onDone, modo, meet: meet0 }) {
     setFase("leyendo");
     leerTranscripcion(meet.id).then((r) => {
       if (!vivo) return;
-      meetRef.current = { ...meet, participantes: r.participantes };
-      enVivoRef.current = false;
-      setEnVivo(false);
+      meetRef.current = vivoT ? null : { ...meet, participantes: r.participantes };
+      enVivoRef.current = vivoT;
+      setEnVivo(vivoT);
       ponerTrans(r.texto);
       setShowTrans(true);
       const dur = minutosTrans(meet) ? String(minutosTrans(meet)) : "";
@@ -5193,11 +5212,27 @@ function RegistroContacto({ lead, hist, onDone, modo, meet: meet0 }) {
       toast(`No se pudo leer la transcripción de la reunión. ${reuErrorText(e)}`, "bad");
     });
     return () => { vivo = false; };
-  }, []);
+  }, [meet && meet.id]);
+  /* «Transcribir en vivo» se abrió en ZH Reuniones: al volver a esta pestaña se busca la transcripción
+     de este lead que empezó después del clic y, si llegó, se carga como una de Meet. */
+  useEffect(() => {
+    if (!esperando || meet || !reu.lista) return;
+    const t = reu.lista.find((x) => x.origen === "vivo" && x.ref === lead.id && x.tipo === modo && x.ini >= esperando - 120000 && !transReg[docTrans(x.id)]);
+    if (t) { setEsperando(0); setMeet({ id: t.id, origen: "vivo", tipo: t.tipo, codigo: "", inicio: t.inicio, fin: t.fin, titulo: t.tituloMeet, clave: "v:" + t.id, dups: [] }); }
+  }, [esperando, meet, reu.lista, transReg]);
+  useEffect(() => {
+    if (!esperando) return undefined;
+    const volver = () => { if (document.visibilityState === "visible") revisarReuniones(); };
+    window.addEventListener("focus", volver);
+    document.addEventListener("visibilitychange", volver);
+    return () => { window.removeEventListener("focus", volver); document.removeEventListener("visibilitychange", volver); };
+  }, [esperando, revisarReuniones]);
 
-  /* Una reunión de Meet queda con su hora real, quiénes hablaron y de qué transcripción salió. */
+  /* Una reunión de Meet queda con su hora real, quiénes hablaron y de qué transcripción salió; una
+     transcrita en vivo, con su hora y su transcripción. */
   const datosMeet = () => {
     if (!meet) return {};
+    if (vivoT) return { fecha: meet.inicio, vivo: clean({ transcripcion: meet.id, inicio: meet.inicio, fin: meet.fin || "" }) };
     const m = meetRef.current || meet;
     return { fecha: meet.inicio, meet: clean({ codigo: meet.codigo || undefined, transcripcion: meet.id, inicio: meet.inicio, fin: meet.fin || "", participantes: (m.participantes || []).slice(0, 12) }) };
   };
@@ -5209,7 +5244,7 @@ function RegistroContacto({ lead, hist, onDone, modo, meet: meet0 }) {
     const pend = tareasPorLead[lead.id] || [];
     const reuniones = pend.filter((x) => tipoTarea(x.tipo) === "reunion");
     /* Con Meet se sabe cuál fue: la del mismo enlace o, si no, la de ese día. */
-    const deMeet = meet ? reuniones.filter((x) => x.evento && codigoMeet(x.evento.meet) === meet.codigo).concat(reuniones.filter((x) => x.fecha === keyOf(meet.inicio))).slice(0, 1) : null;
+    const deMeet = meet ? reuniones.filter((x) => meet.codigo && x.evento && codigoMeet(x.evento.meet) === meet.codigo).concat(reuniones.filter((x) => x.fecha === keyOf(meet.inicio))).slice(0, 1) : null;
     const hechas = esReunion ? deMeet || reuniones.slice(0, 1) : pend.filter((x) => tipoTarea(x.tipo) === "llamar" && x.fecha <= hoy);
     const vieja = pend.length ? null : tareaDeProxima(lead);
     if (vieja && vieja.fecha <= hoy && (esReunion ? vieja.tipo === "reunion" : vieja.tipo === "llamar")) { patch.proxima = null; hechas.push(vieja); }
@@ -5324,7 +5359,8 @@ function RegistroContacto({ lead, hist, onDone, modo, meet: meet0 }) {
   const hayTexto = !!(notas.trim() || trans.trim());
   const ocupado = !!fase;
   const progreso = fase ? html`<div class="progreso" role="status"><${Thinking} text=${fase === "leyendo" ? "Leyendo la transcripción de la reunión…" : fase === "analizando" ? `Claude está leyendo la ${nombreReg} y armando el plan…` : "Guardando…"} />${fase === "analizando" ? html`<button class="btn small ghost" onClick=${() => ctl.current && ctl.current.abort()}>Detener</button>` : null}</div>` : null;
-  const notaMeet = meet ? html`<div class="note meet-nota"><${Icon} name="meet" /><div>Reunión de Google Meet de ${cuandoTrans(meet)}${minutosTrans(meet) ? ` (${minutosTrans(meet)} min)` : ""}. La transcripción (los subtítulos de Meet, guardados con TranscripTonic) trae el nombre de quien habla en cada línea.</div></div>` : null;
+  const notaMeet = !meet ? null : vivoT ? html`<div class="note meet-nota"><${Icon} name=${esReunion ? "mic" : "phone"} /><div>${esReunion ? "Reunión" : "Llamada"} transcrita en vivo con ZH Reuniones ${cuandoTrans(meet)}${minutosTrans(meet) ? ` (${minutosTrans(meet)} min)` : ""}. El texto no separa quién habla: Claude lo deduce por el contexto.</div></div>`
+    : html`<div class="note meet-nota"><${Icon} name="meet" /><div>Reunión de Google Meet de ${cuandoTrans(meet)}${minutosTrans(meet) ? ` (${minutosTrans(meet)} min)` : ""}. La transcripción (los subtítulos de Meet, guardados con TranscripTonic) trae el nombre de quien habla en cada línea.</div></div>`;
 
   if (plan) {
     return html`<div class="work-body">
@@ -5341,9 +5377,9 @@ function RegistroContacto({ lead, hist, onDone, modo, meet: meet0 }) {
       <a class="btn small" href=${"tel:" + lead.telefono}><${Icon} name="phone" />Llamar</a>
       <span class="small muted" style="flex-basis:100%">Es el número del lead: llámalo desde tu celular. En el computador, «Llamar» abre la app de teléfono si la tienes enlazada; si no, márcalo a mano.</span>
     </div>` : null}
-    ${notaMeet || (esReunion ? html`<p class="small muted">Las reuniones por Meet se transcriben solas si quien entra tiene TranscripTonic en su Chrome, y aparecen en Hoy, en «Reuniones transcritas». Si no, toca «Transcribir en vivo» y deja esta pestaña abierta, o pega tus notas o la transcripción.</p>` : null)}
+    ${notaMeet || (esReunion ? html`<p class="small muted">Las reuniones por Meet se transcriben solas si quien entra tiene TranscripTonic en su Chrome, y aparecen en Hoy, en «Reuniones transcritas». Si no (por ejemplo, en persona), toca «Transcribir en vivo» o pega tus notas o la transcripción.</p>` : null)}
     ${previo ? html`<div class="note"><${Icon} name="info" /><div>Recuperé lo que quedó sin guardar de esta ${nombreReg}.</div></div>` : null}
-    ${meet ? null : html`<${LiveTranscriber} onStart=${() => setShowTrans(true)} onText=${(x) => {
+    ${meet ? null : html`<${LiveTranscriber} externo=${reuListo ? `${ZHR_URL}/vivo?${new URLSearchParams({ ref: lead.id, tipo: modo })}` : ""} tipo=${modo} esperando=${esperando} onEsperar=${setEsperando} onRevisar=${revisarReuniones} onStart=${() => setShowTrans(true)} onText=${(x) => {
       setEnVivo(true);
       enVivoRef.current = true;
       const t0 = transRef.current;
@@ -6006,14 +6042,16 @@ const REGISTROS_CLIENTE = [["reunion", "Reunión"], ["llamada", "Llamada"], ["no
    crea en Google Calendar con Meet. Con una reunión de Meet transcrita (desde Hoy), la transcripción
    se lee sola y Claude arma el acta: nada se guarda hasta confirmar. */
 function ClientLogger({ cliente, hist, onDone, meet: meet0 }) {
-  const { api, toast, sampleState, setSampleState, canWrite, proyectos, mantenciones, cfg, yo, leerTranscripcion, nombresEquipo, marcarTranscripcion, calListo, calCuenta, invitadosEquipo, escribirEvento } = useCtx();
+  const { api, toast, sampleState, setSampleState, canWrite, proyectos, mantenciones, cfg, yo, leerTranscripcion, nombresEquipo, marcarTranscripcion, calListo, calCuenta, invitadosEquipo, escribirEvento, reu, transReg, reuListo, revisarReuniones } = useCtx();
   const ps = proyectos.filter((p) => p.clienteId === cliente.id);
   const llave = "registro:" + cliente.id;
-  const [meet] = useState(() => (meet0 && idTransOk(meet0.id) ? meet0 : null));
+  const [meet, setMeet] = useState(() => (meet0 && idTransOk(meet0.id) ? meet0 : null));
+  const vivoT = !!meet && meet.origen === "vivo";
+  const [esperando, setEsperando] = useState(0);
   const meetRef = useRef(null);
   const transRef = useRef("");
   const [previo] = useState(() => (meet ? null : borradorLocal(llave)));
-  const [tipo, setTipo] = useState(() => (meet ? "reunion" : (previo && previo.tipo) || "reunion"));
+  const [tipo, setTipo] = useState(() => (meet ? (meet.origen === "vivo" && meet.tipo === "llamada" ? "llamada" : "reunion") : (previo && previo.tipo) || "reunion"));
   const [texto, setTexto] = useState(() => (previo && previo.texto) || "");
   const [trans, setTrans] = useState("");
   const [proyectoId, setProyectoId] = useState((ps.find((p) => PROYECTO_VIVO.has(p.estado)) || {}).id || "");
@@ -6037,7 +6075,7 @@ function ClientLogger({ cliente, hist, onDone, meet: meet0 }) {
     ctl.current = new AbortController();
     setBusy("ordenando");
     try {
-      const r = await sampleState.fn.json(promptActa({ cliente, notas: texto, transcripcion: transRef.current, meet: meetRef.current, equipo: nombresEquipo, enVivo, proyecto: ps.find((p) => p.id === proyectoId) || null, mantenciones: mantenciones.filter((m) => m.clienteId === cliente.id), hist, cfg }), { modelTier: "default", cache: false, signal: ctl.current.signal });
+      const r = await sampleState.fn.json(promptActa({ cliente, notas: texto, transcripcion: transRef.current, meet: meetRef.current, equipo: nombresEquipo, enVivo: enVivo || vivoT, proyecto: ps.find((p) => p.id === proyectoId) || null, mantenciones: mantenciones.filter((m) => m.clienteId === cliente.id), hist, cfg }), { modelTier: "default", cache: false, signal: ctl.current.signal });
       const a = sanitizeActa(r);
       setActa(a);
       setCrearSol(Object.fromEntries(a.solicitudes.map((_, i) => [i, true])));
@@ -6047,20 +6085,36 @@ function ClientLogger({ cliente, hist, onDone, meet: meet0 }) {
   };
   const ordenarRef = useRef(ordenar);
   ordenarRef.current = ordenar;
-  /* La transcripción de Meet: se lee de Google (por ZH Reuniones) y Claude arma el acta con ella. */
+  /* La transcripción de ZH Reuniones (de Meet, o la que llega de «Transcribir en vivo»): se lee y, si
+     es una reunión, Claude arma el acta con ella. */
   useEffect(() => {
     if (!meet) return undefined;
     let vivo = true;
+    setBusy("leyendo");
     leerTranscripcion(meet.id).then((r) => {
       if (!vivo) return;
-      meetRef.current = { ...meet, participantes: r.participantes };
+      meetRef.current = vivoT ? null : { ...meet, participantes: r.participantes };
       transRef.current = r.texto;
       setTrans(r.texto);
-      if (sampleState.fn && canWrite && r.texto.trim().length >= 80) ordenarRef.current(true);
+      if (vivoT) setEnVivo(true);
+      if (tipo === "reunion" && sampleState.fn && canWrite && r.texto.trim().length >= 80) ordenarRef.current(true);
       else setBusy("");
-    }, (e) => { if (!vivo) return; setBusy(""); toast(`No se pudo leer la transcripción de la reunión. ${reuErrorText(e)}`, "bad"); });
+    }, (e) => { if (!vivo) return; setBusy(""); toast(`No se pudo leer la transcripción. ${reuErrorText(e)}`, "bad"); });
     return () => { vivo = false; };
-  }, []);
+  }, [meet && meet.id]);
+  /* Igual que en la ficha del lead: al volver de «Transcribir en vivo», se carga la de este cliente. */
+  useEffect(() => {
+    if (!esperando || meet || !reu.lista) return;
+    const t = reu.lista.find((x) => x.origen === "vivo" && x.ref === cliente.id && x.tipo === tipo && x.ini >= esperando - 120000 && !transReg[docTrans(x.id)]);
+    if (t) { setEsperando(0); setMeet({ id: t.id, origen: "vivo", tipo: t.tipo, codigo: "", inicio: t.inicio, fin: t.fin, titulo: t.tituloMeet, clave: "v:" + t.id, dups: [] }); }
+  }, [esperando, meet, reu.lista, transReg]);
+  useEffect(() => {
+    if (!esperando) return undefined;
+    const volver = () => { if (document.visibilityState === "visible") revisarReuniones(); };
+    window.addEventListener("focus", volver);
+    document.addEventListener("visibilitychange", volver);
+    return () => { window.removeEventListener("focus", volver); document.removeEventListener("visibilitychange", volver); };
+  }, [esperando, revisarReuniones]);
   useEffect(() => ls.set("guardarTrans", guardarTrans), [guardarTrans]);
   const updT = (i, k, v) => setTareasA((x) => x.map((t, j) => (j === i ? { ...t, [k]: v } : t)));
   const updP = (k, v) => setProx((x) => ({ ...x, [k]: v }));
@@ -6072,10 +6126,10 @@ function ClientLogger({ cliente, hist, onDone, meet: meet0 }) {
     setSaving(true);
     try {
       const pid = proyectoId || null;
-      const resumen = meet ? (acta && acta.resumen) || nt || "Reunión por Google Meet." : nt;
+      const resumen = meet ? (acta && acta.resumen) || nt || (vivoT ? (tipo === "llamada" ? "Llamada transcrita en vivo." : "Reunión transcrita en vivo.") : "Reunión por Google Meet.") : nt;
       const actaG = acta ? (({ tareasZH, ...x }) => x)(acta) : null;
       const m = meetRef.current || meet;
-      const datosMeet = meet ? { fecha: meet.inicio, duracion: minutosTrans(meet) || null, meet: clean({ codigo: meet.codigo || undefined, transcripcion: meet.id, inicio: meet.inicio, fin: meet.fin || "", participantes: ((m && m.participantes) || []).slice(0, 12) }) } : {};
+      const datosMeet = meet && vivoT ? { fecha: meet.inicio, duracion: minutosTrans(meet) || null, vivo: clean({ transcripcion: meet.id, inicio: meet.inicio, fin: meet.fin || "" }) } : meet ? { fecha: meet.inicio, duracion: minutosTrans(meet) || null, meet: clean({ codigo: meet.codigo || undefined, transcripcion: meet.id, inicio: meet.inicio, fin: meet.fin || "", participantes: ((m && m.participantes) || []).slice(0, 12) }) } : {};
       const actId = await api.addAct({ clienteId: cliente.id, proyectoId: pid, tipo, resumen, ...(meet && nt && nt !== resumen ? { notas: nt } : {}), acta: actaG, transcripcion: trans.trim() && guardarTrans ? recortarTrans(trans) : null, ...datosMeet });
       if (meet) await marcarTranscripcion(meet, { clienteId: cliente.id }, actId);
       const base = { clienteId: cliente.id, proyectoId: pid, tipo: "otro", hora: "", estado: "pendiente", origen: "reunion", actividadId: actId };
@@ -6121,11 +6175,11 @@ function ClientLogger({ cliente, hist, onDone, meet: meet0 }) {
   const donde = !prox || !prox.usar ? "" : !calListo ? "Google Calendar no está conectado en esta vista: queda la tarea de agendarla." : !isHora(prox.hora) ? "Ponle hora para crearla en Google Calendar; si no, queda la tarea de agendarla."
     : `Se crea en el Google Calendar de ${calCuenta}, con Meet. Invitados: ${[correoP, ...invitadosEquipo.filter((x) => x !== correoP)].filter(Boolean).join(", ") || "nadie más"}.${correoP ? "" : " El contacto principal no tiene correo: no le llega la invitación."}`;
   return html`<div class="work-body">
-    ${meet ? html`<div class="note meet-nota"><${Icon} name="meet" /><div>Reunión de Google Meet de ${cuandoTrans(meet)}${minutosTrans(meet) ? ` (${minutosTrans(meet)} min)` : ""}. La transcripción (los subtítulos de Meet, guardados con TranscripTonic) trae el nombre de quien habla en cada línea.</div></div>` : null}
+    ${meet && vivoT ? html`<div class="note meet-nota"><${Icon} name=${tipo === "llamada" ? "phone" : "mic"} /><div>${tipo === "llamada" ? "Llamada" : "Reunión"} transcrita en vivo con ZH Reuniones ${cuandoTrans(meet)}${minutosTrans(meet) ? ` (${minutosTrans(meet)} min)` : ""}. El texto no separa quién habla.</div></div>` : meet ? html`<div class="note meet-nota"><${Icon} name="meet" /><div>Reunión de Google Meet de ${cuandoTrans(meet)}${minutosTrans(meet) ? ` (${minutosTrans(meet)} min)` : ""}. La transcripción (los subtítulos de Meet, guardados con TranscripTonic) trae el nombre de quien habla en cada línea.</div></div>` : null}
     ${previo ? html`<div class="note"><${Icon} name="info" /><div>Recuperé lo que quedó sin guardar de este registro.</div></div>` : null}
     ${meet ? null : html`<div class="field"><span>Tipo</span><${Chips} label="Tipo" value=${tipo} onChange=${(v) => { setTipo(v); if (v !== "reunion") setActa(null); }} options=${REGISTROS_CLIENTE} /></div>`}
     ${ps.length ? html`<label class="field" for="cl-pro"><span>Proyecto</span><select id="cl-pro" class="select" value=${proyectoId} onChange=${(e) => setProyectoId(e.currentTarget.value)}><option value="">Sin proyecto</option>${ps.map((p) => html`<option value=${p.id}>${p.nombre || "Proyecto"}</option>`)}</select></label>` : null}
-    ${!meet && (tipo === "reunion" || tipo === "llamada") ? html`<${LiveTranscriber} onText=${(x) => { setEnVivo(true); setTexto((t) => (t.trim() ? t.replace(/\s+$/, "") + "\n" : "") + x); }} />` : null}
+    ${!meet && (tipo === "reunion" || tipo === "llamada") ? html`<${LiveTranscriber} externo=${reuListo ? `${ZHR_URL}/vivo?${new URLSearchParams({ ref: cliente.id, tipo })}` : ""} tipo=${tipo} esperando=${esperando} onEsperar=${setEsperando} onRevisar=${revisarReuniones} onText=${(x) => { setEnVivo(true); setTexto((t) => (t.trim() ? t.replace(/\s+$/, "") + "\n" : "") + x); }} />` : null}
     <label class="field" for="cl-texto"><span>${tipo === "reunion" ? (meet ? "Tus notas (opcional)" : "Notas de la reunión") : tipo === "nota" ? "Nota" : "Qué pasó"}</span><textarea id="cl-texto" class="textarea" rows=${meet ? 3 : 5} value=${texto} onInput=${(e) => setTexto(e.currentTarget.value)} placeholder=${tipo === "reunion" ? (meet ? "Lo que la transcripción no dice: impresiones, contexto" : "Lo que se habló, en desorden: acuerdos, pedidos, fechas, quién hace qué") : ""}></textarea>
       ${tipo === "reunion" ? html`<small class="hint">«Ordenar en acta» saca los acuerdos, lo pendiente de cada lado, las tareas de ZH, la próxima reunión y las solicitudes que hay que registrar.</small>` : null}</label>
     ${trans ? html`<details class="trans-box"><summary>Transcripción de la reunión · ${Math.max(1, Math.round(trans.length / 1000))} mil caracteres</summary><textarea class="textarea mono-off" rows="8" aria-label="Transcripción de la reunión" value=${trans} onInput=${(e) => { transRef.current = e.currentTarget.value; setTrans(e.currentTarget.value); }}></textarea></details>` : null}
@@ -7997,7 +8051,7 @@ function AjustesView() {
             <li>«¿A quién tengo que llamar hoy?» o «¿qué leads llevan más de una semana sin contacto?»</li>
             <li>«¿Qué le debemos a cada cliente y qué facturas están vencidas?» o «registra esta solicitud del cliente y clasifícala».</li>
           </ul>
-          <p>Para transcribir una llamada, abre «Registrar llamada» en el computador, toca «Transcribir en vivo» y habla con el celular en altavoz al lado: el CRM escucha y lo pasa a texto (en Chrome o Edge). Al tocar «Detener», Claude la analiza y deja las tareas, la etapa y los borradores. También se puede pegar o subir una transcripción hecha en otra herramienta. La guía completa está en <span class="mono">docs/crm-telefonia-whatsapp.md</span> del repositorio marketing.</p>
+          <p>Para transcribir una llamada, abre «Registrar llamada» en el computador y toca «Transcribir en vivo»: se abre ZH Reuniones en otra pestaña (la primera vez pide la clave del equipo), que escucha con el celular en altavoz al lado y lo pasa a texto (en Chrome o Edge). Al tocar «Terminar» allá, la transcripción vuelve sola a la ficha y Claude la analiza: deja las tareas, la etapa y los borradores. También se puede pegar o subir una transcripción hecha en otra herramienta. La guía completa está en <span class="mono">docs/crm-telefonia-whatsapp.md</span> del repositorio marketing.</p>
         </div></section>
     </div>
   </div>`;
@@ -8472,6 +8526,14 @@ function App() {
     try { recibirReu(await mcp.callTool(ZHR, "transcripciones", reuInput, { cache: { staleTime: 120000, gcTime: 3600000 } })); } catch (e) { setReu({ estado: "error", lista: null, storedAt: 0, error: e || {} }); }
   }, [mcp, recibirReu, reuInput]);
   const refrescarReuniones = useCallback(() => { if (!mcp) return; try { mcp.invalidate(ZHR, "transcripciones").catch(() => {}); } catch (e) { /* visor antiguo: se vuelve a leer con el intervalo */ } }, [mcp]);
+  /* Una lectura directa del almacén (sin caché), para ver al tiro lo que llega de «Transcribir en vivo»
+     al volver a la pestaña. Como mucho una cada 5 segundos: cada una se cobra en el plan de Vercel. */
+  const ultimaRevision = useRef(0);
+  const revisarReuniones = useCallback(async () => {
+    if (!mcp || Date.now() - ultimaRevision.current < 5000) return;
+    ultimaRevision.current = Date.now();
+    try { recibirReu(await mcp.callTool(ZHR, "transcripciones", { ...reuInput, fresco: true }, { cache: false })); } catch (e) { /* queda la lectura de siempre */ }
+  }, [mcp, recibirReu, reuInput]);
   const reuListo = !!mcp && reu.estado === "ok";
   /* El texto de una transcripción, con el nombre de quien habla en cada línea. */
   const leerTranscripcion = useCallback(async (id) => {
@@ -8512,6 +8574,12 @@ function App() {
      usan el mismo enlace). «clave» identifica la reunión de ese día, para juntar copias. Una reunión
      solo con el equipo no se muestra. */
   const duenoDeTrans = useCallback((t) => {
+    /* Transcrita en vivo: es del lead o cliente desde cuya ficha se abrió (ref), sin cruzarla con el calendario. */
+    if (t.origen === "vivo") {
+      const titulo = t.tipo === "llamada" ? "Llamada" : "Reunión en persona";
+      const clave = "v:" + t.id;
+      return t.ref && leadsById[t.ref] ? { lead: leadsById[t.ref], titulo, clave } : t.ref && clientesById[t.ref] ? { cliente: clientesById[t.ref], titulo, clave } : { titulo, clave };
+    }
     const tt = fold(t.tituloMeet || "").replace(/\s+/g, " ").trim();
     let mejor = null;
     let puntos = 0;
@@ -8534,7 +8602,7 @@ function App() {
     const tarea = t.codigo ? (tareas || []).find((x) => x.evento && codigoMeet(x.evento.meet) === t.codigo && leadsById[x.leadId]) : null;
     if (tarea) return { lead: leadsById[tarea.leadId], titulo: tarea.titulo || t.tituloMeet, clave: delDia("m:" + t.codigo) };
     return { titulo: t.tituloMeet, clave: t.codigo ? delDia("m:" + t.codigo) : "" };
-  }, [reunionesConocidas, tareas, leadsById]);
+  }, [reunionesConocidas, tareas, leadsById, clientesById]);
   /* Las transcripciones que faltan por registrar. Dos copias de la misma reunión (por ejemplo, Lorenzo
      y Nicolás con la extensión) se muestran una vez, la más completa; y una reunión ya registrada o
      descartada no vuelve aunque llegue otra copia. */
@@ -8553,14 +8621,15 @@ function App() {
     }
     return grupos.sort((a, b) => b.ini - a.ini);
   }, [reu.lista, transReg, duenoDeTrans]);
-  /* «Registrar»: abre la ficha del lead (Registrar reunión) o del cliente (Registrar) con la
-     transcripción; Claude arma el plan o el acta y nada se guarda hasta confirmarlo. */
+  /* «Registrar»: abre la ficha del lead (Registrar reunión, o Registrar llamada si es una llamada
+     transcrita en vivo) o del cliente (Registrar) con la transcripción; Claude arma el plan o el acta
+     y nada se guarda hasta confirmarlo. */
   const registrarTranscripcion = useCallback((t, dest) => {
     const d = dest || (t.lead ? { tipo: "lead", id: t.lead.id } : t.cliente ? { tipo: "cliente", id: t.cliente.id } : null);
     if (!d) return;
-    const meet = { id: t.id, codigo: t.codigo, inicio: t.inicio, fin: t.fin, titulo: t.titulo || "", clave: t.clave || "", dups: t.dups || [] };
+    const meet = { id: t.id, origen: t.origen || "meet", tipo: t.tipo || "reunion", codigo: t.codigo, inicio: t.inicio, fin: t.fin, titulo: t.titulo || "", clave: t.clave || "", dups: t.dups || [] };
     setModal(null);
-    setDrawer(d.tipo === "cliente" ? { kind: "cliente", id: d.id, tab: "registrar", meet } : { kind: "lead", id: d.id, tab: "reunion", meet });
+    setDrawer(d.tipo === "cliente" ? { kind: "cliente", id: d.id, tab: "registrar", meet } : { kind: "lead", id: d.id, tab: meet.origen === "vivo" && meet.tipo === "llamada" ? "llamada" : "reunion", meet });
   }, []);
   /* Lo que se hizo con una transcripción y sus copias: «registrada» (con su actividad), «descartada» o
      «repetida» (otra copia de una reunión ya registrada). */
@@ -9104,7 +9173,7 @@ function App() {
     db, api: wrapApi, me, yo, leads: leads || [], leadsById, acts, drafts, equipo, cfg, sampleState, setSampleState, downloads, toast, nameOf, team, redactarTareas,
     tareas: tareas || [], tareasPorLead, siguienteDe, completarTarea, marcarTarea, agendarReunion, moverEtapa, cerrarTareasDe,
     cal, calCuenta, calListo, equipoCorreos, registro: registro || {}, leadDeEvento, permitirCalendario, refrescarCalendario, abrirPermisos, moverReunion, crearEventoDeReunion, recordatorio, prepararReunion, escribirEvento, invitadosEquipo, tareasPorCliente,
-    reu, reuListo, meets: meets || {}, transReg: transReg || {}, transPendientes, permitirReuniones, refrescarReuniones, leerTranscripcion, nombresEquipo, registrarTranscripcion, descartarTranscripcion, marcarTranscripcion, duenoDeEvento,
+    reu, reuListo, meets: meets || {}, transReg: transReg || {}, transPendientes, permitirReuniones, refrescarReuniones, revisarReuniones, leerTranscripcion, nombresEquipo, registrarTranscripcion, descartarTranscripcion, marcarTranscripcion, duenoDeEvento,
     anotarEnCalendario, anotarTarea, anotarCobro, cobroCal, devolverLlamada,
     assets, subirArchivo, borrarArchivo, guardarPropuesta, diasEnEtapa,
     clientes: clientes || [], clientesById, proyectos: proyectos || [], proyectosById, cobros: cobros || [], mantenciones: mantenciones || [], solicitudes: solicitudes || [],

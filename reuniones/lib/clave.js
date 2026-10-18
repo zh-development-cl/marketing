@@ -5,6 +5,7 @@
    del almacén (Vercel → Storage → zh-reuniones) y se crea otra en la página. */
 import { scryptSync, randomBytes, createHmac, timingSafeEqual } from "node:crypto";
 import { base, ipDe } from "./http.js";
+import { firmar, verificar } from "./jwt.js";
 import { leerJson, crearJson } from "./almacen.js";
 
 export const ARCHIVO = "config/clave.json";
@@ -46,6 +47,16 @@ export async function crearClave(nueva) {
 export const tokenWebhook = (cfg) => createHmac("sha256", cfg.secreto).update("zh-reuniones/webhook").digest("base64url").slice(0, 32);
 export const urlWebhook = (req, cfg) => `${base(req)}/api/transcripcion?t=${tokenWebhook(cfg)}`;
 export const olvidarClave = () => { guardada = null; hasta = 0; };
+
+/* La página «Transcribir en vivo» pide la clave una vez por navegador y deja esta cookie firmada
+   (180 días). SameSite=Lax: llega al abrir la página desde el CRM, pero no en envíos de otros sitios. */
+const GALLETA = "zhr_equipo";
+const DIAS_GALLETA = 180;
+export const galleta = (cfg) => `${GALLETA}=${firmar(cfg.secreto, { typ: "navegador" }, DIAS_GALLETA * 86400)}; Path=/; Max-Age=${DIAS_GALLETA * 86400}; HttpOnly; Secure; SameSite=Lax`;
+export function conGalleta(req, cfg) {
+  const m = String(req.headers.get("cookie") || "").match(new RegExp(`(?:^|;\\s*)${GALLETA}=([^;]+)`));
+  return !!(cfg && m && verificar(cfg.secreto, m[1], "navegador"));
+}
 
 /* Intentos con la clave equivocada: desde el décimo en una hora, la misma dirección queda bloqueada
    una hora. Se cuentan en la memoria de cada función, así que solo frenan: con una clave corta,

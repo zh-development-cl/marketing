@@ -120,9 +120,27 @@ la clave del equipo», más abajo) y se crea otra.
   alguien no quiere, pasa la extensión a «Manual mode» antes de la reunión (así no la transcribe) y
   se registra a mano.
 - **Sin la extensión** (desde el celular, o en una reunión presencial), queda «Transcribir en vivo»
-  en el CRM o pegar las notas en «Registrar reunión».
+  en la ficha del CRM, que abre la página de ZH Reuniones que escucha con el micrófono del
+  computador (ver abajo), o pegar las notas en «Registrar reunión».
 - Si una transcripción no llegó (sin internet, o se cerró Chrome antes de tiempo), en la extensión →
   **Last 10 meetings** se puede volver a mandar; también está «Recover last meeting».
+
+## Llamadas y reuniones en persona: «Transcribir en vivo»
+
+claude.ai no deja que el CRM use el micrófono, así que «Transcribir en vivo» (en «Registrar
+llamada» o «Registrar reunión» de la ficha) abre en otra pestaña la página de ZH Reuniones
+(https://zh-reuniones.vercel.app/vivo), que sí puede escuchar:
+
+1. La primera vez en ese navegador pide la clave del equipo (queda 6 meses) y Chrome pide permiso
+   para el micrófono.
+2. «Empezar», hablar (en una llamada, con el celular en altavoz al lado) y «Terminar». El texto lo
+   hace el reconocimiento de voz de Chrome o Edge; el audio no se guarda.
+3. La transcripción queda en ZH Reuniones para ese lead o cliente y, al volver a la pestaña del CRM,
+   llega sola a la ficha y Claude arma el plan o el acta. Si la ficha ya no estaba abierta, aparece
+   en Hoy, en «Reuniones y llamadas transcritas».
+
+No separa quién habla (Claude lo deduce por el contexto). Si la pestaña se cierra a medias, al
+volver a abrirla ofrece mandar lo que alcanzó a transcribir.
 
 ## Si algo falla
 
