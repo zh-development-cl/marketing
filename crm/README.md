@@ -264,7 +264,7 @@ desde el CRM, pero quien entra a la reunión tiene que tener la extensión en su
   descartada no vuelve aunque llegue otra copia.
 - **Ajustes → Transcripción de reuniones** dice si está conectado (cuántas transcripciones llegaron)
   y, si no, qué hacer: agregar el conector, «Permitir ZH Reuniones», dejar las herramientas en
-  «Permitir siempre» o crear la base del servidor en Vercel.
+  «Permitir siempre» o revisar el almacén del servidor en Vercel.
 
 Las tareas de un cliente (las del acta) van con `clienteId` y sin `leadId`: se ven en Hoy (en «Lo
 que toca», con el nombre del cliente) y en la ficha del cliente («Tareas de ZH»), y el círculo las
@@ -616,7 +616,7 @@ salvo con `window.__MOCK_RECORDATORIOS = true`), con `window.__MOCK_MIC` el micr
 con `window.__MOCK_MCP` el conector de Google Calendar (eventos con la forma de `list_events`,
 `create_event` y `update_event`, y los casos sin permiso o sin conector) y con `window.__MOCK_REU`
 el de ZH Reuniones (transcripciones y textos con la forma del servidor de `reuniones/`, sin permiso,
-sin conector o sin la base del servidor). Las pruebas van a cada vista
+sin conector o sin el almacén del servidor). Las pruebas van a cada vista
 por el menú, como una persona, con `irA(page, vista)` de `crm/dev/ir.cjs`. Al cerrarse, la ficha y
 las ventanas quedan un momento en pantalla para la salida (dentro de `.capa.saliendo`, sin recibir
 clics): después de cerrar una, las pruebas esperan a que se vaya (`waitFor({ state: "detached" })`)

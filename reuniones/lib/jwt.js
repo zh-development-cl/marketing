@@ -1,27 +1,23 @@
 /* Fichas firmadas (JWT con HMAC-SHA256): el registro de cada cliente OAuth, el estado del inicio de
-   sesión, los códigos y las llaves de acceso. No se guarda nada: lo que importa va firmado. La clave
-   sale de la clave del equipo (y de AUTH_SECRET, si está): si cambia, ninguna llave sirve más. */
+   sesión, los códigos y las llaves de acceso. No se guarda nada: lo que importa va firmado con el
+   secreto de la clave del equipo, así que si la clave cambia, ninguna llave sirve más. */
 import { createHmac, createHash, timingSafeEqual } from "node:crypto";
 
 const b64u = (v) => Buffer.from(v).toString("base64url");
-const clave = () => {
-  const s = process.env.CLAVE_EQUIPO;
-  if (!s) throw new Error("Falta CLAVE_EQUIPO en Vercel.");
-  return createHmac("sha256", `${process.env.AUTH_SECRET || ""}|${s}`).update("zh-reuniones/v2").digest();
-};
+const llave = (secreto) => createHmac("sha256", String(secreto)).update("zh-reuniones/fichas").digest();
 
-export function firmar(datos, segundos) {
+export function firmar(secreto, datos, segundos) {
   const ahora = Math.floor(Date.now() / 1000);
   const h = b64u(JSON.stringify({ alg: "HS256", typ: "JWT" }));
   const p = b64u(JSON.stringify({ ...datos, iat: ahora, ...(segundos ? { exp: ahora + segundos } : {}) }));
-  return `${h}.${p}.${b64u(createHmac("sha256", clave()).update(`${h}.${p}`).digest())}`;
+  return `${h}.${p}.${b64u(createHmac("sha256", llave(secreto)).update(`${h}.${p}`).digest())}`;
 }
 
-export function verificar(token, tipo) {
+export function verificar(secreto, token, tipo) {
   const partes = String(token || "").split(".");
   if (partes.length !== 3) return null;
   const [h, p, s] = partes;
-  const esperada = createHmac("sha256", clave()).update(`${h}.${p}`).digest();
+  const esperada = createHmac("sha256", llave(secreto)).update(`${h}.${p}`).digest();
   const dada = Buffer.from(s, "base64url");
   if (dada.length !== esperada.length || !timingSafeEqual(dada, esperada)) return null;
   let d;

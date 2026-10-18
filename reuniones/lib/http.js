@@ -1,5 +1,5 @@
 /* Respuestas y utilidades comunes. */
-import { createHash, createHmac, timingSafeEqual } from "node:crypto";
+import { createHash, timingSafeEqual } from "node:crypto";
 
 export const json = (data, status = 200, headers = {}) =>
   new Response(JSON.stringify(data), { status, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", ...headers } });
@@ -29,20 +29,26 @@ export const base = (req) => {
   return `${u.protocol}//${u.host}`;
 };
 
-/* La clave del equipo (CLAVE_EQUIPO en Vercel): con ella se conecta el conector en claude.ai y de
-   ella sale la dirección donde TranscripTonic deja las transcripciones. Si se cambia, las dos dejan
-   de servir: cada uno vuelve a conectar y se pega la dirección nueva en la extensión. */
-export const claveEquipo = () => String(process.env.CLAVE_EQUIPO || "");
-export const listo = () => claveEquipo().length >= 16;
 const resumen = (s) => createHash("sha256").update(String(s == null ? "" : s)).digest();
 export const igual = (a, b) => timingSafeEqual(resumen(a), resumen(b));
-export const claveOk = (dada) => listo() && igual(dada, claveEquipo());
-export const tokenWebhook = () => createHmac("sha256", claveEquipo()).update("zh-reuniones/webhook").digest("base64url").slice(0, 32);
-export const urlWebhook = (req) => `${base(req)}/api/transcripcion?t=${tokenWebhook()}`;
 
-export const FALTA_CLAVE = "Falta la clave del equipo de ZH Reuniones en Vercel (CLAVE_EQUIPO, de 16 caracteres o más).";
+export const FALTA_CLAVE = "Falta crear la clave del equipo de ZH Reuniones: se crea en su página de inicio.";
 export const faltaJson = () => json({ error: "temporarily_unavailable", error_description: FALTA_CLAVE }, 503);
-export const faltaHtml = () => html(`<h1>Todavía no está listo</h1><p>${FALTA_CLAVE}</p>`, 503);
+export const faltaHtml = () => html(`<h1>Todavía no está listo</h1><p>${FALTA_CLAVE}</p><a class="btn" href="/api/equipo">Crear la clave del equipo</a>`, 503);
+
+/* Si falta el almacén o no responde, una respuesta clara en vez de un error 500. */
+const NO_RESPONDE = "ZH Reuniones no pudo leer su almacén. Vuelve a intentar en un rato.";
+export const conRespaldo = (fn, comoHtml) => async (req) => {
+  try {
+    return await fn(req);
+  } catch (e) {
+    const conocida = e instanceof Falla;
+    if (!conocida) console.error("[zh-reuniones]", new URL(req.url).pathname, e && e.message);
+    const texto = conocida ? e.message : NO_RESPONDE;
+    const status = conocida ? 503 : 502;
+    return comoHtml ? html(`<h1>${conocida ? "Todavía no está listo" : "No se pudo completar"}</h1><p>${esc(texto)}</p>`, status) : json({ error: "temporarily_unavailable", error_description: texto }, status);
+  }
+};
 
 /* Un error que se puede mostrar tal cual, con su código para el CRM. */
 export class Falla extends Error {

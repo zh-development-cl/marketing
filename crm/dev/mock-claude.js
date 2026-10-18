@@ -313,7 +313,7 @@
   /* ZH Reuniones simulado (el conector propio: las transcripciones que manda TranscripTonic), con
      window.__MOCK_REU = { modo: "ok" | "aprobacion" | "sin_conector" | "error", transcripciones: [...],
      textos: { <id>: { texto, participantes, intervenciones } } }. Las transcripciones tienen la forma
-     que entrega el servidor (reuniones/lib/reuniones.js); «error» es la base sin crear (sin_almacen). */
+     que entrega el servidor (reuniones/lib/reuniones.js); «error» es el almacén sin conectar (sin_almacen). */
   const reuCfg = window.__MOCK_REU;
   const mcpCfg = window.__MOCK_MCP || (reuCfg ? { modo: "sin_conector", eventos: [] } : null);
   let mcp = null;
@@ -370,7 +370,7 @@
       if (!reuWatchers.has(w)) return;
       const m = reuCfg ? reuCfg.modo : "sin_conector";
       if (m === "sin_conector") w.handler({ type: "error", error: fallaReu("server_not_connected") });
-      else if (m === "error") w.handler({ type: "error", error: fallaReu("tool_error", "Falta crear la base de ZH Reuniones en Vercel (Storage → Upstash for Redis).", { result: { isError: true, structuredContent: { error: "sin_almacen" } } }) });
+      else if (m === "error") w.handler({ type: "error", error: fallaReu("tool_error", "Falta conectar el almacén de ZH Reuniones en Vercel (Storage → Blob, privado, conectado al proyecto zh-reuniones).", { result: { isError: true, structuredContent: { error: "sin_almacen" } } }) });
       else if (!reuAprobado) w.handler({ type: "error", error: fallaReu("approval_required") });
       else w.handler({ type: "data", result: { content: [], structuredContent: listaReu(), payload: listaReu() } });
     }, 30);

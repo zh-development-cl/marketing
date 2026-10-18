@@ -12,7 +12,7 @@ soporte).
 - `crm/`: el CRM (página publicada como artifact en claude.ai), su documentación y sus pruebas.
 - `reuniones/`: el conector «ZH Reuniones» en Vercel, que recibe las transcripciones de las
   reuniones de Google Meet (de la extensión TranscripTonic) y se las entrega al CRM. Las guarda 14
-  días en su base de Vercel, nunca en el repositorio.
+  días en su almacén privado de Vercel, nunca en el repositorio.
 - `brand/`: logo y assets de marca.
 
 Los renders de video (`out/`, `renders/`) no se versionan. Los datos del CRM tampoco: el

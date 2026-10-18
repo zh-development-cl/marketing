@@ -303,7 +303,7 @@ const REU = { modo: "ok", transcripciones: [T1, T1b, T2, T3, T4, T5, T6], textos
   await irA(sinBase, "ajustes");
   const ajC = sinBase.locator('section[aria-label="Transcripción de reuniones"] .reu-aviso');
   await ajC.waitFor({ timeout: 8000 });
-  ok((await ajC.innerText()).includes("Falta crear la base de ZH Reuniones en Vercel"), "si falta la base del servidor, Ajustes lo dice");
+  ok((await ajC.innerText()).includes("Falta conectar el almacén de ZH Reuniones en Vercel"), "si falta el almacén del servidor, Ajustes lo dice");
   ok((await ajC.locator("a", { hasText: "Abrir ZH Reuniones" }).getAttribute("href")) === "https://zh-reuniones.vercel.app", "con el enlace a la página del servidor");
   await sinBase.context().close();
 

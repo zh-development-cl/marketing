@@ -37,31 +37,37 @@ Meet (subtítulos) → TranscripTonic (Chrome) → ZH Reuniones (Vercel, 14 día
 
 - **ZH Reuniones** es un servidor chico en Vercel (proyecto `zh-reuniones`,
   https://zh-reuniones.vercel.app; el código está en `reuniones/`). Recibe las transcripciones en
-  una dirección secreta (la que se pega en la extensión), las guarda en una base de Vercel (Upstash
-  Redis) y se las entrega al CRM como conector MCP de claude.ai.
-- Para conectar el conector se usa la **clave del equipo** (`CLAVE_EQUIPO` en Vercel). De ella sale
-  también la dirección secreta de la extensión.
+  una dirección secreta (la que se pega en la extensión), las guarda en un almacén privado de Vercel
+  (Blob, `zh-reuniones`) y se las entrega al CRM como conector MCP de claude.ai.
+- Para conectar el conector se usa la **clave del equipo**, que un socio crea una sola vez en la
+  página de ZH Reuniones. El servidor guarda solo un resumen cifrado. De ella sale también la
+  dirección secreta de la extensión.
 - Las transcripciones se **borran solas a los 14 días**. El CRM guarda el análisis y, solo si se
   marca «Guardar también la transcripción completa», el texto, en la base privada del artifact.
   Nada de esto va al repositorio, que es público.
-- **Costos:** la extensión es gratis, la base usa el plan Free de Upstash y el servidor, el plan
-  Hobby de Vercel. Las condiciones de Hobby dicen que es para uso no comercial: para una
+- **Costos:** la extensión es gratis y el servidor y el almacén usan el plan Hobby de Vercel, que
+  alcanza de sobra para las reuniones de ZH (el detalle de los límites está en
+  `reuniones/README.md`). Las condiciones de Hobby dicen que es para uso no comercial: para una
   herramienta de la empresa correspondería el plan Pro (también para la landing).
 
 ## Puesta en marcha (una vez)
 
-### 1. Vercel: la base y la clave del equipo
+### 1. La clave del equipo (un socio, una vez)
 
-En vercel.com → equipo zh-dev-projects → proyecto **zh-reuniones**:
+El servidor y su almacén ya están creados en Vercel (proyecto `zh-reuniones`, equipo
+zh-dev-projects). Falta solo la clave del equipo, que la crea un socio porque solo ustedes deben
+conocerla:
 
-1. **Storage** → **Create Database** → **Upstash** (Redis) → plan **Free** → crear y conectarla al
-   proyecto `zh-reuniones` (todos los entornos). Vercel agrega solas `KV_REST_API_URL` y
-   `KV_REST_API_TOKEN`.
-2. **Settings → Environment Variables** → agregar `CLAVE_EQUIPO`, de tipo **Sensitive**, para
-   Production y Preview: una clave larga (16 caracteres o más) que inventen los socios. No la
-   pegues en un chat ni en el repositorio; compártela entre ustedes por un medio privado.
-3. **Deployments** → el último → **Redeploy**.
-4. En https://zh-reuniones.vercel.app las dos líneas tienen que decir «Listo».
+1. Abrir https://zh-reuniones.vercel.app → **Crear la clave del equipo**.
+2. Escribir dos veces una clave larga (16 caracteres o más) y tocar **Crear la clave**. Guardarla
+   en el administrador de contraseñas y compartirla con el otro socio por un medio privado: no se
+   puede ver de nuevo, y no va en un chat ni en el repositorio.
+3. La página muestra la dirección para TranscripTonic (paso 2) y la del conector (paso 3). En
+   https://zh-reuniones.vercel.app las dos líneas quedan en «Listo».
+
+Mientras la clave no exista, cualquiera que entre a esa página podría crearla: créala apenas puedas.
+Si la página dice «Ya hay una clave del equipo» y nadie del equipo la creó, se borra (ver «Cambiar
+la clave del equipo», más abajo) y se crea otra.
 
 ### 2. La extensión (en el Chrome de cada uno)
 
@@ -70,8 +76,9 @@ En vercel.com → equipo zh-dev-projects → proyecto **zh-reuniones**:
 2. Abrirla (su ícono en la barra de Chrome; fíjala con la pieza de rompecabezas): marcar **Google
    Meet**, elegir **Auto mode** y, si no quieres ver los subtítulos, **Hide captions on the meeting
    UI**.
-3. En https://zh-reuniones.vercel.app → **Ver la dirección para TranscripTonic** → escribir la clave
-   del equipo → copiar la dirección.
+3. Copiar la dirección que mostró la página al crear la clave o, después, en
+   https://zh-reuniones.vercel.app → **Ver la dirección para TranscripTonic** → escribir la clave
+   del equipo.
 4. En la extensión → **webhooks →**:
    - pegar la dirección en **Webhook URL** → **Save** (si Chrome pide permiso para esa dirección,
      aceptar);
@@ -125,12 +132,15 @@ Ajustes → Transcripción de reuniones dice qué pasa:
 |---|---|
 | «ZH Reuniones no está conectado en tu cuenta de claude.ai» | Paso 3. |
 | «Falta tu permiso para que este CRM use ZH Reuniones» | Tocar «Permitir ZH Reuniones». |
-| «…Falta crear la base de ZH Reuniones en Vercel» | Paso 1.1 y Redeploy. |
-| «Falta la clave del equipo de ZH Reuniones en Vercel» (al conectar) | Paso 1.2 y Redeploy. |
+| «…Falta conectar el almacén de ZH Reuniones en Vercel» | En Vercel → Storage → zh-reuniones → Projects, conectarlo al proyecto `zh-reuniones` y volver a desplegar. |
+| «Falta crear la clave del equipo de ZH Reuniones» (al conectar) | Paso 1. |
+| «ZH Reuniones no pudo leer su almacén» | Esperar un rato y tocar «Actualizar». Si sigue, revisar en Vercel → Storage → zh-reuniones el uso del mes (el plan Hobby bloquea el almacén 30 días si se pasa del límite). |
 | La extensión avisa «Could not post webhook!» | Revisar en https://zh-reuniones.vercel.app que todo diga «Listo», volver a copiar la dirección (paso 2.3) y mandar la reunión otra vez desde «Last 10 meetings». |
 
-Si se cambia la clave del equipo, cada socio vuelve a conectar el conector (paso 3) y pega la
-dirección nueva en la extensión (paso 2.3).
+**Cambiar la clave del equipo** (si se filtró o se perdió): en Vercel → Storage → zh-reuniones,
+borrar el archivo `config/clave.json` y crear otra en https://zh-reuniones.vercel.app (paso 1).
+Después cada socio vuelve a conectar el conector (paso 3) y pega la dirección nueva en la extensión
+(paso 2.3).
 
 Para revisar el servidor: https://zh-reuniones.vercel.app (estado) y, en Vercel, los registros del
 proyecto. El detalle técnico está en `reuniones/README.md`.

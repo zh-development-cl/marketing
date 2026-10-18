@@ -1,14 +1,25 @@
 /* Las transcripciones que manda TranscripTonic (la extensión de Chrome que guarda los subtítulos de
-   Google Meet, con el nombre de quien habla) al terminar cada reunión. Esperan en la base hasta que
-   se registran en el CRM y se borran solas a los DIAS días. */
+   Google Meet, con el nombre de quien habla) al terminar cada reunión. Esperan en el almacén hasta
+   que se registran en el CRM y se borran a los DIAS días de llegar. Cada una es un archivo
+   (transcripciones/<id>.json) y todas están en un índice sin el texto (indice.json): el CRM solo lee
+   el índice para saber qué llegó, y el texto, al registrar una. */
 import { createHash } from "node:crypto";
 import { Falla } from "./http.js";
-import { redis, varios } from "./almacen.js";
+import { guardarJson, leerJson, cambiarJson, listar, borrar } from "./almacen.js";
 
 export const DIAS = 14;
 const MAX_TEXTO = 300000;
-const INDICE = "zhr:idx";
-const llaveDe = (id) => `zhr:t:${id}`;
+const MAX_INDICE = 200;
+const INDICE = "indice.json";
+const TEXTOS = "transcripciones/";
+const TEXTO = (id) => `${TEXTOS}${id}.json`;
+const ID = /^tt-[a-z0-9]+-[a-f0-9]{8}$/;
+const vieja = (ms) => !(Date.now() - ms <= DIAS * 864e5);
+const vigente = (t) => !!t && ID.test(t.id) && !vieja(Date.parse(t.recibida));
+/* Segundos que el caché de Vercel puede servir cada archivo (al cambiarlo se renueva en un minuto). */
+const CACHE_INDICE = 300;
+const CACHE_TEXTO = 3600;
+
 const limpiar = (v, n) => String(v == null ? "" : v).replace(/[\u0000-\u001f\u007f]+/g, " ").replace(/\s+/g, " ").trim().slice(0, n);
 export const codigoMeet = (s) => { const m = String(s || "").match(/\b([a-z]{3,}-[a-z]{3,}-[a-z]{3,})\b/i); return m ? m[1].toLowerCase() : ""; };
 
@@ -39,8 +50,24 @@ function intervenciones(bloques) {
 /* Solo las fechas ISO: las del cuerpo «simple» vienen en el formato del computador, sin zona horaria. */
 const iso = (v) => (typeof v === "string" && /^\d{4}-\d{2}-\d{2}T/.test(v) ? Date.parse(v) : NaN);
 
+/* Borra los archivos de más de DIAS días, también los que no alcanzaron a quedar en el índice. */
+async function barrer() {
+  const archivos = await listar(TEXTOS);
+  await borrar(archivos.filter((a) => vieja(a.subido)).map((a) => a.nombre));
+}
+
+/* Saca del índice las que ya cumplieron DIAS días y borra sus archivos. */
+async function quitarViejas() {
+  let viejas = [];
+  await cambiarJson(INDICE, (lista) => {
+    viejas = Array.isArray(lista) ? lista.filter((t) => !vigente(t)) : [];
+    return viejas.length ? lista.filter(vigente) : undefined;
+  }, CACHE_INDICE);
+  await borrar(viejas.filter((t) => t && ID.test(t.id)).map((t) => TEXTO(t.id)));
+}
+
 /* Guarda lo que llega del webhook. La misma reunión mandada otra vez (por ejemplo, desde «Last 10
-   meetings») reemplaza a la anterior. */
+   meetings») reemplaza a la anterior; una de hace más de DIAS días no se guarda. */
 export async function guardarTranscripcion(d) {
   if (!d || typeof d !== "object" || Array.isArray(d)) throw new Falla("Falta la transcripción.", "sin_datos");
   const lineas = intervenciones(bloquesDe(d.transcript, "transcriptText"));
@@ -54,6 +81,7 @@ export async function guardarTranscripcion(d) {
   let inicio = iso(d.meetingStartTimestamp);
   if (!Number.isFinite(inicio)) inicio = iso(bloques.length ? bloques[0].timestamp : "");
   if (!Number.isFinite(inicio) || inicio > fin) inicio = fin;
+  if (vieja(inicio)) return { guardada: false, motivo: `La reunión es de hace más de ${DIAS} días.` };
   const titulo = limpiar(d.meetingTitle, 200);
   const software = limpiar(d.meetingSoftware, 40) || "Google Meet";
   const id = `tt-${inicio.toString(36)}-${createHash("sha256").update(`${titulo}|${inicio}|${software}`).digest("hex").slice(0, 8)}`;
@@ -61,38 +89,35 @@ export async function guardarTranscripcion(d) {
   if (chat.length) texto += "\n\n[Chat de la reunión]\n" + chat.map((l) => `${l.quien}: ${l.texto}`).join("\n");
   if (texto.length > MAX_TEXTO) texto = texto.slice(0, MAX_TEXTO) + "\n[transcripción recortada]";
   const doc = { id, titulo, codigo: codigoMeet(titulo), software, inicio: new Date(inicio).toISOString(), fin: new Date(fin).toISOString(), recibida: new Date(ahora).toISOString(), participantes: [...new Set(lineas.map((l) => l.quien))].slice(0, 40), intervenciones: lineas.length, texto };
-  await varios([
-    ["SET", llaveDe(id), JSON.stringify(doc), "EX", DIAS * 86400],
-    ["ZADD", INDICE, inicio, id],
-    ["ZREMRANGEBYSCORE", INDICE, "-inf", ahora - DIAS * 864e5],
-    ["ZREMRANGEBYRANK", INDICE, 0, -501],
-  ]);
+  const { texto: _, ...resumen } = doc;
+  /* Primero el texto y después el índice: si el índice falla, el archivo suelto se borra con el barrido. */
+  await guardarJson(TEXTO(id), doc, CACHE_TEXTO);
+  await cambiarJson(INDICE, (lista) => [...(Array.isArray(lista) ? lista : []).filter((t) => vigente(t) && t.id !== id), resumen].slice(-MAX_INDICE), CACHE_INDICE);
+  try { await barrer(); } catch (e) { console.error("[zh-reuniones] barrer", e && e.message); }
   return { guardada: true, id };
 }
 
 /* Las transcripciones de los últimos días, sin el texto: id, título de la reunión, cuándo fue y quiénes hablaron. */
 export async function transcripciones(args) {
   const dias = Math.min(30, Math.max(1, Math.round(Number(args && args.dias)) || DIAS));
-  const ids = await redis("ZRANGEBYSCORE", INDICE, Date.now() - dias * 864e5, "+inf");
-  const lista = [];
-  if (Array.isArray(ids) && ids.length) {
-    for (const crudo of (await redis("MGET", ...ids.slice(-200).map(llaveDe))) || []) {
-      let t;
-      try { t = JSON.parse(crudo); } catch { t = null; }
-      if (!t || !t.id) continue;
-      lista.push({ id: t.id, titulo: t.titulo, codigo: t.codigo, software: t.software, inicio: t.inicio, fin: t.fin, estado: "lista", participantes: t.participantes, intervenciones: t.intervenciones });
-    }
+  const desde = Date.now() - dias * 864e5;
+  const indice = await leerJson(INDICE);
+  const todas = Array.isArray(indice) ? indice : [];
+  const lista = todas
+    .filter((t) => vigente(t) && Date.parse(t.inicio) >= desde)
+    .map((t) => ({ id: t.id, titulo: t.titulo, codigo: t.codigo, software: t.software, inicio: t.inicio, fin: t.fin, estado: "lista", participantes: t.participantes, intervenciones: t.intervenciones }))
+    .sort((a, b) => Date.parse(b.inicio) - Date.parse(a.inicio));
+  if (todas.some((t) => !vigente(t))) {
+    try { await quitarViejas(); } catch (e) { console.error("[zh-reuniones] limpiar", e && e.message); }
   }
-  lista.sort((a, b) => Date.parse(b.inicio) - Date.parse(a.inicio));
   return { transcripciones: lista };
 }
 
 /* El texto de una transcripción: «Nombre: lo que dijo», una línea por intervención, y el chat al final. */
 export async function leerTranscripcion(args) {
   const id = String((args && args.id) || "");
-  if (!/^tt-[a-z0-9]+-[a-f0-9]{8}$/.test(id)) throw new Falla("Falta la transcripción que hay que leer.", "sin_id");
-  let t;
-  try { t = JSON.parse(await redis("GET", llaveDe(id))); } catch { t = null; }
-  if (!t) throw new Falla(`La transcripción ya no está: se borra sola ${DIAS} días después de llegar.`, "no_existe");
+  if (!ID.test(id)) throw new Falla("Falta la transcripción que hay que leer.", "sin_id");
+  const t = await leerJson(TEXTO(id));
+  if (!vigente(t)) throw new Falla(`La transcripción ya no está: se borra sola ${DIAS} días después de llegar.`, "no_existe");
   return { id: t.id, titulo: t.titulo, participantes: t.participantes, intervenciones: t.intervenciones, texto: t.texto };
 }

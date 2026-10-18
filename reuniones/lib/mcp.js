@@ -53,7 +53,7 @@ export async function atender(msg) {
       /* El código va también en structuredContent: el CRM decide qué hacer según él, no según el texto. */
       const conocida = e instanceof Falla;
       if (!conocida) console.error("[zh-reuniones]", params.name, e && e.status, e && e.message);
-      const mensaje = conocida ? e.message : "No se pudo leer la base de ZH Reuniones. Vuelve a intentar en un rato.";
+      const mensaje = conocida ? e.message : "ZH Reuniones no pudo leer su almacén. Vuelve a intentar en un rato.";
       return ok(id, { content: [{ type: "text", text: mensaje }], structuredContent: { error: conocida ? e.code : "almacen", mensaje }, isError: true });
     }
   }
