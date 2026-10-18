@@ -44,6 +44,9 @@ Meet (subtítulos) → TranscripTonic (Chrome) → ZH Reuniones (Vercel, 14 día
 - Las transcripciones se **borran solas a los 14 días**. El CRM guarda el análisis y, solo si se
   marca «Guardar también la transcripción completa», el texto, en la base privada del artifact.
   Nada de esto va al repositorio, que es público.
+- **Costos:** la extensión es gratis, la base usa el plan Free de Upstash y el servidor, el plan
+  Hobby de Vercel. Las condiciones de Hobby dicen que es para uso no comercial: para una
+  herramienta de la empresa correspondería el plan Pro (también para la landing).
 
 ## Puesta en marcha (una vez)
 
