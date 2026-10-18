@@ -27,7 +27,7 @@ Una falla conocida vuelve con `isError: true`, el mensaje en `content` y
 | Ruta | Qué hace |
 |---|---|
 | `/` | Estado: si el almacén y la clave del equipo están listos, el botón para crear la clave o ver la dirección para TranscripTonic, y la dirección del conector. |
-| `/api/equipo` | La primera vez, el formulario para **crear la clave del equipo** (16 a 200 caracteres, escrita dos veces). Después, con la clave, la dirección del webhook para pegarla en la extensión. |
+| `/api/equipo` | La primera vez, el formulario para **crear la clave del equipo** (8 a 200 caracteres, escrita dos veces). Después, con la clave, la dirección del webhook para pegarla en la extensión. |
 | `/api/transcripcion?t=<token>` | El webhook de TranscripTonic (POST, cuerpo «advanced» o «simple»). El token sale de la clave del equipo. La misma reunión mandada otra vez reemplaza a la anterior; una sin nada transcrito o de hace más de 14 días no se guarda. |
 | `/mcp` | El conector (JSON-RPC por POST, sin sesión). Sin llave válida: 401 con `WWW-Authenticate` y `resource_metadata`. |
 | `/.well-known/oauth-protected-resource[/mcp]`, `/.well-known/oauth-authorization-server` | Descubrimiento (RFC 9728 y RFC 8414). |

@@ -59,7 +59,7 @@ zh-dev-projects). Falta solo la clave del equipo, que la crea un socio porque so
 conocerla:
 
 1. Abrir https://zh-reuniones.vercel.app → **Crear la clave del equipo**.
-2. Escribir dos veces una clave larga (16 caracteres o más) y tocar **Crear la clave**. Guardarla
+2. Escribir dos veces una clave de 8 caracteres o más y tocar **Crear la clave**. Guardarla
    en el administrador de contraseñas y compartirla con el otro socio por un medio privado: no se
    puede ver de nuevo, y no va en un chat ni en el repositorio.
 3. La página muestra la dirección para TranscripTonic (paso 2) y la del conector (paso 3). En

@@ -8,7 +8,7 @@ import { base, ipDe } from "./http.js";
 import { leerJson, crearJson } from "./almacen.js";
 
 export const ARCHIVO = "config/clave.json";
-export const LARGO = 16;
+export const LARGO = 8;
 export const MAXIMO = 200;
 const CACHE = 3600;
 const RECORDAR = 60000;

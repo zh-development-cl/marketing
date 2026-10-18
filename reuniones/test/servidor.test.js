@@ -16,7 +16,7 @@ const equipoPag = await import("../api/equipo.js");
 const wellKnown = await import("../api/well-known.js");
 const inicio = await import("../api/inicio.js");
 
-const CLAVE = "clave-del-equipo-de-prueba-123";
+const CLAVE = "Prueba1$";
 const H = "https://zh.test";
 const CLAUDE = "https://claude.ai/api/mcp/auth_callback";
 
@@ -156,9 +156,9 @@ test("sin la clave del equipo, todo dice dónde crearla", async () => {
 });
 
 test("crear la clave: se valida, se guarda solo su resumen y se muestra la dirección", async () => {
-  const corta = await crearLaClave("corta", "corta");
+  const corta = await crearLaClave("Prueba1", "Prueba1");
   assert.equal(corta.status, 400);
-  assert.match(await corta.text(), /entre 16 y 200 caracteres/);
+  assert.match(await corta.text(), /entre 8 y 200 caracteres/);
   const distinta = await crearLaClave(CLAVE, CLAVE + "x");
   assert.equal(distinta.status, 400);
   assert.match(await distinta.text(), /no son iguales/);
