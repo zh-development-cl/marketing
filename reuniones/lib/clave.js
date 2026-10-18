@@ -48,7 +48,8 @@ export const urlWebhook = (req, cfg) => `${base(req)}/api/transcripcion?t=${toke
 export const olvidarClave = () => { guardada = null; hasta = 0; };
 
 /* Intentos con la clave equivocada: desde el décimo en una hora, la misma dirección queda bloqueada
-   una hora. Se cuentan en la memoria de cada función: la clave es larga y esto solo frena. */
+   una hora. Se cuentan en la memoria de cada función, así que solo frenan: con una clave corta,
+   lo que más protege es que nadie más la conozca. */
 const LIMITE = 10;
 const fallas = new Map();
 export function bloqueado(req) {
