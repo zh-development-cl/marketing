@@ -67,7 +67,8 @@ ayudamos y el guion, plegables (abiertos mientras no hay reunión hecha); los bo
 archivos** y el historial (lo último, con «Ver los N» para todo); y cuatro herramientas:
 
 - **Registrar llamada:** se toca «Transcribir en vivo» (se abre ZH Reuniones en otra pestaña), se
-  habla y al tocar «Terminar» la transcripción vuelve sola y **Claude arma el plan** (con notas en vez de grabación, «Armar el plan con Claude»): qué pasó, el resultado
+  habla (la ficha muestra lo último que se dijo y «¿Qué le respondo?») y al tocar «Terminar» la
+  transcripción vuelve sola y **Claude arma el plan** (con notas en vez de grabación, «Armar el plan con Claude»): qué pasó, el resultado
   (contestó, no contestó, pidió que lo llamemos…), la etapa, la reunión si quedó una con día y
   hora, las tareas de ZH, lo que quedó en hacer el lead, los datos nuevos y el puntaje de la
   llamada. **Nada se guarda ni se agenda hasta confirmar:** todo se puede corregir (el texto, el
@@ -501,14 +502,18 @@ claude.ai no deja que el CRM use el micrófono, lo hace la página «Transcribir
 Reuniones (`reuniones/`, el mismo servidor que recibe las reuniones de Meet):
 
 1. En el computador, abre la ficha del lead → «Registrar llamada» → **«Transcribir en vivo»**. Se
-   abre ZH Reuniones en otra pestaña con el lead y el tipo (llamada o reunión). La primera vez en
-   ese navegador pide la clave del equipo (dura 6 meses) y Chrome pide permiso para el micrófono.
-2. Toca «Empezar» y llama desde el celular en altavoz, junto al computador.
-3. Al cortar, «Terminar». La transcripción queda en ZH Reuniones para ese lead, una línea por
-   frase. Al volver a la pestaña del CRM, la ficha la lee sola (sin caché) y Claude arma el plan de
-   la llamada para confirmarlo o corregirlo (sabe que no separa quién habla). Si la ficha ya no
-   estaba abierta, la llamada aparece en Hoy, en «Reuniones y llamadas transcritas», unida al lead:
-   «Registrar» abre «Registrar llamada» con ella.
+   abre ZH Reuniones en otra pestaña con el lead, su nombre y el tipo (llamada o reunión): arriba
+   dice «Llamada con …», así se sabe adónde llega. La primera vez en ese navegador pide la clave del
+   equipo (dura 6 meses) y Chrome pide permiso para el micrófono.
+2. Toca «Empezar» y llama desde el celular en altavoz, junto al computador. Puedes volver a la
+   pestaña del CRM: la de ZH Reuniones sigue escuchando y la ficha muestra **lo último que se dijo**
+   (llega cada pocos segundos) con **«¿Qué le respondo?»** (ver «Apoyo en vivo»).
+3. Al cortar, toca «Terminar» en la pestaña de ZH Reuniones. La transcripción queda guardada para
+   ese lead, una línea por frase, y la ficha la carga al tiro: Claude arma el plan de la llamada
+   para confirmarlo o corregirlo (sabe que no separa quién habla). Si la ficha ya no estaba abierta,
+   la llamada aparece en Hoy, en «Reuniones y llamadas transcritas», unida al lead: «Registrar» abre
+   «Registrar llamada» con ella. «Otra llamada con …» en ZH Reuniones es para el mismo lead; para
+   otro, se abre desde su ficha.
 
 Funciona en Chrome o Edge, que pasan la voz a texto con su servicio de voz (Google o Microsoft).
 El audio no se guarda, solo el texto, que ZH Reuniones borra a los 14 días; en el CRM, por defecto,
@@ -521,8 +526,7 @@ el acta).
 Sin ZH Reuniones conectado, «Transcribir en vivo» intenta usar el micrófono desde el CRM y, como
 claude.ai no lo deja, muestra el plan B: la escritura por voz de Google Docs, pegando el texto al
 final. Cada intento deja su resultado en `diagnostico/microfono-<usuario>` de la base, para
-revisarlo sin capturas de pantalla. El «Apoyo en vivo» de abajo solo funciona cuando el CRM mismo
-escucha (no con la página de ZH Reuniones).
+revisarlo sin capturas de pantalla.
 
 También se puede dictar las notas justo al cortar (micrófono del teclado del teléfono) o pegar una
 transcripción hecha en otra herramienta. Las demás opciones, sus costos y lo legal están en
@@ -530,9 +534,13 @@ transcripción hecha en otra herramienta. Las demás opciones, sus costos y lo l
 
 ### Apoyo en vivo
 
-Mientras el CRM escucha una llamada con un lead, aparece **«¿Qué le respondo?»**. Cada toque manda
-a Claude Haiku (`claude-haiku-5-5`, el modelo rápido, sin caché) lo último de la transcripción y los
-datos del lead (con el dolor y cómo ayudamos), y en uno o dos segundos muestra qué decir ahora, qué preguntar después y qué evitar.
+Mientras se escucha una llamada con un lead (en la página de ZH Reuniones o en el CRM mismo), la
+ficha muestra **«¿Qué le respondo?»**. Cada toque manda a Claude Haiku (`claude-haiku-5-5`, el
+modelo rápido, sin caché) lo último de la transcripción y los datos del lead (con el dolor y cómo
+ayudamos), y en uno o dos segundos muestra qué decir ahora, qué preguntar después y qué evitar. Con
+ZH Reuniones, antes de preguntar lee lo último que llegó; la ficha lo pide cada 3 segundos mientras
+está a la vista (`leer_transcripcion` con `vivo:<id del lead>`), y lo de una llamada anterior no
+cuenta.
 Claude solo se consulta cuando alguien toca el botón: la plataforma no permite llamarlo en bucle ni
 con temporizador. Lo que sí corre solo, en la página y sin Claude, es la detección de objeciones
 (precio, postergar, «ya tenemos algo», «mándame información», dudas de confianza): destaca el botón
@@ -608,7 +616,7 @@ python3 crm/dev/build_preview.py                    # arma crm/dev/preview.html 
 NODE_PATH=$(npm root -g) node crm/dev/smoke.cjs     # leads, llamadas y borradores (capturas en crm/dev/shots)
 NODE_PATH=$(npm root -g) node crm/dev/clientes.cjs  # etapa con clientes: lead ganado, proyecto, cobros, soporte, acta
 NODE_PATH=$(npm root -g) node crm/dev/microfono.cjs # transcribir en vivo, con micrófono simulado
-NODE_PATH=$(npm root -g) node crm/dev/envivo.cjs    # «Transcribir en vivo» con ZH Reuniones: el botón abre su página, la ficha espera y carga la transcripción, Hoy, el cliente y el plan B
+NODE_PATH=$(npm root -g) node crm/dev/envivo.cjs    # «Transcribir en vivo» con ZH Reuniones: el botón abre su página, la ficha muestra lo que va y «¿Qué le respondo?», carga la transcripción al terminar, Hoy, el cliente y el plan B
 NODE_PATH=$(npm root -g) node crm/dev/embudo.cjs    # embudos de leads y de clientes, y Proyectos: carriles, arrastrar (mouse y dedo), montos, filtros, responsables, no contestó y motivos de pérdida
 NODE_PATH=$(npm root -g) node crm/dev/tareas.cjs    # tareas y flujo automático: grabar y guardar solo, agendar, ¿se hizo?, propuesta y deshacer, menú contraído
 NODE_PATH=$(npm root -g) node crm/dev/calendario.cjs # Google Calendar: unir eventos con leads, reservas de la web, mover, invitaciones, crear y mover eventos, permisos

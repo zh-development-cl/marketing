@@ -759,6 +759,8 @@ body.arrastrando .recs { visibility: hidden; }
 .live-meter { flex: 1 1 60px; max-width: 140px; height: 6px; border-radius: 3px; background: var(--sunken); overflow: hidden; }
 .live-meter span { display: block; height: 100%; background: var(--ok); transform: scaleX(0); transform-origin: left center; transition: transform 0.12s linear; }
 .live-text { margin: 0; color: var(--fg-3); font-style: italic; overflow-wrap: anywhere; }
+.live-ext { margin: 0; color: var(--fg); overflow-wrap: anywhere; white-space: pre-line; }
+.live-parcial { color: var(--fg-3); font-style: italic; }
 .live-pasos { margin: 4px 0 0; padding-left: 18px; font-size: 13px; }
 .coach { display: grid; gap: 8px; padding-top: 8px; border-top: 1px dashed var(--line); }
 .coach-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
@@ -1776,6 +1778,16 @@ function normTrans(t) {
   if (isNaN(ini)) return null;
   return { id: t.id, origen: t.origen === "vivo" ? "vivo" : "meet", tipo: t.tipo === "llamada" ? "llamada" : "reunion", ref: refTransOk(t.ref) ? t.ref : "", codigo: codigoMeet(t.codigo), tituloMeet: clip(String(t.titulo || "").trim(), 200), inicio: new Date(ini).toISOString(), fin: isNaN(fin) ? "" : new Date(fin).toISOString(), ini, finMs: isNaN(fin) ? ini : Math.max(ini, fin), lista: true, participantes: strArr(t.participantes, 40), intervenciones: Number(t.intervenciones) || 0 };
 }
+/* Lo que va de una llamada que ZH Reuniones transcribe en vivo (leer_transcripcion con «vivo:<ref>»):
+   «escuchando» con las últimas frases, «terminada» con la transcripción guardada (o null si no se
+   transcribió nada), o null si no hay nada de este lead o cliente. */
+function normEnVivo(p, ref) {
+  if (!p || typeof p !== "object" || p.ref !== ref || !["escuchando", "terminada"].includes(p.estado)) return null;
+  const ini = Date.parse(p.inicio);
+  if (isNaN(ini)) return null;
+  return { estado: p.estado, tipo: p.tipo === "reunion" ? "reunion" : "llamada", ini, inicio: new Date(ini).toISOString(), act: Date.parse(p.actualizada) || 0, lineas: strArr(p.lineas, 40).map((x) => clip(x, 2000)), parcial: clip(String(p.parcial || "").trim(), 2000), total: Math.max(0, Math.round(Number(p.total)) || 0), transcripcion: idTransOk(p.transcripcion) ? p.transcripcion : null };
+}
+const textoEnVivo = (v) => (v ? [...v.lineas, v.parcial].filter(Boolean).join("\n") : "");
 const minutosTrans = (t) => { const a = Date.parse(t.inicio); const b = Date.parse(t.fin); return isNaN(a) || isNaN(b) ? 0 : Math.max(1, Math.round((b - a) / 6e4)); };
 /* «Hoy a las 10:30», «el vie 16 oct a las 15:00»: cuándo empezó una reunión transcrita. */
 const cuandoTrans = (t) => { const k = keyOf(t.inicio); const d = diffDays(k, todayKey()); return `${d === 0 ? "hoy" : d === 1 ? "ayer" : cuandoTexto(k)} a las ${fmtHM.format(new Date(t.inicio))}`; };
@@ -4757,7 +4769,66 @@ const politicaMic = () => { try { const p = document.permissionsPolicy || docume
 const mmss = (s) => `${Math.floor(s / 60)}:${pad2(s % 60)}`;
 const pantallaTactil = () => { try { return matchMedia("(pointer: coarse)").matches; } catch (e) { return false; } };
 
-function LiveTranscriber({ onText, onStart, onStop, children, externo, tipo, esperando, onEsperar, onRevisar }) {
+/* Mientras ZH Reuniones escucha en otra pestaña una llamada de este lead o cliente (desde que se tocó
+   «Transcribir en vivo», `desde`), lo que va: se lee cada 3 segundos con esta pestaña a la vista y al
+   volver a ella. Lo de una llamada anterior no cuenta. `leer` hace una lectura al tiro. */
+function useEnVivo(ref, desde) {
+  const { leerEnVivo } = useCtx();
+  const [vivo, setVivo] = useState(null);
+  const pedir = useCallback(async () => {
+    const v = await leerEnVivo(ref);
+    return v && v.ini >= desde - 120000 ? v : null;
+  }, [leerEnVivo, ref, desde]);
+  const leer = useCallback(async () => { const v = await pedir(); setVivo(v); return v; }, [pedir]);
+  useEffect(() => {
+    setVivo(null);
+    if (!desde || !leerEnVivo) return undefined;
+    let activo = true;
+    let t = null;
+    let fallas = 0;
+    const paso = async () => {
+      t = null;
+      if (document.visibilityState === "visible") {
+        try {
+          const v = await pedir();
+          if (!activo) return;
+          fallas = 0;
+          setVivo(v);
+          if (v && v.estado === "terminada" && v.transcripcion) return;
+        } catch (e) { fallas += 1; }
+      }
+      if (activo && Date.now() - desde < 2 * 36e5) t = setTimeout(paso, fallas >= 3 ? 15000 : 3000);
+    };
+    paso();
+    const volver = () => { if (document.visibilityState === "visible" && t) { clearTimeout(t); paso(); } };
+    document.addEventListener("visibilitychange", volver);
+    return () => { activo = false; clearTimeout(t); document.removeEventListener("visibilitychange", volver); };
+  }, [desde, pedir, leerEnVivo]);
+  return { vivo, leer };
+}
+
+/* La llamada mientras ZH Reuniones escucha en la otra pestaña: lo último que se dijo y la ayuda de
+   Claude (children). Para terminar se toca «Terminar» allá. */
+function EnVivoExterno({ vivo, tipo, children }) {
+  const [ahora, setAhora] = useState(() => Date.now());
+  useEffect(() => { const t = setInterval(() => setAhora(Date.now()), 1000); return () => clearInterval(t); }, []);
+  const seg = Math.max(0, Math.round((ahora - vivo.ini) / 1000));
+  const quieto = vivo.act ? Math.floor((ahora - vivo.act) / 60000) : 0;
+  const ultimas = vivo.lineas.slice(-3).join("\n");
+  return html`<div class="live on">
+    <div class="live-head">
+      <i class="rec" aria-hidden="true"></i>
+      <b role="status">Escuchando en ZH Reuniones</b>
+      <span class="live-time">${mmss(seg)}</span>
+    </div>
+    ${ultimas || vivo.parcial ? html`<p class="live-ext">${ultimas}${ultimas && vivo.parcial ? "\n" : ""}${vivo.parcial ? html`<span class="live-parcial">${vivo.parcial}</span>` : null}</p>` : html`<p class="small muted" style="margin:0">Todavía no se escucha nada. ${tipo === "reunion" ? "Deja el computador cerca de la conversación." : "Pon el celular en altavoz al lado del computador."}</p>`}
+    ${quieto >= 3 ? html`<p class="small" style="margin:0;color:var(--warn)">No llega nada de ZH Reuniones hace ${quieto} min. Revisa que esa pestaña siga escuchando.</p>` : null}
+    ${children}
+    <p class="small muted" style="margin:0">Para terminar, toca «Terminar» en la pestaña de ZH Reuniones: la transcripción llega sola aquí y Claude arma el plan.</p>
+  </div>`;
+}
+
+function LiveTranscriber({ onText, onStart, onStop, children, externo, tipo, esperando, onEsperar, onRevisar, vivo }) {
   const { api } = useCtx();
   const [fase, setFase] = useState("listo");
   const [interim, setInterim] = useState("");
@@ -4922,6 +4993,7 @@ function LiveTranscriber({ onText, onStart, onStop, children, externo, tipo, esp
 
   if (fase === "listo") {
     if (externo && (politicaMic() === false || !SpeechRec || MIC_PLAN_B.has(falla))) {
+      if (esperando && vivo && vivo.estado === "escuchando") return html`<${EnVivoExterno} vivo=${vivo} tipo=${tipo}>${children}</${EnVivoExterno}>`;
       return html`<div class="live">
         <div class="live-row">
           <a class="btn small" href=${externo} target="_blank" rel="noopener" onClick=${() => onEsperar && onEsperar(Date.now())}><${Icon} name="mic" />Transcribir en vivo</a>
@@ -4952,7 +5024,7 @@ function LiveTranscriber({ onText, onStart, onStop, children, externo, tipo, esp
 }
 
 /* «¿Qué le respondo?»: una consulta a Claude Haiku por cada toque, nunca en bucle. */
-function AyudaEnVivo({ lead, texto, notas, pista, onUsada }) {
+function AyudaEnVivo({ lead, texto, notas, pista, onUsada, refrescar }) {
   const { sampleState, setSampleState } = useCtx();
   const [r, setR] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -4966,7 +5038,10 @@ function AyudaEnVivo({ lead, texto, notas, pista, onUsada }) {
     setBusy(true);
     setError("");
     try {
-      const v = sanitizeAyuda(await sampleState.fn.json(promptAyudaVivo({ lead, texto, notas }), { model: HAIKU, modelTier: "quick", cache: false, signal: ctl.current.signal }));
+      /* Con ZH Reuniones, antes de preguntar se lee lo último que se dijo (puede ser de hace unos segundos). */
+      let t = texto;
+      if (refrescar) { try { t = (await refrescar()) || texto; } catch (e) { /* con lo que ya llegó */ } }
+      const v = sanitizeAyuda(await sampleState.fn.json(promptAyudaVivo({ lead, texto: t, notas }), { model: HAIKU, modelTier: "quick", cache: false, signal: ctl.current.signal }));
       if (!v.respuesta) throw { code: "empty_completion" };
       setR(v);
       if (onUsada) onUsada();
@@ -5089,6 +5164,7 @@ function RegistroContacto({ lead, hist, onDone, modo, meet: meet0 }) {
   const [meet, setMeet] = useState(() => (meet0 && idTransOk(meet0.id) && (esReunion ? meet0.tipo !== "llamada" : meet0.origen === "vivo" && meet0.tipo === "llamada") ? meet0 : null));
   const vivoT = !!meet && meet.origen === "vivo";
   const [esperando, setEsperando] = useState(0);
+  const { vivo: vivoExt, leer: leerVivoExt } = useEnVivo(lead.id, !meet && esperando ? esperando : 0);
   const meetRef = useRef(null);
   const [previo] = useState(() => (meet ? null : borradorLocal(llave)));
   const [resultado, setResultado] = useState(esReunion ? "realizada" : "");
@@ -5118,7 +5194,9 @@ function RegistroContacto({ lead, hist, onDone, modo, meet: meet0 }) {
   const ctl = useRef(null);
   const pistaT = useRef(null);
   useEffect(() => () => clearTimeout(pistaT.current), []);
-  useEffect(() => { if (notas.trim() || trans.trim()) ls.set(llave, { notas, trans, duracion, enVivo, t: Date.now() }); else ls.del(llave); }, [notas, trans, duracion, enVivo]);
+  /* Lo escrito queda en el navegador por si se cierra la ficha; una transcripción de ZH Reuniones no,
+     porque sigue en Hoy hasta registrarla o descartarla. */
+  useEffect(() => { if (meet) return; if (notas.trim() || trans.trim()) ls.set(llave, { notas, trans, duracion, enVivo, t: Date.now() }); else ls.del(llave); }, [notas, trans, duracion, enVivo]);
   useEffect(() => ls.set("guardarTrans", guardarTrans), [guardarTrans]);
   const planTrans = plan ? plan.guardarTrans : null;
   useEffect(() => { if (planTrans != null) setGuardarTrans(planTrans); }, [planTrans]);
@@ -5227,6 +5305,24 @@ function RegistroContacto({ lead, hist, onDone, modo, meet: meet0 }) {
     document.addEventListener("visibilitychange", volver);
     return () => { window.removeEventListener("focus", volver); document.removeEventListener("visibilitychange", volver); };
   }, [esperando, revisarReuniones]);
+  /* Mientras ZH Reuniones escucha: las frases nuevas encienden la pista de objeción, y al terminar la
+     transcripción se carga al tiro, sin esperar a la lista de ZH Reuniones. */
+  const vistas = useRef({ total: 0, parcial: "" });
+  useEffect(() => {
+    if (!vivoExt) { vistas.current = { total: 0, parcial: "" }; return; }
+    if (vivoExt.estado === "terminada") {
+      const id = vivoExt.transcripcion;
+      if (id && vivoExt.tipo === modo && !transReg[docTrans(id)]) { setEsperando(0); setMeet({ id, origen: "vivo", tipo: vivoExt.tipo, codigo: "", inicio: vivoExt.inicio, fin: new Date(vivoExt.act || Date.now()).toISOString(), titulo: vivoExt.tipo === "llamada" ? "Llamada" : "Reunión", clave: "v:" + id, dups: [] }); }
+      return;
+    }
+    const v = vistas.current;
+    const nuevas = vivoExt.total > v.total ? vivoExt.lineas.slice(-Math.min(vivoExt.lineas.length, vivoExt.total - v.total)) : [];
+    const parcial = vivoExt.parcial !== v.parcial ? vivoExt.parcial : "";
+    vistas.current = { total: vivoExt.total, parcial: vivoExt.parcial };
+    if (esReunion) return;
+    const p = pistaObjecion([...nuevas, parcial].join(" "));
+    if (p) { setPista(p); clearTimeout(pistaT.current); pistaT.current = setTimeout(() => setPista(""), 45000); }
+  }, [vivoExt]);
 
   /* Una reunión de Meet queda con su hora real, quiénes hablaron y de qué transcripción salió; una
      transcrita en vivo, con su hora y su transcripción. */
@@ -5379,7 +5475,7 @@ function RegistroContacto({ lead, hist, onDone, modo, meet: meet0 }) {
     </div>` : null}
     ${notaMeet || (esReunion ? html`<p class="small muted">Las reuniones por Meet se transcriben solas si quien entra tiene TranscripTonic en su Chrome, y aparecen en Hoy, en «Reuniones transcritas». Si no (por ejemplo, en persona), toca «Transcribir en vivo» o pega tus notas o la transcripción.</p>` : null)}
     ${previo ? html`<div class="note"><${Icon} name="info" /><div>Recuperé lo que quedó sin guardar de esta ${nombreReg}.</div></div>` : null}
-    ${meet ? null : html`<${LiveTranscriber} externo=${reuListo ? `${ZHR_URL}/vivo?${new URLSearchParams({ ref: lead.id, tipo: modo })}` : ""} tipo=${modo} esperando=${esperando} onEsperar=${setEsperando} onRevisar=${revisarReuniones} onStart=${() => setShowTrans(true)} onText=${(x) => {
+    ${meet ? null : html`<${LiveTranscriber} externo=${reuListo ? `${ZHR_URL}/vivo?${new URLSearchParams({ ref: lead.id, tipo: modo, nombre: lead.empresa || lead.nombre || "" })}` : ""} tipo=${modo} esperando=${esperando} vivo=${vivoExt} onEsperar=${setEsperando} onRevisar=${revisarReuniones} onStart=${() => setShowTrans(true)} onText=${(x) => {
       setEnVivo(true);
       enVivoRef.current = true;
       const t0 = transRef.current;
@@ -5389,7 +5485,7 @@ function RegistroContacto({ lead, hist, onDone, modo, meet: meet0 }) {
         if (p) { setPista(p); clearTimeout(pistaT.current); pistaT.current = setTimeout(() => setPista(""), 45000); }
       }
     }} onStop=${alDetener}>
-      ${esReunion ? null : html`<${AyudaEnVivo} lead=${lead} texto=${trans} notas=${notas} pista=${pista} onUsada=${() => setPista("")} />`}
+      ${esReunion ? null : html`<${AyudaEnVivo} lead=${lead} texto=${vivoExt ? textoEnVivo(vivoExt) : trans} notas=${notas} pista=${pista} onUsada=${() => setPista("")} refrescar=${vivoExt ? async () => textoEnVivo(await leerVivoExt()) : null} />`}
     </${LiveTranscriber}>`}
     ${progreso}
     <label class="field" for="c-notas"><span>Notas de la ${nombreReg}</span><textarea id="c-notas" class="textarea" rows="4" placeholder=${esReunion ? "Qué se habló, qué necesitan, qué quedamos en hacer" : "Qué se habló, qué necesita, qué quedamos en hacer"} value=${notas} onInput=${(e) => ponerNotas(e.currentTarget.value)}></textarea>
@@ -6048,6 +6144,7 @@ function ClientLogger({ cliente, hist, onDone, meet: meet0 }) {
   const [meet, setMeet] = useState(() => (meet0 && idTransOk(meet0.id) ? meet0 : null));
   const vivoT = !!meet && meet.origen === "vivo";
   const [esperando, setEsperando] = useState(0);
+  const { vivo: vivoExt } = useEnVivo(cliente.id, !meet && esperando ? esperando : 0);
   const meetRef = useRef(null);
   const transRef = useRef("");
   const [previo] = useState(() => (meet ? null : borradorLocal(llave)));
@@ -6108,6 +6205,11 @@ function ClientLogger({ cliente, hist, onDone, meet: meet0 }) {
     const t = reu.lista.find((x) => x.origen === "vivo" && x.ref === cliente.id && x.tipo === tipo && x.ini >= esperando - 120000 && !transReg[docTrans(x.id)]);
     if (t) { setEsperando(0); setMeet({ id: t.id, origen: "vivo", tipo: t.tipo, codigo: "", inicio: t.inicio, fin: t.fin, titulo: t.tituloMeet, clave: "v:" + t.id, dups: [] }); }
   }, [esperando, meet, reu.lista, transReg]);
+  /* Y si ZH Reuniones avisa que terminó, al tiro. */
+  useEffect(() => {
+    const id = vivoExt && vivoExt.estado === "terminada" ? vivoExt.transcripcion : null;
+    if (id && vivoExt.tipo === tipo && !transReg[docTrans(id)]) { setEsperando(0); setMeet({ id, origen: "vivo", tipo: vivoExt.tipo, codigo: "", inicio: vivoExt.inicio, fin: new Date(vivoExt.act || Date.now()).toISOString(), titulo: vivoExt.tipo === "llamada" ? "Llamada" : "Reunión", clave: "v:" + id, dups: [] }); }
+  }, [vivoExt]);
   useEffect(() => {
     if (!esperando) return undefined;
     const volver = () => { if (document.visibilityState === "visible") revisarReuniones(); };
@@ -6179,7 +6281,7 @@ function ClientLogger({ cliente, hist, onDone, meet: meet0 }) {
     ${previo ? html`<div class="note"><${Icon} name="info" /><div>Recuperé lo que quedó sin guardar de este registro.</div></div>` : null}
     ${meet ? null : html`<div class="field"><span>Tipo</span><${Chips} label="Tipo" value=${tipo} onChange=${(v) => { setTipo(v); if (v !== "reunion") setActa(null); }} options=${REGISTROS_CLIENTE} /></div>`}
     ${ps.length ? html`<label class="field" for="cl-pro"><span>Proyecto</span><select id="cl-pro" class="select" value=${proyectoId} onChange=${(e) => setProyectoId(e.currentTarget.value)}><option value="">Sin proyecto</option>${ps.map((p) => html`<option value=${p.id}>${p.nombre || "Proyecto"}</option>`)}</select></label>` : null}
-    ${!meet && (tipo === "reunion" || tipo === "llamada") ? html`<${LiveTranscriber} externo=${reuListo ? `${ZHR_URL}/vivo?${new URLSearchParams({ ref: cliente.id, tipo })}` : ""} tipo=${tipo} esperando=${esperando} onEsperar=${setEsperando} onRevisar=${revisarReuniones} onText=${(x) => { setEnVivo(true); setTexto((t) => (t.trim() ? t.replace(/\s+$/, "") + "\n" : "") + x); }} />` : null}
+    ${!meet && (tipo === "reunion" || tipo === "llamada") ? html`<${LiveTranscriber} externo=${reuListo ? `${ZHR_URL}/vivo?${new URLSearchParams({ ref: cliente.id, tipo, nombre: cliente.nombre || "" })}` : ""} tipo=${tipo} esperando=${esperando} vivo=${vivoExt} onEsperar=${setEsperando} onRevisar=${revisarReuniones} onText=${(x) => { setEnVivo(true); setTexto((t) => (t.trim() ? t.replace(/\s+$/, "") + "\n" : "") + x); }} />` : null}
     <label class="field" for="cl-texto"><span>${tipo === "reunion" ? (meet ? "Tus notas (opcional)" : "Notas de la reunión") : tipo === "nota" ? "Nota" : "Qué pasó"}</span><textarea id="cl-texto" class="textarea" rows=${meet ? 3 : 5} value=${texto} onInput=${(e) => setTexto(e.currentTarget.value)} placeholder=${tipo === "reunion" ? (meet ? "Lo que la transcripción no dice: impresiones, contexto" : "Lo que se habló, en desorden: acuerdos, pedidos, fechas, quién hace qué") : ""}></textarea>
       ${tipo === "reunion" ? html`<small class="hint">«Ordenar en acta» saca los acuerdos, lo pendiente de cada lado, las tareas de ZH, la próxima reunión y las solicitudes que hay que registrar.</small>` : null}</label>
     ${trans ? html`<details class="trans-box"><summary>Transcripción de la reunión · ${Math.max(1, Math.round(trans.length / 1000))} mil caracteres</summary><textarea class="textarea mono-off" rows="8" aria-label="Transcripción de la reunión" value=${trans} onInput=${(e) => { transRef.current = e.currentTarget.value; setTrans(e.currentTarget.value); }}></textarea></details>` : null}
@@ -8543,6 +8645,13 @@ function App() {
     if (!p || typeof p !== "object" || typeof p.texto !== "string") throw { code: "formato" };
     return { texto: p.texto, participantes: strArr(p.participantes, 40), intervenciones: Number(p.intervenciones) || 0 };
   }, [mcp]);
+  /* Lo que va de una llamada que ZH Reuniones transcribe en vivo para este lead o cliente. Sin caché:
+     se lee cada pocos segundos mientras dura. */
+  const leerEnVivo = useCallback(async (ref) => {
+    if (!mcp) throw { code: "not_granted" };
+    const res = await mcp.callTool(ZHR, "leer_transcripcion", { id: "vivo:" + ref }, { cache: false });
+    return normEnVivo(res && res.payload, ref);
+  }, [mcp]);
   /* Los nombres del equipo, para que Claude sepa quién habla por ZH en una transcripción de Meet. */
   const nombresEquipo = useMemo(() => [...new Set([...RESPONSABLES.map((r) => r[1]), ...Object.values(equipo).map((x) => String((x && x.nombre) || "").trim()).filter(Boolean), "ZH Development"])], [equipo]);
   /* Las reuniones con las que se puede cruzar una transcripción: las que el CRM anotó en meets/ (una
@@ -9173,7 +9282,7 @@ function App() {
     db, api: wrapApi, me, yo, leads: leads || [], leadsById, acts, drafts, equipo, cfg, sampleState, setSampleState, downloads, toast, nameOf, team, redactarTareas,
     tareas: tareas || [], tareasPorLead, siguienteDe, completarTarea, marcarTarea, agendarReunion, moverEtapa, cerrarTareasDe,
     cal, calCuenta, calListo, equipoCorreos, registro: registro || {}, leadDeEvento, permitirCalendario, refrescarCalendario, abrirPermisos, moverReunion, crearEventoDeReunion, recordatorio, prepararReunion, escribirEvento, invitadosEquipo, tareasPorCliente,
-    reu, reuListo, meets: meets || {}, transReg: transReg || {}, transPendientes, permitirReuniones, refrescarReuniones, revisarReuniones, leerTranscripcion, nombresEquipo, registrarTranscripcion, descartarTranscripcion, marcarTranscripcion, duenoDeEvento,
+    reu, reuListo, meets: meets || {}, transReg: transReg || {}, transPendientes, permitirReuniones, refrescarReuniones, revisarReuniones, leerTranscripcion, leerEnVivo, nombresEquipo, registrarTranscripcion, descartarTranscripcion, marcarTranscripcion, duenoDeEvento,
     anotarEnCalendario, anotarTarea, anotarCobro, cobroCal, devolverLlamada,
     assets, subirArchivo, borrarArchivo, guardarPropuesta, diasEnEtapa,
     clientes: clientes || [], clientesById, proyectos: proyectos || [], proyectosById, cobros: cobros || [], mantenciones: mantenciones || [], solicitudes: solicitudes || [],

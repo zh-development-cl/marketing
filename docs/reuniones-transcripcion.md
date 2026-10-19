@@ -133,11 +133,16 @@ llamada» o «Registrar reunión» de la ficha) abre en otra pestaña la página
 
 1. La primera vez en ese navegador pide la clave del equipo (queda 6 meses) y Chrome pide permiso
    para el micrófono.
-2. «Empezar», hablar (en una llamada, con el celular en altavoz al lado) y «Terminar». El texto lo
-   hace el reconocimiento de voz de Chrome o Edge; el audio no se guarda.
-3. La transcripción queda en ZH Reuniones para ese lead o cliente y, al volver a la pestaña del CRM,
-   llega sola a la ficha y Claude arma el plan o el acta. Si la ficha ya no estaba abierta, aparece
-   en Hoy, en «Reuniones y llamadas transcritas».
+2. Arriba dice para quién es («Llamada con …»). «Empezar», hablar (en una llamada, con el celular en
+   altavoz al lado) y «Terminar». El texto lo hace el reconocimiento de voz de Chrome o Edge; el
+   audio no se guarda.
+3. Mientras escucha se puede volver a la pestaña del CRM: la ficha muestra lo último que se dijo
+   (ZH Reuniones lo manda cada pocos segundos) y «¿Qué le respondo?», que le pregunta a Claude qué
+   decir ahora.
+4. Al tocar «Terminar», la transcripción queda en ZH Reuniones para ese lead o cliente, llega sola a
+   la ficha y Claude arma el plan o el acta. Si la ficha ya no estaba abierta, aparece en Hoy, en
+   «Reuniones y llamadas transcritas». «Otra llamada con …» es para el mismo lead o cliente; para
+   otro, se abre desde su ficha.
 
 No separa quién habla (Claude lo deduce por el contexto). Si la pestaña se cierra a medias, al
 volver a abrirla ofrece mandar lo que alcanzó a transcribir.

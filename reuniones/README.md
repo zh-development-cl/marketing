@@ -22,6 +22,7 @@ fichas firmadas (JWT con HMAC): eso no se guarda.
 |---|---|---|
 | `transcripciones` | `{dias?: 1-30 (14), fresco?: true}` | `{transcripciones: [{id, origen, tipo, ref?, titulo, codigo, software, inicio, fin, estado: "lista", participantes, intervenciones}]}`, sin el texto. `origen` es `meet` (TranscripTonic) o `vivo` («Transcribir en vivo»); `tipo`, `reunion` o `llamada`; `ref`, el id del lead o cliente en el CRM (solo las en vivo). En las de Meet, `titulo` es el de la reunión (el del evento o el código de Meet) y `codigo`, el código si el título lo es. Con `fresco`, el índice se lee directo del almacén, sin el caché. |
 | `leer_transcripcion` | `{id}`: `tt-…` | `{id, origen, tipo, ref?, titulo, participantes, intervenciones, texto}`. Las de Meet: una línea por intervención, «Nombre: lo que dijo», y el chat al final. Las en vivo: una frase por línea, sin el nombre de quien habla. |
+| `leer_transcripcion` | `{id}`: `vivo:<id del lead o cliente>` | Lo que se está transcribiendo ahora para ese lead o cliente: `{id, origen: "vivo", ref, estado, tipo, inicio, actualizada, lineas, parcial, total, transcripcion}`. `estado` es `escuchando` (con las últimas 40 frases, la que va a medias y cuántas van), `terminada` (con el id de la transcripción guardada, o `null` si no se transcribió nada) o `sin_datos`. Es lo que el CRM lee cada pocos segundos durante la llamada. |
 
 Una falla conocida vuelve con `isError: true`, el mensaje en `content` y
 `structuredContent: {error, mensaje}`, con `error` = `sin_almacen` (el almacén no está conectado),
@@ -34,8 +35,9 @@ Una falla conocida vuelve con `isError: true`, el mensaje en `content` y
 | `/` | Estado: si el almacén y la clave del equipo están listos, el botón para crear la clave o ver la dirección para TranscripTonic, y la dirección del conector. |
 | `/api/equipo` | La primera vez, el formulario para **crear la clave del equipo** (8 a 200 caracteres, escrita dos veces). Después, con la clave, la dirección del webhook para pegarla en la extensión. |
 | `/api/transcripcion?t=<token>` | El webhook de TranscripTonic (POST, cuerpo «advanced» o «simple»). El token sale de la clave del equipo. La misma reunión mandada otra vez reemplaza a la anterior; una sin nada transcrito o de hace más de 14 días no se guarda. |
-| `/vivo?ref=<id>&tipo=llamada\|reunion` | «Transcribir en vivo». La primera vez en un navegador pide la clave del equipo y deja una cookie firmada (`zhr_equipo`, 180 días, HttpOnly, SameSite=Lax). La página escucha, muestra el texto en vivo, lo guarda en el navegador mientras tanto y, al terminar, lo manda a `/api/vivo-guardar`. Su único script va con nonce y solo puede hablar con este servidor. |
-| `/api/vivo-guardar` | Recibe lo transcrito en vivo (POST, solo JSON y con la cookie del equipo): `{ref, tipo, inicio, fin, lineas[]}`. La misma, mandada otra vez, reemplaza a la anterior; sin texto o de hace más de 14 días no se guarda. |
+| `/vivo?ref=<id>&tipo=llamada\|reunion&nombre=<nombre>` | «Transcribir en vivo». La primera vez en un navegador pide la clave del equipo y deja una cookie firmada (`zhr_equipo`, 180 días, HttpOnly, SameSite=Lax). Dice para quién es («Llamada con …»; el nombre solo se muestra). La página escucha, muestra el texto en vivo, lo guarda en el navegador, manda lo último a `/api/vivo-avance` y, al terminar, la transcripción completa a `/api/vivo-guardar`. Su único script va con nonce y solo puede hablar con este servidor. |
+| `/api/vivo-guardar` | Recibe lo transcrito en vivo (POST, solo JSON y con la cookie del equipo): `{ref, tipo, inicio, fin, lineas[]}`. La misma, mandada otra vez, reemplaza a la anterior; sin texto o de hace más de 14 días no se guarda. Deja la llamada como `terminada` para el CRM. |
+| `/api/vivo-avance` | Lo último de la llamada mientras la página escucha (POST, solo JSON y con la cookie del equipo), cada 2,5 segundos como mucho y cada 30 sin novedades: `{ref, tipo, inicio, lineas[] (las últimas 40), parcial, total}`. Va al caché de Vercel, no al almacén. |
 | `/mcp` | El conector (JSON-RPC por POST, sin sesión). Sin llave válida: 401 con `WWW-Authenticate` y `resource_metadata`. |
 | `/.well-known/oauth-protected-resource[/mcp]`, `/.well-known/oauth-authorization-server` | Descubrimiento (RFC 9728 y RFC 8414). |
 | `/api/oauth/register` | Registro dinámico (RFC 7591): solo las direcciones de regreso de claude.ai, claude.com y locales. |
@@ -62,7 +64,11 @@ al mes; si se pasan, Vercel bloquea el almacén 30 días. Por eso el CRM lee sol
 siempre desde el caché de Vercel (sus lecturas no se cobran), y cada reunión que llega hace dos
 escrituras y un listado (el que barre los archivos de más de 14 días). Cada transcripción en vivo
 hace dos escrituras, sin listado, y al volver de «Transcribir en vivo» el CRM lee el índice una vez
-directo del almacén (`fresco`). Los cambios del índice se
+directo del almacén (`fresco`). Lo que va de una llamada (`/api/vivo-avance`) no toca el almacén:
+queda en el **Runtime Cache** de Vercel (`@vercel/functions`, regional, lo comparten las funciones y
+se borra solo a la hora), que tiene sus propios cobros y en Hobby es compartido entre los proyectos
+del equipo. Si no estuviera, el paquete usa uno en memoria que no se comparte entre funciones: la
+respuesta de `/api/vivo-avance` dice `cache: "vercel"` o `"memoria"` para revisarlo. Los cambios del índice se
 escriben con su ETag, para que dos reuniones que llegan a la vez no se pisen. Mirar el almacén en el
 panel de Vercel también cuenta como operaciones.
 

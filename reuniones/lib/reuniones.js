@@ -21,7 +21,7 @@ const vigente = (t) => !!t && ID.test(t.id) && !vieja(Date.parse(t.recibida));
 const CACHE_INDICE = 300;
 const CACHE_TEXTO = 3600;
 
-const limpiar = (v, n) => String(v == null ? "" : v).replace(/[\u0000-\u001f\u007f]+/g, " ").replace(/\s+/g, " ").trim().slice(0, n);
+export const limpiar = (v, n) => String(v == null ? "" : v).replace(/[\u0000-\u001f\u007f]+/g, " ").replace(/\s+/g, " ").trim().slice(0, n);
 export const codigoMeet = (s) => { const m = String(s || "").match(/\b([a-z]{3,}-[a-z]{3,}-[a-z]{3,})\b/i); return m ? m[1].toLowerCase() : ""; };
 
 /* El cuerpo «advanced» trae los bloques; el «simple», el texto ya armado («Nombre (hora)\ntexto»). */
@@ -112,18 +112,69 @@ export async function guardarEnVivo(d) {
   if (ref && !REF.test(ref)) throw new Falla("El lead o cliente de la transcripción no es válido.", "sin_ref");
   const tipo = d.tipo === "reunion" ? "reunion" : "llamada";
   const frases = (Array.isArray(d.lineas) ? d.lineas.slice(0, 20000) : []).map((x) => limpiar(x, 20000)).filter(Boolean);
-  if (!frases.length) return { guardada: false, motivo: "No se transcribió nada." };
   const ahora = Date.now();
   let fin = iso(d.fin);
   if (!Number.isFinite(fin) || fin > ahora + 300000) fin = ahora;
   let inicio = iso(d.inicio);
   if (!Number.isFinite(inicio) || inicio > fin) inicio = fin;
+  if (!frases.length) {
+    await terminarAvance(ref, tipo, inicio, null);
+    return { guardada: false, motivo: "No se transcribió nada." };
+  }
   if (vieja(inicio)) return { guardada: false, motivo: `La transcripción es de hace más de ${DIAS} días.` };
   const id = `tt-${inicio.toString(36)}-${createHash("sha256").update(`vivo|${ref}|${inicio}|${tipo}`).digest("hex").slice(0, 8)}`;
   let texto = frases.join("\n");
   if (texto.length > MAX_TEXTO) texto = texto.slice(0, MAX_TEXTO) + "\n[transcripción recortada]";
   await guardarDoc({ id, origen: "vivo", tipo, ...(ref ? { ref } : {}), titulo: tipo === "llamada" ? "Llamada" : "Reunión", codigo: "", software: "ZH Reuniones", inicio: new Date(inicio).toISOString(), fin: new Date(fin).toISOString(), recibida: new Date(ahora).toISOString(), participantes: [], intervenciones: frases.length, texto });
+  await terminarAvance(ref, tipo, inicio, id);
   return { guardada: true, id };
+}
+
+/* Mientras dura la llamada, la página manda cada pocos segundos las últimas frases: el CRM las muestra
+   y Claude sugiere qué responder. Van al caché de Vercel (Runtime Cache: lo comparten las funciones
+   de la región y se borra solo), no al almacén, que cobra cada escritura. La transcripción completa
+   se guarda al terminar, con guardarEnVivo. */
+const AVANCE_LINEAS = 40;
+const AVANCE_SEG = 3600;
+const TERMINADA_SEG = 900;
+let cacheVivo = null;
+export const usarCacheVivo = (c) => { cacheVivo = c; };
+const elCacheVivo = async () => cacheVivo || (cacheVivo = (await import("@vercel/functions")).getCache({ namespace: "zh-reuniones" }));
+const claveVivo = (ref) => `vivo/${ref}`;
+/* Sin el caché de Vercel, el paquete usa uno en memoria que no se comparte entre funciones: el CRM
+   no vería nada. Se informa en la respuesta para poder revisarlo. */
+const cacheCompartido = () => !!(globalThis[Symbol.for("@vercel/request-context")]?.get?.()?.cache || (process.env.RUNTIME_CACHE_ENDPOINT && process.env.RUNTIME_CACHE_HEADERS));
+const ponerAvance = async (estado, segundos) => (await elCacheVivo()).set(claveVivo(estado.ref), estado, { ttl: segundos, name: "vivo" });
+
+export async function guardarAvance(d) {
+  if (!d || typeof d !== "object" || Array.isArray(d)) throw new Falla("Falta lo transcrito.", "sin_datos");
+  const ref = String(d.ref || "");
+  if (!REF.test(ref)) throw new Falla("El lead o cliente de la transcripción no es válido.", "sin_ref");
+  const ahora = Date.now();
+  let inicio = iso(d.inicio);
+  if (!Number.isFinite(inicio) || inicio > ahora + 300000) inicio = ahora;
+  const lineas = (Array.isArray(d.lineas) ? d.lineas.slice(-AVANCE_LINEAS) : []).map((x) => limpiar(x, 2000)).filter(Boolean);
+  const total = Math.min(100000, Math.max(lineas.length, Math.round(Number(d.total)) || 0));
+  await ponerAvance({ ref, tipo: d.tipo === "reunion" ? "reunion" : "llamada", inicio: new Date(inicio).toISOString(), actualizada: new Date(ahora).toISOString(), estado: "escuchando", lineas, parcial: limpiar(d.parcial, 2000), total }, AVANCE_SEG);
+  return { recibido: true, cache: cacheCompartido() ? "vercel" : "memoria" };
+}
+
+/* Al terminar, el CRM ve que se guardó y con qué id (null si no se transcribió nada), sin esperar al
+   índice. Si el caché falla da lo mismo: la transcripción ya está en el almacén y el índice. */
+async function terminarAvance(ref, tipo, inicio, id) {
+  if (!ref) return;
+  try {
+    await ponerAvance({ ref, tipo, inicio: new Date(inicio).toISOString(), actualizada: new Date().toISOString(), estado: "terminada", lineas: [], parcial: "", total: 0, transcripcion: id }, TERMINADA_SEG);
+  } catch (e) { console.error("[zh-reuniones] avance", e && e.message); }
+}
+
+/* Lo que va de la llamada en vivo de un lead o cliente: «escuchando» (con las últimas frases),
+   «terminada» (con la transcripción guardada) o «sin_datos». */
+async function leerAvance(ref) {
+  const e = await (await elCacheVivo()).get(claveVivo(ref));
+  const base = { id: `vivo:${ref}`, origen: "vivo", ref };
+  if (!e || typeof e !== "object" || e.ref !== ref || !["escuchando", "terminada"].includes(e.estado)) return { ...base, estado: "sin_datos", tipo: "llamada", inicio: "", actualizada: "", lineas: [], parcial: "", total: 0, transcripcion: null };
+  return { ...base, estado: e.estado, tipo: e.tipo === "reunion" ? "reunion" : "llamada", inicio: String(e.inicio || ""), actualizada: String(e.actualizada || ""), lineas: Array.isArray(e.lineas) ? e.lineas.map(String) : [], parcial: String(e.parcial || ""), total: Number(e.total) || 0, transcripcion: ID.test(String(e.transcripcion || "")) ? e.transcripcion : null };
 }
 
 /* De dónde viene una transcripción y para quién: Meet (TranscripTonic) o en vivo, para un lead o cliente. */
@@ -147,9 +198,11 @@ export async function transcripciones(args) {
 }
 
 /* El texto de una transcripción. Las de Meet: «Nombre: lo que dijo», una línea por intervención, y el
-   chat al final. Las en vivo: una frase por línea, sin el nombre de quien habla. */
+   chat al final. Las en vivo: una frase por línea, sin el nombre de quien habla. Con el id
+   «vivo:<lead o cliente>», lo que se está transcribiendo ahora para él. */
 export async function leerTranscripcion(args) {
   const id = String((args && args.id) || "");
+  if (id.startsWith("vivo:") && REF.test(id.slice(5))) return leerAvance(id.slice(5));
   if (!ID.test(id)) throw new Falla("Falta la transcripción que hay que leer.", "sin_id");
   const t = await leerJson(TEXTO(id));
   if (!vigente(t)) throw new Falla(`La transcripción ya no está: se borra sola ${DIAS} días después de llegar.`, "no_existe");

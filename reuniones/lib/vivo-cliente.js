@@ -1,7 +1,8 @@
 /* Lo que corre en el navegador en la página «Transcribir en vivo»: escucha con el micrófono, el
    reconocimiento de voz de Chrome o Edge lo pasa a texto (es-CL) y, al terminar, lo manda a
-   /api/vivo-guardar. Mientras escucha, guarda lo transcrito en el navegador: si la pestaña se cierra,
-   al volver ofrece mandarlo. La función se manda como texto (no usa nada de este módulo). */
+   /api/vivo-guardar. Mientras escucha, manda lo último a /api/vivo-avance para el CRM y lo guarda en
+   el navegador: si la pestaña se cierra, al volver ofrece mandarlo. La función se manda como texto
+   (no usa nada de este módulo). */
 export function cliente(conf) {
   const $ = (id) => document.getElementById(id);
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition || null;
@@ -31,6 +32,31 @@ export function cliente(conf) {
     $("texto").scrollTop = $("texto").scrollHeight;
   };
   const respaldar = () => local.poner({ ref: conf.ref, tipo: conf.tipo, inicio, fin: new Date().toISOString(), lineas });
+  const postJson = (url, d) => fetch(url, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(d), credentials: "same-origin" });
+
+  /* Lo último de la llamada va al CRM cada 2,5 segundos como mucho, una solicitud a la vez: ahí se ve
+     lo que se dice y Claude sugiere qué responder. Si falla da lo mismo: la transcripción completa se
+     manda al terminar, después de la última de estas (si no, la pisaría en el CRM). */
+  const avance = { ultimo: 0, t: null, p: null, otra: false, enviado: false };
+  function avisar() {
+    if (!conf.ref || !s) return;
+    if (avance.p) { avance.otra = true; return; }
+    const falta = 2500 - (Date.now() - avance.ultimo);
+    if (falta > 0) { if (!avance.t) avance.t = setTimeout(() => { avance.t = null; avisar(); }, falta); return; }
+    avance.ultimo = Date.now();
+    avance.enviado = true;
+    avance.p = postJson("/api/vivo-avance", { ref: conf.ref, tipo: conf.tipo, inicio, lineas: lineas.slice(-40), parcial: s.parcial || "", total: lineas.length })
+      .catch(() => {})
+      .finally(() => { avance.p = null; if (avance.otra) { avance.otra = false; avisar(); } });
+  }
+  const esperarAvance = async () => { clearTimeout(avance.t); avance.t = null; avance.otra = false; try { if (avance.p) await avance.p; } catch (e) { /* da lo mismo */ } };
+  /* Si no se escuchó nada, igual avisa que terminó: así el CRM deja de mostrarla en curso. */
+  async function terminarSinTexto() {
+    const d = { ref: conf.ref, tipo: conf.tipo, inicio, fin: new Date().toISOString(), lineas: [] };
+    avance.enviado = false;
+    await esperarAvance();
+    postJson("/api/vivo-guardar", d).catch(() => {});
+  }
 
   function soltar(x) {
     clearInterval(x.reloj); clearInterval(x.medidor); clearTimeout(x.reinicio); clearTimeout(x.corte);
@@ -43,13 +69,20 @@ export function cliente(conf) {
     s = null;
     if (x.parcial) { lineas.push(cap(x.parcial)); x.parcial = ""; }
     soltar(x);
+    clearTimeout(avance.t);
+    avance.t = null;
     ver("vivo", false);
     ver("terminar", false);
+    ver("volver-crm", false);
     $("reloj").textContent = "";
     pintar("");
     aviso(falla || "");
     if (lineas.length) mandar({ ref: conf.ref, tipo: conf.tipo, inicio, fin: new Date().toISOString(), lineas: lineas.slice() });
-    else { estado(falla ? "No se pudo transcribir" : "No se escuchó nada"); ver("empezar", true); }
+    else {
+      estado(falla ? "No se pudo transcribir" : "No se escuchó nada");
+      ver("empezar", true);
+      if (conf.ref && avance.enviado) terminarSinTexto();
+    }
   }
   function sesion(x) {
     const r = new SR();
@@ -70,6 +103,7 @@ export function cliente(conf) {
       }
       x.parcial = parcial;
       pintar(parcial);
+      avisar();
     };
     r.onerror = (e) => {
       if (s !== x) return;
@@ -140,12 +174,18 @@ export function cliente(conf) {
     if (s !== x) { soltar(x); return; }
     inicio = new Date().toISOString();
     const t0 = Date.now();
-    x.reloj = setInterval(() => { $("reloj").textContent = mmss(Math.round((Date.now() - t0) / 1000)); }, 1000);
+    /* El reloj y, cada 30 segundos sin novedades, un aviso al CRM de que sigue escuchando. */
+    x.reloj = setInterval(() => {
+      $("reloj").textContent = mmss(Math.round((Date.now() - t0) / 1000));
+      if (Date.now() - avance.ultimo > 30000) avisar();
+    }, 1000);
     ver("vivo", true);
     ver("terminar", true);
+    ver("volver-crm", !!conf.ref);
     $("terminar").disabled = false;
     estado("Escuchando");
     arrancar(x);
+    avisar();
   }
   function terminar() {
     const x = s;
@@ -165,11 +205,13 @@ export function cliente(conf) {
     ver("fallo", false);
     ver("hecho", false);
     ver("respaldo", false);
+    await esperarAvance();
     try {
-      const r = await fetch("/api/vivo-guardar", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(d), credentials: "same-origin" });
+      const r = await postJson("/api/vivo-guardar", d);
       let j = {};
       try { j = await r.json(); } catch (e) { j = {}; }
       if (!r.ok || !j.ok) throw new Error(j.error || "No se pudo mandar la transcripción.");
+      avance.enviado = false;
       local.borrar();
       estado(j.guardada ? "Listo" : "No se guardó");
       $("hecho-texto").textContent = j.guardada ? "Listo: la transcripción llegó a ZH Reuniones." : j.motivo || "No se guardó.";
@@ -180,7 +222,8 @@ export function cliente(conf) {
       $("fallo-texto").textContent = (e && e.message) || "No se pudo mandar la transcripción.";
       ver("fallo", true);
     }
-    $("empezar").textContent = "Transcribir otra";
+    /* Otra con el mismo lead o cliente (el de la dirección): el botón lo dice. */
+    $("empezar").textContent = conf.nombre ? "Otra " + (conf.tipo === "llamada" ? "llamada" : "reunión") + " con " + conf.nombre : "Transcribir otra";
     ver("empezar", true);
   }
   async function copiar() {

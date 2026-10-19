@@ -133,7 +133,9 @@
     search: async () => [],
   });
 
-  const plus = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); };
+  /* Días contados desde hoy en Chile, como el CRM (de 21:00 a medianoche, la fecha UTC ya es mañana). */
+  const hoyCL = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Santiago", year: "numeric", month: "2-digit", day: "2-digit" });
+  const plus = (n) => { const d = new Date(hoyCL.format(new Date()) + "T12:00:00Z"); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
   function answer(p) {
     if (p.includes("reunión semanal de los socios")) return {
       titular: "Semana con más reuniones, pero dos propuestas sin respuesta.",
@@ -384,6 +386,13 @@
       if (m === "sin_conector") throw fallaReu("server_not_connected");
       if (tool === "transcripciones") { reuAprobado = true; for (const w of reuWatchers) entregarReu(w); return { content: [], payload: listaReu() }; }
       if (!reuAprobado) throw fallaReu("approval_required");
+      /* «vivo:<ref>»: lo que va de una llamada en vivo, de __MOCK_REU.enVivo[ref] (o sin_datos). */
+      const vid = String((input && input.id) || "");
+      if (vid.startsWith("vivo:")) {
+        const ref = vid.slice(5);
+        const base = { id: vid, origen: "vivo", ref, estado: "sin_datos", tipo: "llamada", inicio: "", actualizada: "", lineas: [], parcial: "", total: 0, transcripcion: null };
+        return { content: [], payload: { ...base, ...clone((reuCfg.enVivo || {})[ref] || {}) } };
+      }
       const t = reuCfg.textos && reuCfg.textos[input && input.id];
       if (!t) throw fallaReu("tool_error", "La transcripción ya no está: se borra sola 14 días después de llegar.", { result: { isError: true, structuredContent: { error: "no_existe" } } });
       return { content: [], payload: { id: input.id, participantes: t.participantes || [], intervenciones: t.intervenciones || 0, texto: t.texto } };

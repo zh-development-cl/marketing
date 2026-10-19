@@ -6,7 +6,7 @@ import assert from "node:assert/strict";
 const { firmar, verificar, sha256b64u } = await import("../lib/jwt.js");
 const { usarAlmacen } = await import("../lib/almacen.js");
 const { claveEquipo, claveCorrecta, tokenWebhook, olvidarClave, olvidarFallas } = await import("../lib/clave.js");
-const { codigoMeet } = await import("../lib/reuniones.js");
+const { codigoMeet, usarCacheVivo } = await import("../lib/reuniones.js");
 const register = await import("../api/oauth/register.js");
 const authorize = await import("../api/oauth/authorize.js");
 const token = await import("../api/oauth/token.js");
@@ -17,6 +17,7 @@ const wellKnown = await import("../api/well-known.js");
 const inicio = await import("../api/inicio.js");
 const vivo = await import("../api/vivo.js");
 const vivoGuardar = await import("../api/vivo-guardar.js");
+const vivoAvance = await import("../api/vivo-avance.js");
 
 const CLAVE = "Prueba1$";
 const H = "https://zh.test";
@@ -58,6 +59,13 @@ const memoria = {
   },
 };
 const contar = () => { ops = { cache: 0, directas: 0, escrituras: 0, listados: 0 }; };
+/* El caché de Vercel (Runtime Cache) en memoria, con su duración; `puestos` guarda cómo se escribió. */
+let cache;
+let puestos;
+const cacheVivo = {
+  async get(k) { await turno(); const e = cache.get(k); return e && e.hasta > Date.now() ? JSON.parse(e.v) : null; },
+  async set(k, v, o = {}) { await turno(); puestos.push({ k, ttl: o.ttl, name: o.name }); cache.set(k, { v: JSON.stringify(v), hasta: Date.now() + (o.ttl || 60) * 1000 }); },
+};
 const leerArchivo = (nombre) => JSON.parse(archivos.get(nombre).texto);
 beforeEach(() => {
   archivos = new Map();
@@ -65,6 +73,9 @@ beforeEach(() => {
   etagRoto = false;
   contar();
   usarAlmacen(memoria);
+  cache = new Map();
+  puestos = [];
+  usarCacheVivo(cacheVivo);
   olvidarClave();
   olvidarFallas();
 });
@@ -402,7 +413,9 @@ async function galletaVivo() {
   const r = await postForm(vivo, "/vivo?ref=lead-1&tipo=llamada", { clave: CLAVE, ref: "lead-1", tipo: "llamada" });
   return (r.headers.get("set-cookie") || "").split(";")[0];
 }
-const mandarVivo = (galleta, cuerpo, tipo = "application/json") => vivoGuardar.POST(new Request(H + "/api/vivo-guardar", { method: "POST", body: typeof cuerpo === "string" ? cuerpo : JSON.stringify(cuerpo), headers: { "content-type": tipo, ...(galleta ? { cookie: galleta } : {}) } }));
+const mandarA = (mod, ruta) => (galleta, cuerpo, tipo = "application/json") => mod.POST(new Request(H + ruta, { method: "POST", body: typeof cuerpo === "string" ? cuerpo : JSON.stringify(cuerpo), headers: { "content-type": tipo, ...(galleta ? { cookie: galleta } : {}) } }));
+const mandarVivo = mandarA(vivoGuardar, "/api/vivo-guardar");
+const mandarAvance = mandarA(vivoAvance, "/api/vivo-avance");
 
 test("«Transcribir en vivo» pide la clave una vez y deja la cookie del equipo", async () => {
   assert.equal((await get(vivo, "/vivo?ref=lead-1&tipo=llamada")).status, 503);
@@ -426,10 +439,11 @@ test("«Transcribir en vivo» pide la clave una vez y deja la cookie del equipo"
   assert.match(csp, /script-src 'nonce-[A-Za-z0-9+/=]+'; connect-src 'self'/);
   const texto = await pagina.text();
   assert.ok(texto.includes(`<script nonce="${csp.match(/'nonce-([^']+)'/)[1]}">`));
-  assert.ok(texto.includes('{"ref":"lead-1","tipo":"llamada"}'));
+  assert.ok(texto.includes('{"ref":"lead-1","tipo":"llamada","nombre":""}'));
+  assert.match(texto, /Llamada para la ficha del CRM/);
   assert.match(texto, /celular en altavoz/);
   const rara = await (await vivo.GET(new Request(H + "/vivo?ref=lead%201%3Cx&tipo=reunion", { headers: { cookie: galleta } }))).text();
-  assert.ok(rara.includes('{"ref":"","tipo":"reunion"}'));
+  assert.ok(rara.includes('{"ref":"","tipo":"reunion","nombre":""}'));
   assert.match(rara, /sin asociar/);
   assert.equal((await vivo.GET(new Request(H + "/vivo", { headers: { cookie: galleta + "x" } }))).status, 200);
 });
@@ -464,6 +478,82 @@ test("lo transcrito en vivo se guarda solo con la cookie y en JSON, como llamada
   const lista = (await llamar(llaves.access_token, "transcripciones", {})).structuredContent.transcripciones;
   const suelta = lista.find((x) => x.id === sinLead.id);
   assert.deepEqual([suelta.tipo, suelta.ref, suelta.titulo], ["reunion", undefined, "Reunión"]);
+});
+
+test("la página dice para quién es la llamada, y el nombre no se cuela en el HTML ni en el script", async () => {
+  await conClave();
+  const galleta = await galletaVivo();
+  const abrir = async (q) => (await vivo.GET(new Request(H + "/vivo?" + q, { headers: { cookie: galleta } }))).text();
+  const con = await abrir("ref=lead-1&tipo=llamada&nombre=Taller%20Ejemplo");
+  assert.match(con, /Llamada con <b>Taller Ejemplo<\/b>: llega a su ficha en el CRM/);
+  assert.ok(con.includes('{"ref":"lead-1","tipo":"llamada","nombre":"Taller Ejemplo"}'));
+  assert.match(con, /Para otro lead o cliente, ábrela desde su ficha/);
+  assert.match(con, /id="volver-crm" hidden/);
+  const mala = await abrir("ref=cli-2&tipo=reunion&nombre=" + encodeURIComponent('<img src=x onerror=alert(1)></script>'));
+  assert.match(mala, /Reunión con <b>&lt;img src=x onerror=alert\(1\)&gt;&lt;\/script&gt;<\/b>/);
+  assert.ok(!mala.includes("<img"));
+  assert.equal(mala.match(/<\/script>/g).length, 1);
+  const sinRef = await abrir("tipo=llamada&nombre=Alguien");
+  assert.ok(sinRef.includes('{"ref":"","tipo":"llamada","nombre":""}'));
+  assert.doesNotMatch(sinRef, /Alguien/);
+  const pide = await (await get(vivo, "/vivo?ref=lead-1&tipo=llamada&nombre=Taller%20Ejemplo")).text();
+  assert.match(pide, /name="nombre" value="Taller Ejemplo"/);
+  const r = await postForm(vivo, "/vivo", { clave: CLAVE, ref: "lead-1", tipo: "llamada", nombre: "Taller Ejemplo" });
+  assert.equal(r.headers.get("location"), "/vivo?ref=lead-1&tipo=llamada&nombre=Taller+Ejemplo");
+});
+
+test("lo último de la llamada va al caché (no al almacén) y el CRM lo lee con «vivo:<lead>»", async () => {
+  await conClave();
+  const galleta = await galletaVivo();
+  const inicioLlamada = hace(3);
+  const frases = Array.from({ length: 45 }, (_, i) => `Frase número ${i + 1}`);
+  const cuerpo = { ref: "lead-1", tipo: "llamada", inicio: inicioLlamada, lineas: frases, parcial: "  y una que  va ", total: 45 };
+  assert.equal((await mandarAvance("", cuerpo)).status, 401);
+  assert.equal((await mandarAvance(galleta, "lineas=hola", "text/plain")).status, 415);
+  const sinRef = await mandarAvance(galleta, { ...cuerpo, ref: "" });
+  assert.deepEqual([sinRef.status, (await sinRef.json()).code], [400, "sin_ref"]);
+  assert.equal((await mandarAvance(galleta, { ...cuerpo, ref: "lead 1" })).status, 400);
+  assert.equal((await vivoAvance.GET()).status, 405);
+  contar();
+  const r = await mandarAvance(galleta, cuerpo);
+  assert.equal(r.status, 200);
+  assert.deepEqual(await r.json(), { ok: true, recibido: true, cache: "memoria" });
+  assert.deepEqual([ops.escrituras, ops.listados, ops.directas], [0, 0, 0]);
+  assert.deepEqual(puestos.at(-1), { k: "vivo/lead-1", ttl: 3600, name: "vivo" });
+  const { llaves } = await conectarConector();
+  const leer = async (id) => (await llamar(llaves.access_token, "leer_transcripcion", { id })).structuredContent;
+  const v = await leer("vivo:lead-1");
+  assert.deepEqual({ estado: v.estado, origen: v.origen, ref: v.ref, tipo: v.tipo, inicio: v.inicio, total: v.total, parcial: v.parcial, transcripcion: v.transcripcion }, { estado: "escuchando", origen: "vivo", ref: "lead-1", tipo: "llamada", inicio: inicioLlamada, total: 45, parcial: "y una que va", transcripcion: null });
+  assert.deepEqual([v.lineas.length, v.lineas[0], v.lineas.at(-1)], [40, "Frase número 6", "Frase número 45"]);
+  assert.ok(Date.now() - Date.parse(v.actualizada) < 5000);
+  assert.equal((await leer("vivo:lead-2")).estado, "sin_datos");
+  assert.equal((await leer("vivo:lead 2")).error, "sin_id");
+  const guardada = await (await mandarVivo(galleta, { ref: "lead-1", tipo: "llamada", inicio: inicioLlamada, lineas: frases })).json();
+  const fin = await leer("vivo:lead-1");
+  assert.deepEqual({ estado: fin.estado, inicio: fin.inicio, transcripcion: fin.transcripcion, lineas: fin.lineas }, { estado: "terminada", inicio: inicioLlamada, transcripcion: guardada.id, lineas: [] });
+  assert.deepEqual(puestos.at(-1), { k: "vivo/lead-1", ttl: 900, name: "vivo" });
+  assert.equal((await leer(guardada.id)).texto.split("\n").length, 45);
+  await mandarAvance(galleta, { ref: "cli-9", tipo: "reunion", inicio: hace(1), lineas: [] });
+  assert.equal((await leer("vivo:cli-9")).estado, "escuchando");
+  const vacia = await (await mandarVivo(galleta, { ref: "cli-9", tipo: "reunion", inicio: hace(1), lineas: [" "] })).json();
+  assert.equal(vacia.guardada, false);
+  const sinTexto = await leer("vivo:cli-9");
+  assert.deepEqual([sinTexto.estado, sinTexto.tipo, sinTexto.transcripcion], ["terminada", "reunion", null]);
+});
+
+test("si el caché falla, la transcripción completa se guarda igual", async () => {
+  await conClave();
+  const galleta = await galletaVivo();
+  usarCacheVivo({ async get() { throw new Error("caído"); }, async set() { throw new Error("caído"); } });
+  const avance = await mandarAvance(galleta, { ref: "lead-1", tipo: "llamada", inicio: hace(2), lineas: ["Hola"] });
+  assert.equal(avance.status, 502);
+  assert.equal((await avance.json()).error, "No se pudo mandar lo último de la llamada.");
+  const r = await (await mandarVivo(galleta, { ref: "lead-1", tipo: "llamada", inicio: hace(2), lineas: ["Hola", "Chao"] })).json();
+  assert.deepEqual([r.ok, r.guardada], [true, true]);
+  const { llaves } = await conectarConector();
+  const caido = await llamar(llaves.access_token, "leer_transcripcion", { id: "vivo:lead-1" });
+  assert.equal(caido.isError, true);
+  assert.equal((await llamar(llaves.access_token, "leer_transcripcion", { id: r.id })).structuredContent.texto, "Hola\nChao");
 });
 
 test("las de Meet dicen de dónde vienen, y «fresco» lee el índice sin caché", async () => {

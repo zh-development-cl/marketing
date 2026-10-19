@@ -1,9 +1,11 @@
 /* Prueba de «Transcribir en vivo» con ZH Reuniones, con Playwright, el mock de window.claude y ZH
    Reuniones simulado. Como en claude.ai, la política de permisos no deja que el CRM use el micrófono:
-   el botón abre la página «Transcribir en vivo» de ZH Reuniones en otra pestaña (con el lead o cliente
-   y el tipo), la ficha espera y, al volver, lee el almacén sin caché y carga la transcripción que llegó
-   para ese lead; Claude arma el plan sabiendo que viene del micrófono, sin separar voces, y al
-   confirmar queda la llamada con su transcripción registrada. También: Hoy muestra una llamada
+   el botón abre la página «Transcribir en vivo» de ZH Reuniones en otra pestaña (con el lead o cliente,
+   su nombre y el tipo), y mientras ZH Reuniones escucha la ficha muestra lo último que se dijo, la pista
+   de objeción y «¿Qué le respondo?» (sin hacer caso a una llamada anterior). Al terminar carga al tiro
+   la transcripción guardada; Claude arma el plan sabiendo que viene del micrófono, sin separar voces, y
+   al confirmar queda la llamada con su transcripción registrada. Si ZH Reuniones no avisa, al volver a
+   la pestaña lee la lista sin caché (se prueba en la ficha del cliente). También: Hoy muestra una llamada
    transcrita en vivo unida a su lead («Registrar» abre «Registrar llamada»), una sin asociar, la ficha
    del cliente y, sin ZH Reuniones, el plan B con Google Docs. Usa datos inventados.
 
@@ -78,30 +80,50 @@ const vivoDe = (id, ref, tipo, ini, fin) => ({ id, origen: "vivo", tipo, ...(ref
   await page.locator(".work-tabs button", { hasText: "Registrar llamada" }).click();
   const enlace = page.getByRole("link", { name: "Transcribir en vivo" });
   await enlace.waitFor();
-  ok((await enlace.getAttribute("href")) === `${ZHR}/vivo?ref=lead-mic&tipo=llamada` && (await enlace.getAttribute("target")) === "_blank", "como claude.ai no deja usar el micrófono, «Transcribir en vivo» abre ZH Reuniones en otra pestaña, con el lead y el tipo");
+  const href = new URL(await enlace.getAttribute("href"));
+  ok(href.origin + href.pathname === `${ZHR}/vivo` && href.searchParams.get("ref") === "lead-mic" && href.searchParams.get("tipo") === "llamada" && href.searchParams.get("nombre") === "Ferretería Andes" && (await enlace.getAttribute("target")) === "_blank", "como claude.ai no deja usar el micrófono, «Transcribir en vivo» abre ZH Reuniones en otra pestaña, con el lead, su nombre y el tipo");
   ok(await page.locator(".live", { hasText: "Se abre ZH Reuniones en otra pestaña y escucha la llamada con el celular en altavoz" }).isVisible(), "explica qué va a pasar");
   ok((await page.locator(".live .note li", { hasText: "Escritura por voz" }).count()) === 0, "sin el plan B de Google Docs");
+  /* Lo de una llamada anterior de este lead no cuenta. */
+  await page.evaluate((o) => { window.__MOCK_REU.enVivo = { "lead-mic": { estado: "escuchando", tipo: "llamada", inicio: o.vieja, actualizada: o.vieja, lineas: ["Una llamada de antes"], parcial: "", total: 1 } }; }, { vieja: haceMin(15) });
   const [pestana] = await Promise.all([page.context().waitForEvent("page"), enlace.click()]);
   await pestana.waitForLoadState();
-  ok(pestana.url() === `${ZHR}/vivo?ref=lead-mic&tipo=llamada`, "la pestaña abre la página de ZH Reuniones");
+  ok(pestana.url() === href.toString(), "la pestaña abre la página de ZH Reuniones");
   await pestana.close();
   await page.locator(".live .note", { hasText: "Esperando la transcripción de ZH Reuniones" }).waitFor();
   ok(true, "la ficha queda esperando la transcripción");
   await shot(page, "v01-esperando.png");
-  const llamadasAntes = (await page.evaluate(() => window.__mcpCalls)).length;
+  await page.waitForTimeout(3600);
+  ok(await page.locator(".live .note", { hasText: "Esperando la transcripción de ZH Reuniones" }).isVisible() && !(await page.locator(".live.on").count()), "lo que quedó de una llamada anterior no se muestra como si fuera esta");
+  const lecturas = (await page.evaluate(() => window.__mcpCalls)).filter((x) => x.tool === "leer_transcripcion" && x.input && x.input.id === "vivo:lead-mic");
+  ok(lecturas.length >= 2, "mientras espera, pregunta a ZH Reuniones cada pocos segundos qué va de la llamada");
   const t0 = Date.now();
-  const A = vivoDe("tt-abc123-0a1b2c3d", "lead-mic", "llamada", new Date(t0).toISOString(), new Date(t0 + 4 * 6e4).toISOString());
+  const inicioA = new Date(t0).toISOString();
+  await page.evaluate((o) => { window.__MOCK_REU.enVivo["lead-mic"] = { estado: "escuchando", tipo: "llamada", inicio: o.ini, actualizada: o.ini, lineas: ["Hola Andrea, te llamo de ZH por lo del inventario", "La verdad lo encuentro un poco caro"], parcial: "y no sé si", total: 2 }; }, { ini: inicioA });
+  const vivoPanel = page.locator(".live.on", { hasText: "Escuchando en ZH Reuniones" });
+  await vivoPanel.waitFor({ timeout: 5000 });
+  ok((await vivoPanel.locator(".live-ext").innerText()).includes("La verdad lo encuentro un poco caro\ny no sé si"), "mientras ZH Reuniones escucha, la ficha muestra lo último que se dijo");
+  ok(await vivoPanel.locator(".coach-pista", { hasText: "Parece una objeción de precio." }).isVisible(), "con la pista de objeción");
+  ok(await vivoPanel.locator("p", { hasText: "toca «Terminar» en la pestaña de ZH Reuniones" }).isVisible(), "y cómo terminar");
+  await shot(page, "v01b-escuchando.png");
+  await page.evaluate(() => { const v = window.__MOCK_REU.enVivo["lead-mic"]; v.lineas.push("¿Y cuánto se demoran en hacerlo?"); v.total = 3; v.parcial = ""; });
+  const antesAyuda = (await page.evaluate(() => window.__mcpCalls)).length;
+  await vivoPanel.getByRole("button", { name: "¿Qué le respondo?" }).click();
+  await vivoPanel.locator(".coach-card .coach-say").waitFor({ timeout: 5000 });
+  const pAyuda = (await page.evaluate(() => window.__mockPrompts)).filter((x) => x.includes("Estás ayudando en vivo")).pop() || "";
+  const recien = (await page.evaluate(() => window.__mcpCalls)).slice(antesAyuda);
+  ok(recien.some((x) => x.tool === "leer_transcripcion" && x.input.id === "vivo:lead-mic") && pAyuda.includes("¿Y cuánto se demoran en hacerlo?") && pAyuda.includes("Ferretería Andes"), "«¿Qué le respondo?» lee lo último al tiro y se lo pasa a Claude con los datos del lead");
+  ok((await page.evaluate(() => window.__mockOpts)).pop().model === "claude-haiku-5-5", "con el modelo rápido");
+  const A = vivoDe("tt-abc123-0a1b2c3d", "lead-mic", "llamada", inicioA, new Date(t0 + 4 * 6e4).toISOString());
   const B = vivoDe("tt-abc124-0a1b2c3e", "lead-hoy", "llamada", haceMin(30), haceMin(26));
   await page.evaluate((o) => {
-    window.__MOCK_REU.transcripciones.push(o.A, o.B);
+    window.__MOCK_REU.transcripciones.push(o.B);
     window.__MOCK_REU.textos[o.A.id] = { texto: o.TEXTO, participantes: [], intervenciones: 4 };
     window.__MOCK_REU.textos[o.B.id] = { texto: o.TEXTO.replace("Andrea", "Rodrigo"), participantes: [], intervenciones: 4 };
-    window.dispatchEvent(new Event("focus"));
+    window.__MOCK_REU.enVivo["lead-mic"] = { estado: "terminada", tipo: "llamada", inicio: o.A.inicio, actualizada: o.A.fin, lineas: [], parcial: "", total: 0, transcripcion: o.A.id };
   }, { A, B, TEXTO });
   await page.locator(".work .meet-nota", { hasText: "Llamada transcrita en vivo con ZH Reuniones" }).waitFor({ timeout: 8000 });
-  ok(true, "al volver a la pestaña, la transcripción de este lead se carga sola");
-  const llamadas = (await page.evaluate(() => window.__mcpCalls)).slice(llamadasAntes);
-  ok(llamadas.some((x) => x.tipo === "call" && x.tool === "transcripciones" && x.input && x.input.fresco === true), "para eso lee el almacén sin caché");
+  ok(true, "al tocar «Terminar» en ZH Reuniones, la transcripción se carga sola, sin esperar a la lista");
   await page.locator(".work .plan").waitFor({ timeout: 10000 });
   ok(true, "y Claude arma el plan solo");
   const prompts = await page.evaluate(() => window.__mockPrompts);
@@ -122,7 +144,7 @@ const vivoDe = (id, ref, tipo, ini, fin) => ({ id, origen: "vivo", tipo, ...(ref
 
   /* ---------------- Hoy: una llamada transcrita en vivo, unida a su lead, y una sin asociar ---------------- */
   const C = vivoDe("tt-abc125-0a1b2c3f", "", "llamada", haceMin(90), haceMin(85));
-  await page.evaluate((o) => { window.__MOCK_REU.transcripciones.push(o.C); window.__reuRefrescar(); }, { C });
+  await page.evaluate((o) => { window.__MOCK_REU.transcripciones.push(o.A, o.C); window.__reuRefrescar(); }, { A, C });
   await irA(page, "hoy");
   const grupo = page.locator('.hoy-grupo[aria-label="Reuniones y llamadas transcritas"]');
   await grupo.waitFor();
@@ -150,8 +172,22 @@ const vivoDe = (id, ref, tipo, ini, fin) => ({ id, origen: "vivo", tipo, ...(ref
   await page.locator(".work-tabs button", { hasText: "Registrar" }).first().click();
   const enlaceC = page.getByRole("link", { name: "Transcribir en vivo" });
   await enlaceC.waitFor();
-  ok((await enlaceC.getAttribute("href")) === `${ZHR}/vivo?ref=cli-mic&tipo=reunion`, "en la ficha del cliente abre ZH Reuniones con el cliente y «reunión»");
+  const hrefC = new URL(await enlaceC.getAttribute("href"));
+  ok(hrefC.searchParams.get("ref") === "cli-mic" && hrefC.searchParams.get("tipo") === "reunion" && hrefC.searchParams.get("nombre") === "Taller Sur", "en la ficha del cliente abre ZH Reuniones con el cliente, su nombre y «reunión»");
   ok(await page.locator(".live", { hasText: "escucha la conversación" }).isVisible(), "y dice que escucha la conversación");
+  const [pestanaC] = await Promise.all([page.context().waitForEvent("page"), enlaceC.click()]);
+  await pestanaC.close();
+  await page.locator(".live .note", { hasText: "Esperando la transcripción de ZH Reuniones" }).waitFor();
+  const antesC = (await page.evaluate(() => window.__mcpCalls)).length;
+  const D = vivoDe("tt-abc126-0a1b2c40", "cli-mic", "reunion", new Date().toISOString(), new Date(Date.now() + 20 * 6e4).toISOString());
+  await page.evaluate((o) => {
+    window.__MOCK_REU.transcripciones.push(o.D);
+    window.__MOCK_REU.textos[o.D.id] = { texto: "Revisamos el avance del sistema de inventario\nQuedamos en probar la carga masiva el jueves", participantes: [], intervenciones: 2 };
+    window.dispatchEvent(new Event("focus"));
+  }, { D });
+  await page.locator(".work .meet-nota", { hasText: "transcrita en vivo" }).waitFor({ timeout: 8000 });
+  const llamadasC = (await page.evaluate(() => window.__mcpCalls)).slice(antesC);
+  ok(llamadasC.some((x) => x.tipo === "call" && x.tool === "transcripciones" && x.input && x.input.fresco === true), "si ZH Reuniones no avisa que terminó, al volver a la pestaña lee la lista sin caché y carga la del cliente");
   await page.close();
 
   /* ---------------- sin ZH Reuniones: el plan B con Google Docs ---------------- */

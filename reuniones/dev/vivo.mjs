@@ -1,6 +1,7 @@
-/* Prueba en Chromium de la página «Transcribir en vivo», con un servidor local, el almacén en memoria,
-   un micrófono falso y un reconocimiento de voz simulado (dice dos frases). Recorre: la clave del
-   equipo, la cookie, empezar, terminar, el guardado y lo que queda si la pestaña se cierra a medias.
+/* Prueba en Chromium de la página «Transcribir en vivo», con un servidor local, el almacén y el caché
+   en memoria, un micrófono falso y un reconocimiento de voz simulado (dice dos frases). Recorre: la
+   clave del equipo, la cookie, para quién es, empezar, lo último que ve el CRM mientras escucha,
+   terminar, el guardado y lo que queda si la pestaña se cierra a medias.
    Uso (desde reuniones/): NODE_PATH=$(npm root -g) node dev/vivo.mjs */
 import http from "node:http";
 import { createRequire } from "node:module";
@@ -8,9 +9,10 @@ import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
 const { chromium } = require("playwright");
 const { usarAlmacen } = await import("../lib/almacen.js");
-const { transcripciones, leerTranscripcion } = await import("../lib/reuniones.js");
+const { transcripciones, leerTranscripcion, usarCacheVivo } = await import("../lib/reuniones.js");
 const vivo = await import("../api/vivo.js");
 const guardar = await import("../api/vivo-guardar.js");
+const avance = await import("../api/vivo-avance.js");
 const equipo = await import("../api/equipo.js");
 
 const archivos = new Map();
@@ -26,9 +28,11 @@ usarAlmacen({
   async listar(p) { return [...archivos].filter(([n]) => n.startsWith(p)).map(([nombre, a]) => ({ nombre, subido: a.subido })); },
   async borrar(ns) { for (const n of ns) archivos.delete(n); },
 });
+const enCache = new Map();
+usarCacheVivo({ async get(k) { return enCache.has(k) ? JSON.parse(enCache.get(k)) : null; }, async set(k, v) { enCache.set(k, JSON.stringify(v)); } });
 
 const CLAVE = "Prueba1$";
-const rutas = { "/vivo": vivo, "/api/vivo-guardar": guardar, "/api/equipo": equipo };
+const rutas = { "/vivo": vivo, "/api/vivo-guardar": guardar, "/api/vivo-avance": avance, "/api/equipo": equipo };
 const servidor = http.createServer(async (req, res) => {
   const url = new URL(req.url, "http://localhost");
   const mod = rutas[url.pathname];
@@ -79,7 +83,7 @@ const errores = [];
 page.on("pageerror", (e) => errores.push(String(e)));
 page.on("console", (m) => { if (m.type() === "error") errores.push(m.text()); });
 
-await page.goto(`${B}/vivo?ref=lead-prueba1&tipo=llamada`);
+await page.goto(`${B}/vivo?ref=lead-prueba1&tipo=llamada&nombre=Taller%20Ejemplo`);
 ok(await page.locator('input[name="clave"]').isVisible(), "sin la cookie pide la clave del equipo");
 await page.fill('input[name="clave"]', "otra-cosa");
 await page.click('button[type="submit"]');
@@ -87,7 +91,8 @@ ok((await page.textContent("main")).includes("no es la del equipo"), "una clave 
 await page.fill('input[name="clave"]', CLAVE);
 await page.click('button[type="submit"]');
 await page.waitForSelector("#empezar");
-ok(page.url().endsWith("/vivo?ref=lead-prueba1&tipo=llamada"), "con la clave vuelve a la misma página, con el lead y el tipo");
+ok(page.url().endsWith("/vivo?ref=lead-prueba1&tipo=llamada&nombre=Taller+Ejemplo"), "con la clave vuelve a la misma página, con el lead, el tipo y el nombre");
+ok((await page.textContent("main")).includes("Llamada con Taller Ejemplo: llega a su ficha en el CRM."), "dice para quién es la llamada");
 const galletas = await ctx.cookies();
 ok(galletas.some((c) => c.name === "zhr_equipo" && c.httpOnly && c.sameSite === "Lax"), "deja la cookie del equipo (HttpOnly, SameSite=Lax)");
 errores.length = 0; /* el 403 de la clave equivocada es a propósito */
@@ -96,9 +101,16 @@ await page.evaluate(() => { window.__frases = ["hola buenas tardes", "le llamo d
 await page.click("#empezar");
 await page.waitForFunction(() => document.getElementById("estado").textContent === "Escuchando");
 ok(await page.isVisible("#terminar"), "al empezar aparece «Terminar» y el medidor");
+ok(await page.isVisible("#volver-crm"), "y el aviso de que puede volver al CRM mientras escucha");
+const enVivo = () => leerTranscripcion({ id: "vivo:lead-prueba1" });
+ok((await enVivo()).estado === "escuchando", "el CRM ve al tiro que la llamada está en curso");
 await page.waitForFunction(() => document.getElementById("texto").textContent.includes("inventario"));
 ok((await page.textContent("#texto")) === "Hola buenas tardes\nLe llamo de zh development por lo del inventario", "las frases aparecen en vivo, una por línea y con mayúscula");
 ok((await page.evaluate(() => window.__vozIdioma)) === "es-CL", "escucha en español de Chile");
+const t0 = Date.now();
+while ((await enVivo()).lineas.length < 2 && Date.now() - t0 < 6000) await page.waitForTimeout(200);
+const v = await enVivo();
+ok(v.estado === "escuchando" && v.lineas.join(" | ") === "Hola buenas tardes | Le llamo de zh development por lo del inventario" && v.total === 2, "y a los pocos segundos, lo último que se dijo");
 await page.click("#terminar");
 await page.waitForSelector("#hecho:not([hidden])");
 ok((await page.textContent("#hecho-texto")).includes("llegó a ZH Reuniones"), "al terminar la manda y avisa que llegó");
@@ -106,6 +118,9 @@ const [t] = (await transcripciones({ dias: 1 })).transcripciones;
 ok(t && t.origen === "vivo" && t.tipo === "llamada" && t.ref === "lead-prueba1" && t.intervenciones === 2, "queda en ZH Reuniones como llamada en vivo del lead");
 ok((await leerTranscripcion({ id: t.id })).texto === "Hola buenas tardes\nLe llamo de zh development por lo del inventario", "con el texto completo");
 ok(await page.evaluate(() => localStorage.getItem("zhr:vivo") === null), "lo guardado en el navegador se borra al mandarla");
+const fin = await enVivo();
+ok(fin.estado === "terminada" && fin.transcripcion === t.id, "al terminar, el CRM ve que se guardó y con qué id");
+ok((await page.textContent("#empezar")) === "Otra llamada con Taller Ejemplo" && !(await page.isVisible("#volver-crm")), "el botón para otra dice con quién");
 await page.screenshot({ path: new URL("./vivo.png", import.meta.url).pathname, fullPage: true });
 
 /* Si la pestaña se cierra a medias, al volver ofrece mandar lo que quedó. */
