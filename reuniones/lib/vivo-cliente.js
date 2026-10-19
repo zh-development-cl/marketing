@@ -1,5 +1,5 @@
-/* Lo que corre en el navegador en la página «Transcribir en vivo»: escucha con el micrófono, el
-   reconocimiento de voz de Chrome o Edge lo pasa a texto (es-CL) y, al terminar, lo manda a
+/* Lo que corre en el navegador en la página «Transcribir en vivo»: el reconocimiento de voz de Chrome o
+   Edge escucha con el micrófono y lo pasa a texto (es-CL) y, al terminar, la página lo manda a
    /api/vivo-guardar. Mientras escucha, manda lo último a /api/vivo-avance para el CRM y lo guarda en
    el navegador: si la pestaña se cierra, al volver ofrece mandarlo. Con conf.sesion es el «Micrófono
    del CRM»: escucha seguido (Empezar y Pausar), manda cada frase con su hora y no guarda nada al
@@ -30,6 +30,8 @@ export function cliente(conf) {
   };
   /* La página del micrófono del CRM no tiene las tarjetas de «hecho», «fallo» ni «respaldo». */
   const ver = (id, si) => { const el = $(id); if (el) el.hidden = !si; };
+  /* La barra: llena mientras el reconocimiento detecta sonido, casi vacía en silencio. */
+  const oir = (si) => { const el = $("barra"); if (el) { el.style.transition = "transform .3s"; el.style.transform = "scaleX(" + (si ? 1 : 0.06) + ")"; } };
   const estado = (t) => { $("estado").textContent = t; };
   const aviso = (t) => { $("aviso").textContent = t || ""; ver("aviso", !!t); };
   const pintar = (parcial) => {
@@ -79,9 +81,8 @@ export function cliente(conf) {
   }
 
   function soltar(x) {
-    clearInterval(x.reloj); clearInterval(x.medidor); clearTimeout(x.reinicio); clearTimeout(x.corte);
-    if (x.stream) x.stream.getTracks().forEach((t) => t.stop());
-    if (x.audio) x.audio.close().catch(() => {});
+    clearInterval(x.reloj); clearTimeout(x.reinicio); clearTimeout(x.corte); clearTimeout(x.silencio);
+    oir(false);
     if (x.lock) x.lock.release().catch(() => {});
   }
   function cerrar(x, falla) {
@@ -118,8 +119,13 @@ export function cliente(conf) {
     r.interimResults = true;
     r.maxAlternatives = 1;
     r.onstart = () => { if (s === x) estado(SES ? "Escuchando para el CRM" : "Escuchando"); };
+    r.onsoundstart = () => { if (s === x) { clearTimeout(x.silencio); oir(true); } };
+    r.onsoundend = () => { if (s === x) oir(false); };
     r.onresult = (e) => {
       if (s !== x) return;
+      clearTimeout(x.silencio);
+      oir(true);
+      x.silencio = setTimeout(() => oir(false), 1500);
       let parcial = "";
       for (let i = e.resultIndex; i < e.results.length; i++) {
         const res = e.results[i];
@@ -139,11 +145,12 @@ export function cliente(conf) {
       if (c === "network") { x.fallasRed += 1; return; }
       if (c === "language-not-supported" && x.lang !== "es-ES") { x.lang = "es-ES"; return; }
       x.quiere = false;
-      x.falla = c === "not-allowed" || c === "service-not-allowed" ? SIN_PERMISO : c === "audio-capture" ? "No se encontró un micrófono en este computador." : SIN_SERVICIO;
+      x.falla = c === "not-allowed" || c === "service-not-allowed" ? SIN_PERMISO : c === "audio-capture" ? "No se pudo usar el micrófono. Revisa que esté conectado y que otra aplicación no lo esté usando." : SIN_SERVICIO;
     };
     /* Chrome corta la sesión tras un silencio largo o un problema de red: se retoma sola. */
     r.onend = () => {
       if (s !== x) return;
+      oir(false);
       if (!x.quiere) { cerrar(x, x.falla); return; }
       if (x.fallasRed >= 4) { cerrar(x, "Se cortó la conexión con el servicio de voz. Lo transcrito hasta ahora se manda igual."); return; }
       const espera = x.fallasRed ? Math.min(4000, 500 * 2 ** x.fallasRed) : 250;
@@ -154,19 +161,6 @@ export function cliente(conf) {
   function arrancar(x) {
     try { x.rec = sesion(x); x.rec.start(); } catch (e) { x.quiere = false; cerrar(x, SIN_SERVICIO); }
   }
-  function medir(x) {
-    const an = x.audio.createAnalyser();
-    an.fftSize = 512;
-    x.audio.createMediaStreamSource(x.stream).connect(an);
-    const buf = new Uint8Array(an.fftSize);
-    x.medidor = setInterval(() => {
-      an.getByteTimeDomainData(buf);
-      let sum = 0;
-      for (let i = 0; i < buf.length; i++) { const v = (buf[i] - 128) / 128; sum += v * v; }
-      $("barra").style.transform = "scaleX(" + Math.min(1, Math.sqrt(sum / buf.length) * 5).toFixed(2) + ")";
-    }, 120);
-    if (x.audio.state === "suspended") x.audio.resume().catch(() => {});
-  }
 
   async function empezar() {
     if (s) return;
@@ -174,7 +168,7 @@ export function cliente(conf) {
     ver("hecho", false);
     ver("fallo", false);
     ver("respaldo", false);
-    if (!SR || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { aviso("Este navegador no transcribe en vivo. Abre esta página en Google Chrome o Microsoft Edge."); return; }
+    if (!SR) { aviso("Este navegador no transcribe en vivo. Abre esta página en Google Chrome o Microsoft Edge."); return; }
     const x = { quiere: true, lang: "es-CL", fallasRed: 0, parcial: "", falla: "" };
     s = x;
     /* En una sesión, lo anterior se queda: el CRM separa cada llamada por la hora de sus frases. */
@@ -182,22 +176,9 @@ export function cliente(conf) {
     pintar("");
     ver("empezar", false);
     estado("Pidiendo el micrófono… Si Chrome pregunta, toca «Permitir».");
-    /* El medidor se crea con el clic: después de esperar el permiso el navegador podría no dejarlo andar. */
-    const AC = window.AudioContext || window.webkitAudioContext;
-    try { if (AC) x.audio = new AC(); } catch (e) { x.audio = null; }
-    try {
-      x.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    } catch (e) {
-      const n = (e && e.name) || "";
-      s = null;
-      soltar(x);
-      ver("empezar", true);
-      estado("Listo para empezar");
-      aviso(n === "NotFoundError" || n === "OverconstrainedError" ? "No se encontró un micrófono en este computador." : n === "NotReadableError" || n === "AbortError" ? "Otra aplicación está usando el micrófono. Ciérrala y vuelve a intentar." : SIN_PERMISO);
-      return;
-    }
-    if (s !== x) { soltar(x); return; }
-    if (x.audio) { try { medir(x); } catch (e) { /* sin medidor */ } }
+    /* El micrófono lo abre solo el reconocimiento de voz: con otra captura abierta (getUserMedia para un
+       medidor, que además puede bajar el volumen de entrada del sistema), Chrome oía mucho menos que la
+       demo de Google, que no la tiene. La barra se mueve con el sonido que detecta el reconocimiento. */
     try { if (navigator.wakeLock) x.lock = await navigator.wakeLock.request("screen"); } catch (e) { x.lock = null; }
     if (s !== x) { soltar(x); return; }
     if (!SES || !inicio) inicio = new Date().toISOString();

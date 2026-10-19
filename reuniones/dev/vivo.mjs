@@ -54,13 +54,21 @@ const ok = (c, m) => { console.log(`${c ? "ok" : "FALLA"}: ${m}`); if (!c) falla
 const creada = await equipo.POST(new Request(`${B}/api/equipo`, { method: "POST", body: new URLSearchParams({ accion: "crear", clave: CLAVE, repetida: CLAVE }) }));
 ok(creada.status === 200, "la clave del equipo queda creada");
 
-/* Un reconocimiento de voz que «escucha» dos frases y después espera a que lo detengan. */
+/* Un reconocimiento de voz que «escucha» dos frases y después espera a que lo detengan (o que falla
+   con window.__vozError). Cuenta si la página abre el micrófono por su cuenta (getUserMedia). */
 const vozFalsa = () => {
+  window.__gum = 0;
+  if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    const gum = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+    navigator.mediaDevices.getUserMedia = (...a) => { window.__gum += 1; return gum(...a); };
+  }
   class Voz {
     constructor() { this.lang = ""; this.continuous = false; this.interimResults = false; }
     start() {
       window.__vozIdioma = this.lang;
+      if (window.__vozError) { setTimeout(() => { this.onerror && this.onerror({ error: window.__vozError }); this.onend && this.onend(); }, 20); return; }
       setTimeout(() => this.onstart && this.onstart(), 20);
+      setTimeout(() => this.onsoundstart && this.onsoundstart(), 60);
       const frases = window.__frases || [];
       frases.forEach((f, i) => setTimeout(() => {
         const res = [{ transcript: f }];
@@ -101,6 +109,9 @@ await page.evaluate(() => { window.__frases = ["hola buenas tardes", "le llamo d
 await page.click("#empezar");
 await page.waitForFunction(() => document.getElementById("estado").textContent === "Escuchando");
 ok(await page.isVisible("#terminar"), "al empezar aparece «Terminar» y el medidor");
+await page.waitForFunction(() => document.getElementById("barra").style.transform === "scaleX(1)");
+ok(true, "la barra se mueve con el sonido que detecta el reconocimiento de voz");
+ok((await page.evaluate(() => window.__gum)) === 0, "la página no abre el micrófono por su cuenta: lo abre solo el reconocimiento de voz");
 ok(await page.isVisible("#volver-crm"), "y el aviso de que puede volver al CRM mientras escucha");
 const enVivo = () => leerTranscripcion({ id: "vivo:lead-prueba1" });
 ok((await enVivo()).estado === "escuchando", "el CRM ve al tiro que la llamada está en curso");
@@ -161,6 +172,12 @@ page.removeAllListeners("dialog");
 page.on("dialog", (d) => d.accept());
 await page.goto(`${B}/vivo`);
 ok(await esperar(async () => (await ses()).estado === "terminada"), "al cerrar la ventana, avisa que terminó");
+/* Sin permiso del micrófono, lo dice en vez de quedarse escuchando. */
+await page.goto(`${B}/vivo?ref=lead-prueba2&tipo=llamada`);
+await page.evaluate(() => { window.__vozError = "not-allowed"; });
+await page.click("#empezar");
+await page.waitForSelector("#aviso:not([hidden])");
+ok((await page.textContent("#aviso")).includes("no dio permiso") && (await page.textContent("#estado")) === "No se pudo transcribir" && (await page.isVisible("#empezar")), "sin permiso del micrófono, avisa y deja volver a empezar");
 ok(!errores.length, "sin errores en la página" + (errores.length ? ": " + errores.join(" | ") : ""));
 
 await navegador.close();

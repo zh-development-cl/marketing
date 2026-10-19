@@ -149,6 +149,12 @@ la ventana deja de escuchar (la ficha lo avisa) y «Seguir» lo retoma; al cerra
 terminó. No separa quién habla (Claude lo deduce por el contexto). Si la ficha se cierra a medias,
 lo transcrito queda en ese navegador y al volver a abrirla ofrece seguir o descartarlo.
 
+Si transcribe poco: en Ajustes del Sistema → Sonido → Entrada, el micrófono tiene que ser el del
+computador (el mismo que elige Chrome) y el volumen de entrada, alto. La barra de la ventana se llena
+cuando el reconocimiento detecta sonido; si se llena y no aparece texto, prueba la demo de Google
+(https://www.google.com/intl/en/chrome/demos/speech.html, Español → Chile) para saber si es Chrome o
+la página.
+
 La página de un solo lead o cliente (`/vivo?ref=…&tipo=…&nombre=…`, la de antes) sigue
 funcionando: dice para quién es, al tocar «Terminar» guarda la transcripción en ZH Reuniones y
 aparece en Hoy, en «Reuniones y llamadas transcritas». El CRM ya no la abre.
