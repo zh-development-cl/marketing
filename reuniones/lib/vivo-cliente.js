@@ -192,7 +192,7 @@ export function cliente(conf) {
     ver("terminar", true);
     ver("volver-crm", !!destino);
     $("terminar").disabled = false;
-    estado(SES ? "Escuchando para el CRM" : "Escuchando");
+    /* «Escuchando» lo pone onstart, cuando Chrome ya tiene el permiso y empezó a oír. */
     arrancar(x);
     avisar();
   }
