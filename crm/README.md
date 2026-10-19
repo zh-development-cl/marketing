@@ -26,7 +26,7 @@ en Clientes, las solicitudes abiertas y los pagos vencidos.
 | Para hoy | **Una sola lista, «Lo que toca»**, en orden: las **reuniones transcritas** por registrar (ver «Reuniones transcritas»); lo atrasado; lo de hoy (las reuniones a su hora, las llamadas y lo demás), cada tarea con su círculo para completarla y su botón (llamar, revisar el borrador, agendar, «Unirse a Meet», «¿Se hizo?»); los borradores por revisar; lo de clientes que vence (pagos atrasados, cobros por facturar, hitos y garantías) y el soporte abierto; y los que **se están enfriando** (7 días o más en la misma etapa después de la reunión). Los **próximos 7 días** van plegados (se acuerda si los dejaste abiertos). Arriba, los **avisos** (la reunión de las próximas dos horas con su Meet, las invitaciones rechazadas y los pagos vencidos; ver «Avisos y recordatorios») y, si hay leads abiertos sin tarea, «Planificar la semana». Al lado, solo **Esta semana** (llamadas y reuniones agendadas contra la meta, y tu puntaje en llamadas), el **Calendario** de `contacto@zhdevelopment.cl` y la actividad reciente. El filtro de arriba muestra lo de Lorenzo o lo de Nicolás. |
 | Borradores | Correos y WhatsApp redactados con Claude o a mano, con vista previa y acciones de envío. |
 | Métricas | El embudo de hoy con su valor y el pronóstico ponderado por etapa; en el período elegido (7, 30 o 90 días, o 12 meses): llamadas y cuántas contestaron, reuniones, ganados, hasta dónde llegaron los leads nuevos, por qué se perdieron, la actividad de cada socio, el puntaje de las llamadas por criterio (y dónde mejorar) y, con clientes, lo vencido, lo por cobrar en 30 días y lo pagado. **Resumen con Claude**: para la reunión de los socios, un titular, lo que va bien, lo que preocupa y tres acciones para la próxima semana, solo con los datos del CRM (se puede copiar). |
-| **Llamar** | Las llamadas de hoy, una tras otra: primero las tareas de llamar atrasadas y de hoy, después los leads nuevos sin tarea (prioridad alta primero), solo con teléfono. Cada una muestra el teléfono grande, la tarea, el dolor, cómo ayudamos, el guion y los últimos contactos; «Contestó: registrar» abre el registro de la llamada (con «Transcribir en vivo»), «No contestó» deja el intento y el paso que sigue, «Pidió otro día» deja la llamada para el día y la hora que pidió, y al terminar pasa sola a la siguiente. «Saltar», la lista «Después» y el filtro por socio. En el teléfono está en la barra de abajo. |
+| **Llamar** | Las llamadas de hoy, una tras otra: primero las tareas de llamar atrasadas y de hoy, después los leads nuevos sin tarea (prioridad alta primero), solo con teléfono. Cada una muestra el teléfono grande, la tarea, el dolor, cómo ayudamos, el guion y los últimos contactos; «Contestó: registrar» abre el registro de la llamada (con «Empezar a transcribir»), «No contestó» deja el intento y el paso que sigue, «Pidió otro día» deja la llamada para el día y la hora que pidió, y al terminar pasa sola a la siguiente. «Saltar», la lista «Después» y el filtro por socio. En el teléfono está en la barra de abajo. |
 | **Leads** | Tabla con búsqueda por nombre, empresa, correo o teléfono, y filtros por etapa, origen y responsable. «Tabla / Tablero» cambia al embudo: un tablero por etapa, al estilo de HubSpot, donde las tarjetas se arrastran de una etapa a otra, hasta «Ganado» (ver «Embudo de leads»). Con la casilla de cada fila se eligen varios para asignarlos a un socio, moverlos a Por contactar, Contactado, En pausa o Perdido (con su motivo) o agregarles una tarea. |
 | **Clientes** | Cuatro pestañas: Clientes, Proyectos, Soporte y Cobros. |
 | Clientes | Lista de clientes con su etapa, sus servicios (proyecto en curso, garantía, mantención), las solicitudes abiertas y lo que falta cobrar. «Tabla / Tablero» cambia al embudo de clientes: por iniciar, en desarrollo, en garantía, con mantención, nueva propuesta y sin servicio (ver «Embudo de clientes»). |
@@ -66,9 +66,9 @@ estancados, metas y archivos»); **las tareas** (ver «Tareas y flujo automátic
 ayudamos y el guion, plegables (abiertos mientras no hay reunión hecha); los borradores, **los
 archivos** y el historial (lo último, con «Ver los N» para todo); y cuatro herramientas:
 
-- **Registrar llamada:** se toca «Transcribir en vivo» (se abre ZH Reuniones en otra pestaña), se
-  habla (la ficha muestra lo último que se dijo y «¿Qué le respondo?») y al tocar «Terminar» la
-  transcripción vuelve sola y **Claude arma el plan** (con notas en vez de grabación, «Armar el plan con Claude»): qué pasó, el resultado
+- **Registrar llamada:** se toca «Empezar a transcribir» (con el micrófono del CRM abierto: ver
+  «Llamadas y transcripción»), se habla (la ficha muestra lo que se va diciendo y «¿Qué le
+  respondo?») y al tocar «Terminar» **Claude arma el plan** (con notas en vez de grabación, «Armar el plan con Claude»): qué pasó, el resultado
   (contestó, no contestó, pidió que lo llamemos…), la etapa, la reunión si quedó una con día y
   hora, las tareas de ZH, lo que quedó en hacer el lead, los datos nuevos y el puntaje de la
   llamada. **Nada se guarda ni se agenda hasta confirmar:** todo se puede corregir (el texto, el
@@ -263,9 +263,10 @@ desde el CRM, pero quien entra a la reunión tiene que tener la extensión en su
   buscador; si la unió a quien no era, «No es de aquí» abre el mismo buscador. **Descartar** (con
   «Deshacer») la saca de la lista, por ejemplo una reunión interna. Una reunión registrada o
   descartada no vuelve aunque llegue otra copia.
-- **En vivo:** las llamadas y reuniones en persona transcritas con «Transcribir en vivo» (ver
-  «Llamadas y transcripción») llegan por el mismo conector, con el lead o cliente desde cuya ficha
-  se abrió la página (`ref`): se unen a ese, sin cruzarlas con el calendario, y sin él quedan sin
+- **En vivo:** las llamadas y reuniones transcritas con el micrófono del CRM no pasan por aquí: van
+  directo al registro de la ficha (ver «Llamadas y transcripción»). Las guardadas con la página
+  «Transcribir en vivo» de un solo lead (`/vivo?ref=`, la de antes) llegan por el mismo conector,
+  con ese lead o cliente (`ref`): se unen a él, sin cruzarlas con el calendario, y sin él quedan sin
   asociar. Con alguna llamada, el grupo de Hoy se llama «Reuniones y llamadas transcritas».
 - **Ajustes → Transcripción de reuniones** dice si está conectado (cuántas transcripciones llegaron)
   y, si no, qué hacer: agregar el conector, «Permitir ZH Reuniones», dejar las herramientas en
@@ -497,31 +498,42 @@ pasó. Según cómo salió la llamada:
 
 ## Llamadas y transcripción
 
-Ningún celular deja que otra app grabe una llamada, así que se escucha desde el computador. Como
-claude.ai no deja que el CRM use el micrófono, lo hace la página «Transcribir en vivo» de ZH
-Reuniones (`reuniones/`, el mismo servidor que recibe las reuniones de Meet):
+Todas las llamadas se manejan desde el CRM: «Llamar en serie» las pone una tras otra (con «Después»
+para cambiar a otra y «Saltar»), y la ficha de cada lead tiene su registro. Ningún celular deja que
+otra app grabe una llamada, así que se escucha desde el computador con el celular en altavoz. Como
+claude.ai no deja que el CRM use el micrófono, escucha el **micrófono del CRM**: una página de ZH
+Reuniones (`reuniones/`, el mismo servidor que recibe las reuniones de Meet) que se abre una vez en
+una ventana chica al lado del CRM y queda escuchando para todas las llamadas.
 
-1. En el computador, abre la ficha del lead → «Registrar llamada» → **«Transcribir en vivo»**. Se
-   abre ZH Reuniones en otra pestaña con el lead, su nombre y el tipo (llamada o reunión): arriba
-   dice «Llamada con …», así se sabe adónde llega. La primera vez en ese navegador pide la clave del
-   equipo (dura 6 meses) y Chrome pide permiso para el micrófono.
-2. Toca «Empezar» y llama desde el celular en altavoz, junto al computador. Puedes volver a la
-   pestaña del CRM: la de ZH Reuniones sigue escuchando y la ficha muestra **lo último que se dijo**
-   (llega cada pocos segundos) con **«¿Qué le respondo?»** (ver «Apoyo en vivo»).
-3. Al cortar, toca «Terminar» en la pestaña de ZH Reuniones. La transcripción queda guardada para
-   ese lead, una línea por frase, y la ficha la carga al tiro: Claude arma el plan de la llamada
-   para confirmarlo o corregirlo (sabe que no separa quién habla). Si la ficha ya no estaba abierta,
-   la llamada aparece en Hoy, en «Reuniones y llamadas transcritas», unida al lead: «Registrar» abre
-   «Registrar llamada» con ella. «Otra llamada con …» en ZH Reuniones es para el mismo lead; para
-   otro, se abre desde su ficha.
+1. **Una vez por jornada:** en «Registrar llamada» (o «Contestó: registrar» en «Llamar en serie»),
+   toca **«Abrir el micrófono»**. Se abre ZH Reuniones en una ventana chica («Micrófono del CRM»);
+   la primera vez en ese navegador pide la clave del equipo (dura 6 meses) y Chrome pide permiso
+   para el micrófono. Toca «Empezar» allá y deja la ventana a la vista, al lado del CRM.
+2. **En cada llamada:** llama desde el celular en altavoz y, cuando contesten, toca **«Empezar a
+   transcribir»** en la ficha. La ficha muestra lo que se va diciendo (llega cada pocos segundos)
+   con **«¿Qué le respondo?»** (ver «Apoyo en vivo»).
+3. Al cortar, toca **«Terminar»** en la ficha: Claude arma el plan de la llamada para confirmarlo o
+   corregirlo (sabe que no separa quién habla). Después, la siguiente: el micrófono sigue
+   escuchando y no hay que volver a su ventana.
+
+El CRM usa solo lo que se dijo entre «Empezar a transcribir» y «Terminar» (con un segundo y medio
+antes, por el «¿aló?»); cada frase llega con su hora, así que lo de antes o después no se mezcla.
+El micrófono escucha seguido mientras su ventana diga «Escuchando»: «Pausar» lo detiene (la ficha
+lo avisa, con «Ir al micrófono») y «Seguir» lo retoma. Lo que escucha queda en el caché del
+servidor, nunca en el almacén, y se borra solo en una hora; cada navegador tiene su propio
+micrófono (un id `ses-…` guardado en el navegador). Si la ficha se cierra a medias, lo transcrito
+queda en ese navegador y al volver ofrece seguir o descartarlo.
 
 Funciona en Chrome o Edge, que pasan la voz a texto con su servicio de voz (Google o Microsoft).
-El audio no se guarda, solo el texto, que ZH Reuniones borra a los 14 días; en el CRM, por defecto,
-quedan las notas y el análisis, sin la transcripción completa. Si Chrome corta la escucha tras un
-silencio, se retoma sola. Lo transcrito queda en ese navegador hasta mandarlo: si la pestaña se
-cierra a medias, al volver ofrece mandarlo. Lo mismo sirve para las reuniones en persona con leads
-(«Registrar reunión») y con clientes («Registrar» → Reunión o Llamada; en una reunión, Claude arma
-el acta).
+Si Chrome corta la escucha tras un silencio, se retoma sola. No se sabe si Chrome sigue escuchando
+con la ventana del micrófono escondida detrás de otra o minimizada: por eso se abre chica y al lado.
+El audio no se guarda, solo el texto; en el CRM, por defecto, quedan las notas y el análisis, sin la
+transcripción completa. Lo mismo sirve para las reuniones en persona con leads («Registrar
+reunión») y con clientes («Registrar» → Reunión o Llamada; en una reunión, Claude arma el acta).
+
+La página «Transcribir en vivo» de un solo lead (`/vivo?ref=…`, la de antes de la sesión) sigue
+funcionando: guarda la transcripción en ZH Reuniones y la llamada aparece en Hoy, unida al lead.
+El CRM ya no la abre.
 
 Sin ZH Reuniones conectado, «Transcribir en vivo» intenta usar el micrófono desde el CRM y, como
 claude.ai no lo deja, muestra el plan B: la escritura por voz de Google Docs, pegando el texto al
@@ -534,13 +546,16 @@ transcripción hecha en otra herramienta. Las demás opciones, sus costos y lo l
 
 ### Apoyo en vivo
 
-Mientras se escucha una llamada con un lead (en la página de ZH Reuniones o en el CRM mismo), la
-ficha muestra **«¿Qué le respondo?»**. Cada toque manda a Claude Haiku (`claude-haiku-5-5`, el
-modelo rápido, sin caché) lo último de la transcripción y los datos del lead (con el dolor y cómo
-ayudamos), y en uno o dos segundos muestra qué decir ahora, qué preguntar después y qué evitar. Con
-ZH Reuniones, antes de preguntar lee lo último que llegó; la ficha lo pide cada 3 segundos mientras
-está a la vista (`leer_transcripcion` con `vivo:<id del lead>`), y lo de una llamada anterior no
-cuenta.
+Mientras se transcribe una llamada con un lead, la ficha muestra **«¿Qué le respondo?»**. Cada toque
+manda a Claude Haiku (`claude-haiku-5-5`, el modelo rápido, sin caché) lo último de la
+transcripción, las notas escritas y el contexto del lead, y en uno o dos segundos muestra qué decir
+ahora, qué preguntar después y qué evitar. El contexto sale de la ficha («Datos del lead»): el
+cargo, a qué se dedican (`rubro`), la ciudad, el sitio web, lo que busca, el dolor, cómo ayudamos,
+el guion («Guion y preparación»), lo que investigamos de la empresa (`notas`, que Claude usa para
+entender su negocio sin citarlo ni mencionar prioridades) y los dos últimos contactos con su
+resumen. Con el micrófono del CRM, antes
+de preguntar lee lo último que llegó; la ficha lo pide cada 3 segundos mientras está a la vista
+(`leer_transcripcion` con `vivo:<id de la sesión>`).
 Claude solo se consulta cuando alguien toca el botón: la plataforma no permite llamarlo en bucle ni
 con temporizador. Lo que sí corre solo, en la página y sin Claude, es la detección de objeciones
 (precio, postergar, «ya tenemos algo», «mándame información», dudas de confianza): destaca el botón
@@ -616,7 +631,7 @@ python3 crm/dev/build_preview.py                    # arma crm/dev/preview.html 
 NODE_PATH=$(npm root -g) node crm/dev/smoke.cjs     # leads, llamadas y borradores (capturas en crm/dev/shots)
 NODE_PATH=$(npm root -g) node crm/dev/clientes.cjs  # etapa con clientes: lead ganado, proyecto, cobros, soporte, acta
 NODE_PATH=$(npm root -g) node crm/dev/microfono.cjs # transcribir en vivo, con micrófono simulado
-NODE_PATH=$(npm root -g) node crm/dev/envivo.cjs    # «Transcribir en vivo» con ZH Reuniones: el botón abre su página, la ficha muestra lo que va y «¿Qué le respondo?», carga la transcripción al terminar, Hoy, el cliente y el plan B
+NODE_PATH=$(npm root -g) node crm/dev/envivo.cjs    # el micrófono del CRM (ZH Reuniones): «Abrir el micrófono» con la sesión, «Empezar a transcribir» y «Terminar» con solo lo de la llamada, «¿Qué le respondo?» con el contexto del lead, la siguiente sin reabrir, la pausa, Hoy, el cliente y el plan B
 NODE_PATH=$(npm root -g) node crm/dev/embudo.cjs    # embudos de leads y de clientes, y Proyectos: carriles, arrastrar (mouse y dedo), montos, filtros, responsables, no contestó y motivos de pérdida
 NODE_PATH=$(npm root -g) node crm/dev/tareas.cjs    # tareas y flujo automático: grabar y guardar solo, agendar, ¿se hizo?, propuesta y deshacer, menú contraído
 NODE_PATH=$(npm root -g) node crm/dev/calendario.cjs # Google Calendar: unir eventos con leads, reservas de la web, mover, invitaciones, crear y mover eventos, permisos

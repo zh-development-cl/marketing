@@ -119,33 +119,39 @@ la clave del equipo», más abajo) y se crea otra.
   no avisa en la reunión: dilo al empezar («vamos a transcribir para registrar los acuerdos»). Si
   alguien no quiere, pasa la extensión a «Manual mode» antes de la reunión (así no la transcribe) y
   se registra a mano.
-- **Sin la extensión** (desde el celular, o en una reunión presencial), queda «Transcribir en vivo»
-  en la ficha del CRM, que abre la página de ZH Reuniones que escucha con el micrófono del
-  computador (ver abajo), o pegar las notas en «Registrar reunión».
+- **Sin la extensión** (desde el celular, o en una reunión presencial), queda transcribirla desde
+  la ficha del CRM con el micrófono del CRM, la página de ZH Reuniones que escucha con el micrófono
+  del computador (ver abajo), o pegar las notas en «Registrar reunión».
 - Si una transcripción no llegó (sin internet, o se cerró Chrome antes de tiempo), en la extensión →
   **Last 10 meetings** se puede volver a mandar; también está «Recover last meeting».
 
-## Llamadas y reuniones en persona: «Transcribir en vivo»
+## Llamadas y reuniones en persona: el micrófono del CRM
 
-claude.ai no deja que el CRM use el micrófono, así que «Transcribir en vivo» (en «Registrar
-llamada» o «Registrar reunión» de la ficha) abre en otra pestaña la página de ZH Reuniones
-(https://zh-reuniones.vercel.app/vivo), que sí puede escuchar:
+claude.ai no deja que el CRM use el micrófono, así que escucha el **micrófono del CRM**: la página
+de ZH Reuniones https://zh-reuniones.vercel.app/vivo?sesion=… (la dirección la arma el CRM con el
+id de sesión de ese navegador), que sí puede escuchar. Se abre una vez y sirve para todas las
+llamadas y reuniones; cada una se empieza y se termina en la ficha del CRM:
 
-1. La primera vez en ese navegador pide la clave del equipo (queda 6 meses) y Chrome pide permiso
-   para el micrófono.
-2. Arriba dice para quién es («Llamada con …»). «Empezar», hablar (en una llamada, con el celular en
-   altavoz al lado) y «Terminar». El texto lo hace el reconocimiento de voz de Chrome o Edge; el
-   audio no se guarda.
-3. Mientras escucha se puede volver a la pestaña del CRM: la ficha muestra lo último que se dijo
-   (ZH Reuniones lo manda cada pocos segundos) y «¿Qué le respondo?», que le pregunta a Claude qué
-   decir ahora.
-4. Al tocar «Terminar», la transcripción queda en ZH Reuniones para ese lead o cliente, llega sola a
-   la ficha y Claude arma el plan o el acta. Si la ficha ya no estaba abierta, aparece en Hoy, en
-   «Reuniones y llamadas transcritas». «Otra llamada con …» es para el mismo lead o cliente; para
-   otro, se abre desde su ficha.
+1. En «Registrar llamada» o «Registrar reunión» de la ficha (o «Contestó: registrar» en «Llamar en
+   serie»), «Abrir el micrófono» abre la página en una ventana chica. La primera vez en ese
+   navegador pide la clave del equipo (queda 6 meses) y Chrome pide permiso para el micrófono.
+2. «Empezar» en esa ventana: queda escuchando («Escuchando para el CRM»). Se deja a la vista, al
+   lado del CRM. El texto lo hace el reconocimiento de voz de Chrome o Edge; el audio no se guarda.
+3. En cada llamada, «Empezar a transcribir» en la ficha cuando contesten (en una llamada, con el
+   celular en altavoz al lado). La ficha muestra lo que se va diciendo y «¿Qué le respondo?», que le
+   pregunta a Claude qué decir ahora con el contexto del lead.
+4. «Terminar» en la ficha: Claude arma el plan o el acta con lo dicho entre los dos toques. La
+   siguiente llamada se empieza igual, sin volver a la ventana del micrófono.
 
-No separa quién habla (Claude lo deduce por el contexto). Si la pestaña se cierra a medias, al
-volver a abrirla ofrece mandar lo que alcanzó a transcribir.
+La página manda cada frase con su hora al caché del servidor (`/api/vivo-avance`, las últimas 80,
+nunca al almacén) y el CRM toma las de su llamada; lo demás se borra solo en una hora. «Pausar» en
+la ventana deja de escuchar (la ficha lo avisa) y «Seguir» lo retoma; al cerrarla, el CRM ve que
+terminó. No separa quién habla (Claude lo deduce por el contexto). Si la ficha se cierra a medias,
+lo transcrito queda en ese navegador y al volver a abrirla ofrece seguir o descartarlo.
+
+La página de un solo lead o cliente (`/vivo?ref=…&tipo=…&nombre=…`, la de antes) sigue
+funcionando: dice para quién es, al tocar «Terminar» guarda la transcripción en ZH Reuniones y
+aparece en Hoy, en «Reuniones y llamadas transcritas». El CRM ya no la abre.
 
 ## Si algo falla
 

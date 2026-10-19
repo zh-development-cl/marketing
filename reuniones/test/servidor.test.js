@@ -556,6 +556,50 @@ test("si el caché falla, la transcripción completa se guarda igual", async () 
   assert.equal((await llamar(llaves.access_token, "leer_transcripcion", { id: r.id })).structuredContent.texto, "Hola\nChao");
 });
 
+test("el «Micrófono del CRM» (sesion) pide la clave, la recuerda y no se mezcla con un lead", async () => {
+  await conClave();
+  const pide = await (await get(vivo, "/vivo?sesion=ses-abcdefgh12")).text();
+  assert.match(pide, /name="sesion" value="ses-abcdefgh12"/);
+  const r = await postForm(vivo, "/vivo", { clave: CLAVE, sesion: "ses-abcdefgh12" });
+  assert.equal(r.headers.get("location"), "/vivo?sesion=ses-abcdefgh12");
+  const galleta = r.headers.get("set-cookie").split(";")[0];
+  const abrir = async (q) => (await vivo.GET(new Request(H + "/vivo?" + q, { headers: { cookie: galleta } }))).text();
+  const pag = await abrir("sesion=ses-abcdefgh12&ref=lead-1");
+  assert.match(pag, /<h1>Micrófono del CRM<\/h1>/);
+  assert.ok(pag.includes('{"sesion":"ses-abcdefgh12"}'));
+  assert.match(pag, /id="terminar" hidden>Pausar</);
+  assert.doesNotMatch(pag, /id="hecho"/);
+  const rara = await abrir("sesion=ses-ABC");
+  assert.match(rara, /<h1>Transcribir en vivo<\/h1>/);
+  assert.match(rara, /sin asociar/);
+});
+
+test("la sesión manda cada frase con su hora; el CRM la lee con «vivo:ses-…», también en pausa", async () => {
+  await conClave();
+  const galleta = await galletaVivo();
+  const base = Date.now() - 120000;
+  const frases = Array.from({ length: 90 }, (_, i) => `Frase ${i + 1}`);
+  const horas = frases.map((_, i) => base + i * 1000);
+  const cuerpo = { ref: "ses-abcdefgh12", tipo: "sesion", inicio: hace(10), lineas: frases, tiempos: horas, parcial: "a medias", total: 90 };
+  assert.equal((await mandarAvance(galleta, { ...cuerpo, ref: "lead-1" })).status, 400);
+  assert.equal((await mandarAvance(galleta, { ...cuerpo, ref: "ses-CORTA" })).status, 400);
+  contar();
+  assert.equal((await mandarAvance(galleta, cuerpo)).status, 200);
+  assert.deepEqual([ops.escrituras, ops.listados], [0, 0]);
+  const { llaves } = await conectarConector();
+  const leer = async (id) => (await llamar(llaves.access_token, "leer_transcripcion", { id })).structuredContent;
+  const v = await leer("vivo:ses-abcdefgh12");
+  assert.deepEqual([v.estado, v.tipo, v.lineas.length, v.tiempos.length, v.lineas[0], v.tiempos[0], v.lineas.at(-1), v.tiempos.at(-1), v.parcial, v.total], ["escuchando", "sesion", 80, 80, "Frase 11", base + 10000, "Frase 90", base + 89000, "a medias", 90]);
+  await mandarAvance(galleta, { ...cuerpo, estado: "pausada" });
+  const p = await leer("vivo:ses-abcdefgh12");
+  assert.deepEqual([p.estado, p.parcial, p.lineas.length], ["pausada", "", 80]);
+  await mandarAvance(galleta, { ...cuerpo, estado: "terminada", lineas: ["Una", "  ", "Dos"], tiempos: [1, 2, 3] });
+  const t = await leer("vivo:ses-abcdefgh12");
+  assert.deepEqual([t.estado, t.lineas, t.tiempos], ["terminada", ["Una", "Dos"], [1, 3]]);
+  const nada = await leer("vivo:ses-zzzzzzzz99");
+  assert.deepEqual([nada.estado, nada.tipo, nada.tiempos], ["sin_datos", "sesion", []]);
+});
+
 test("las de Meet dicen de dónde vienen, y «fresco» lee el índice sin caché", async () => {
   await conClave();
   await mandar(reunion());

@@ -2,22 +2,25 @@
    pasa a texto con el reconocimiento de voz de Chrome. claude.ai no deja que el CRM use el micrófono;
    esta página sí. El CRM la abre con el lead o cliente (ref) y el tipo; al terminar, la transcripción
    queda en ZH Reuniones para ese lead o cliente, y mientras escucha el CRM ve lo último que se dijo.
-   El nombre del lead o cliente (nombre) solo se muestra. Pide la clave del equipo una vez por navegador. */
+   El nombre del lead o cliente (nombre) solo se muestra. Pide la clave del equipo una vez por navegador.
+   Con «sesion» es el «Micrófono del CRM»: se abre una vez, escucha seguido y el CRM empieza y termina
+   cada llamada desde la ficha, sin volver a esta página. */
 import { html, esc, faltaHtml, conRespaldo } from "../lib/http.js";
 import { claveEquipo, claveCorrecta, galleta, conGalleta, bloqueado, anotarFalla } from "../lib/clave.js";
-import { REF, limpiar } from "../lib/reuniones.js";
+import { REF, SESION, limpiar } from "../lib/reuniones.js";
 import { scriptVivo } from "../lib/vivo-cliente.js";
 
 const datos = (q) => {
-  const ref = REF.test(String(q.get("ref") || "")) ? String(q.get("ref")) : "";
-  return { ref, tipo: q.get("tipo") === "reunion" ? "reunion" : "llamada", nombre: ref ? limpiar(q.get("nombre"), 80) : "" };
+  const sesion = SESION.test(String(q.get("sesion") || "")) ? String(q.get("sesion")) : "";
+  const ref = !sesion && REF.test(String(q.get("ref") || "")) ? String(q.get("ref")) : "";
+  return { ref, sesion, tipo: q.get("tipo") === "reunion" ? "reunion" : "llamada", nombre: ref ? limpiar(q.get("nombre"), 80) : "" };
 };
-const aqui = (d) => `/vivo?${new URLSearchParams({ ...(d.ref ? { ref: d.ref } : {}), tipo: d.tipo, ...(d.nombre ? { nombre: d.nombre } : {}) })}`;
+const aqui = (d) => `/vivo?${new URLSearchParams(d.sesion ? { sesion: d.sesion } : { ...(d.ref ? { ref: d.ref } : {}), tipo: d.tipo, ...(d.nombre ? { nombre: d.nombre } : {}) })}`;
 const cosa = (d) => (d.tipo === "llamada" ? "Llamada" : "Reunión");
 
 const pedirClave = (d, aviso, status = 200) => html(`<h1>Transcribir en vivo</h1>
 <p>Para transcribir desde este navegador, escribe la clave del equipo de ZH. Se pide una sola vez (dura 6 meses).</p>
-<form class="card" method="post" action="${esc(aqui(d))}"><input type="hidden" name="ref" value="${esc(d.ref)}"><input type="hidden" name="tipo" value="${esc(d.tipo)}"><input type="hidden" name="nombre" value="${esc(d.nombre)}">
+<form class="card" method="post" action="${esc(aqui(d))}"><input type="hidden" name="ref" value="${esc(d.ref)}"><input type="hidden" name="tipo" value="${esc(d.tipo)}"><input type="hidden" name="nombre" value="${esc(d.nombre)}"><input type="hidden" name="sesion" value="${esc(d.sesion)}">
 <label>Clave del equipo<input type="password" name="clave" autocomplete="current-password" required autofocus></label>
 ${aviso ? `<p class="bad">${esc(aviso)}</p>` : ""}<button type="submit">Seguir</button></form>`, status, "'self'");
 
@@ -43,20 +46,34 @@ ${d.ref ? "" : `<p class="bad">Ábrela desde el CRM (botón «Transcribir en viv
 <pre class="texto" id="texto" aria-live="polite" hidden></pre>
 </div>
 <div class="card" id="hecho" hidden><p class="ok" id="hecho-texto"></p><p id="hecho-volver">Vuelve a la pestaña del CRM: aparece sola en la ficha y en Hoy.</p>${d.ref ? "<p>Para otro lead o cliente, ábrela desde su ficha en el CRM.</p>" : ""}<div class="fila"><button class="sec" id="copiar">Copiar el texto</button></div></div>
-<div class="card" id="fallo" hidden><p class="bad" id="fallo-texto"></p><div class="fila"><button id="reintentar">Volver a mandar</button><button class="sec" id="copiar2">Copiar el texto</button></div></div>`, 200, "'none'", scriptVivo(d));
+<div class="card" id="fallo" hidden><p class="bad" id="fallo-texto"></p><div class="fila"><button id="reintentar">Volver a mandar</button><button class="sec" id="copiar2">Copiar el texto</button></div></div>`, 200, "'none'", scriptVivo({ ref: d.ref, tipo: d.tipo, nombre: d.nombre }));
+
+/* El «Micrófono del CRM»: escucha seguido para varias llamadas; el CRM toma lo de cada una. */
+const paginaSesion = (d) => html(`${ESTILO}<h1>Micrófono del CRM</h1>
+<p class="para">Escucha las llamadas y reuniones que transcribes desde el CRM.</p>
+<p>Toca «Empezar» y deja esta ventana abierta, al lado del CRM. En cada llamada, en la ficha del CRM, toca «Empezar a transcribir» y «Terminar»: el CRM usa solo lo que se dice entre los dos, y lo demás se borra solo en una hora. El audio no se guarda. Avisa al otro lado que estás transcribiendo.</p>
+<div class="card">
+<div class="vivo-head"><b id="estado" role="status">Listo para empezar</b><span id="reloj"></span></div>
+<div class="vivo-head" id="vivo" hidden><i class="rec" aria-hidden="true"></i><span class="medidor" aria-hidden="true"><span id="barra"></span></span></div>
+<div class="fila"><button id="empezar">Empezar</button><button id="terminar" hidden>Pausar</button></div>
+<p id="volver-crm" hidden>Ya puedes volver al CRM. Mientras esta ventana diga «Escuchando», cada llamada se transcribe desde su ficha.</p>
+<p class="bad" id="aviso" hidden></p>
+<pre class="texto" id="texto" aria-live="polite" hidden></pre>
+</div>`, 200, "'none'", scriptVivo({ sesion: d.sesion }));
 
 export const GET = conRespaldo(async (req) => {
   const cfg = await claveEquipo();
   if (!cfg) return faltaHtml();
   const d = datos(new URL(req.url).searchParams);
-  return conGalleta(req, cfg) ? pagina(d) : pedirClave(d);
+  if (!conGalleta(req, cfg)) return pedirClave(d);
+  return d.sesion ? paginaSesion(d) : pagina(d);
 }, true);
 
 export const POST = conRespaldo(async (req) => {
   const cfg = await claveEquipo();
   if (!cfg) return faltaHtml();
   const f = Object.fromEntries(new URLSearchParams(await req.text()));
-  const d = datos(new URLSearchParams({ ref: f.ref || "", tipo: f.tipo || "", nombre: f.nombre || "" }));
+  const d = datos(new URLSearchParams({ ref: f.ref || "", tipo: f.tipo || "", nombre: f.nombre || "", sesion: f.sesion || "" }));
   if (bloqueado(req)) return pedirClave(d, "Demasiados intentos con una clave equivocada. Espera una hora y vuelve a intentar.", 429);
   if (!claveCorrecta(cfg, f.clave)) {
     anotarFalla(req);

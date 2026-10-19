@@ -133,8 +133,13 @@ export async function guardarEnVivo(d) {
 /* Mientras dura la llamada, la página manda cada pocos segundos las últimas frases: el CRM las muestra
    y Claude sugiere qué responder. Van al caché de Vercel (Runtime Cache: lo comparten las funciones
    de la región y se borra solo), no al almacén, que cobra cada escritura. La transcripción completa
-   se guarda al terminar, con guardarEnVivo. */
+   se guarda al terminar, con guardarEnVivo.
+   En una sesión (el «Micrófono del CRM», id ses-…), la página escucha seguido para varias llamadas y
+   manda cada frase con su hora (tiempos, en milisegundos): el CRM toma las que se dijeron entre su
+   «Empezar a transcribir» y su «Terminar». Nada de eso va al almacén. */
+export const SESION = /^ses-[a-z0-9]{8,40}$/;
 const AVANCE_LINEAS = 40;
+const SESION_LINEAS = 80;
 const AVANCE_SEG = 3600;
 const TERMINADA_SEG = 900;
 let cacheVivo = null;
@@ -149,13 +154,18 @@ const ponerAvance = async (estado, segundos) => (await elCacheVivo()).set(claveV
 export async function guardarAvance(d) {
   if (!d || typeof d !== "object" || Array.isArray(d)) throw new Falla("Falta lo transcrito.", "sin_datos");
   const ref = String(d.ref || "");
-  if (!REF.test(ref)) throw new Falla("El lead o cliente de la transcripción no es válido.", "sin_ref");
+  const sesion = d.tipo === "sesion";
+  if (sesion ? !SESION.test(ref) : !REF.test(ref)) throw new Falla(sesion ? "La sesión del micrófono no es válida." : "El lead o cliente de la transcripción no es válido.", "sin_ref");
   const ahora = Date.now();
   let inicio = iso(d.inicio);
   if (!Number.isFinite(inicio) || inicio > ahora + 300000) inicio = ahora;
-  const lineas = (Array.isArray(d.lineas) ? d.lineas.slice(-AVANCE_LINEAS) : []).map((x) => limpiar(x, 2000)).filter(Boolean);
+  const crudas = Array.isArray(d.lineas) ? d.lineas.slice(-(sesion ? SESION_LINEAS : AVANCE_LINEAS)) : [];
+  const horas = Array.isArray(d.tiempos) ? d.tiempos.slice(-crudas.length) : [];
+  const pares = crudas.map((x, i) => [limpiar(x, 2000), Math.round(Number(horas[i])) || 0]).filter(([x]) => x);
+  const lineas = pares.map(([x]) => x);
   const total = Math.min(100000, Math.max(lineas.length, Math.round(Number(d.total)) || 0));
-  await ponerAvance({ ref, tipo: d.tipo === "reunion" ? "reunion" : "llamada", inicio: new Date(inicio).toISOString(), actualizada: new Date(ahora).toISOString(), estado: "escuchando", lineas, parcial: limpiar(d.parcial, 2000), total }, AVANCE_SEG);
+  const estado = sesion && ["pausada", "terminada"].includes(d.estado) ? d.estado : "escuchando";
+  await ponerAvance({ ref, tipo: sesion ? "sesion" : d.tipo === "reunion" ? "reunion" : "llamada", inicio: new Date(inicio).toISOString(), actualizada: new Date(ahora).toISOString(), estado, lineas, tiempos: pares.map(([, t]) => t), parcial: estado === "escuchando" ? limpiar(d.parcial, 2000) : "", total }, AVANCE_SEG);
   return { recibido: true, cache: cacheCompartido() ? "vercel" : "memoria" };
 }
 
@@ -168,13 +178,16 @@ async function terminarAvance(ref, tipo, inicio, id) {
   } catch (e) { console.error("[zh-reuniones] avance", e && e.message); }
 }
 
-/* Lo que va de la llamada en vivo de un lead o cliente: «escuchando» (con las últimas frases),
-   «terminada» (con la transcripción guardada) o «sin_datos». */
+/* Lo que va de la llamada en vivo de un lead o cliente: «escuchando» (con las últimas frases y su
+   hora), «terminada» (con la transcripción guardada) o «sin_datos». De una sesión: «escuchando»,
+   «pausada» o «terminada». */
 async function leerAvance(ref) {
   const e = await (await elCacheVivo()).get(claveVivo(ref));
   const base = { id: `vivo:${ref}`, origen: "vivo", ref };
-  if (!e || typeof e !== "object" || e.ref !== ref || !["escuchando", "terminada"].includes(e.estado)) return { ...base, estado: "sin_datos", tipo: "llamada", inicio: "", actualizada: "", lineas: [], parcial: "", total: 0, transcripcion: null };
-  return { ...base, estado: e.estado, tipo: e.tipo === "reunion" ? "reunion" : "llamada", inicio: String(e.inicio || ""), actualizada: String(e.actualizada || ""), lineas: Array.isArray(e.lineas) ? e.lineas.map(String) : [], parcial: String(e.parcial || ""), total: Number(e.total) || 0, transcripcion: ID.test(String(e.transcripcion || "")) ? e.transcripcion : null };
+  if (!e || typeof e !== "object" || e.ref !== ref || !["escuchando", "pausada", "terminada"].includes(e.estado)) return { ...base, estado: "sin_datos", tipo: SESION.test(ref) ? "sesion" : "llamada", inicio: "", actualizada: "", lineas: [], tiempos: [], parcial: "", total: 0, transcripcion: null };
+  const lineas = Array.isArray(e.lineas) ? e.lineas.map(String) : [];
+  const tiempos = Array.isArray(e.tiempos) ? e.tiempos.map((t) => Number(t) || 0) : [];
+  return { ...base, estado: e.estado, tipo: e.tipo === "sesion" ? "sesion" : e.tipo === "reunion" ? "reunion" : "llamada", inicio: String(e.inicio || ""), actualizada: String(e.actualizada || ""), lineas, tiempos: lineas.map((_, i) => tiempos[i] || 0), parcial: String(e.parcial || ""), total: Number(e.total) || 0, transcripcion: ID.test(String(e.transcripcion || "")) ? e.transcripcion : null };
 }
 
 /* De dónde viene una transcripción y para quién: Meet (TranscripTonic) o en vivo, para un lead o cliente. */

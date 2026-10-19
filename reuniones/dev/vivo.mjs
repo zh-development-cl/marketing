@@ -138,6 +138,29 @@ ok((await transcripciones({ dias: 1 })).transcripciones.length === 2, "y la mand
 /* Sin el lead (abierta a mano), avisa que quedará sin asociar. */
 await page.goto(`${B}/vivo`);
 ok((await page.textContent("main")).includes("sin asociar"), "abierta sin lead, avisa que queda sin asociar");
+/* El «Micrófono del CRM»: escucha seguido, cada frase con su hora, Pausar y Seguir sin perder lo
+   anterior, y al cerrar la ventana avisa que terminó. */
+const ses = () => leerTranscripcion({ id: "vivo:ses-pruebasesion1" });
+const esperar = async (fn, ms = 6000) => { const t1 = Date.now(); while (!(await fn()) && Date.now() - t1 < ms) await page.waitForTimeout(200); return fn(); };
+await page.goto(`${B}/vivo?sesion=ses-pruebasesion1`);
+ok((await page.textContent("h1")) === "Micrófono del CRM", "con «sesion» es el micrófono del CRM");
+await page.evaluate(() => { window.__frases = ["primera de la sesion", "segunda de la sesion"]; });
+const antes = Date.now();
+await page.click("#empezar");
+await page.waitForFunction(() => document.getElementById("estado").textContent === "Escuchando para el CRM");
+const s1 = await esperar(async () => (await ses()).lineas.length === 2 && (await ses()));
+ok(s1 && s1.tipo === "sesion" && s1.estado === "escuchando" && s1.tiempos.length === 2 && s1.tiempos[0] >= antes && s1.tiempos[1] >= s1.tiempos[0], "manda cada frase con su hora");
+await page.click("#terminar");
+await page.waitForFunction(() => document.getElementById("estado").textContent === "En pausa");
+ok(await esperar(async () => (await ses()).estado === "pausada") && (await page.textContent("#empezar")) === "Seguir", "«Pausar» deja de escuchar y el CRM lo sabe");
+await page.evaluate(() => { window.__frases = ["tercera despues de la pausa"]; });
+await page.click("#empezar");
+const s3 = await esperar(async () => (await ses()).lineas.length === 3 && (await ses()));
+ok(s3 && s3.estado === "escuchando" && s3.lineas[0] === "Primera de la sesion" && s3.lineas[2] === "Tercera despues de la pausa", "«Seguir» vuelve a escuchar sin perder lo anterior");
+page.removeAllListeners("dialog");
+page.on("dialog", (d) => d.accept());
+await page.goto(`${B}/vivo`);
+ok(await esperar(async () => (await ses()).estado === "terminada"), "al cerrar la ventana, avisa que terminó");
 ok(!errores.length, "sin errores en la página" + (errores.length ? ": " + errores.join(" | ") : ""));
 
 await navegador.close();

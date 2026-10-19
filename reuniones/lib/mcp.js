@@ -15,8 +15,8 @@ export const HERRAMIENTAS = [
   {
     name: "leer_transcripcion",
     title: "Leer una transcripción",
-    description: "Devuelve el texto de una transcripción. Las de Meet traen una línea por intervención, con el nombre de quien habla, y el chat de la reunión al final; las en vivo, una frase por línea, sin el nombre de quien habla. Con el id «vivo:<id del lead o cliente>» devuelve lo que se está transcribiendo ahora para él: estado (escuchando, terminada o sin_datos), las últimas frases y, al terminar, el id de la transcripción guardada.",
-    inputSchema: { type: "object", properties: { id: { type: "string", description: "El id que entrega «transcripciones» (tt-…), o «vivo:» más el id del lead o cliente en el CRM." } }, required: ["id"], additionalProperties: false },
+    description: "Devuelve el texto de una transcripción. Las de Meet traen una línea por intervención, con el nombre de quien habla, y el chat de la reunión al final; las en vivo, una frase por línea, sin el nombre de quien habla. Con el id «vivo:<id del lead o cliente>» devuelve lo que se está transcribiendo ahora para él: estado (escuchando, terminada o sin_datos), las últimas frases y, al terminar, el id de la transcripción guardada. Con «vivo:ses-…» devuelve lo que escucha el micrófono del CRM de esa sesión: estado (escuchando, pausada, terminada o sin_datos) y las últimas frases, cada una con su hora (tiempos, en milisegundos).",
+    inputSchema: { type: "object", properties: { id: { type: "string", description: "El id que entrega «transcripciones» (tt-…), o «vivo:» más el id del lead o cliente en el CRM o el de la sesión del micrófono (ses-…)." } }, required: ["id"], additionalProperties: false },
     annotations: { title: "Leer una transcripción", readOnlyHint: true, openWorldHint: false },
   },
 ];
@@ -36,7 +36,7 @@ export async function atender(msg) {
     return ok(id, {
       protocolVersion: version,
       capabilities: { tools: { listChanged: false } },
-      serverInfo: { name: "zh-reuniones", title: "ZH Reuniones", version: "2.2.0" },
+      serverInfo: { name: "zh-reuniones", title: "ZH Reuniones", version: "2.3.0" },
       instructions: "Transcripciones de ZH Development para registrarlas en el CRM: las reuniones por Google Meet (guardadas con la extensión TranscripTonic, con el nombre de quien habla) y las llamadas o reuniones transcritas en vivo desde el CRM.",
     });
   }

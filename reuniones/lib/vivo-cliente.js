@@ -1,10 +1,15 @@
 /* Lo que corre en el navegador en la página «Transcribir en vivo»: escucha con el micrófono, el
    reconocimiento de voz de Chrome o Edge lo pasa a texto (es-CL) y, al terminar, lo manda a
    /api/vivo-guardar. Mientras escucha, manda lo último a /api/vivo-avance para el CRM y lo guarda en
-   el navegador: si la pestaña se cierra, al volver ofrece mandarlo. La función se manda como texto
-   (no usa nada de este módulo). */
+   el navegador: si la pestaña se cierra, al volver ofrece mandarlo. Con conf.sesion es el «Micrófono
+   del CRM»: escucha seguido (Empezar y Pausar), manda cada frase con su hora y no guarda nada al
+   terminar, porque el CRM toma lo de cada llamada. La función se manda como texto (no usa nada de este
+   módulo). */
 export function cliente(conf) {
   const $ = (id) => document.getElementById(id);
+  const SES = !!conf.sesion;
+  const destino = SES ? conf.sesion : conf.ref;
+  const ULTIMAS = SES ? 80 : 40;
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition || null;
   const LOCAL = "zhr:vivo";
   const cap = (t) => t.charAt(0).toUpperCase() + t.slice(1);
@@ -14,6 +19,7 @@ export function cliente(conf) {
   const SIN_SERVICIO = "El servicio de voz del navegador no respondió. Vuelve a intentar en Chrome o Edge, con internet.";
   let s = null;
   let lineas = [];
+  let tiempos = [];
   let inicio = "";
   let ultima = null;
 
@@ -22,16 +28,24 @@ export function cliente(conf) {
     poner(x) { try { localStorage.setItem(LOCAL, JSON.stringify(x)); } catch (e) { /* sin almacenamiento */ } },
     borrar() { try { localStorage.removeItem(LOCAL); } catch (e) { /* sin almacenamiento */ } },
   };
-  const ver = (id, si) => { $(id).hidden = !si; };
+  /* La página del micrófono del CRM no tiene las tarjetas de «hecho», «fallo» ni «respaldo». */
+  const ver = (id, si) => { const el = $(id); if (el) el.hidden = !si; };
   const estado = (t) => { $("estado").textContent = t; };
   const aviso = (t) => { $("aviso").textContent = t || ""; ver("aviso", !!t); };
   const pintar = (parcial) => {
-    const t = lineas.join("\n") + (parcial ? (lineas.length ? "\n" : "") + parcial : "");
+    const vistas = SES ? lineas.slice(-8) : lineas;
+    const t = vistas.join("\n") + (parcial ? (vistas.length ? "\n" : "") + parcial : "");
     $("texto").textContent = t;
     ver("texto", !!t);
     $("texto").scrollTop = $("texto").scrollHeight;
   };
-  const respaldar = () => local.poner({ ref: conf.ref, tipo: conf.tipo, inicio, fin: new Date().toISOString(), lineas });
+  const respaldar = () => { if (!SES) local.poner({ ref: conf.ref, tipo: conf.tipo, inicio, fin: new Date().toISOString(), lineas }); };
+  /* Cada frase con su hora; en una sesión, solo las últimas 2000 (al CRM van las últimas 80). */
+  const anotar = (t) => {
+    lineas.push(cap(t));
+    tiempos.push(Date.now());
+    if (SES && lineas.length > 2000) { lineas.splice(0, lineas.length - 2000); tiempos.splice(0, tiempos.length - 2000); }
+  };
   const postJson = (url, d) => fetch(url, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(d), credentials: "same-origin" });
 
   /* Lo último de la llamada va al CRM cada 2,5 segundos como mucho, una solicitud a la vez: ahí se ve
@@ -39,17 +53,23 @@ export function cliente(conf) {
      manda al terminar, después de la última de estas (si no, la pisaría en el CRM). */
   const avance = { ultimo: 0, t: null, p: null, otra: false, enviado: false };
   function avisar() {
-    if (!conf.ref || !s) return;
+    if (!destino || !s) return;
     if (avance.p) { avance.otra = true; return; }
     const falta = 2500 - (Date.now() - avance.ultimo);
     if (falta > 0) { if (!avance.t) avance.t = setTimeout(() => { avance.t = null; avisar(); }, falta); return; }
     avance.ultimo = Date.now();
     avance.enviado = true;
-    avance.p = postJson("/api/vivo-avance", { ref: conf.ref, tipo: conf.tipo, inicio, lineas: lineas.slice(-40), parcial: s.parcial || "", total: lineas.length })
+    avance.p = postJson("/api/vivo-avance", { ref: destino, tipo: SES ? "sesion" : conf.tipo, inicio, lineas: lineas.slice(-ULTIMAS), tiempos: tiempos.slice(-ULTIMAS), parcial: s.parcial || "", total: lineas.length })
       .catch(() => {})
       .finally(() => { avance.p = null; if (avance.otra) { avance.otra = false; avisar(); } });
   }
   const esperarAvance = async () => { clearTimeout(avance.t); avance.t = null; avance.otra = false; try { if (avance.p) await avance.p; } catch (e) { /* da lo mismo */ } };
+  /* En una sesión, la pausa y el cierre de la ventana se avisan al tiro, para que el CRM lo sepa. */
+  function avisarEstado(cual, alSalir) {
+    const d = { ref: destino, tipo: "sesion", estado: cual, inicio, lineas: lineas.slice(-ULTIMAS), tiempos: tiempos.slice(-ULTIMAS), parcial: "", total: lineas.length };
+    if (alSalir) { try { navigator.sendBeacon("/api/vivo-avance", new Blob([JSON.stringify(d)], { type: "application/json" })); } catch (e) { /* se borra sola en una hora */ } return; }
+    esperarAvance().then(() => postJson("/api/vivo-avance", d).catch(() => {}));
+  }
   /* Si no se escuchó nada, igual avisa que terminó: así el CRM deja de mostrarla en curso. */
   async function terminarSinTexto() {
     const d = { ref: conf.ref, tipo: conf.tipo, inicio, fin: new Date().toISOString(), lineas: [] };
@@ -67,7 +87,7 @@ export function cliente(conf) {
   function cerrar(x, falla) {
     if (s !== x) return;
     s = null;
-    if (x.parcial) { lineas.push(cap(x.parcial)); x.parcial = ""; }
+    if (x.parcial) { anotar(x.parcial); x.parcial = ""; }
     soltar(x);
     clearTimeout(avance.t);
     avance.t = null;
@@ -77,6 +97,13 @@ export function cliente(conf) {
     $("reloj").textContent = "";
     pintar("");
     aviso(falla || "");
+    if (SES) {
+      estado(falla ? "Se detuvo" : "En pausa");
+      $("empezar").textContent = "Seguir";
+      ver("empezar", true);
+      avisarEstado("pausada");
+      return;
+    }
     if (lineas.length) mandar({ ref: conf.ref, tipo: conf.tipo, inicio, fin: new Date().toISOString(), lineas: lineas.slice() });
     else {
       estado(falla ? "No se pudo transcribir" : "No se escuchó nada");
@@ -90,7 +117,7 @@ export function cliente(conf) {
     r.continuous = true;
     r.interimResults = true;
     r.maxAlternatives = 1;
-    r.onstart = () => { if (s === x) estado("Escuchando"); };
+    r.onstart = () => { if (s === x) estado(SES ? "Escuchando para el CRM" : "Escuchando"); };
     r.onresult = (e) => {
       if (s !== x) return;
       let parcial = "";
@@ -98,7 +125,7 @@ export function cliente(conf) {
         const res = e.results[i];
         const t = String((res[0] && res[0].transcript) || "").trim();
         if (!t) continue;
-        if (res.isFinal) { x.fallasRed = 0; lineas.push(cap(t)); respaldar(); }
+        if (res.isFinal) { x.fallasRed = 0; anotar(t); respaldar(); }
         else parcial += (parcial ? " " : "") + t;
       }
       x.parcial = parcial;
@@ -150,7 +177,8 @@ export function cliente(conf) {
     if (!SR || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { aviso("Este navegador no transcribe en vivo. Abre esta página en Google Chrome o Microsoft Edge."); return; }
     const x = { quiere: true, lang: "es-CL", fallasRed: 0, parcial: "", falla: "" };
     s = x;
-    lineas = [];
+    /* En una sesión, lo anterior se queda: el CRM separa cada llamada por la hora de sus frases. */
+    if (!SES) { lineas = []; tiempos = []; }
     pintar("");
     ver("empezar", false);
     estado("Pidiendo el micrófono… Si Chrome pregunta, toca «Permitir».");
@@ -172,7 +200,7 @@ export function cliente(conf) {
     if (x.audio) { try { medir(x); } catch (e) { /* sin medidor */ } }
     try { if (navigator.wakeLock) x.lock = await navigator.wakeLock.request("screen"); } catch (e) { x.lock = null; }
     if (s !== x) { soltar(x); return; }
-    inicio = new Date().toISOString();
+    if (!SES || !inicio) inicio = new Date().toISOString();
     const t0 = Date.now();
     /* El reloj y, cada 30 segundos sin novedades, un aviso al CRM de que sigue escuchando. */
     x.reloj = setInterval(() => {
@@ -181,9 +209,9 @@ export function cliente(conf) {
     }, 1000);
     ver("vivo", true);
     ver("terminar", true);
-    ver("volver-crm", !!conf.ref);
+    ver("volver-crm", !!destino);
     $("terminar").disabled = false;
-    estado("Escuchando");
+    estado(SES ? "Escuchando para el CRM" : "Escuchando");
     arrancar(x);
     avisar();
   }
@@ -243,10 +271,15 @@ export function cliente(conf) {
 
   $("empezar").addEventListener("click", empezar);
   $("terminar").addEventListener("click", terminar);
+  window.addEventListener("beforeunload", (e) => { if (s) { e.preventDefault(); e.returnValue = ""; } });
+  if (SES) {
+    window.addEventListener("pagehide", () => { if (avance.enviado) avisarEstado("terminada", true); });
+    if (!SR) { aviso("Este navegador no transcribe en vivo. Abre esta página en Google Chrome o Microsoft Edge."); $("empezar").disabled = true; }
+    return;
+  }
   $("copiar").addEventListener("click", copiar);
   $("copiar2").addEventListener("click", copiar);
   $("reintentar").addEventListener("click", () => { if (ultima) mandar(ultima); });
-  window.addEventListener("beforeunload", (e) => { if (s) { e.preventDefault(); e.returnValue = ""; } });
   const quedo = local.leer();
   if (quedo) {
     $("respaldo-texto").textContent = "Quedó una transcripción sin mandar" + (quedo.inicio ? " (de las " + hora(quedo.inicio) + ")" : "") + ".";
