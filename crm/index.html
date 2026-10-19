@@ -5167,6 +5167,7 @@ function RegistroContacto({ lead, hist, onDone, modo, meet: meet0 }) {
   const { vivo: vivoExt, leer: leerVivoExt } = useEnVivo(lead.id, !meet && esperando ? esperando : 0);
   const meetRef = useRef(null);
   const [previo] = useState(() => (meet ? null : borradorLocal(llave)));
+  const [verPrevio, setVerPrevio] = useState(!!previo);
   const [resultado, setResultado] = useState(esReunion ? "realizada" : "");
   /* «Pidió que llamemos después» (registro a mano): cuándo, y si se anota en el calendario. */
   const [volverF, setVolverF] = useState(() => addBusinessDays(todayKey(), 1));
@@ -5474,7 +5475,7 @@ function RegistroContacto({ lead, hist, onDone, modo, meet: meet0 }) {
       <span class="small muted" style="flex-basis:100%">Es el número del lead: llámalo desde tu celular. En el computador, «Llamar» abre la app de teléfono si la tienes enlazada; si no, márcalo a mano.</span>
     </div>` : null}
     ${notaMeet || (esReunion ? html`<p class="small muted">Las reuniones por Meet se transcriben solas si quien entra tiene TranscripTonic en su Chrome, y aparecen en Hoy, en «Reuniones transcritas». Si no (por ejemplo, en persona), toca «Transcribir en vivo» o pega tus notas o la transcripción.</p>` : null)}
-    ${previo ? html`<div class="note"><${Icon} name="info" /><div>Recuperé lo que quedó sin guardar de esta ${nombreReg}.</div></div>` : null}
+    ${verPrevio ? html`<div class="note"><${Icon} name="info" /><div>Recuperé lo que quedó sin guardar de esta ${nombreReg}. <button type="button" class="linkbtn" onClick=${() => { ls.del(llave); ponerNotas(""); ponerTrans(""); setDuracion(""); setEnVivo(false); enVivoRef.current = false; setShowTrans(false); setVerPrevio(false); }}>Descartar</button></div></div>` : null}
     ${meet ? null : html`<${LiveTranscriber} externo=${reuListo ? `${ZHR_URL}/vivo?${new URLSearchParams({ ref: lead.id, tipo: modo, nombre: lead.empresa || lead.nombre || "" })}` : ""} tipo=${modo} esperando=${esperando} vivo=${vivoExt} onEsperar=${setEsperando} onRevisar=${revisarReuniones} onStart=${() => setShowTrans(true)} onText=${(x) => {
       setEnVivo(true);
       enVivoRef.current = true;
@@ -6150,6 +6151,7 @@ function ClientLogger({ cliente, hist, onDone, meet: meet0 }) {
   const [previo] = useState(() => (meet ? null : borradorLocal(llave)));
   const [tipo, setTipo] = useState(() => (meet ? (meet.origen === "vivo" && meet.tipo === "llamada" ? "llamada" : "reunion") : (previo && previo.tipo) || "reunion"));
   const [texto, setTexto] = useState(() => (previo && previo.texto) || "");
+  const [verPrevio, setVerPrevio] = useState(!!previo);
   const [trans, setTrans] = useState("");
   const [proyectoId, setProyectoId] = useState((ps.find((p) => PROYECTO_VIVO.has(p.estado)) || {}).id || "");
   const [acta, setActa] = useState(null);
@@ -6278,7 +6280,7 @@ function ClientLogger({ cliente, hist, onDone, meet: meet0 }) {
     : `Se crea en el Google Calendar de ${calCuenta}, con Meet. Invitados: ${[correoP, ...invitadosEquipo.filter((x) => x !== correoP)].filter(Boolean).join(", ") || "nadie más"}.${correoP ? "" : " El contacto principal no tiene correo: no le llega la invitación."}`;
   return html`<div class="work-body">
     ${meet && vivoT ? html`<div class="note meet-nota"><${Icon} name=${tipo === "llamada" ? "phone" : "mic"} /><div>${tipo === "llamada" ? "Llamada" : "Reunión"} transcrita en vivo con ZH Reuniones ${cuandoTrans(meet)}${minutosTrans(meet) ? ` (${minutosTrans(meet)} min)` : ""}. El texto no separa quién habla.</div></div>` : meet ? html`<div class="note meet-nota"><${Icon} name="meet" /><div>Reunión de Google Meet de ${cuandoTrans(meet)}${minutosTrans(meet) ? ` (${minutosTrans(meet)} min)` : ""}. La transcripción (los subtítulos de Meet, guardados con TranscripTonic) trae el nombre de quien habla en cada línea.</div></div>` : null}
-    ${previo ? html`<div class="note"><${Icon} name="info" /><div>Recuperé lo que quedó sin guardar de este registro.</div></div>` : null}
+    ${verPrevio ? html`<div class="note"><${Icon} name="info" /><div>Recuperé lo que quedó sin guardar de este registro. <button type="button" class="linkbtn" onClick=${() => { ls.del(llave); setTexto(""); setEnVivo(false); setVerPrevio(false); }}>Descartar</button></div></div>` : null}
     ${meet ? null : html`<div class="field"><span>Tipo</span><${Chips} label="Tipo" value=${tipo} onChange=${(v) => { setTipo(v); if (v !== "reunion") setActa(null); }} options=${REGISTROS_CLIENTE} /></div>`}
     ${ps.length ? html`<label class="field" for="cl-pro"><span>Proyecto</span><select id="cl-pro" class="select" value=${proyectoId} onChange=${(e) => setProyectoId(e.currentTarget.value)}><option value="">Sin proyecto</option>${ps.map((p) => html`<option value=${p.id}>${p.nombre || "Proyecto"}</option>`)}</select></label>` : null}
     ${!meet && (tipo === "reunion" || tipo === "llamada") ? html`<${LiveTranscriber} externo=${reuListo ? `${ZHR_URL}/vivo?${new URLSearchParams({ ref: cliente.id, tipo, nombre: cliente.nombre || "" })}` : ""} tipo=${tipo} esperando=${esperando} vivo=${vivoExt} onEsperar=${setEsperando} onRevisar=${revisarReuniones} onText=${(x) => { setEnVivo(true); setTexto((t) => (t.trim() ? t.replace(/\s+$/, "") + "\n" : "") + x); }} />` : null}

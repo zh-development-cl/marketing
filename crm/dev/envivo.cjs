@@ -165,6 +165,28 @@ const vivoDe = (id, ref, tipo, ini, fin) => ({ id, origen: "vivo", tipo, ...(ref
   await page.keyboard.press("Escape");
   await page.locator(".scrim").first().waitFor({ state: "detached" });
 
+  /* ---------------- lo que quedó sin guardar se puede descartar ---------------- */
+  await abrirFicha(page, "Andrea Fuentes", "Ferretería Andes");
+  const registrar = () => page.locator(".work-tabs button", { hasText: "Registrar llamada" }).click();
+  await registrar();
+  await page.fill("#c-notas", "Notas de una prueba");
+  await page.keyboard.press("Escape");
+  await page.locator(".scrim").first().waitFor({ state: "detached" });
+  await abrirFicha(page, "Andrea Fuentes", "Ferretería Andes");
+  await registrar();
+  const recuperado = page.locator(".work .note", { hasText: "Recuperé lo que quedó sin guardar" });
+  await recuperado.waitFor();
+  await recuperado.getByRole("button", { name: "Descartar" }).click();
+  ok(!(await recuperado.count()) && (await page.inputValue("#c-notas")) === "", "lo que quedó sin guardar se descarta con un toque");
+  await page.keyboard.press("Escape");
+  await page.locator(".scrim").first().waitFor({ state: "detached" });
+  await abrirFicha(page, "Andrea Fuentes", "Ferretería Andes");
+  await registrar();
+  await page.locator("#c-notas").waitFor();
+  ok(!(await page.locator(".work .note", { hasText: "Recuperé lo que quedó sin guardar" }).count()), "y no vuelve a aparecer");
+  await page.keyboard.press("Escape");
+  await page.locator(".scrim").first().waitFor({ state: "detached" });
+
   /* ---------------- la ficha del cliente ---------------- */
   await irA(page, "clientes");
   await page.locator("table.leads tbody tr", { hasText: "Taller Sur" }).click();
