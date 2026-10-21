@@ -1,6 +1,6 @@
 import React from 'react';
 import {Easing, interpolate, useCurrentFrame} from 'remotion';
-import {captionsOf, order} from '../timeline';
+import {captionsOf, order, SceneKey} from '../timeline';
 
 const clampOpt = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
 const ios = Easing.bezier(0.32, 0.72, 0, 1);
@@ -74,19 +74,21 @@ export const Headline: React.FC<{
 
 // Subtítulos de la voz: la frase vigente, palabra por palabra (lo dicho en blanco, lo que viene tenue).
 // `hide(f)` permite ocultarlos en tramos con mucho texto propio (p. ej. el cierre).
-const ALL = order.flatMap((k) => captionsOf(k));
-export const Captions: React.FC<{top?: number; hide?: (f: number) => boolean; right?: (f: number) => number}> = ({top = 446, hide, right}) => {
+export const Captions: React.FC<{top?: number; skip?: SceneKey[]; right?: (f: number) => number}> = ({top = 446, skip = [], right}) => {
   const f = useCurrentFrame();
-  if (hide && hide(f)) return null;
+  const ALL = order.filter((k) => !skip.includes(k)).flatMap((k) => captionsOf(k));
   const i = ALL.findIndex((c, k) => f >= c.from - 6 && f < (ALL[k + 1]?.from ?? Infinity) - 6 && f < c.to + 20);
   if (i < 0) return null;
   const c = ALL[i];
   const inP = pr(f, c.from - 6, 8);
   const nextFrom = ALL[i + 1]?.from ?? Infinity;
-  const outP = pr(f, Math.min(c.to + 12, nextFrom - 8), 8, Easing.in(Easing.cubic));
+  // La salida termina 6 frames antes de que entre la siguiente frase: nunca se corta a medio camino.
+  const outP = pr(f, Math.min(c.to + 12, nextFrom - 14), 8, Easing.in(Easing.cubic));
+  const R = right ? Math.max(right(c.from - 6), right(c.from + 4), right(c.to), right(c.to + 12)) : 80;
   return (
-    <div style={{position: 'absolute', left: 80, right: right ? right(f) : 80, top, zIndex: 50, opacity: inP * (1 - outP), transform: `translateY(${((1 - inP) * 10).toFixed(1)}px)`}}>
-      <div style={{fontFamily: SANS, fontWeight: 600, fontSize: 40, lineHeight: 1.22, color: '#fff', textShadow: '0 2px 16px rgba(26,0,51,.6)'}}>
+    // El ancho y el tamaño se deciden una vez por frase (nunca cambian a mitad de frase).
+    <div style={{position: 'absolute', left: 80, right: R, top, zIndex: 50, opacity: inP * (1 - outP), transform: `translateY(${((1 - inP) * 10).toFixed(1)}px)`}}>
+      <div style={{fontFamily: SANS, fontWeight: 600, fontSize: R > 200 ? 35 : 40, lineHeight: 1.22, color: '#fff', textShadow: '0 2px 16px rgba(26,0,51,.6)'}}>
         {c.words.map((w, k) => {
           const lit = pr(f, w.from - 2, 5, Easing.out(Easing.quad));
           return (

@@ -30,7 +30,5686 @@
     "h": 44
    }
   },
-  "notes": "Sin sesión. El botón «Volver» se bajó 47 px por CSS (no usa el área segura). Reloj instalado (page.clock.install) 10:20."
+  "notes": "Sin sesión. El botón «Volver» se bajó 47 px por CSS (no usa el área segura). Reloj instalado (page.clock.install) jue 19 10:20.",
+  "boxesCrudas": {
+   "campoCorreo": {
+    "x": 48,
+    "y": 436.3,
+    "w": 294,
+    "h": 52.8
+   },
+   "botonEnviarCodigo": {
+    "x": 48,
+    "y": 505.2,
+    "w": 294,
+    "h": 48
+   },
+   "volver": {
+    "x": 16,
+    "y": 63,
+    "w": 86.7,
+    "h": 44
+   }
+  },
+  "statusBar": "inset",
+  "render": {
+   "w": 390,
+   "h": 844,
+   "safeAreaTop": 47,
+   "safeAreaBottom": 34
+  },
+  "modo": "sin sesión",
+  "transparenciaReducida": true,
+  "reloj": "2026-11-19T13:20:00Z (jue 19, 10:20 Chile)",
+  "boxesNota": "boxes = px CSS relativos al viewport compuesto 390x844; una caja cuyo centro queda fuera de pantalla va en null."
+ },
+ "login-2": {
+  "dpr": 3,
+  "safeArea": true,
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "id": "login-2",
+  "file": "login-2.png",
+  "route": "/login",
+  "desc": "Correo «c.munoz@hospital.cl» escrito; el foco pasa a «Enviarme un código».",
+  "boxes": {
+   "campoCorreo": {
+    "x": 48,
+    "y": 436.3,
+    "w": 294,
+    "h": 52.8
+   },
+   "botonEnviarCodigo": {
+    "x": 48,
+    "y": 505.2,
+    "w": 294,
+    "h": 48
+   },
+   "volver": {
+    "x": 16,
+    "y": 63,
+    "w": 86.7,
+    "h": 44
+   }
+  },
+  "notes": "Foco programático en el botón (sin teclado en pantalla).",
+  "boxesCrudas": {
+   "campoCorreo": {
+    "x": 48,
+    "y": 436.3,
+    "w": 294,
+    "h": 52.8
+   },
+   "botonEnviarCodigo": {
+    "x": 48,
+    "y": 505.2,
+    "w": 294,
+    "h": 48
+   },
+   "volver": {
+    "x": 16,
+    "y": 63,
+    "w": 86.7,
+    "h": 44
+   }
+  },
+  "statusBar": "inset",
+  "render": {
+   "w": 390,
+   "h": 844,
+   "safeAreaTop": 47,
+   "safeAreaBottom": 34
+  },
+  "modo": "sin sesión",
+  "transparenciaReducida": true,
+  "reloj": "2026-11-19T13:20:00Z (jue 19, 10:20 Chile)",
+  "boxesNota": "boxes = px CSS relativos al viewport compuesto 390x844; una caja cuyo centro queda fuera de pantalla va en null."
+ },
+ "login-3a": {
+  "dpr": 3,
+  "safeArea": true,
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "id": "login-3a",
+  "file": "login-3a.png",
+  "route": "/login (paso código)",
+  "desc": "«Revisa tu correo»: 0 de 6 dígitos del código 482915 escritos.",
+  "boxes": {
+   "digito1": {
+    "x": 48,
+    "y": 520.4,
+    "w": 42.3,
+    "h": 52
+   },
+   "digito2": {
+    "x": 98.3,
+    "y": 520.4,
+    "w": 42.3,
+    "h": 52
+   },
+   "digito3": {
+    "x": 148.7,
+    "y": 520.4,
+    "w": 42.3,
+    "h": 52
+   },
+   "digito4": {
+    "x": 199,
+    "y": 520.4,
+    "w": 42.3,
+    "h": 52
+   },
+   "digito5": {
+    "x": 249.3,
+    "y": 520.4,
+    "w": 42.3,
+    "h": 52
+   },
+   "digito6": {
+    "x": 299.6,
+    "y": 520.4,
+    "w": 42.3,
+    "h": 52
+   },
+   "grupoCodigo": {
+    "x": 48,
+    "y": 520.4,
+    "w": 294,
+    "h": 52
+   }
+  },
+  "notes": "Reloj pausado (page.clock.pauseAt) en el paso del código: el contador «Reenviar en N s» queda fijo en las 7 tomas.",
+  "statusBar": "inset",
+  "render": {
+   "w": 390,
+   "h": 844,
+   "safeAreaTop": 47,
+   "safeAreaBottom": 34
+  },
+  "modo": "sin sesión",
+  "reloj": "2026-11-19T13:20:00Z (jue 19, 10:20 Chile)",
+  "boxesNota": "boxes = px CSS relativos al viewport compuesto 390x844; una caja cuyo centro queda fuera de pantalla va en null.",
+  "transparenciaReducida": true
+ },
+ "login-3b": {
+  "dpr": 3,
+  "safeArea": true,
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "id": "login-3b",
+  "file": "login-3b.png",
+  "route": "/login (paso código)",
+  "desc": "«Revisa tu correo»: 1 de 6 dígitos del código 482915 escritos.",
+  "boxes": {
+   "digito1": {
+    "x": 48,
+    "y": 520.4,
+    "w": 42.3,
+    "h": 52
+   },
+   "digito2": {
+    "x": 98.3,
+    "y": 520.4,
+    "w": 42.3,
+    "h": 52
+   },
+   "digito3": {
+    "x": 148.7,
+    "y": 520.4,
+    "w": 42.3,
+    "h": 52
+   },
+   "digito4": {
+    "x": 199,
+    "y": 520.4,
+    "w": 42.3,
+    "h": 52
+   },
+   "digito5": {
+    "x": 249.3,
+    "y": 520.4,
+    "w": 42.3,
+    "h": 52
+   },
+   "digito6": {
+    "x": 299.6,
+    "y": 520.4,
+    "w": 42.3,
+    "h": 52
+   },
+   "grupoCodigo": {
+    "x": 48,
+    "y": 520.4,
+    "w": 294,
+    "h": 52
+   }
+  },
+  "notes": "Reloj pausado (page.clock.pauseAt) en el paso del código: el contador «Reenviar en N s» queda fijo en las 7 tomas.",
+  "statusBar": "inset",
+  "render": {
+   "w": 390,
+   "h": 844,
+   "safeAreaTop": 47,
+   "safeAreaBottom": 34
+  },
+  "modo": "sin sesión",
+  "reloj": "2026-11-19T13:20:00Z (jue 19, 10:20 Chile)",
+  "boxesNota": "boxes = px CSS relativos al viewport compuesto 390x844; una caja cuyo centro queda fuera de pantalla va en null.",
+  "transparenciaReducida": true
+ },
+ "login-3c": {
+  "dpr": 3,
+  "safeArea": true,
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "id": "login-3c",
+  "file": "login-3c.png",
+  "route": "/login (paso código)",
+  "desc": "«Revisa tu correo»: 2 de 6 dígitos del código 482915 escritos.",
+  "boxes": {
+   "digito1": {
+    "x": 48,
+    "y": 520.4,
+    "w": 42.3,
+    "h": 52
+   },
+   "digito2": {
+    "x": 98.3,
+    "y": 520.4,
+    "w": 42.3,
+    "h": 52
+   },
+   "digito3": {
+    "x": 148.7,
+    "y": 520.4,
+    "w": 42.3,
+    "h": 52
+   },
+   "digito4": {
+    "x": 199,
+    "y": 520.4,
+    "w": 42.3,
+    "h": 52
+   },
+   "digito5": {
+    "x": 249.3,
+    "y": 520.4,
+    "w": 42.3,
+    "h": 52
+   },
+   "digito6": {
+    "x": 299.6,
+    "y": 520.4,
+    "w": 42.3,
+    "h": 52
+   },
+   "grupoCodigo": {
+    "x": 48,
+    "y": 520.4,
+    "w": 294,
+    "h": 52
+   }
+  },
+  "notes": "Reloj pausado (page.clock.pauseAt) en el paso del código: el contador «Reenviar en N s» queda fijo en las 7 tomas.",
+  "statusBar": "inset",
+  "render": {
+   "w": 390,
+   "h": 844,
+   "safeAreaTop": 47,
+   "safeAreaBottom": 34
+  },
+  "modo": "sin sesión",
+  "reloj": "2026-11-19T13:20:00Z (jue 19, 10:20 Chile)",
+  "boxesNota": "boxes = px CSS relativos al viewport compuesto 390x844; una caja cuyo centro queda fuera de pantalla va en null.",
+  "transparenciaReducida": true
+ },
+ "login-3d": {
+  "dpr": 3,
+  "safeArea": true,
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "id": "login-3d",
+  "file": "login-3d.png",
+  "route": "/login (paso código)",
+  "desc": "«Revisa tu correo»: 3 de 6 dígitos del código 482915 escritos.",
+  "boxes": {
+   "digito1": {
+    "x": 48,
+    "y": 520.4,
+    "w": 42.3,
+    "h": 52
+   },
+   "digito2": {
+    "x": 98.3,
+    "y": 520.4,
+    "w": 42.3,
+    "h": 52
+   },
+   "digito3": {
+    "x": 148.7,
+    "y": 520.4,
+    "w": 42.3,
+    "h": 52
+   },
+   "digito4": {
+    "x": 199,
+    "y": 520.4,
+    "w": 42.3,
+    "h": 52
+   },
+   "digito5": {
+    "x": 249.3,
+    "y": 520.4,
+    "w": 42.3,
+    "h": 52
+   },
+   "digito6": {
+    "x": 299.6,
+    "y": 520.4,
+    "w": 42.3,
+    "h": 52
+   },
+   "grupoCodigo": {
+    "x": 48,
+    "y": 520.4,
+    "w": 294,
+    "h": 52
+   }
+  },
+  "notes": "Reloj pausado (page.clock.pauseAt) en el paso del código: el contador «Reenviar en N s» queda fijo en las 7 tomas.",
+  "statusBar": "inset",
+  "render": {
+   "w": 390,
+   "h": 844,
+   "safeAreaTop": 47,
+   "safeAreaBottom": 34
+  },
+  "modo": "sin sesión",
+  "reloj": "2026-11-19T13:20:00Z (jue 19, 10:20 Chile)",
+  "boxesNota": "boxes = px CSS relativos al viewport compuesto 390x844; una caja cuyo centro queda fuera de pantalla va en null.",
+  "transparenciaReducida": true
+ },
+ "login-3e": {
+  "dpr": 3,
+  "safeArea": true,
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "id": "login-3e",
+  "file": "login-3e.png",
+  "route": "/login (paso código)",
+  "desc": "«Revisa tu correo»: 4 de 6 dígitos del código 482915 escritos.",
+  "boxes": {
+   "digito1": {
+    "x": 48,
+    "y": 520.4,
+    "w": 42.3,
+    "h": 52
+   },
+   "digito2": {
+    "x": 98.3,
+    "y": 520.4,
+    "w": 42.3,
+    "h": 52
+   },
+   "digito3": {
+    "x": 148.7,
+    "y": 520.4,
+    "w": 42.3,
+    "h": 52
+   },
+   "digito4": {
+    "x": 199,
+    "y": 520.4,
+    "w": 42.3,
+    "h": 52
+   },
+   "digito5": {
+    "x": 249.3,
+    "y": 520.4,
+    "w": 42.3,
+    "h": 52
+   },
+   "digito6": {
+    "x": 299.6,
+    "y": 520.4,
+    "w": 42.3,
+    "h": 52
+   },
+   "grupoCodigo": {
+    "x": 48,
+    "y": 520.4,
+    "w": 294,
+    "h": 52
+   }
+  },
+  "notes": "Reloj pausado (page.clock.pauseAt) en el paso del código: el contador «Reenviar en N s» queda fijo en las 7 tomas.",
+  "statusBar": "inset",
+  "render": {
+   "w": 390,
+   "h": 844,
+   "safeAreaTop": 47,
+   "safeAreaBottom": 34
+  },
+  "modo": "sin sesión",
+  "reloj": "2026-11-19T13:20:00Z (jue 19, 10:20 Chile)",
+  "boxesNota": "boxes = px CSS relativos al viewport compuesto 390x844; una caja cuyo centro queda fuera de pantalla va en null.",
+  "transparenciaReducida": true
+ },
+ "login-3f": {
+  "dpr": 3,
+  "safeArea": true,
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "id": "login-3f",
+  "file": "login-3f.png",
+  "route": "/login (paso código)",
+  "desc": "«Revisa tu correo»: 5 de 6 dígitos del código 482915 escritos.",
+  "boxes": {
+   "digito1": {
+    "x": 48,
+    "y": 520.4,
+    "w": 42.3,
+    "h": 52
+   },
+   "digito2": {
+    "x": 98.3,
+    "y": 520.4,
+    "w": 42.3,
+    "h": 52
+   },
+   "digito3": {
+    "x": 148.7,
+    "y": 520.4,
+    "w": 42.3,
+    "h": 52
+   },
+   "digito4": {
+    "x": 199,
+    "y": 520.4,
+    "w": 42.3,
+    "h": 52
+   },
+   "digito5": {
+    "x": 249.3,
+    "y": 520.4,
+    "w": 42.3,
+    "h": 52
+   },
+   "digito6": {
+    "x": 299.6,
+    "y": 520.4,
+    "w": 42.3,
+    "h": 52
+   },
+   "grupoCodigo": {
+    "x": 48,
+    "y": 520.4,
+    "w": 294,
+    "h": 52
+   }
+  },
+  "notes": "Reloj pausado (page.clock.pauseAt) en el paso del código: el contador «Reenviar en N s» queda fijo en las 7 tomas.",
+  "statusBar": "inset",
+  "render": {
+   "w": 390,
+   "h": 844,
+   "safeAreaTop": 47,
+   "safeAreaBottom": 34
+  },
+  "modo": "sin sesión",
+  "reloj": "2026-11-19T13:20:00Z (jue 19, 10:20 Chile)",
+  "boxesNota": "boxes = px CSS relativos al viewport compuesto 390x844; una caja cuyo centro queda fuera de pantalla va en null.",
+  "transparenciaReducida": true
+ },
+ "login-3g": {
+  "dpr": 3,
+  "safeArea": true,
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "id": "login-3g",
+  "file": "login-3g.png",
+  "route": "/login (paso código)",
+  "desc": "«Revisa tu correo»: 6 de 6 dígitos del código 482915 escritos.",
+  "boxes": {
+   "digito1": {
+    "x": 48,
+    "y": 504.6,
+    "w": 42.3,
+    "h": 52
+   },
+   "digito2": {
+    "x": 98.3,
+    "y": 504.6,
+    "w": 42.3,
+    "h": 52
+   },
+   "digito3": {
+    "x": 148.7,
+    "y": 504.6,
+    "w": 42.3,
+    "h": 52
+   },
+   "digito4": {
+    "x": 199,
+    "y": 504.6,
+    "w": 42.3,
+    "h": 52
+   },
+   "digito5": {
+    "x": 249.3,
+    "y": 504.6,
+    "w": 42.3,
+    "h": 52
+   },
+   "digito6": {
+    "x": 299.6,
+    "y": 504.6,
+    "w": 42.3,
+    "h": 52
+   },
+   "grupoCodigo": {
+    "x": 48,
+    "y": 504.6,
+    "w": 294,
+    "h": 52
+   }
+  },
+  "notes": "El verify está retenido: la app ya muestra «Verificando…» (sale sola al completar 6 dígitos, no se puede evitar sin tocar el código).",
+  "statusBar": "inset",
+  "render": {
+   "w": 390,
+   "h": 844,
+   "safeAreaTop": 47,
+   "safeAreaBottom": 34
+  },
+  "modo": "sin sesión",
+  "reloj": "2026-11-19T13:20:00Z (jue 19, 10:20 Chile)",
+  "boxesNota": "boxes = px CSS relativos al viewport compuesto 390x844; una caja cuyo centro queda fuera de pantalla va en null.",
+  "transparenciaReducida": true
+ },
+ "bienvenida": {
+  "dpr": 3,
+  "safeArea": true,
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "id": "bienvenida",
+  "file": "bienvenida.png",
+  "route": "/bienvenida (paso welcome)",
+  "desc": "Primer paso del onboarding: «Hola, Carolina» con la mascota, lo que trae la app y la casilla de Términos marcada; «Comenzar» activo.",
+  "boxes": {
+   "botonComenzar": {
+    "x": 24,
+    "y": 706,
+    "w": 342,
+    "h": 56
+   },
+   "casillaTerminos": {
+    "x": 24,
+    "y": 618.9,
+    "w": 32,
+    "h": 32
+   }
+  },
+  "notes": "Términos marcados en la casilla (aún no enviados).",
+  "boxesCrudas": {
+   "botonComenzar": {
+    "x": 24,
+    "y": 706,
+    "w": 342,
+    "h": 56
+   },
+   "casillaTerminos": {
+    "x": 24,
+    "y": 618.9,
+    "w": 32,
+    "h": 32
+   }
+  },
+  "statusBar": "inset",
+  "render": {
+   "w": 390,
+   "h": 844,
+   "safeAreaTop": 47,
+   "safeAreaBottom": 34
+  },
+  "modo": "app instalada (standalone), avisos concedidos",
+  "transparenciaReducida": true,
+  "reloj": "2026-11-19T13:20:00Z (jue 19, 10:20 Chile)",
+  "boxesNota": "boxes = px CSS relativos al viewport compuesto 390x844; una caja cuyo centro queda fuera de pantalla va en null."
+ },
+ "bienvenida-sinmarcar": {
+  "dpr": 3,
+  "safeArea": true,
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "id": "bienvenida-sinmarcar",
+  "file": "bienvenida-sinmarcar.png",
+  "route": "/bienvenida (paso welcome)",
+  "desc": "«Hola, Carolina» con TibIA; casilla de Términos sin marcar («Comenzar» apagado).",
+  "boxes": {
+   "casillaTerminos": {
+    "x": 24,
+    "y": 589.4,
+    "w": 32,
+    "h": 32
+   },
+   "botonComenzar": {
+    "x": 24,
+    "y": 676.5,
+    "w": 342,
+    "h": 56
+   }
+  },
+  "notes": "Usuaria nueva del arnés (NEW_PROFILE, sin onboarded_at). App instalada: la bienvenida no tiene paso «instalar».",
+  "boxesCrudas": {
+   "casillaTerminos": {
+    "x": 24,
+    "y": 589.4,
+    "w": 32,
+    "h": 32
+   },
+   "botonComenzar": {
+    "x": 24,
+    "y": 676.5,
+    "w": 342,
+    "h": 56
+   }
+  },
+  "statusBar": "inset",
+  "render": {
+   "w": 390,
+   "h": 844,
+   "safeAreaTop": 47,
+   "safeAreaBottom": 34
+  },
+  "modo": "app instalada (standalone), avisos concedidos",
+  "transparenciaReducida": true,
+  "reloj": "2026-11-19T13:20:00Z (jue 19, 10:20 Chile)",
+  "boxesNota": "boxes = px CSS relativos al viewport compuesto 390x844; una caja cuyo centro queda fuera de pantalla va en null."
+ },
+ "intereses-0": {
+  "dpr": 3,
+  "safeArea": true,
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "id": "intereses-0",
+  "file": "intereses-0.png",
+  "route": "/bienvenida (paso interests)",
+  "desc": "«¿Qué te interesa ver?» con los comités como chips, ninguno marcado («Armar mi agenda» apagado).",
+  "boxes": {
+   "chipRodilla": {
+    "x": 20,
+    "y": 498.8,
+    "w": 252.3,
+    "h": 44
+   },
+   "chipCadera": {
+    "x": 20,
+    "y": 290.8,
+    "w": 80.4,
+    "h": 44
+   },
+   "botonArmarAgenda": {
+    "x": 20,
+    "y": 698,
+    "w": 350,
+    "h": 56
+   }
+  },
+  "notes": "El chip de Rodilla se llama «Rodilla y Traumatología Deportiva» (nombre real del comité). Oculto por CSS: «En tus palabras (opcional)» y su campo (quedaban tapados por el pie).",
+  "boxesCrudas": {
+   "chipRodilla": {
+    "x": 20,
+    "y": 498.8,
+    "w": 252.3,
+    "h": 44
+   },
+   "chipCadera": {
+    "x": 20,
+    "y": 290.8,
+    "w": 80.4,
+    "h": 44
+   },
+   "botonArmarAgenda": {
+    "x": 20,
+    "y": 698,
+    "w": 350,
+    "h": 56
+   }
+  },
+  "statusBar": "inset",
+  "render": {
+   "w": 390,
+   "h": 844,
+   "safeAreaTop": 47,
+   "safeAreaBottom": 34
+  },
+  "modo": "app instalada (standalone), avisos concedidos",
+  "transparenciaReducida": true,
+  "reloj": "2026-11-19T13:20:00Z (jue 19, 10:20 Chile)",
+  "boxesNota": "boxes = px CSS relativos al viewport compuesto 390x844; una caja cuyo centro queda fuera de pantalla va en null."
+ },
+ "intereses-1": {
+  "dpr": 3,
+  "safeArea": true,
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "id": "intereses-1",
+  "file": "intereses-1.png",
+  "route": "/bienvenida (paso interests)",
+  "desc": "«¿Qué te interesa ver?» con «Rodilla y Traumatología Deportiva» marcado.",
+  "boxes": {
+   "chipRodilla": {
+    "x": 20,
+    "y": 498.8,
+    "w": 274.3,
+    "h": 44
+   },
+   "chipCadera": {
+    "x": 20,
+    "y": 290.8,
+    "w": 80.4,
+    "h": 44
+   },
+   "botonArmarAgenda": {
+    "x": 20,
+    "y": 698,
+    "w": 350,
+    "h": 56
+   }
+  },
+  "notes": "Oculto por CSS: «En tus palabras (opcional)» y su campo.",
+  "boxesCrudas": {
+   "chipRodilla": {
+    "x": 20,
+    "y": 498.8,
+    "w": 274.3,
+    "h": 44
+   },
+   "chipCadera": {
+    "x": 20,
+    "y": 290.8,
+    "w": 80.4,
+    "h": 44
+   },
+   "botonArmarAgenda": {
+    "x": 20,
+    "y": 698,
+    "w": 350,
+    "h": 56
+   }
+  },
+  "statusBar": "inset",
+  "render": {
+   "w": 390,
+   "h": 844,
+   "safeAreaTop": 47,
+   "safeAreaBottom": 34
+  },
+  "modo": "app instalada (standalone), avisos concedidos",
+  "transparenciaReducida": true,
+  "reloj": "2026-11-19T13:20:00Z (jue 19, 10:20 Chile)",
+  "boxesNota": "boxes = px CSS relativos al viewport compuesto 390x844; una caja cuyo centro queda fuera de pantalla va en null."
+ },
+ "intereses-2": {
+  "dpr": 3,
+  "safeArea": true,
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "id": "intereses-2",
+  "file": "intereses-2.png",
+  "route": "/bienvenida (paso interests)",
+  "desc": "«¿Qué te interesa ver?» con Rodilla y Cadera marcados; «Armar mi agenda» activo.",
+  "boxes": {
+   "chipRodilla": {
+    "x": 20,
+    "y": 498.8,
+    "w": 274.3,
+    "h": 44
+   },
+   "chipCadera": {
+    "x": 20,
+    "y": 290.8,
+    "w": 102.4,
+    "h": 44
+   },
+   "botonArmarAgenda": {
+    "x": 20,
+    "y": 698,
+    "w": 350,
+    "h": 56
+   }
+  },
+  "notes": "Oculto por CSS: «En tus palabras (opcional)» y su campo.",
+  "boxesCrudas": {
+   "chipRodilla": {
+    "x": 20,
+    "y": 498.8,
+    "w": 274.3,
+    "h": 44
+   },
+   "chipCadera": {
+    "x": 20,
+    "y": 290.8,
+    "w": 102.4,
+    "h": 44
+   },
+   "botonArmarAgenda": {
+    "x": 20,
+    "y": 698,
+    "w": 350,
+    "h": 56
+   }
+  },
+  "statusBar": "inset",
+  "render": {
+   "w": 390,
+   "h": 844,
+   "safeAreaTop": 47,
+   "safeAreaBottom": 34
+  },
+  "modo": "app instalada (standalone), avisos concedidos",
+  "transparenciaReducida": true,
+  "reloj": "2026-11-19T13:20:00Z (jue 19, 10:20 Chile)",
+  "boxesNota": "boxes = px CSS relativos al viewport compuesto 390x844; una caja cuyo centro queda fuera de pantalla va en null."
+ },
+ "itinerario": {
+  "dpr": 3,
+  "safeArea": true,
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "id": "itinerario",
+  "file": "itinerario.png",
+  "full": "itinerario-full.png",
+  "fullHeight": 1157,
+  "route": "/bienvenida (paso agenda)",
+  "desc": "Resultado de TibIA: «4 charlas elegidas para ti», agrupadas por día, sin cruces y cada una con su razón; botón «Agregar 4 charlas a mi agenda».",
+  "boxes": {
+   "botonAgregarCharlas": {
+    "x": 20,
+    "y": 698,
+    "w": 350,
+    "h": 56
+   },
+   "pieFijo": {
+    "x": 0,
+    "y": 682,
+    "w": 390,
+    "h": 162
+   },
+   "tarjeta1": {
+    "x": 20,
+    "y": 350,
+    "w": 350,
+    "h": 128.6
+   },
+   "tarjeta2": {
+    "x": 20,
+    "y": 488.6,
+    "w": 350,
+    "h": 150.6
+   },
+   "tarjeta3": null,
+   "tarjeta4": null
+  },
+  "boxesFull": {
+   "botonAgregarCharlas": {
+    "x": 20,
+    "y": 1010.6,
+    "w": 350,
+    "h": 56
+   },
+   "tarjeta1": {
+    "x": 20,
+    "y": 350,
+    "w": 350,
+    "h": 128.6
+   },
+   "tarjeta2": {
+    "x": 20,
+    "y": 488.6,
+    "w": 350,
+    "h": 150.6
+   },
+   "tarjeta3": {
+    "x": 20,
+    "y": 692.8,
+    "w": 350,
+    "h": 128.6
+   },
+   "tarjeta4": {
+    "x": 20,
+    "y": 831.4,
+    "w": 350,
+    "h": 147.2
+   }
+  },
+  "notes": "Propuesta = fixture POST /me/agenda/suggest: 4 sesiones reales (Trauma, Conjunto Cadera y Rodilla, LCA, Prótesis complejas). «Lesiones meniscales» NO va en la propuesta: Carolina la agrega después con la estrella (ficha / seq-estrella). tarjetaN = N-ésima tarjeta de arriba a abajo (1: Trauma · 2: Conjunto Comité de Cadera y Rodilla · 3: LCA · 4: Prótesis complejas). En la full el pie fijo (botones) queda al final.",
+  "boxesCrudas": {
+   "botonAgregarCharlas": {
+    "x": 20,
+    "y": 698,
+    "w": 350,
+    "h": 56
+   },
+   "pieFijo": {
+    "x": 0,
+    "y": 682,
+    "w": 390,
+    "h": 162
+   },
+   "tarjeta1": {
+    "x": 20,
+    "y": 350,
+    "w": 350,
+    "h": 128.6
+   },
+   "tarjeta2": {
+    "x": 20,
+    "y": 488.6,
+    "w": 350,
+    "h": 150.6
+   },
+   "tarjeta3": {
+    "x": 20,
+    "y": 692.8,
+    "w": 350,
+    "h": 128.6
+   },
+   "tarjeta4": {
+    "x": 20,
+    "y": 831.4,
+    "w": 350,
+    "h": 147.2
+   }
+  },
+  "statusBar": "inset",
+  "render": {
+   "w": 390,
+   "h": 844,
+   "safeAreaTop": 47,
+   "safeAreaBottom": 34
+  },
+  "modo": "app instalada (standalone), avisos concedidos",
+  "transparenciaReducida": true,
+  "reloj": "2026-11-19T13:20:00Z (jue 19, 10:20 Chile)",
+  "boxesNota": "boxes = px CSS relativos al viewport compuesto 390x844 (incluida la franja de 47 px arriba y, en modo safari, la barra de Safari abajo); una caja cuyo centro queda fuera de pantalla va en null (ver boxesFull); boxesFull = px CSS relativos a la parte superior de la página completa (<id>-full.png).",
+  "boxesFueraDePantalla": [
+   "tarjeta3",
+   "tarjeta4"
+  ],
+  "boxesFueraNota": "boxes = cajas visibles en la pantalla: null si el elemento queda fuera de los 844 px o detrás de la barra de pestañas (boxesFueraDePantalla); boxesParciales = se ven en parte (el resto queda bajo la barra o fuera). Las coordenadas sin anular están en boxesCrudas, y en boxesFull para la página completa."
+ },
+ "programa": {
+  "dpr": 3,
+  "safeArea": true,
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "id": "programa",
+  "file": "programa.png",
+  "full": "programa-full.png",
+  "fullHeight": 5388,
+  "chrome": "programa-chrome.png",
+  "route": "/?dia=2026-11-19",
+  "desc": "Programa del jueves 19 (HOY) a las 10:20 con sesión: cabecera WebGL, tira de días, buscador + Filtros, chips (Por sala, Mi agenda, Cadera, Rodilla…), «Terminó lo de las 08:00», línea «Ahora 10:20», café y el bloque 10:30 «Empieza en 10 min».",
+  "boxes": {
+   "tiraDias": {
+    "x": 32,
+    "y": 163,
+    "w": 326,
+    "h": 62
+   },
+   "diaHoy": {
+    "x": 116,
+    "y": 168,
+    "w": 79,
+    "h": 52
+   },
+   "buscador": {
+    "x": 16,
+    "y": 235,
+    "w": 298,
+    "h": 52
+   },
+   "botonFiltros": {
+    "x": 322,
+    "y": 235,
+    "w": 52,
+    "h": 52
+   },
+   "chipRodilla": {
+    "x": 337.8,
+    "y": 303,
+    "w": 87.9,
+    "h": 44
+   },
+   "chipCadera": {
+    "x": 240,
+    "y": 303,
+    "w": 89.8,
+    "h": 44
+   },
+   "chipMiAgenda": {
+    "x": 124.3,
+    "y": 303,
+    "w": 107.7,
+    "h": 44
+   },
+   "lineaAhora": {
+    "x": 16,
+    "y": 429,
+    "w": 358,
+    "h": 24
+   },
+   "primeraFila": {
+    "x": 17,
+    "y": 630,
+    "w": 356,
+    "h": 109.8
+   },
+   "estrellaPrimeraFila": {
+    "x": 325,
+    "y": 648,
+    "w": 44,
+    "h": 44
+   },
+   "filaMeniscales": null,
+   "estrellaMeniscales": null,
+   "bloque1030": {
+    "x": 16,
+    "y": 551,
+    "w": 358,
+    "h": 1457
+   },
+   "empiezaEn10": {
+    "x": 268.1,
+    "y": 564,
+    "w": 105.9,
+    "h": 18
+   },
+   "tabPrograma": {
+    "x": 4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 674,
+    "w": 56,
+    "h": 56
+   }
+  },
+  "boxesFull": {
+   "tiraDias": {
+    "x": 32,
+    "y": 163,
+    "w": 326,
+    "h": 62
+   },
+   "diaHoy": {
+    "x": 116,
+    "y": 168,
+    "w": 79,
+    "h": 52
+   },
+   "buscador": {
+    "x": 16,
+    "y": 235,
+    "w": 298,
+    "h": 52
+   },
+   "botonFiltros": {
+    "x": 322,
+    "y": 235,
+    "w": 52,
+    "h": 52
+   },
+   "chipRodilla": {
+    "x": 337.8,
+    "y": 303,
+    "w": 87.9,
+    "h": 44
+   },
+   "chipCadera": {
+    "x": 240,
+    "y": 303,
+    "w": 89.8,
+    "h": 44
+   },
+   "chipMiAgenda": {
+    "x": 124.3,
+    "y": 303,
+    "w": 107.7,
+    "h": 44
+   },
+   "lineaAhora": {
+    "x": 16,
+    "y": 429,
+    "w": 358,
+    "h": 24
+   },
+   "primeraFila": {
+    "x": 17,
+    "y": 630,
+    "w": 356,
+    "h": 109.8
+   },
+   "estrellaPrimeraFila": {
+    "x": 325,
+    "y": 648,
+    "w": 44,
+    "h": 44
+   },
+   "filaMeniscales": {
+    "x": 17,
+    "y": 1897.2,
+    "w": 356,
+    "h": 109.8
+   },
+   "estrellaMeniscales": {
+    "x": 325,
+    "y": 1915.2,
+    "w": 44,
+    "h": 44
+   },
+   "bloque1030": {
+    "x": 16,
+    "y": 551,
+    "w": 358,
+    "h": 1457
+   },
+   "empiezaEn10": {
+    "x": 268.1,
+    "y": 564,
+    "w": 105.9,
+    "h": 18
+   }
+  },
+  "notes": "Cabecera WebGL a 15000 ms de su primer cuadro (reloj virtual en pausa; igual que f0 de seq-scroll-programa y seq-fab). «Lesiones meniscales» NO está agendada aún (se agrega en la ficha). La estrella de la primera fila queda bajo el botón flotante de TibIA en la pantalla. boxes = viewport; boxesFull = página completa (sin barra ni FAB). El chip Rodilla queda cortado por el borde derecho (la fila de chips se desliza).",
+  "boxesCrudas": {
+   "tiraDias": {
+    "x": 32,
+    "y": 163,
+    "w": 326,
+    "h": 62
+   },
+   "diaHoy": {
+    "x": 116,
+    "y": 168,
+    "w": 79,
+    "h": 52
+   },
+   "buscador": {
+    "x": 16,
+    "y": 235,
+    "w": 298,
+    "h": 52
+   },
+   "botonFiltros": {
+    "x": 322,
+    "y": 235,
+    "w": 52,
+    "h": 52
+   },
+   "chipRodilla": {
+    "x": 337.8,
+    "y": 303,
+    "w": 87.9,
+    "h": 44
+   },
+   "chipCadera": {
+    "x": 240,
+    "y": 303,
+    "w": 89.8,
+    "h": 44
+   },
+   "chipMiAgenda": {
+    "x": 124.3,
+    "y": 303,
+    "w": 107.7,
+    "h": 44
+   },
+   "lineaAhora": {
+    "x": 16,
+    "y": 429,
+    "w": 358,
+    "h": 24
+   },
+   "primeraFila": {
+    "x": 17,
+    "y": 630,
+    "w": 356,
+    "h": 109.8
+   },
+   "estrellaPrimeraFila": {
+    "x": 325,
+    "y": 648,
+    "w": 44,
+    "h": 44
+   },
+   "filaMeniscales": {
+    "x": 17,
+    "y": 1897.2,
+    "w": 356,
+    "h": 109.8
+   },
+   "estrellaMeniscales": {
+    "x": 325,
+    "y": 1915.2,
+    "w": 44,
+    "h": 44
+   },
+   "bloque1030": {
+    "x": 16,
+    "y": 551,
+    "w": 358,
+    "h": 1457
+   },
+   "empiezaEn10": {
+    "x": 268.1,
+    "y": 564,
+    "w": 105.9,
+    "h": 18
+   },
+   "tabPrograma": {
+    "x": 4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 674,
+    "w": 56,
+    "h": 56
+   }
+  },
+  "statusBar": "inset",
+  "render": {
+   "w": 390,
+   "h": 844,
+   "safeAreaTop": 47,
+   "safeAreaBottom": 34
+  },
+  "modo": "app instalada (standalone), avisos concedidos",
+  "transparenciaReducida": true,
+  "reloj": "2026-11-19T13:20:00Z (jue 19, 10:20 Chile)",
+  "boxesNota": "boxes = px CSS relativos al viewport compuesto 390x844 (incluida la franja de 47 px arriba y, en modo safari, la barra de Safari abajo); una caja cuyo centro queda fuera de pantalla va en null (ver boxesFull); boxesFull = px CSS relativos a la parte superior de la página completa (<id>-full.png).",
+  "boxesFueraDePantalla": [
+   "filaMeniscales",
+   "estrellaMeniscales"
+  ],
+  "boxesParciales": [
+   "bloque1030"
+  ],
+  "boxesFueraNota": "boxes = cajas visibles en la pantalla: null si el elemento queda fuera de los 844 px o detrás de la barra de pestañas (boxesFueraDePantalla); boxesParciales = se ven en parte (el resto queda bajo la barra o fuera). Las coordenadas sin anular están en boxesCrudas, y en boxesFull para la página completa."
+ },
+ "programa-enjoy": {
+  "dpr": 3,
+  "safeArea": true,
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "id": "programa-enjoy",
+  "file": "programa-enjoy.png",
+  "route": "/?dia=2026-11-19&sede=enjoy",
+  "desc": "Programa del jueves 19 filtrado por la sede Enjoy (Hotel Enjoy del Mar).",
+  "boxes": {
+   "tiraDias": {
+    "x": 32,
+    "y": 163,
+    "w": 326,
+    "h": 62
+   },
+   "diaHoy": {
+    "x": 116,
+    "y": 168,
+    "w": 79,
+    "h": 52
+   },
+   "buscador": {
+    "x": 16,
+    "y": 235,
+    "w": 298,
+    "h": 52
+   },
+   "botonFiltros": {
+    "x": 322,
+    "y": 235,
+    "w": 52,
+    "h": 52
+   },
+   "chipRodilla": {
+    "x": 56.8,
+    "y": 303,
+    "w": 87.9,
+    "h": 44
+   },
+   "chipCadera": {
+    "x": -41,
+    "y": 303,
+    "w": 89.8,
+    "h": 44
+   },
+   "chipMiAgenda": null,
+   "lineaAhora": {
+    "x": 16,
+    "y": 429,
+    "w": 358,
+    "h": 24
+   },
+   "primeraFila": {
+    "x": 17,
+    "y": 630,
+    "w": 356,
+    "h": 130.6
+   },
+   "estrellaPrimeraFila": {
+    "x": 325,
+    "y": 648,
+    "w": 44,
+    "h": 44
+   },
+   "filaMeniscales": null,
+   "estrellaMeniscales": null,
+   "bloque1030": {
+    "x": 16,
+    "y": 551,
+    "w": 358,
+    "h": 581.6
+   },
+   "empiezaEn10": {
+    "x": 268.1,
+    "y": 564,
+    "w": 105.9,
+    "h": 18
+   },
+   "chipEnjoy": {
+    "x": 270.5,
+    "y": 303,
+    "w": 87.5,
+    "h": 44
+   },
+   "tabPrograma": {
+    "x": 4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 674,
+    "w": 56,
+    "h": 56
+   }
+  },
+  "notes": "Cabecera WebGL a 15000 ms de su primer cuadro. Meniscales sin agendar.",
+  "boxesCrudas": {
+   "tiraDias": {
+    "x": 32,
+    "y": 163,
+    "w": 326,
+    "h": 62
+   },
+   "diaHoy": {
+    "x": 116,
+    "y": 168,
+    "w": 79,
+    "h": 52
+   },
+   "buscador": {
+    "x": 16,
+    "y": 235,
+    "w": 298,
+    "h": 52
+   },
+   "botonFiltros": {
+    "x": 322,
+    "y": 235,
+    "w": 52,
+    "h": 52
+   },
+   "chipRodilla": {
+    "x": 56.8,
+    "y": 303,
+    "w": 87.9,
+    "h": 44
+   },
+   "chipCadera": {
+    "x": -41,
+    "y": 303,
+    "w": 89.8,
+    "h": 44
+   },
+   "chipMiAgenda": {
+    "x": -156.7,
+    "y": 303,
+    "w": 107.7,
+    "h": 44
+   },
+   "lineaAhora": {
+    "x": 16,
+    "y": 429,
+    "w": 358,
+    "h": 24
+   },
+   "primeraFila": {
+    "x": 17,
+    "y": 630,
+    "w": 356,
+    "h": 130.6
+   },
+   "estrellaPrimeraFila": {
+    "x": 325,
+    "y": 648,
+    "w": 44,
+    "h": 44
+   },
+   "filaMeniscales": {
+    "x": 17,
+    "y": 1021.8,
+    "w": 356,
+    "h": 109.8
+   },
+   "estrellaMeniscales": {
+    "x": 325,
+    "y": 1039.8,
+    "w": 44,
+    "h": 44
+   },
+   "bloque1030": {
+    "x": 16,
+    "y": 551,
+    "w": 358,
+    "h": 581.6
+   },
+   "empiezaEn10": {
+    "x": 268.1,
+    "y": 564,
+    "w": 105.9,
+    "h": 18
+   },
+   "chipEnjoy": {
+    "x": 270.5,
+    "y": 303,
+    "w": 87.5,
+    "h": 44
+   },
+   "tabPrograma": {
+    "x": 4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 674,
+    "w": 56,
+    "h": 56
+   }
+  },
+  "statusBar": "inset",
+  "render": {
+   "w": 390,
+   "h": 844,
+   "safeAreaTop": 47,
+   "safeAreaBottom": 34
+  },
+  "modo": "app instalada (standalone), avisos concedidos",
+  "transparenciaReducida": true,
+  "reloj": "2026-11-19T13:20:00Z (jue 19, 10:20 Chile)",
+  "boxesNota": "boxes = px CSS relativos al viewport compuesto 390x844; una caja cuyo centro queda fuera de pantalla va en null.",
+  "boxesFueraDePantalla": [
+   "chipMiAgenda",
+   "filaMeniscales",
+   "estrellaMeniscales"
+  ],
+  "boxesParciales": [
+   "primeraFila",
+   "bloque1030"
+  ],
+  "boxesFueraNota": "boxes = cajas visibles en la pantalla: null si el elemento queda fuera de los 844 px o detrás de la barra de pestañas (boxesFueraDePantalla); boxesParciales = se ven en parte (el resto queda bajo la barra o fuera). Las coordenadas sin anular están en boxesCrudas, y en boxesFull para la página completa."
+ },
+ "programa-rodilla": {
+  "dpr": 3,
+  "safeArea": true,
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "id": "programa-rodilla",
+  "file": "programa-rodilla.png",
+  "full": "programa-rodilla-full.png",
+  "fullHeight": 1793,
+  "route": "/?dia=2026-11-19&comite=rodilla",
+  "desc": "Programa del jueves 19 filtrado por el comité Rodilla («Hoy · 6 sesiones de Rodilla», Filtros con 1): bloque 10:30–12:30 «Empieza en 10 min» con «Lesiones meniscales» (Enjoy · Pacífico · Piso 3).",
+  "boxes": {
+   "tiraDias": {
+    "x": 32,
+    "y": 163,
+    "w": 326,
+    "h": 62
+   },
+   "diaHoy": {
+    "x": 116,
+    "y": 168,
+    "w": 79,
+    "h": 52
+   },
+   "buscador": {
+    "x": 16,
+    "y": 235,
+    "w": 298,
+    "h": 52
+   },
+   "botonFiltros": {
+    "x": 322,
+    "y": 235,
+    "w": 52,
+    "h": 52
+   },
+   "chipRodilla": {
+    "x": 269.8,
+    "y": 303,
+    "w": 87.9,
+    "h": 44
+   },
+   "chipCadera": {
+    "x": 172,
+    "y": 303,
+    "w": 89.8,
+    "h": 44
+   },
+   "chipMiAgenda": {
+    "x": 56.3,
+    "y": 303,
+    "w": 107.7,
+    "h": 44
+   },
+   "lineaAhora": {
+    "x": 16,
+    "y": 429,
+    "w": 358,
+    "h": 24
+   },
+   "primeraFila": {
+    "x": 17,
+    "y": 606,
+    "w": 356,
+    "h": 109.8
+   },
+   "estrellaPrimeraFila": {
+    "x": 325,
+    "y": 624,
+    "w": 44,
+    "h": 44
+   },
+   "filaMeniscales": {
+    "x": 17,
+    "y": 606,
+    "w": 356,
+    "h": 109.8
+   },
+   "estrellaMeniscales": {
+    "x": 325,
+    "y": 624,
+    "w": 44,
+    "h": 44
+   },
+   "bloque1030": {
+    "x": 16,
+    "y": 551,
+    "w": 358,
+    "h": 165.8
+   },
+   "empiezaEn10": {
+    "x": 268.1,
+    "y": 564,
+    "w": 105.9,
+    "h": 18
+   },
+   "tabPrograma": {
+    "x": 4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 674,
+    "w": 56,
+    "h": 56
+   }
+  },
+  "boxesFull": {
+   "tiraDias": {
+    "x": 32,
+    "y": 163,
+    "w": 326,
+    "h": 62
+   },
+   "diaHoy": {
+    "x": 116,
+    "y": 168,
+    "w": 79,
+    "h": 52
+   },
+   "buscador": {
+    "x": 16,
+    "y": 235,
+    "w": 298,
+    "h": 52
+   },
+   "botonFiltros": {
+    "x": 322,
+    "y": 235,
+    "w": 52,
+    "h": 52
+   },
+   "chipRodilla": {
+    "x": 269.8,
+    "y": 303,
+    "w": 87.9,
+    "h": 44
+   },
+   "chipCadera": {
+    "x": 172,
+    "y": 303,
+    "w": 89.8,
+    "h": 44
+   },
+   "chipMiAgenda": {
+    "x": 56.3,
+    "y": 303,
+    "w": 107.7,
+    "h": 44
+   },
+   "lineaAhora": {
+    "x": 16,
+    "y": 429,
+    "w": 358,
+    "h": 24
+   },
+   "primeraFila": {
+    "x": 17,
+    "y": 606,
+    "w": 356,
+    "h": 109.8
+   },
+   "estrellaPrimeraFila": {
+    "x": 325,
+    "y": 624,
+    "w": 44,
+    "h": 44
+   },
+   "filaMeniscales": {
+    "x": 17,
+    "y": 606,
+    "w": 356,
+    "h": 109.8
+   },
+   "estrellaMeniscales": {
+    "x": 325,
+    "y": 624,
+    "w": 44,
+    "h": 44
+   },
+   "bloque1030": {
+    "x": 16,
+    "y": 551,
+    "w": 358,
+    "h": 165.8
+   },
+   "empiezaEn10": {
+    "x": 268.1,
+    "y": 564,
+    "w": 105.9,
+    "h": 18
+   }
+  },
+  "notes": "Cabecera WebGL a 15000 ms de su primer cuadro. Meniscales sin agendar (estrella vacía).",
+  "boxesCrudas": {
+   "tiraDias": {
+    "x": 32,
+    "y": 163,
+    "w": 326,
+    "h": 62
+   },
+   "diaHoy": {
+    "x": 116,
+    "y": 168,
+    "w": 79,
+    "h": 52
+   },
+   "buscador": {
+    "x": 16,
+    "y": 235,
+    "w": 298,
+    "h": 52
+   },
+   "botonFiltros": {
+    "x": 322,
+    "y": 235,
+    "w": 52,
+    "h": 52
+   },
+   "chipRodilla": {
+    "x": 269.8,
+    "y": 303,
+    "w": 87.9,
+    "h": 44
+   },
+   "chipCadera": {
+    "x": 172,
+    "y": 303,
+    "w": 89.8,
+    "h": 44
+   },
+   "chipMiAgenda": {
+    "x": 56.3,
+    "y": 303,
+    "w": 107.7,
+    "h": 44
+   },
+   "lineaAhora": {
+    "x": 16,
+    "y": 429,
+    "w": 358,
+    "h": 24
+   },
+   "primeraFila": {
+    "x": 17,
+    "y": 606,
+    "w": 356,
+    "h": 109.8
+   },
+   "estrellaPrimeraFila": {
+    "x": 325,
+    "y": 624,
+    "w": 44,
+    "h": 44
+   },
+   "filaMeniscales": {
+    "x": 17,
+    "y": 606,
+    "w": 356,
+    "h": 109.8
+   },
+   "estrellaMeniscales": {
+    "x": 325,
+    "y": 624,
+    "w": 44,
+    "h": 44
+   },
+   "bloque1030": {
+    "x": 16,
+    "y": 551,
+    "w": 358,
+    "h": 165.8
+   },
+   "empiezaEn10": {
+    "x": 268.1,
+    "y": 564,
+    "w": 105.9,
+    "h": 18
+   },
+   "tabPrograma": {
+    "x": 4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 674,
+    "w": 56,
+    "h": 56
+   }
+  },
+  "chrome": "programa-rodilla-chrome.png",
+  "chromeBoxes": {
+   "tabPrograma": null,
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 674,
+    "w": 56,
+    "h": 56
+   }
+  },
+  "statusBar": "inset",
+  "render": {
+   "w": 390,
+   "h": 844,
+   "safeAreaTop": 47,
+   "safeAreaBottom": 34
+  },
+  "modo": "app instalada (standalone), avisos concedidos",
+  "transparenciaReducida": true,
+  "reloj": "2026-11-19T13:20:00Z (jue 19, 10:20 Chile)",
+  "boxesNota": "boxes = px CSS relativos al viewport compuesto 390x844 (incluida la franja de 47 px arriba y, en modo safari, la barra de Safari abajo); una caja cuyo centro queda fuera de pantalla va en null (ver boxesFull); boxesFull = px CSS relativos a la parte superior de la página completa (<id>-full.png)."
+ },
+ "ficha": {
+  "dpr": 3,
+  "safeArea": true,
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "id": "ficha",
+  "file": "ficha.png",
+  "full": "ficha-full.png",
+  "fullHeight": 4059,
+  "route": "/sesion/01a0ab2f-b983-7f24-875b-04641370104d",
+  "desc": "Ficha de «Lesiones meniscales» (Rodilla · Bloque 2, jue 19 10:30–12:30, Pacífico · Piso 3 · Enjoy, 11 charlas · 8 expositores) SIN agendar, con la etiqueta «Empieza en 10 min» y el botón vivo «Agregar a mi agenda».",
+  "boxes": {
+   "botonAgregar": {
+    "x": 16,
+    "y": 265.8,
+    "w": 358,
+    "h": 52
+   },
+   "botonQuitar": null,
+   "estrellaBarra": null,
+   "volver": {
+    "x": 12,
+    "y": 53,
+    "w": 44,
+    "h": 44
+   },
+   "compartir": {
+    "x": 334,
+    "y": 53,
+    "w": 44,
+    "h": 44
+   },
+   "etiquetaEmpieza": {
+    "x": 245.2,
+    "y": 107,
+    "w": 128.8,
+    "h": 24
+   },
+   "titulo": {
+    "x": 16,
+    "y": 141,
+    "w": 358,
+    "h": 28.8
+   },
+   "bloqueDonde": {
+    "x": 0,
+    "y": 447.8,
+    "w": 390,
+    "h": 373
+   },
+   "miniPlano": {
+    "x": 17,
+    "y": 484.8,
+    "w": 356,
+    "h": 221
+   },
+   "tarjetaDonde": {
+    "x": 16,
+    "y": 483.8,
+    "w": 358,
+    "h": 337
+   },
+   "botonComoLlegar": null,
+   "parrilla": null,
+   "tabPrograma": {
+    "x": 4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 674,
+    "w": 56,
+    "h": 56
+   }
+  },
+  "boxesFull": {
+   "botonAgregar": {
+    "x": 16,
+    "y": 265.8,
+    "w": 358,
+    "h": 52
+   },
+   "botonQuitar": null,
+   "estrellaBarra": null,
+   "volver": {
+    "x": 12,
+    "y": 53,
+    "w": 44,
+    "h": 44
+   },
+   "compartir": {
+    "x": 334,
+    "y": 53,
+    "w": 44,
+    "h": 44
+   },
+   "etiquetaEmpieza": {
+    "x": 245.2,
+    "y": 107,
+    "w": 128.8,
+    "h": 24
+   },
+   "titulo": {
+    "x": 16,
+    "y": 141,
+    "w": 358,
+    "h": 28.8
+   },
+   "bloqueDonde": {
+    "x": 0,
+    "y": 447.8,
+    "w": 390,
+    "h": 373
+   },
+   "miniPlano": {
+    "x": 17,
+    "y": 484.8,
+    "w": 356,
+    "h": 221
+   },
+   "tarjetaDonde": {
+    "x": 16,
+    "y": 483.8,
+    "w": 358,
+    "h": 337
+   },
+   "botonComoLlegar": {
+    "x": 85,
+    "y": 769.8,
+    "w": 114.8,
+    "h": 36
+   },
+   "parrilla": {
+    "x": 0,
+    "y": 844.8,
+    "w": 390,
+    "h": 1396.7
+   }
+  },
+  "notes": "Ocultos por CSS: «Marcar asistencia» y «La valoración y la asistencia se abren cuando empiece la charla.». La estrella de la barra solo aparece cuando el botón grande sale de la vista (ver ficha-donde): aquí estrellaBarra = null. «parrilla» = «Programa del bloque · 11 charlas».",
+  "boxesCrudas": {
+   "botonAgregar": {
+    "x": 16,
+    "y": 265.8,
+    "w": 358,
+    "h": 52
+   },
+   "botonQuitar": null,
+   "estrellaBarra": null,
+   "volver": {
+    "x": 12,
+    "y": 53,
+    "w": 44,
+    "h": 44
+   },
+   "compartir": {
+    "x": 334,
+    "y": 53,
+    "w": 44,
+    "h": 44
+   },
+   "etiquetaEmpieza": {
+    "x": 245.2,
+    "y": 107,
+    "w": 128.8,
+    "h": 24
+   },
+   "titulo": {
+    "x": 16,
+    "y": 141,
+    "w": 358,
+    "h": 28.8
+   },
+   "bloqueDonde": {
+    "x": 0,
+    "y": 447.8,
+    "w": 390,
+    "h": 373
+   },
+   "miniPlano": {
+    "x": 17,
+    "y": 484.8,
+    "w": 356,
+    "h": 221
+   },
+   "tarjetaDonde": {
+    "x": 16,
+    "y": 483.8,
+    "w": 358,
+    "h": 337
+   },
+   "botonComoLlegar": {
+    "x": 85,
+    "y": 769.8,
+    "w": 114.8,
+    "h": 36
+   },
+   "parrilla": {
+    "x": 0,
+    "y": 844.8,
+    "w": 390,
+    "h": 1396.7
+   },
+   "tabPrograma": {
+    "x": 4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 674,
+    "w": 56,
+    "h": 56
+   }
+  },
+  "chrome": "ficha-chrome.png",
+  "chromeBoxes": {
+   "tabPrograma": {
+    "x": 4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 674,
+    "w": 56,
+    "h": 56
+   }
+  },
+  "statusBar": "inset",
+  "render": {
+   "w": 390,
+   "h": 844,
+   "safeAreaTop": 47,
+   "safeAreaBottom": 34
+  },
+  "modo": "app instalada (standalone), avisos concedidos",
+  "transparenciaReducida": true,
+  "reloj": "2026-11-19T13:20:00Z (jue 19, 10:20 Chile)",
+  "boxesNota": "boxes = px CSS relativos al viewport compuesto 390x844 (incluida la franja de 47 px arriba y, en modo safari, la barra de Safari abajo); una caja cuyo centro queda fuera de pantalla va en null (ver boxesFull); boxesFull = px CSS relativos a la parte superior de la página completa (<id>-full.png).",
+  "boxesFueraDePantalla": [
+   "botonComoLlegar",
+   "parrilla"
+  ],
+  "boxesParciales": [
+   "bloqueDonde",
+   "tarjetaDonde"
+  ],
+  "boxesFueraNota": "boxes = cajas visibles en la pantalla: null si el elemento queda fuera de los 844 px o detrás de la barra de pestañas (boxesFueraDePantalla); boxesParciales = se ven en parte (el resto queda bajo la barra o fuera). Las coordenadas sin anular están en boxesCrudas, y en boxesFull para la página completa."
+ },
+ "ficha-agendada": {
+  "dpr": 3,
+  "safeArea": true,
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "id": "ficha-agendada",
+  "file": "ficha-agendada.png",
+  "full": "ficha-agendada-full.png",
+  "fullHeight": 4059,
+  "route": "/sesion/01a0ab2f-b983-7f24-875b-04641370104d",
+  "desc": "La misma ficha después de tocar «Agregar a mi agenda»: «✓ En tu agenda» + «Quitar».",
+  "boxes": {
+   "botonAgregar": {
+    "x": 16,
+    "y": 265.8,
+    "w": 290.8,
+    "h": 52
+   },
+   "botonQuitar": {
+    "x": 312.8,
+    "y": 269.8,
+    "w": 61.2,
+    "h": 44
+   },
+   "estrellaBarra": null,
+   "volver": {
+    "x": 12,
+    "y": 53,
+    "w": 44,
+    "h": 44
+   },
+   "compartir": {
+    "x": 334,
+    "y": 53,
+    "w": 44,
+    "h": 44
+   },
+   "etiquetaEmpieza": {
+    "x": 245.2,
+    "y": 107,
+    "w": 128.8,
+    "h": 24
+   },
+   "titulo": {
+    "x": 16,
+    "y": 141,
+    "w": 358,
+    "h": 28.8
+   },
+   "bloqueDonde": {
+    "x": 0,
+    "y": 447.8,
+    "w": 390,
+    "h": 373
+   },
+   "miniPlano": {
+    "x": 17,
+    "y": 484.8,
+    "w": 356,
+    "h": 221
+   },
+   "tarjetaDonde": {
+    "x": 16,
+    "y": 483.8,
+    "w": 358,
+    "h": 337
+   },
+   "botonComoLlegar": null,
+   "parrilla": null,
+   "tabPrograma": {
+    "x": 4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 674,
+    "w": 56,
+    "h": 56
+   }
+  },
+  "boxesFull": {
+   "botonAgregar": {
+    "x": 16,
+    "y": 265.8,
+    "w": 290.8,
+    "h": 52
+   },
+   "botonQuitar": {
+    "x": 312.8,
+    "y": 269.8,
+    "w": 61.2,
+    "h": 44
+   },
+   "estrellaBarra": null,
+   "volver": {
+    "x": 12,
+    "y": 53,
+    "w": 44,
+    "h": 44
+   },
+   "compartir": {
+    "x": 334,
+    "y": 53,
+    "w": 44,
+    "h": 44
+   },
+   "etiquetaEmpieza": {
+    "x": 245.2,
+    "y": 107,
+    "w": 128.8,
+    "h": 24
+   },
+   "titulo": {
+    "x": 16,
+    "y": 141,
+    "w": 358,
+    "h": 28.8
+   },
+   "bloqueDonde": {
+    "x": 0,
+    "y": 447.8,
+    "w": 390,
+    "h": 373
+   },
+   "miniPlano": {
+    "x": 17,
+    "y": 484.8,
+    "w": 356,
+    "h": 221
+   },
+   "tarjetaDonde": {
+    "x": 16,
+    "y": 483.8,
+    "w": 358,
+    "h": 337
+   },
+   "botonComoLlegar": {
+    "x": 85,
+    "y": 769.8,
+    "w": 114.8,
+    "h": 36
+   },
+   "parrilla": {
+    "x": 0,
+    "y": 844.8,
+    "w": 390,
+    "h": 1396.7
+   }
+  },
+  "notes": "Agregada con un clic real (PUT /agenda/{id} al fixture); se esperó a que saliera el toast. Ocultos: «Marcar asistencia» y la nota de valoración.",
+  "boxesCrudas": {
+   "botonAgregar": {
+    "x": 16,
+    "y": 265.8,
+    "w": 290.8,
+    "h": 52
+   },
+   "botonQuitar": {
+    "x": 312.8,
+    "y": 269.8,
+    "w": 61.2,
+    "h": 44
+   },
+   "estrellaBarra": null,
+   "volver": {
+    "x": 12,
+    "y": 53,
+    "w": 44,
+    "h": 44
+   },
+   "compartir": {
+    "x": 334,
+    "y": 53,
+    "w": 44,
+    "h": 44
+   },
+   "etiquetaEmpieza": {
+    "x": 245.2,
+    "y": 107,
+    "w": 128.8,
+    "h": 24
+   },
+   "titulo": {
+    "x": 16,
+    "y": 141,
+    "w": 358,
+    "h": 28.8
+   },
+   "bloqueDonde": {
+    "x": 0,
+    "y": 447.8,
+    "w": 390,
+    "h": 373
+   },
+   "miniPlano": {
+    "x": 17,
+    "y": 484.8,
+    "w": 356,
+    "h": 221
+   },
+   "tarjetaDonde": {
+    "x": 16,
+    "y": 483.8,
+    "w": 358,
+    "h": 337
+   },
+   "botonComoLlegar": {
+    "x": 85,
+    "y": 769.8,
+    "w": 114.8,
+    "h": 36
+   },
+   "parrilla": {
+    "x": 0,
+    "y": 844.8,
+    "w": 390,
+    "h": 1396.7
+   },
+   "tabPrograma": {
+    "x": 4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 674,
+    "w": 56,
+    "h": 56
+   }
+  },
+  "chrome": "ficha-agendada-chrome.png",
+  "chromeBoxes": {
+   "tabPrograma": {
+    "x": 4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 674,
+    "w": 56,
+    "h": 56
+   }
+  },
+  "statusBar": "inset",
+  "render": {
+   "w": 390,
+   "h": 844,
+   "safeAreaTop": 47,
+   "safeAreaBottom": 34
+  },
+  "modo": "app instalada (standalone), avisos concedidos",
+  "transparenciaReducida": true,
+  "reloj": "2026-11-19T13:20:00Z (jue 19, 10:20 Chile)",
+  "boxesNota": "boxes = px CSS relativos al viewport compuesto 390x844 (incluida la franja de 47 px arriba y, en modo safari, la barra de Safari abajo); una caja cuyo centro queda fuera de pantalla va en null (ver boxesFull); boxesFull = px CSS relativos a la parte superior de la página completa (<id>-full.png).",
+  "boxesFueraDePantalla": [
+   "botonComoLlegar",
+   "parrilla"
+  ],
+  "boxesParciales": [
+   "bloqueDonde",
+   "tarjetaDonde"
+  ],
+  "boxesFueraNota": "boxes = cajas visibles en la pantalla: null si el elemento queda fuera de los 844 px o detrás de la barra de pestañas (boxesFueraDePantalla); boxesParciales = se ven en parte (el resto queda bajo la barra o fuera). Las coordenadas sin anular están en boxesCrudas, y en boxesFull para la página completa."
+ },
+ "ficha-donde": {
+  "dpr": 3,
+  "safeArea": true,
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "id": "ficha-donde",
+  "file": "ficha-donde.png",
+  "route": "/sesion/01a0ab2f-b983-7f24-875b-04641370104d",
+  "desc": "Ficha agendada con el scroll en el bloque «Dónde»: mini-plano del Piso 3 con la ruta desde «Ingreso al salón» hasta Pacífico y «Cómo llegar»; arriba la barra compacta con el título y la estrella llena.",
+  "boxes": {
+   "botonAgregar": null,
+   "botonQuitar": null,
+   "estrellaBarra": {
+    "x": 286,
+    "y": 53,
+    "w": 44,
+    "h": 44
+   },
+   "volver": {
+    "x": 12,
+    "y": 53,
+    "w": 44,
+    "h": 44
+   },
+   "compartir": {
+    "x": 334,
+    "y": 53,
+    "w": 44,
+    "h": 44
+   },
+   "etiquetaEmpieza": null,
+   "titulo": null,
+   "bloqueDonde": {
+    "x": 0,
+    "y": 119.8,
+    "w": 390,
+    "h": 373
+   },
+   "miniPlano": {
+    "x": 17,
+    "y": 156.8,
+    "w": 356,
+    "h": 221
+   },
+   "tarjetaDonde": {
+    "x": 16,
+    "y": 155.8,
+    "w": 358,
+    "h": 337
+   },
+   "botonComoLlegar": {
+    "x": 85,
+    "y": 441.8,
+    "w": 114.8,
+    "h": 36
+   },
+   "parrilla": {
+    "x": 0,
+    "y": 516.8,
+    "w": 390,
+    "h": 1396.7
+   },
+   "tabPrograma": {
+    "x": 4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 674,
+    "w": 56,
+    "h": 56
+   }
+  },
+  "scrollY": 328,
+  "notes": "scrollY=328 px CSS. La estrella de la barra aparece porque el botón de la agenda salió de la vista.",
+  "boxesCrudas": {
+   "botonAgregar": {
+    "x": 16,
+    "y": -62.2,
+    "w": 290.8,
+    "h": 52
+   },
+   "botonQuitar": {
+    "x": 312.8,
+    "y": -58.2,
+    "w": 61.2,
+    "h": 44
+   },
+   "estrellaBarra": {
+    "x": 286,
+    "y": 53,
+    "w": 44,
+    "h": 44
+   },
+   "volver": {
+    "x": 12,
+    "y": 53,
+    "w": 44,
+    "h": 44
+   },
+   "compartir": {
+    "x": 334,
+    "y": 53,
+    "w": 44,
+    "h": 44
+   },
+   "etiquetaEmpieza": {
+    "x": 245.2,
+    "y": -221,
+    "w": 128.8,
+    "h": 24
+   },
+   "titulo": {
+    "x": 16,
+    "y": -187,
+    "w": 358,
+    "h": 28.8
+   },
+   "bloqueDonde": {
+    "x": 0,
+    "y": 119.8,
+    "w": 390,
+    "h": 373
+   },
+   "miniPlano": {
+    "x": 17,
+    "y": 156.8,
+    "w": 356,
+    "h": 221
+   },
+   "tarjetaDonde": {
+    "x": 16,
+    "y": 155.8,
+    "w": 358,
+    "h": 337
+   },
+   "botonComoLlegar": {
+    "x": 85,
+    "y": 441.8,
+    "w": 114.8,
+    "h": 36
+   },
+   "parrilla": {
+    "x": 0,
+    "y": 516.8,
+    "w": 390,
+    "h": 1396.7
+   },
+   "tabPrograma": {
+    "x": 4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 674,
+    "w": 56,
+    "h": 56
+   }
+  },
+  "statusBar": "inset",
+  "render": {
+   "w": 390,
+   "h": 844,
+   "safeAreaTop": 47,
+   "safeAreaBottom": 34
+  },
+  "modo": "app instalada (standalone), avisos concedidos",
+  "transparenciaReducida": true,
+  "reloj": "2026-11-19T13:20:00Z (jue 19, 10:20 Chile)",
+  "boxesNota": "boxes = px CSS relativos al viewport compuesto 390x844; una caja cuyo centro queda fuera de pantalla va en null.",
+  "boxesFueraDePantalla": [
+   "botonAgregar",
+   "botonQuitar",
+   "etiquetaEmpieza",
+   "titulo"
+  ],
+  "boxesParciales": [
+   "parrilla"
+  ],
+  "boxesFueraNota": "boxes = cajas visibles en la pantalla: null si el elemento queda fuera de los 844 px o detrás de la barra de pestañas (boxesFueraDePantalla); boxesParciales = se ven en parte (el resto queda bajo la barra o fuera). Las coordenadas sin anular están en boxesCrudas, y en boxesFull para la página completa."
+ },
+ "plano": {
+  "dpr": 3,
+  "safeArea": true,
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "id": "plano",
+  "file": "plano.png",
+  "route": "/mapa/plano/enjoy?piso=piso-3&destino=pacifico",
+  "desc": "Plano del Piso 3 del Hotel Enjoy del Mar con la ruta magenta ya dibujada desde el ingreso al salón hasta el Auditorio Pacífico (resaltado), la nota «Ruta marcada desde el ingreso al salón hasta tu destino» y el panel de detalle «Auditorio Pacífico · Piso 3 · 380 personas» con lo que pasa ahí el jueves 19.",
+  "boxes": {
+   "salaPacifico": {
+    "x": 212.4,
+    "y": 219.8,
+    "w": 158.7,
+    "h": 161.2
+   },
+   "rotuloPacifico": {
+    "x": 258.8,
+    "y": 296.1,
+    "w": 66.1,
+    "h": 10
+   },
+   "partida": {
+    "x": 101,
+    "y": 238.1,
+    "w": 76.6,
+    "h": 29.6
+   },
+   "plano": {
+    "x": 16,
+    "y": 122.5,
+    "w": 358,
+    "h": 355.8
+   },
+   "chipPiso3": {
+    "x": 86.9,
+    "y": 66.5,
+    "w": 85.7,
+    "h": 36
+   },
+   "notaRuta": {
+    "x": 43,
+    "y": 538.3,
+    "w": 327,
+    "h": 38.5
+   },
+   "panelDetalle": {
+    "x": 16,
+    "y": 588.8,
+    "w": 358,
+    "h": 475.9
+   },
+   "filaMeniscalesPanel": null,
+   "tabPrograma": {
+    "x": 4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 674,
+    "w": 56,
+    "h": 56
+   }
+  },
+  "scrollY": 135,
+  "notes": "La app rotula el punto de partida «Partida», no «Estás aquí» (decisión NAV-24: la app no sabe dónde está la persona); la caja se llama «partida» (marcador + rótulo, igual que en seq-ruta). La sala en el plano se llama «Auditorio Pacífico». La página se desplaza sola 135 px para mostrar el plano. statusBar 'opaca': esta pantalla no usa el área segura de arriba (los chips de piso son sticky top-0), así que se dibujó en 390x797 y se antepuso la franja de 47 px (theme-color); cajas ya sumadas +47.",
+  "boxesCrudas": {
+   "salaPacifico": {
+    "x": 212.4,
+    "y": 219.8,
+    "w": 158.7,
+    "h": 161.2
+   },
+   "rotuloPacifico": {
+    "x": 258.8,
+    "y": 296.1,
+    "w": 66.1,
+    "h": 10
+   },
+   "partida": {
+    "x": 101,
+    "y": 238.1,
+    "w": 76.6,
+    "h": 29.6
+   },
+   "plano": {
+    "x": 16,
+    "y": 122.5,
+    "w": 358,
+    "h": 355.8
+   },
+   "chipPiso3": {
+    "x": 86.9,
+    "y": 66.5,
+    "w": 85.7,
+    "h": 36
+   },
+   "notaRuta": {
+    "x": 43,
+    "y": 538.3,
+    "w": 327,
+    "h": 38.5
+   },
+   "panelDetalle": {
+    "x": 16,
+    "y": 588.8,
+    "w": 358,
+    "h": 475.9
+   },
+   "filaMeniscalesPanel": {
+    "x": 17,
+    "y": 794.2,
+    "w": 356,
+    "h": 44.9
+   },
+   "tabPrograma": {
+    "x": 4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 674,
+    "w": 56,
+    "h": 56
+   }
+  },
+  "statusBar": "opaca",
+  "render": {
+   "w": 390,
+   "h": 797,
+   "safeAreaTop": 0,
+   "safeAreaBottom": 34,
+   "franjaArriba": 47
+  },
+  "modo": "app instalada (standalone), avisos concedidos",
+  "transparenciaReducida": true,
+  "reloj": "2026-11-19T13:20:00Z (jue 19, 10:20 Chile)",
+  "boxesNota": "boxes = px CSS relativos al viewport compuesto 390x844; una caja cuyo centro queda fuera de pantalla va en null.",
+  "boxesFueraDePantalla": [
+   "filaMeniscalesPanel"
+  ],
+  "boxesParciales": [
+   "panelDetalle"
+  ],
+  "boxesFueraNota": "boxes = cajas visibles en la pantalla: null si el elemento queda fuera de los 844 px o detrás de la barra de pestañas (boxesFueraDePantalla); boxesParciales = se ven en parte (el resto queda bajo la barra o fuera). Las coordenadas sin anular están en boxesCrudas, y en boxesFull para la página completa."
+ },
+ "agenda": {
+  "dpr": 3,
+  "safeArea": true,
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "id": "agenda",
+  "file": "agenda.png",
+  "full": "agenda-full.png",
+  "fullHeight": 2282,
+  "route": "/agenda",
+  "desc": "Mi agenda a las 10:20 del jueves: «Hoy, 4 sesiones · la próxima en 10 min», pestañas Itinerario | Avisos 1, «Avisos activados · 10 min antes» + «Calendario y PDF», la tarjeta viva «LO PRÓXIMO · EN 10 MIN — Lesiones meniscales · Enjoy · Pacífico · Piso 3» con «Cómo llegar», y el itinerario del día (Hoy · jueves 19).",
+  "boxes": {
+   "tarjetaLoProximo": {
+    "x": 16,
+    "y": 248,
+    "w": 358,
+    "h": 168
+   },
+   "botonComoLlegarTarjeta": {
+    "x": 36,
+    "y": 352,
+    "w": 140.6,
+    "h": 44
+   },
+   "avisosActivados": {
+    "x": 16,
+    "y": 190,
+    "w": 186.7,
+    "h": 44
+   },
+   "botonCalendarioPDF": {
+    "x": 214.7,
+    "y": 190,
+    "w": 159.3,
+    "h": 44
+   },
+   "pestanaItinerario": {
+    "x": 20,
+    "y": 132,
+    "w": 175,
+    "h": 44
+   },
+   "pestanaAvisos": {
+    "x": 195,
+    "y": 132,
+    "w": 175,
+    "h": 44
+   },
+   "filaMeniscales": null,
+   "tabPrograma": {
+    "x": 4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 674,
+    "w": 56,
+    "h": 56
+   }
+  },
+  "boxesFull": {
+   "tarjetaLoProximo": {
+    "x": 16,
+    "y": 248,
+    "w": 358,
+    "h": 168
+   },
+   "botonComoLlegarTarjeta": {
+    "x": 36,
+    "y": 352,
+    "w": 140.6,
+    "h": 44
+   },
+   "avisosActivados": {
+    "x": 16,
+    "y": 190,
+    "w": 186.7,
+    "h": 44
+   },
+   "botonCalendarioPDF": {
+    "x": 214.7,
+    "y": 190,
+    "w": 159.3,
+    "h": 44
+   },
+   "pestanaItinerario": {
+    "x": 20,
+    "y": 132,
+    "w": 175,
+    "h": 44
+   },
+   "pestanaAvisos": {
+    "x": 195,
+    "y": 132,
+    "w": 175,
+    "h": 44
+   },
+   "filaMeniscales": {
+    "x": 17,
+    "y": 726.8,
+    "w": 356,
+    "h": 153.8
+   }
+  },
+  "notes": "Agenda del fixture con meniscales agendada. Oculto: «Marcar asistencia» de la fila de Trauma (08:00–10:00). El aviso de cambio de «Osteotomías» se dejó leído en el fixture (sin banda «Cambios en tu agenda»); el badge «1» es el recordatorio de las 10:20.",
+  "boxesCrudas": {
+   "tarjetaLoProximo": {
+    "x": 16,
+    "y": 248,
+    "w": 358,
+    "h": 168
+   },
+   "botonComoLlegarTarjeta": {
+    "x": 36,
+    "y": 352,
+    "w": 140.6,
+    "h": 44
+   },
+   "avisosActivados": {
+    "x": 16,
+    "y": 190,
+    "w": 186.7,
+    "h": 44
+   },
+   "botonCalendarioPDF": {
+    "x": 214.7,
+    "y": 190,
+    "w": 159.3,
+    "h": 44
+   },
+   "pestanaItinerario": {
+    "x": 20,
+    "y": 132,
+    "w": 175,
+    "h": 44
+   },
+   "pestanaAvisos": {
+    "x": 195,
+    "y": 132,
+    "w": 175,
+    "h": 44
+   },
+   "filaMeniscales": {
+    "x": 17,
+    "y": 726.8,
+    "w": 356,
+    "h": 153.8
+   },
+   "tabPrograma": {
+    "x": 4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 674,
+    "w": 56,
+    "h": 56
+   }
+  },
+  "chrome": "agenda-chrome.png",
+  "chromeBoxes": {
+   "tabPrograma": {
+    "x": 4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 674,
+    "w": 56,
+    "h": 56
+   }
+  },
+  "statusBar": "inset",
+  "render": {
+   "w": 390,
+   "h": 844,
+   "safeAreaTop": 47,
+   "safeAreaBottom": 34
+  },
+  "modo": "app instalada (standalone), avisos concedidos",
+  "transparenciaReducida": true,
+  "reloj": "2026-11-19T13:20:00Z (jue 19, 10:20 Chile)",
+  "boxesNota": "boxes = px CSS relativos al viewport compuesto 390x844 (incluida la franja de 47 px arriba y, en modo safari, la barra de Safari abajo); una caja cuyo centro queda fuera de pantalla va en null (ver boxesFull); boxesFull = px CSS relativos a la parte superior de la página completa (<id>-full.png).",
+  "boxesFueraDePantalla": [
+   "filaMeniscales"
+  ],
+  "boxesFueraNota": "boxes = cajas visibles en la pantalla: null si el elemento queda fuera de los 844 px o detrás de la barra de pestañas (boxesFueraDePantalla); boxesParciales = se ven en parte (el resto queda bajo la barra o fuera). Las coordenadas sin anular están en boxesCrudas, y en boxesFull para la página completa."
+ },
+ "chat-escrito": {
+  "dpr": 3,
+  "safeArea": true,
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "id": "chat-escrito",
+  "file": "chat-escrito.png",
+  "route": "/chat",
+  "desc": "El campo con «¿Cuándo es la fiesta de clausura?» escrito y el botón de enviar activo (uva).",
+  "boxes": {
+   "campoTexto": {
+    "x": 12,
+    "y": 672.4,
+    "w": 366,
+    "h": 53.6
+   },
+   "textarea": {
+    "x": 29.6,
+    "y": 678.2,
+    "w": 291.6,
+    "h": 43
+   },
+   "botonEnviar": {
+    "x": 329.2,
+    "y": 677.2,
+    "w": 44,
+    "h": 44
+   },
+   "sugerencia1": {
+    "x": 16,
+    "y": 500.4,
+    "w": 358,
+    "h": 46
+   },
+   "sugerencia2": {
+    "x": 16,
+    "y": 554.4,
+    "w": 358,
+    "h": 46
+   },
+   "sugerencia3": {
+    "x": 16,
+    "y": 608.4,
+    "w": 358,
+    "h": 46
+   },
+   "botonAhora": {
+    "x": 87.2,
+    "y": 448.4,
+    "w": 215.7,
+    "h": 44
+   },
+   "mascota": {
+    "x": 131.9,
+    "y": 155,
+    "w": 126.3,
+    "h": 176
+   },
+   "saludo": {
+    "x": 113.1,
+    "y": 349,
+    "w": 163.7,
+    "h": 31.9
+   },
+   "tabPrograma": {
+    "x": 4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   }
+  },
+  "notes": "Foco en el campo, con su anillo (.tb-composer:focus-within), igual que seq-tibia f0–f7 (sin teclado de iOS: dibujarlo en el video si se quiere).",
+  "boxesCrudas": {
+   "campoTexto": {
+    "x": 12,
+    "y": 672.4,
+    "w": 366,
+    "h": 53.6
+   },
+   "textarea": {
+    "x": 29.6,
+    "y": 678.2,
+    "w": 291.6,
+    "h": 43
+   },
+   "botonEnviar": {
+    "x": 329.2,
+    "y": 677.2,
+    "w": 44,
+    "h": 44
+   },
+   "sugerencia1": {
+    "x": 16,
+    "y": 500.4,
+    "w": 358,
+    "h": 46
+   },
+   "sugerencia2": {
+    "x": 16,
+    "y": 554.4,
+    "w": 358,
+    "h": 46
+   },
+   "sugerencia3": {
+    "x": 16,
+    "y": 608.4,
+    "w": 358,
+    "h": 46
+   },
+   "botonAhora": {
+    "x": 87.2,
+    "y": 448.4,
+    "w": 215.7,
+    "h": 44
+   },
+   "mascota": {
+    "x": 131.9,
+    "y": 155,
+    "w": 126.3,
+    "h": 176
+   },
+   "saludo": {
+    "x": 113.1,
+    "y": 349,
+    "w": 163.7,
+    "h": 31.9
+   },
+   "tabPrograma": {
+    "x": 4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   }
+  },
+  "statusBar": "inset",
+  "render": {
+   "w": 390,
+   "h": 844,
+   "safeAreaTop": 47,
+   "safeAreaBottom": 34
+  },
+  "modo": "app instalada (standalone), avisos concedidos",
+  "transparenciaReducida": true,
+  "reloj": "2026-11-19T13:20:00Z (jue 19, 10:20 Chile)",
+  "boxesNota": "boxes = px CSS relativos al viewport compuesto 390x844; una caja cuyo centro queda fuera de pantalla va en null."
+ },
+ "chat-vacio": {
+  "dpr": 3,
+  "safeArea": true,
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "id": "chat-vacio",
+  "file": "chat-vacio.png",
+  "route": "/chat",
+  "desc": "TibIA con sesión, chat nuevo: logotipo «tibIA», nota «TibIA usa el programa oficial. No da recomendaciones clínicas.», la mascota, «Hola, Carolina / ¿Qué necesitas del congreso?», el botón «AHORA · Qué está pasando» y 3 preguntas (¿Qué charlas de rodilla hay el jueves? | ¿Dónde queda la sala Pacífico? | ¿Quién habla de ligamento cruzado?); campo «Pregúntale a TibIA…».",
+  "boxes": {
+   "campoTexto": {
+    "x": 12,
+    "y": 672.4,
+    "w": 366,
+    "h": 53.6
+   },
+   "textarea": {
+    "x": 29.6,
+    "y": 678.2,
+    "w": 291.6,
+    "h": 43
+   },
+   "botonEnviar": {
+    "x": 329.2,
+    "y": 677.2,
+    "w": 44,
+    "h": 44
+   },
+   "sugerencia1": {
+    "x": 16,
+    "y": 500.4,
+    "w": 358,
+    "h": 46
+   },
+   "sugerencia2": {
+    "x": 16,
+    "y": 554.4,
+    "w": 358,
+    "h": 46
+   },
+   "sugerencia3": {
+    "x": 16,
+    "y": 608.4,
+    "w": 358,
+    "h": 46
+   },
+   "botonAhora": {
+    "x": 87.2,
+    "y": 448.4,
+    "w": 215.7,
+    "h": 44
+   },
+   "mascota": {
+    "x": 131.9,
+    "y": 155,
+    "w": 126.3,
+    "h": 176
+   },
+   "saludo": {
+    "x": 113.1,
+    "y": 349,
+    "w": 163.7,
+    "h": 31.9
+   },
+   "tabPrograma": {
+    "x": 4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   }
+  },
+  "notes": "Se entró tocando el FAB desde Mi agenda. Preguntas fijadas con preguntas.mjs (Math.random solo de alAzar de ChatHero → rodilla jueves / sala Pacífico / ligamento cruzado; sin rotación): las mismas que seq-fab y seq-tibia (cap-B). Sin «Modo invitado» (hay sesión). En /chat no hay botón flotante: sin caja fabTibia.",
+  "boxesCrudas": {
+   "campoTexto": {
+    "x": 12,
+    "y": 672.4,
+    "w": 366,
+    "h": 53.6
+   },
+   "textarea": {
+    "x": 29.6,
+    "y": 678.2,
+    "w": 291.6,
+    "h": 43
+   },
+   "botonEnviar": {
+    "x": 329.2,
+    "y": 677.2,
+    "w": 44,
+    "h": 44
+   },
+   "sugerencia1": {
+    "x": 16,
+    "y": 500.4,
+    "w": 358,
+    "h": 46
+   },
+   "sugerencia2": {
+    "x": 16,
+    "y": 554.4,
+    "w": 358,
+    "h": 46
+   },
+   "sugerencia3": {
+    "x": 16,
+    "y": 608.4,
+    "w": 358,
+    "h": 46
+   },
+   "botonAhora": {
+    "x": 87.2,
+    "y": 448.4,
+    "w": 215.7,
+    "h": 44
+   },
+   "mascota": {
+    "x": 131.9,
+    "y": 155,
+    "w": 126.3,
+    "h": 176
+   },
+   "saludo": {
+    "x": 113.1,
+    "y": 349,
+    "w": 163.7,
+    "h": 31.9
+   },
+   "tabPrograma": {
+    "x": 4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   }
+  },
+  "statusBar": "inset",
+  "render": {
+   "w": 390,
+   "h": 844,
+   "safeAreaTop": 47,
+   "safeAreaBottom": 34
+  },
+  "modo": "app instalada (standalone), avisos concedidos",
+  "transparenciaReducida": true,
+  "reloj": "2026-11-19T13:20:00Z (jue 19, 10:20 Chile)",
+  "boxesNota": "boxes = px CSS relativos al viewport compuesto 390x844; una caja cuyo centro queda fuera de pantalla va en null."
+ },
+ "auspiciadores": {
+  "dpr": 3,
+  "safeArea": true,
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "id": "auspiciadores",
+  "file": "auspiciadores.png",
+  "full": "auspiciadores-full.png",
+  "fullHeight": 5345,
+  "route": "/auspiciadores",
+  "desc": "Pestaña Auspiciadores: «35 marcas · 35 dan sello · Sheraton y Enjoy», la tarjeta del Pasaporte Virtual (anillo 12 de 35, «Te faltan 23 para completarlo», «Escanear sello»), buscador, chips de sede y la primera marca grande (Arenysmed, Platinum) con sus logos reales.",
+  "boxes": {
+   "tarjetaPasaporte": {
+    "x": 16,
+    "y": 129,
+    "w": 358,
+    "h": 172
+   },
+   "enlacePasaporte": {
+    "x": 16,
+    "y": 129,
+    "w": 358,
+    "h": 172
+   },
+   "anilloPasaporte": {
+    "x": 36,
+    "y": 156,
+    "w": 58,
+    "h": 58
+   },
+   "botonEscanearSello": {
+    "x": 30,
+    "y": 239,
+    "w": 330,
+    "h": 48
+   },
+   "buscador": {
+    "x": 62,
+    "y": 318,
+    "w": 307,
+    "h": 50
+   },
+   "primeraMarcaGrande": {
+    "x": 16,
+    "y": 481,
+    "w": 358,
+    "h": 338.6
+   },
+   "verEnElPlano": {
+    "x": 249,
+    "y": 431,
+    "w": 127,
+    "h": 44
+   },
+   "tabPrograma": {
+    "x": 4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 674,
+    "w": 56,
+    "h": 56
+   }
+  },
+  "boxesFull": {
+   "tarjetaPasaporte": {
+    "x": 16,
+    "y": 129,
+    "w": 358,
+    "h": 172
+   },
+   "enlacePasaporte": {
+    "x": 16,
+    "y": 129,
+    "w": 358,
+    "h": 172
+   },
+   "anilloPasaporte": {
+    "x": 36,
+    "y": 156,
+    "w": 58,
+    "h": 58
+   },
+   "botonEscanearSello": {
+    "x": 30,
+    "y": 239,
+    "w": 330,
+    "h": 48
+   },
+   "buscador": {
+    "x": 62,
+    "y": 318,
+    "w": 307,
+    "h": 50
+   },
+   "primeraMarcaGrande": {
+    "x": 16,
+    "y": 481,
+    "w": 358,
+    "h": 338.6
+   },
+   "verEnElPlano": {
+    "x": 249,
+    "y": 431,
+    "w": 127,
+    "h": 44
+   }
+  },
+  "notes": "Logos reales de producción (caché local de storage.googleapis.com). Se recorrió la página para cargar todos los logos antes de la full. tarjetaPasaporte = contenedor de la tarjeta; enlacePasaporte = el enlace que abre /pasaporte.",
+  "boxesCrudas": {
+   "tarjetaPasaporte": {
+    "x": 16,
+    "y": 129,
+    "w": 358,
+    "h": 172
+   },
+   "enlacePasaporte": {
+    "x": 16,
+    "y": 129,
+    "w": 358,
+    "h": 172
+   },
+   "anilloPasaporte": {
+    "x": 36,
+    "y": 156,
+    "w": 58,
+    "h": 58
+   },
+   "botonEscanearSello": {
+    "x": 30,
+    "y": 239,
+    "w": 330,
+    "h": 48
+   },
+   "buscador": {
+    "x": 62,
+    "y": 318,
+    "w": 307,
+    "h": 50
+   },
+   "primeraMarcaGrande": {
+    "x": 16,
+    "y": 481,
+    "w": 358,
+    "h": 338.6
+   },
+   "verEnElPlano": {
+    "x": 249,
+    "y": 431,
+    "w": 127,
+    "h": 44
+   },
+   "tabPrograma": {
+    "x": 4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 674,
+    "w": 56,
+    "h": 56
+   }
+  },
+  "chrome": "auspiciadores-chrome.png",
+  "chromeBoxes": {
+   "tabPrograma": null,
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 674,
+    "w": 56,
+    "h": 56
+   }
+  },
+  "statusBar": "inset",
+  "render": {
+   "w": 390,
+   "h": 844,
+   "safeAreaTop": 47,
+   "safeAreaBottom": 34
+  },
+  "modo": "app instalada (standalone), avisos concedidos",
+  "transparenciaReducida": true,
+  "reloj": "2026-11-19T13:20:00Z (jue 19, 10:20 Chile)",
+  "boxesNota": "boxes = px CSS relativos al viewport compuesto 390x844 (incluida la franja de 47 px arriba y, en modo safari, la barra de Safari abajo); una caja cuyo centro queda fuera de pantalla va en null (ver boxesFull); boxesFull = px CSS relativos a la parte superior de la página completa (<id>-full.png).",
+  "boxesParciales": [
+   "primeraMarcaGrande"
+  ],
+  "boxesFueraNota": "boxes = cajas visibles en la pantalla: null si el elemento queda fuera de los 844 px o detrás de la barra de pestañas (boxesFueraDePantalla); boxesParciales = se ven en parte (el resto queda bajo la barra o fuera). Las coordenadas sin anular están en boxesCrudas, y en boxesFull para la página completa."
+ },
+ "pasaporte": {
+  "dpr": 3,
+  "safeArea": true,
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "id": "pasaporte",
+  "file": "pasaporte.png",
+  "full": "pasaporte-full.png",
+  "fullHeight": 2723,
+  "route": "/pasaporte",
+  "desc": "Pasaporte Virtual: anillo «12 de 35», «Te faltan 23 sellos», «Premios para los primeros en completarlo», «Escanear sello», «¿Cómo funciona?» y la galería «Tus sellos · 12» con los logos de las marcas (y los que faltan).",
+  "boxes": {
+   "volver": {
+    "x": 12,
+    "y": 63,
+    "w": 44,
+    "h": 44
+   },
+   "tarjetaAvance": {
+    "x": 36,
+    "y": 188,
+    "w": 318,
+    "h": 104
+   },
+   "anillo": {
+    "x": 36,
+    "y": 188,
+    "w": 104,
+    "h": 104
+   },
+   "botonEscanearSello": {
+    "x": 36,
+    "y": 359.9,
+    "w": 318,
+    "h": 48
+   },
+   "comoFunciona": {
+    "x": 16,
+    "y": 439.9,
+    "w": 358,
+    "h": 58
+   },
+   "galeriaSellos": {
+    "x": 16,
+    "y": 523.9,
+    "w": 358,
+    "h": 614
+   },
+   "primerSello": {
+    "x": 16,
+    "y": 553.9,
+    "w": 114,
+    "h": 126.8
+   },
+   "tabPrograma": {
+    "x": 4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 674,
+    "w": 56,
+    "h": 56
+   }
+  },
+  "boxesFull": {
+   "volver": {
+    "x": 12,
+    "y": 63,
+    "w": 44,
+    "h": 44
+   },
+   "tarjetaAvance": {
+    "x": 36,
+    "y": 188,
+    "w": 318,
+    "h": 104
+   },
+   "anillo": {
+    "x": 36,
+    "y": 188,
+    "w": 104,
+    "h": 104
+   },
+   "botonEscanearSello": {
+    "x": 36,
+    "y": 359.9,
+    "w": 318,
+    "h": 48
+   },
+   "comoFunciona": {
+    "x": 16,
+    "y": 439.9,
+    "w": 358,
+    "h": 58
+   },
+   "galeriaSellos": {
+    "x": 16,
+    "y": 523.9,
+    "w": 358,
+    "h": 614
+   },
+   "primerSello": {
+    "x": 16,
+    "y": 553.9,
+    "w": 114,
+    "h": 126.8
+   }
+  },
+  "notes": "statusBar 'opaca' (el botón Volver no usa el área segura): render 390x797 + franja de 47 px; cajas con +47. Fixture: 8 sellos el miércoles 18 en la tarde y 4 hoy entre 10:00 y 10:15 (antes había sellos con hora posterior a las 10:20).",
+  "boxesCrudas": {
+   "volver": {
+    "x": 12,
+    "y": 63,
+    "w": 44,
+    "h": 44
+   },
+   "tarjetaAvance": {
+    "x": 36,
+    "y": 188,
+    "w": 318,
+    "h": 104
+   },
+   "anillo": {
+    "x": 36,
+    "y": 188,
+    "w": 104,
+    "h": 104
+   },
+   "botonEscanearSello": {
+    "x": 36,
+    "y": 359.9,
+    "w": 318,
+    "h": 48
+   },
+   "comoFunciona": {
+    "x": 16,
+    "y": 439.9,
+    "w": 358,
+    "h": 58
+   },
+   "galeriaSellos": {
+    "x": 16,
+    "y": 523.9,
+    "w": 358,
+    "h": 614
+   },
+   "primerSello": {
+    "x": 16,
+    "y": 553.9,
+    "w": 114,
+    "h": 126.8
+   },
+   "tabPrograma": {
+    "x": 4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 674,
+    "w": 56,
+    "h": 56
+   }
+  },
+  "chrome": "pasaporte-chrome.png",
+  "chromeBoxes": {
+   "tabPrograma": null,
+   "tabAgenda": null,
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 674,
+    "w": 56,
+    "h": 56
+   }
+  },
+  "statusBar": "opaca",
+  "render": {
+   "w": 390,
+   "h": 797,
+   "safeAreaTop": 0,
+   "safeAreaBottom": 34,
+   "franjaArriba": 47
+  },
+  "modo": "app instalada (standalone), avisos concedidos",
+  "transparenciaReducida": true,
+  "reloj": "2026-11-19T13:20:00Z (jue 19, 10:20 Chile)",
+  "boxesNota": "boxes = px CSS relativos al viewport compuesto 390x844 (incluida la franja de 47 px arriba y, en modo safari, la barra de Safari abajo); una caja cuyo centro queda fuera de pantalla va en null (ver boxesFull); boxesFull = px CSS relativos a la parte superior de la página completa (<id>-full.png).",
+  "boxesParciales": [
+   "galeriaSellos"
+  ],
+  "boxesFueraNota": "boxes = cajas visibles en la pantalla: null si el elemento queda fuera de los 844 px o detrás de la barra de pestañas (boxesFueraDePantalla); boxesParciales = se ven en parte (el resto queda bajo la barra o fuera). Las coordenadas sin anular están en boxesCrudas, y en boxesFull para la página completa."
+ },
+ "qr": {
+  "dpr": 3,
+  "safeArea": true,
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "id": "qr",
+  "file": "qr.png",
+  "route": "/networking/qr",
+  "desc": "«Mi código QR»: «Muéstralo a un colega…», iniciales CM y «Carolina Muñoz Herrera», el QR con el sello SCHOT al centro, «Escanear el código de un colega», «Generar código nuevo».",
+  "boxes": {
+   "codigoQR": {
+    "x": 87,
+    "y": 290,
+    "w": 216,
+    "h": 216
+   },
+   "tarjetaQR": {
+    "x": 63,
+    "y": 266,
+    "w": 264,
+    "h": 264
+   },
+   "nombre": {
+    "x": 144,
+    "y": 218,
+    "w": 154,
+    "h": 24
+   },
+   "botonEscanearColega": {
+    "x": 35,
+    "y": 558,
+    "w": 320,
+    "h": 48
+   },
+   "tabPrograma": {
+    "x": 4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 674,
+    "w": 56,
+    "h": 56
+   }
+  },
+  "notes": "statusBar 'opaca': esta pantalla no usa el área segura de arriba; se dibujó en 390x797 bajo la barra (como la app instalada) y se antepuso la franja de 47 px con el theme-color; cajas ya con +47. El QR codifica la URL del fixture (connect/K7Q2-M9XD), no una cuenta real.",
+  "boxesCrudas": {
+   "codigoQR": {
+    "x": 87,
+    "y": 290,
+    "w": 216,
+    "h": 216
+   },
+   "tarjetaQR": {
+    "x": 63,
+    "y": 266,
+    "w": 264,
+    "h": 264
+   },
+   "nombre": {
+    "x": 144,
+    "y": 218,
+    "w": 154,
+    "h": 24
+   },
+   "botonEscanearColega": {
+    "x": 35,
+    "y": 558,
+    "w": 320,
+    "h": 48
+   },
+   "tabPrograma": {
+    "x": 4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 674,
+    "w": 56,
+    "h": 56
+   }
+  },
+  "statusBar": "opaca",
+  "render": {
+   "w": 390,
+   "h": 797,
+   "safeAreaTop": 0,
+   "safeAreaBottom": 34,
+   "franjaArriba": 47
+  },
+  "modo": "app instalada (standalone), avisos concedidos",
+  "transparenciaReducida": true,
+  "reloj": "2026-11-19T13:20:00Z (jue 19, 10:20 Chile)",
+  "boxesNota": "boxes = px CSS relativos al viewport compuesto 390x844; una caja cuyo centro queda fuera de pantalla va en null."
+ },
+ "micuenta": {
+  "dpr": 3,
+  "safeArea": true,
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "id": "micuenta",
+  "file": "micuenta.png",
+  "full": "micuenta-full.png",
+  "fullHeight": 1716,
+  "route": "/mas",
+  "desc": "«Mi cuenta»: tarjeta de Carolina Muñoz Herrera (c.munoz@hospital.cl, «Editar mi perfil»), Networking (Mi código QR, Solicitudes «Nada pendiente», Directorio, Mis contactos), Congreso (Información, Mapa)…; la full llega hasta Apariencia (Tema, Letra Normal/Grande), Avisos, Asistente y Cerrar sesión.",
+  "boxes": {
+   "tarjetaPerfil": {
+    "x": 16,
+    "y": 108,
+    "w": 358,
+    "h": 110.8
+   },
+   "miCodigoQR": {
+    "x": 16,
+    "y": 271.3,
+    "w": 174,
+    "h": 121.8
+   },
+   "solicitudes": {
+    "x": 200,
+    "y": 271.3,
+    "w": 174,
+    "h": 121.8
+   },
+   "letra": null,
+   "letraNormal": null,
+   "letraGrande": null,
+   "instalarLaApp": null,
+   "tabPrograma": {
+    "x": 4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 674,
+    "w": 56,
+    "h": 56
+   }
+  },
+  "boxesFull": {
+   "tarjetaPerfil": {
+    "x": 16,
+    "y": 108,
+    "w": 358,
+    "h": 110.8
+   },
+   "miCodigoQR": {
+    "x": 16,
+    "y": 271.3,
+    "w": 174,
+    "h": 121.8
+   },
+   "solicitudes": {
+    "x": 200,
+    "y": 271.3,
+    "w": 174,
+    "h": 121.8
+   },
+   "letra": {
+    "x": 17,
+    "y": 996,
+    "w": 356,
+    "h": 65
+   },
+   "letraNormal": {
+    "x": 190,
+    "y": 1007,
+    "w": 78.7,
+    "h": 44
+   },
+   "letraGrande": {
+    "x": 274.7,
+    "y": 1007,
+    "w": 84.3,
+    "h": 44
+   },
+   "instalarLaApp": null
+  },
+  "notes": "statusBar 'opaca': esta pantalla no usa el área segura de arriba; se dibujó en 390x797 bajo la barra (como la app instalada) y se antepuso la franja de 47 px con el theme-color; cajas ya con +47. Con la app instalada la fila «Instalar la app» NO existe (MorePage la quita en standalone): ver micuenta-instalar. «Letra» queda bajo el pliegue: ver micuenta-ajustes o boxesFull.",
+  "boxesCrudas": {
+   "tarjetaPerfil": {
+    "x": 16,
+    "y": 108,
+    "w": 358,
+    "h": 110.8
+   },
+   "miCodigoQR": {
+    "x": 16,
+    "y": 271.3,
+    "w": 174,
+    "h": 121.8
+   },
+   "solicitudes": {
+    "x": 200,
+    "y": 271.3,
+    "w": 174,
+    "h": 121.8
+   },
+   "letra": {
+    "x": 17,
+    "y": 996,
+    "w": 356,
+    "h": 65
+   },
+   "letraNormal": {
+    "x": 190,
+    "y": 1007,
+    "w": 78.7,
+    "h": 44
+   },
+   "letraGrande": {
+    "x": 274.7,
+    "y": 1007,
+    "w": 84.3,
+    "h": 44
+   },
+   "instalarLaApp": null,
+   "tabPrograma": {
+    "x": 4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 674,
+    "w": 56,
+    "h": 56
+   }
+  },
+  "chrome": "micuenta-chrome.png",
+  "chromeBoxes": {
+   "tabPrograma": null,
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 674,
+    "w": 56,
+    "h": 56
+   }
+  },
+  "statusBar": "opaca",
+  "render": {
+   "w": 390,
+   "h": 797,
+   "safeAreaTop": 0,
+   "safeAreaBottom": 34,
+   "franjaArriba": 47
+  },
+  "modo": "app instalada (standalone), avisos concedidos",
+  "transparenciaReducida": true,
+  "reloj": "2026-11-19T13:20:00Z (jue 19, 10:20 Chile)",
+  "boxesNota": "boxes = px CSS relativos al viewport compuesto 390x844 (incluida la franja de 47 px arriba y, en modo safari, la barra de Safari abajo); una caja cuyo centro queda fuera de pantalla va en null (ver boxesFull); boxesFull = px CSS relativos a la parte superior de la página completa (<id>-full.png).",
+  "boxesFueraDePantalla": [
+   "letra",
+   "letraNormal",
+   "letraGrande"
+  ],
+  "boxesFueraNota": "boxes = cajas visibles en la pantalla: null si el elemento queda fuera de los 844 px o detrás de la barra de pestañas (boxesFueraDePantalla); boxesParciales = se ven en parte (el resto queda bajo la barra o fuera). Las coordenadas sin anular están en boxesCrudas, y en boxesFull para la página completa."
+ },
+ "micuenta-ajustes": {
+  "dpr": 3,
+  "safeArea": true,
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "id": "micuenta-ajustes",
+  "file": "micuenta-ajustes.png",
+  "route": "/mas",
+  "desc": "«Mi cuenta» desplazada hasta Apariencia: Tema Claro/Oscuro y Letra Normal/Grande (Normal elegida), con Avisos y el idioma de TibIA.",
+  "boxes": {
+   "tarjetaPerfil": null,
+   "miCodigoQR": null,
+   "solicitudes": null,
+   "letra": {
+    "x": 17,
+    "y": 456,
+    "w": 356,
+    "h": 65
+   },
+   "letraNormal": {
+    "x": 190,
+    "y": 467,
+    "w": 78.7,
+    "h": 44
+   },
+   "letraGrande": {
+    "x": 274.7,
+    "y": 467,
+    "w": 84.3,
+    "h": 44
+   },
+   "instalarLaApp": null,
+   "tabPrograma": {
+    "x": 4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 674,
+    "w": 56,
+    "h": 56
+   }
+  },
+  "scrollY": 540,
+  "notes": "statusBar 'opaca': esta pantalla no usa el área segura de arriba; se dibujó en 390x797 bajo la barra (como la app instalada) y se antepuso la franja de 47 px con el theme-color; cajas ya con +47. scrollY=540.",
+  "boxesCrudas": {
+   "tarjetaPerfil": {
+    "x": 16,
+    "y": -432,
+    "w": 358,
+    "h": 110.8
+   },
+   "miCodigoQR": {
+    "x": 16,
+    "y": -268.7,
+    "w": 174,
+    "h": 121.8
+   },
+   "solicitudes": {
+    "x": 200,
+    "y": -268.7,
+    "w": 174,
+    "h": 121.8
+   },
+   "letra": {
+    "x": 17,
+    "y": 456,
+    "w": 356,
+    "h": 65
+   },
+   "letraNormal": {
+    "x": 190,
+    "y": 467,
+    "w": 78.7,
+    "h": 44
+   },
+   "letraGrande": {
+    "x": 274.7,
+    "y": 467,
+    "w": 84.3,
+    "h": 44
+   },
+   "instalarLaApp": null,
+   "tabPrograma": {
+    "x": 4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 674,
+    "w": 56,
+    "h": 56
+   }
+  },
+  "statusBar": "opaca",
+  "render": {
+   "w": 390,
+   "h": 797,
+   "safeAreaTop": 0,
+   "safeAreaBottom": 34,
+   "franjaArriba": 47
+  },
+  "modo": "app instalada (standalone), avisos concedidos",
+  "transparenciaReducida": true,
+  "reloj": "2026-11-19T13:20:00Z (jue 19, 10:20 Chile)",
+  "boxesNota": "boxes = px CSS relativos al viewport compuesto 390x844; una caja cuyo centro queda fuera de pantalla va en null.",
+  "boxesFueraDePantalla": [
+   "tarjetaPerfil",
+   "miCodigoQR",
+   "solicitudes"
+  ],
+  "boxesFueraNota": "boxes = cajas visibles en la pantalla: null si el elemento queda fuera de los 844 px o detrás de la barra de pestañas (boxesFueraDePantalla); boxesParciales = se ven en parte (el resto queda bajo la barra o fuera). Las coordenadas sin anular están en boxesCrudas, y en boxesFull para la página completa."
+ },
+ "micuenta-instalar": {
+  "dpr": 3,
+  "safeArea": true,
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "id": "micuenta-instalar",
+  "file": "micuenta-instalar.png",
+  "route": "/mas",
+  "desc": "«Mi cuenta» en Safari (app SIN instalar), desplazada hasta la sección «App · Instalar la app · Agrégala a tu pantalla de inicio».",
+  "boxes": {
+   "instalarLaApp": {
+    "x": 17,
+    "y": 346.5,
+    "w": 356,
+    "h": 66
+   },
+   "letraNormal": null,
+   "letraGrande": null,
+   "miCodigoQR": null,
+   "tabPrograma": {
+    "x": 4,
+    "y": 645.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 645.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 645.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 645.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 645.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 575,
+    "w": 56,
+    "h": 56
+   },
+   "barraSafari": {
+    "x": 0,
+    "y": 711,
+    "w": 390,
+    "h": 133
+   },
+   "botonCompartirSafari": {
+    "x": 156,
+    "y": 767,
+    "w": 78,
+    "h": 44
+   }
+  },
+  "scrollY": 406,
+  "modo": "navegador",
+  "usar": "solo tramo previo de instalación (antes de las tomas de app instalada)",
+  "notes": "MODO NAVEGADOR (Safari iOS 18, app sin instalar): NO usar en la historia de la app instalada; solo para un tramo previo de «cómo instalar» (la sesión ya está abierta en Safari). statusBar 'safari': la página se dibujó en 390x664 (sin áreas seguras) y se compuso sobre 390x844 con la franja de 47 px arriba y la barra inferior de Safari (dirección app.congresoschot2026.com + atrás/adelante/compartir/marcadores/pestañas, 133 px) abajo; cajas ya con +47. scrollY=406. Instalada, esta fila no existe (MorePage la quita en standalone).",
+  "boxesCrudas": {
+   "instalarLaApp": {
+    "x": 17,
+    "y": 346.5,
+    "w": 356,
+    "h": 66
+   },
+   "letraNormal": {
+    "x": 190,
+    "y": 721.5,
+    "w": 78.7,
+    "h": 44
+   },
+   "letraGrande": {
+    "x": 274.7,
+    "y": 721.5,
+    "w": 84.3,
+    "h": 44
+   },
+   "miCodigoQR": {
+    "x": 16,
+    "y": -134.7,
+    "w": 174,
+    "h": 121.8
+   },
+   "tabPrograma": {
+    "x": 4,
+    "y": 645.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 645.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 645.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 645.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 645.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 575,
+    "w": 56,
+    "h": 56
+   },
+   "barraSafari": {
+    "x": 0,
+    "y": 711,
+    "w": 390,
+    "h": 133
+   },
+   "botonCompartirSafari": {
+    "x": 156,
+    "y": 767,
+    "w": 78,
+    "h": 44
+   }
+  },
+  "statusBar": "safari",
+  "render": {
+   "w": 390,
+   "h": 664,
+   "safeAreaTop": 0,
+   "safeAreaBottom": 0,
+   "franjaArriba": 47,
+   "barraSafariAbajo": 133
+  },
+  "modoDetalle": "Safari iOS 18, app SIN instalar (standalone=false). NO usar en la historia de la app instalada: solo tramo previo de «cómo instalar».",
+  "transparenciaReducida": true,
+  "reloj": "2026-11-19T13:20:00Z (jue 19, 10:20 Chile)",
+  "boxesNota": "boxes = px CSS relativos al viewport compuesto 390x844; una caja cuyo centro queda fuera de pantalla va en null.",
+  "boxesFueraDePantalla": [
+   "letraNormal",
+   "letraGrande",
+   "miCodigoQR"
+  ],
+  "boxesFueraNota": "boxes = cajas visibles en la pantalla: null si el elemento queda fuera de los 844 px o detrás de la barra de pestañas (boxesFueraDePantalla); boxesParciales = se ven en parte (el resto queda bajo la barra o fuera). Las coordenadas sin anular están en boxesCrudas, y en boxesFull para la página completa."
+ },
+ "instalar": {
+  "dpr": 3,
+  "safeArea": true,
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "id": "instalar",
+  "file": "instalar.png",
+  "full": "instalar-full.png",
+  "fullHeight": 789,
+  "route": "/instalar",
+  "desc": "Guía «Instalar la app» para iPhone (Safari): «Queda como una app más…», tarjeta «PASO 1 DE 3 · Toca el botón Compartir» con la ilustración del iPhone y «Siguiente».",
+  "boxes": {
+   "titulo": {
+    "x": 16,
+    "y": 41,
+    "w": 358,
+    "h": 33
+   },
+   "tarjetaPaso": {
+    "x": 16,
+    "y": 132,
+    "w": 358,
+    "h": 434.9
+   },
+   "rotuloPaso": {
+    "x": 32,
+    "y": 148,
+    "w": 326,
+    "h": 19.5
+   },
+   "ilustracion": {
+    "x": 125,
+    "y": 254.9,
+    "w": 140,
+    "h": 236
+   },
+   "botonSiguiente": {
+    "x": 241.3,
+    "y": 502.9,
+    "w": 116.7,
+    "h": 48
+   },
+   "tabPrograma": {
+    "x": 4,
+    "y": 645.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 645.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 645.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 645.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 645.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 575,
+    "w": 56,
+    "h": 56
+   },
+   "barraSafari": {
+    "x": 0,
+    "y": 711,
+    "w": 390,
+    "h": 133
+   },
+   "botonCompartirSafari": {
+    "x": 156,
+    "y": 767,
+    "w": 78,
+    "h": 44
+   }
+  },
+  "boxesFull": {
+   "titulo": {
+    "x": 16,
+    "y": 119,
+    "w": 358,
+    "h": 33
+   },
+   "tarjetaPaso": {
+    "x": 16,
+    "y": 210,
+    "w": 358,
+    "h": 434.9
+   },
+   "rotuloPaso": {
+    "x": 32,
+    "y": 226,
+    "w": 326,
+    "h": 19.5
+   },
+   "ilustracion": {
+    "x": 125,
+    "y": 332.9,
+    "w": 140,
+    "h": 236
+   },
+   "botonSiguiente": {
+    "x": 241.3,
+    "y": 580.9,
+    "w": 116.7,
+    "h": 48
+   }
+  },
+  "scrollY": 78,
+  "modo": "navegador",
+  "usar": "solo tramo previo de instalación (antes de las tomas de app instalada)",
+  "notes": "MODO NAVEGADOR (Safari iOS 18, app sin instalar): NO usar en la historia de la app instalada; solo para un tramo previo de «cómo instalar» (la sesión ya está abierta en Safari). statusBar 'safari': la página se dibujó en 390x664 (sin áreas seguras) y se compuso sobre 390x844 con la franja de 47 px arriba y la barra inferior de Safari (dirección app.congresoschot2026.com + atrás/adelante/compartir/marcadores/pestañas, 133 px) abajo; cajas ya con +47. Instalada, /instalar solo dice «Ya estás usando la app instalada». La full es solo el contenido (franja arriba, sin la barra de Safari); la -chrome trae la barra de pestañas, el botón de TibIA y la barra de Safari. Pasos 2 y 3 en instalar-paso2 / instalar-paso3. La pantalla está desplazada al final (scrollY=${sy}) para que el botón de TibIA no tape «Siguiente». botonCompartirSafari = el botón Compartir de la barra de Safari (el que pide el paso 1).",
+  "boxesCrudas": {
+   "titulo": {
+    "x": 16,
+    "y": 41,
+    "w": 358,
+    "h": 33
+   },
+   "tarjetaPaso": {
+    "x": 16,
+    "y": 132,
+    "w": 358,
+    "h": 434.9
+   },
+   "rotuloPaso": {
+    "x": 32,
+    "y": 148,
+    "w": 326,
+    "h": 19.5
+   },
+   "ilustracion": {
+    "x": 125,
+    "y": 254.9,
+    "w": 140,
+    "h": 236
+   },
+   "botonSiguiente": {
+    "x": 241.3,
+    "y": 502.9,
+    "w": 116.7,
+    "h": 48
+   },
+   "tabPrograma": {
+    "x": 4,
+    "y": 645.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 645.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 645.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 645.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 645.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 575,
+    "w": 56,
+    "h": 56
+   },
+   "barraSafari": {
+    "x": 0,
+    "y": 711,
+    "w": 390,
+    "h": 133
+   },
+   "botonCompartirSafari": {
+    "x": 156,
+    "y": 767,
+    "w": 78,
+    "h": 44
+   }
+  },
+  "chrome": "instalar-chrome.png",
+  "chromeBoxes": {
+   "tabPrograma": {
+    "x": 4,
+    "y": 645.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 645.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 645.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 645.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 645.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 575,
+    "w": 56,
+    "h": 56
+   }
+  },
+  "statusBar": "safari",
+  "render": {
+   "w": 390,
+   "h": 664,
+   "safeAreaTop": 0,
+   "safeAreaBottom": 0,
+   "franjaArriba": 47,
+   "barraSafariAbajo": 133
+  },
+  "modoDetalle": "Safari iOS 18, app SIN instalar (standalone=false). NO usar en la historia de la app instalada: solo tramo previo de «cómo instalar».",
+  "transparenciaReducida": true,
+  "reloj": "2026-11-19T13:20:00Z (jue 19, 10:20 Chile)",
+  "boxesNota": "boxes = px CSS relativos al viewport compuesto 390x844 (incluida la franja de 47 px arriba y, en modo safari, la barra de Safari abajo); una caja cuyo centro queda fuera de pantalla va en null (ver boxesFull); boxesFull = px CSS relativos a la parte superior de la página completa (<id>-full.png)."
+ },
+ "instalar-paso2": {
+  "dpr": 3,
+  "safeArea": true,
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "id": "instalar-paso2",
+  "file": "instalar-paso2.png",
+  "route": "/instalar",
+  "desc": "Guía de instalación en iPhone, PASO 2 DE 3 Toca «Agregar a inicio» Está en la lista de abajo. Si no la .",
+  "boxes": {
+   "titulo": {
+    "x": 16,
+    "y": 41,
+    "w": 358,
+    "h": 33
+   },
+   "tarjetaPaso": {
+    "x": 16,
+    "y": 132,
+    "w": 358,
+    "h": 434.9
+   },
+   "rotuloPaso": {
+    "x": 32,
+    "y": 148,
+    "w": 326,
+    "h": 19.5
+   },
+   "ilustracion": {
+    "x": 125,
+    "y": 254.9,
+    "w": 140,
+    "h": 236
+   },
+   "botonSiguiente": {
+    "x": 241.3,
+    "y": 502.9,
+    "w": 116.7,
+    "h": 48
+   },
+   "tabPrograma": {
+    "x": 4,
+    "y": 645.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 645.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 645.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 645.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 645.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 575,
+    "w": 56,
+    "h": 56
+   },
+   "barraSafari": {
+    "x": 0,
+    "y": 711,
+    "w": 390,
+    "h": 133
+   },
+   "botonCompartirSafari": {
+    "x": 156,
+    "y": 767,
+    "w": 78,
+    "h": 44
+   }
+  },
+  "scrollY": 78,
+  "modo": "navegador",
+  "usar": "solo tramo previo de instalación (antes de las tomas de app instalada)",
+  "notes": "MODO NAVEGADOR (Safari iOS 18, app sin instalar): NO usar en la historia de la app instalada; solo para un tramo previo de «cómo instalar» (la sesión ya está abierta en Safari). statusBar 'safari': la página se dibujó en 390x664 (sin áreas seguras) y se compuso sobre 390x844 con la franja de 47 px arriba y la barra inferior de Safari (dirección app.congresoschot2026.com + atrás/adelante/compartir/marcadores/pestañas, 133 px) abajo; cajas ya con +47. Desplazada al final (scrollY=78) para que el botón de TibIA no tape «Siguiente».",
+  "boxesCrudas": {
+   "titulo": {
+    "x": 16,
+    "y": 41,
+    "w": 358,
+    "h": 33
+   },
+   "tarjetaPaso": {
+    "x": 16,
+    "y": 132,
+    "w": 358,
+    "h": 434.9
+   },
+   "rotuloPaso": {
+    "x": 32,
+    "y": 148,
+    "w": 326,
+    "h": 19.5
+   },
+   "ilustracion": {
+    "x": 125,
+    "y": 254.9,
+    "w": 140,
+    "h": 236
+   },
+   "botonSiguiente": {
+    "x": 241.3,
+    "y": 502.9,
+    "w": 116.7,
+    "h": 48
+   },
+   "tabPrograma": {
+    "x": 4,
+    "y": 645.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 645.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 645.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 645.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 645.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 575,
+    "w": 56,
+    "h": 56
+   },
+   "barraSafari": {
+    "x": 0,
+    "y": 711,
+    "w": 390,
+    "h": 133
+   },
+   "botonCompartirSafari": {
+    "x": 156,
+    "y": 767,
+    "w": 78,
+    "h": 44
+   }
+  },
+  "statusBar": "safari",
+  "render": {
+   "w": 390,
+   "h": 664,
+   "safeAreaTop": 0,
+   "safeAreaBottom": 0,
+   "franjaArriba": 47,
+   "barraSafariAbajo": 133
+  },
+  "modoDetalle": "Safari iOS 18, app SIN instalar (standalone=false). NO usar en la historia de la app instalada: solo tramo previo de «cómo instalar».",
+  "transparenciaReducida": true,
+  "reloj": "2026-11-19T13:20:00Z (jue 19, 10:20 Chile)",
+  "boxesNota": "boxes = px CSS relativos al viewport compuesto 390x844; una caja cuyo centro queda fuera de pantalla va en null."
+ },
+ "instalar-paso3": {
+  "dpr": 3,
+  "safeArea": true,
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "id": "instalar-paso3",
+  "file": "instalar-paso3.png",
+  "route": "/instalar",
+  "desc": "Guía de instalación en iPhone, PASO 3 DE 3 Toca «Agregar» Arriba a la derecha. El ícono SCHOT queda en .",
+  "boxes": {
+   "titulo": {
+    "x": 16,
+    "y": 41,
+    "w": 358,
+    "h": 33
+   },
+   "tarjetaPaso": {
+    "x": 16,
+    "y": 132,
+    "w": 358,
+    "h": 434.9
+   },
+   "rotuloPaso": {
+    "x": 32,
+    "y": 148,
+    "w": 326,
+    "h": 19.5
+   },
+   "ilustracion": {
+    "x": 125,
+    "y": 254.9,
+    "w": 140,
+    "h": 236
+   },
+   "botonSiguiente": {
+    "x": 241.3,
+    "y": 502.9,
+    "w": 116.7,
+    "h": 48
+   },
+   "tabPrograma": {
+    "x": 4,
+    "y": 645.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 645.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 645.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 645.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 645.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 575,
+    "w": 56,
+    "h": 56
+   },
+   "barraSafari": {
+    "x": 0,
+    "y": 711,
+    "w": 390,
+    "h": 133
+   },
+   "botonCompartirSafari": {
+    "x": 156,
+    "y": 767,
+    "w": 78,
+    "h": 44
+   }
+  },
+  "scrollY": 78,
+  "modo": "navegador",
+  "usar": "solo tramo previo de instalación (antes de las tomas de app instalada)",
+  "notes": "MODO NAVEGADOR (Safari iOS 18, app sin instalar): NO usar en la historia de la app instalada; solo para un tramo previo de «cómo instalar» (la sesión ya está abierta en Safari). statusBar 'safari': la página se dibujó en 390x664 (sin áreas seguras) y se compuso sobre 390x844 con la franja de 47 px arriba y la barra inferior de Safari (dirección app.congresoschot2026.com + atrás/adelante/compartir/marcadores/pestañas, 133 px) abajo; cajas ya con +47. Desplazada al final (scrollY=78) para que el botón de TibIA no tape «Siguiente».",
+  "boxesCrudas": {
+   "titulo": {
+    "x": 16,
+    "y": 41,
+    "w": 358,
+    "h": 33
+   },
+   "tarjetaPaso": {
+    "x": 16,
+    "y": 132,
+    "w": 358,
+    "h": 434.9
+   },
+   "rotuloPaso": {
+    "x": 32,
+    "y": 148,
+    "w": 326,
+    "h": 19.5
+   },
+   "ilustracion": {
+    "x": 125,
+    "y": 254.9,
+    "w": 140,
+    "h": 236
+   },
+   "botonSiguiente": {
+    "x": 241.3,
+    "y": 502.9,
+    "w": 116.7,
+    "h": 48
+   },
+   "tabPrograma": {
+    "x": 4,
+    "y": 645.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 645.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 645.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 645.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 645.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 575,
+    "w": 56,
+    "h": 56
+   },
+   "barraSafari": {
+    "x": 0,
+    "y": 711,
+    "w": 390,
+    "h": 133
+   },
+   "botonCompartirSafari": {
+    "x": 156,
+    "y": 767,
+    "w": 78,
+    "h": 44
+   }
+  },
+  "statusBar": "safari",
+  "render": {
+   "w": 390,
+   "h": 664,
+   "safeAreaTop": 0,
+   "safeAreaBottom": 0,
+   "franjaArriba": 47,
+   "barraSafariAbajo": 133
+  },
+  "modoDetalle": "Safari iOS 18, app SIN instalar (standalone=false). NO usar en la historia de la app instalada: solo tramo previo de «cómo instalar».",
+  "transparenciaReducida": true,
+  "reloj": "2026-11-19T13:20:00Z (jue 19, 10:20 Chile)",
+  "boxesNota": "boxes = px CSS relativos al viewport compuesto 390x844; una caja cuyo centro queda fuera de pantalla va en null."
  },
  "seq-estrella": {
   "id": "seq-estrella",
@@ -39,7 +5718,7 @@
   "frames": 36,
   "fps": 30,
   "route": "/sesion/01a0ab2f-b983-7f24-875b-04641370104d",
-  "desc": "Ficha de «Lesiones meniscales» (jue 19, 10:30–12:30, Pacífico · Piso 3 · Enjoy) a las 10:20 («Empieza en 10 min»). Se toca «Agregar a mi agenda» (clic real con eventos táctiles CDP) y el botón pasa a «En tu agenda» con el check que entra con pop y aparece «Quitar»; entra el toast «Agregada a tu agenda».",
+  "desc": "Ficha de «Lesiones meniscales» (jue 19, 10:30–12:30, Pacífico · Piso 3 · Enjoy) a las 10:20 («Empieza en 10 min»). Se toca «Agregar a mi agenda» (clic real con eventos táctiles CDP) y el botón pasa a «En tu agenda» con el check que entra con pop y aparece «Quitar»; entra el toast «Agregaste «Lesiones meniscales»».",
   "viewport": {
    "w": 390,
    "h": 844
@@ -65,7 +5744,12 @@
     "w": 61.2,
     "h": 44
    },
-   "toast_despues": null,
+   "toast_despues": {
+    "x": 61.2,
+    "y": 620,
+    "w": 267.6,
+    "h": 42
+   },
    "fabTibia": {
     "x": 318,
     "y": 674,
@@ -120,12 +5804,19 @@
     "what": "touchEnd → clic: el botón pasa a «En tu agenda» (filete) con el check en pop (360 ms) y aparece «Quitar»"
    },
    {
-    "from": 9,
+    "from": 8,
     "to": 35,
-    "what": "entra el toast «Agregada a tu agenda» desde abajo (300 ms) y queda quieto"
+    "what": "entra el toast «Agregaste «Lesiones meniscales»» desde abajo (300 ms) y queda quieto"
    }
   ],
-  "notes": "Reloj fijo jue 19 10:20 (page.clock.install + pauseAt; sin ?demo=). Cuadros 1170x2532. Acciones: f6: touchStart (195,292) | f8: touchEnd → click. Texto final del botón: «En tu agenda». Animaciones CSS/WAAPI posicionadas a mano por cuadro según el tiempo virtual (deterministas). La charla se quitó de la agenda del fixture solo en este proceso para poder agregarla."
+  "notes": "Reloj jue 19 10:20 (page.clock, sin ?demo=; animaciones CSS congeladas durante la carga). Cuadros 1170x2532. Acciones: f6: touchStart (195,292) | f8: touchEnd → click. Texto final del botón: «En tu agenda». Animaciones CSS/WAAPI posicionadas a mano por cuadro según el tiempo virtual (deterministas). La charla se quitó de la agenda del fixture solo en este proceso para poder agregarla.",
+  "statusBar": "inset",
+  "end": "seq-estrella-end.png",
+  "firstFrame": "seq-estrella/f0000.png",
+  "transparenciaReducida": true,
+  "barraPestanas": "color-mix 97 % opaca (sin blur en headless)",
+  "brilloBtnLive": "oculto",
+  "correccionQA": "2026-10-21: regrabada (cap-B en :4183)"
  },
  "seq-ruta": {
   "id": "seq-ruta",
@@ -140,19 +5831,14 @@
    "h": 844
   },
   "dpr": 3,
-  "safeArea": true,
+  "safeArea": false,
+  "statusBar": "opaca",
   "boxes": {
    "plano": {
     "x": 16,
     "y": 122.5,
     "w": 358,
     "h": 355.8
-   },
-   "partida": {
-    "x": 137.3,
-    "y": 249,
-    "w": 19.9,
-    "h": 7
    },
    "rutaTexto": {
     "x": 43,
@@ -190,11 +5876,11 @@
     "w": 56,
     "h": 56
    },
-   "partida_final": {
-    "x": 137.7,
-    "y": 246.4,
-    "w": 33.2,
-    "h": 12
+   "partida": {
+    "x": 101,
+    "y": 238.1,
+    "w": 76.6,
+    "h": 29.6
    }
   },
   "segments": [
@@ -209,6 +5895,590 @@
     "what": "ruta completa; el anillo del destino empieza a latir (map-pulse, retardo 0,9 s, 1,4 s por latido)"
    }
   ],
-  "notes": "Reloj jue 19 10:20. Animaciones CSS congeladas durante la carga (CDP Animation.setPlaybackRate 0) y llevadas a mano cuadro a cuadro: el cuadro f0000 es el plano recién pintado con la ruta en 0. Todo lo demás de la página (entrada de la página, logos, botón de TibIA) se dejó terminado antes de grabar. Scroll: la app sube sola el plano (scrollY 135); como su scroll-margin no suma el área segura, los chips de piso quedaban bajo la barra de estado: se dejó en scrollY 88 (47 px menos). Ojo: FloorPlanPage no aplica safe-area-inset-top a su cabecera (en un iPhone real «Hotel Enjoy del Mar» queda bajo la hora si se sube al tope). La pestaña activa es «Perfil» porque el Mapa cuelga de Mi cuenta en la app."
+  "notes": "Reloj jue 19 10:20. Animaciones CSS congeladas durante la carga (CDP Animation.setPlaybackRate 0) y llevadas a mano cuadro a cuadro: el cuadro f0000 es el plano recién pintado con la ruta en 0. Todo lo demás de la página (entrada de la página, logos, botón de TibIA) se dejó terminado antes de grabar. Barra de estado opaca, igual que plano.png del agente A: el plano NO usa safe-area-inset-top (FloorPlanPage no tiene pt-safe y los chips de piso son sticky top-0), y la app instalada no pide barra translúcida (no hay apple-mobile-web-app-status-bar-style), así que en el iPhone la página empieza bajo la barra: se dibujó en 390x797 (inset arriba 0, abajo 34) y a cada cuadro se le antepuso una franja de 47 px (141 px) #f9f6fc (theme-color). Cajas ya con +47. La app sube sola el plano (scrollY 135), igual que en plano.png: el último cuadro calza con esa captura. La pestaña activa es «Perfil» porque el Mapa cuelga de Mi cuenta en la app.",
+  "end": "seq-ruta-end.png",
+  "firstFrame": "seq-ruta/f0000.png",
+  "transparenciaReducida": true,
+  "barraPestanas": "color-mix 97 % opaca (sin blur en headless)",
+  "brilloBtnLive": "oculto",
+  "correccionQA": "2026-10-21: regrabada (cap-B en :4183)"
+ },
+ "seq-itinerario": {
+  "id": "seq-itinerario",
+  "file": "seq-itinerario-end.png",
+  "seqDir": "seq-itinerario",
+  "frames": 96,
+  "fps": 30,
+  "route": "/bienvenida (paso «¿Qué te interesa ver?» → agenda)",
+  "desc": "Bienvenida de primera vez, paso «Tu agenda con TibIA · ¿Qué te interesa ver?» con «Rodilla y Traumatología Deportiva» y «Cadera» marcados («En tus palabras» oculto por CSS: quedaba tapado por el pie). Se toca «Armar mi agenda»: «TibIA está armando tu agenda» con la mascota y el símbolo trabajando, y a los ~1,5 s «4 charlas elegidas para ti» (Trauma, Conjunto Cadera y Rodilla, LCA, Prótesis complejas; sin «Lesiones meniscales», que Carolina agrega después con la estrella) con la razón de TibIA en cada charla.",
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "dpr": 3,
+  "safeArea": true,
+  "boxes": {
+   "armarMiAgenda": {
+    "x": 20,
+    "y": 698,
+    "w": 350,
+    "h": 56
+   },
+   "chipRodilla": {
+    "x": 20,
+    "y": 498.8,
+    "w": 274.3,
+    "h": 44
+   },
+   "chipCadera": {
+    "x": 20,
+    "y": 290.8,
+    "w": 102.4,
+    "h": 44
+   },
+   "mascotaPaso": {
+    "x": 297.1,
+    "y": 123,
+    "w": 68.9,
+    "h": 96
+   },
+   "mascotaEspera": {
+    "x": 141.3,
+    "y": 239.5,
+    "w": 111.9,
+    "h": 152.9
+   },
+   "textoEspera": {
+    "x": 47.6,
+    "y": 420.3,
+    "w": 294.8,
+    "h": 31.5
+   },
+   "tituloResultado_final": {
+    "x": 20,
+    "y": 143,
+    "w": 272,
+    "h": 67.5
+   },
+   "agregarCharlas_final": {
+    "x": 20,
+    "y": 698,
+    "w": 350,
+    "h": 56
+   },
+   "tarjetas_final": [
+    {
+     "x": 20,
+     "y": 350,
+     "w": 350,
+     "h": 128.6
+    },
+    {
+     "x": 20,
+     "y": 488.6,
+     "w": 350,
+     "h": 150.6
+    },
+    {
+     "x": 20,
+     "y": 692.8,
+     "w": 350,
+     "h": 128.6
+    },
+    {
+     "x": 20,
+     "y": 831.4,
+     "w": 350,
+     "h": 147.2
+    }
+   ]
+  },
+  "segments": [
+   {
+    "from": 0,
+    "to": 5,
+    "what": "«¿Qué te interesa ver?» con los dos chips marcados, quieto"
+   },
+   {
+    "from": 6,
+    "to": 8,
+    "what": "dedo sobre «Armar mi agenda» (touchStart)"
+   },
+   {
+    "from": 9,
+    "to": 53,
+    "what": "touchEnd → clic: entra la espera «TibIA está armando tu agenda» con la mascota (entra una vez) y el satélite girando"
+   },
+   {
+    "from": 54,
+    "to": 95,
+    "what": "llega la respuesta: «4 charlas elegidas para ti» con las tarjetas y las razones de TibIA (entran con su animación)"
+   }
+  ],
+  "notes": "Cuenta nueva (newUser) con el avance de la bienvenida guardado en el paso de intereses (la app instalada no tiene paso de instalar). Reloj virtual: mar 10 nov 2026 10:20 (antes del congreso). El fixture /me/agenda/suggest se retiene y se libera en el cuadro 54 (≈1,5 s después del toque). Acciones: f6: touchStart (195,726) | f9: touchEnd → click | f54: respuesta de /me/agenda/suggest liberada (pedidas: 1). tarjetas_final = las 4 tarjetas de arriba a abajo (Trauma, Conjunto Cadera y Rodilla, LCA, Prótesis complejas): la 3.ª queda detrás del pie con los botones y la 4.ª fuera de la pantalla (y=831). «En tus palabras (opcional)» oculto por CSS. Propuesta sin «Lesiones meniscales» (QA «historia-meniscales-en-itinerario»).",
+  "statusBar": "inset",
+  "end": "seq-itinerario-end.png",
+  "firstFrame": "seq-itinerario/f0000.png",
+  "transparenciaReducida": true,
+  "barraPestanas": "color-mix 97 % opaca (sin blur en headless)",
+  "brilloBtnLive": "oculto",
+  "correccionQA": "2026-10-21: regrabada (cap-B en :4183)"
+ },
+ "seq-tibia": {
+  "id": "seq-tibia",
+  "file": "seq-tibia-end.png",
+  "seqDir": "seq-tibia",
+  "frames": 180,
+  "fps": 30,
+  "route": "/chat",
+  "desc": "TibIA con sesión iniciada («Hola, Carolina»). Se envía «¿Cuándo es la fiesta de clausura?»: sube la burbuja de la pregunta, «Pensando», «Buscando información…», «Ubicando la sala…» con el esqueleto de la tarjeta, el texto que se escribe («Es mañana, viernes 20, desde las 20:00, en el Valparaíso Sporting, el cierre social del congreso:»), la tarjeta SEDE · Valparaíso Sporting · Av. Los Castaños 404, Viña del Mar con «Cómo llegar», «Habrá traslados desde los hoteles; la organización publicará los horarios en la app.» y «Copiar». Sin «También puedes preguntar»: con sugerencias la respuesta pasa la pantalla y aparece el botón redondo ↓ encima de ellas.",
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "dpr": 3,
+  "safeArea": true,
+  "boxes": {
+   "enviar": {
+    "x": 329.2,
+    "y": 677.2,
+    "w": 44,
+    "h": 44
+   },
+   "campo": {
+    "x": 29.6,
+    "y": 678.2,
+    "w": 291.6,
+    "h": 43
+   },
+   "saludo": {
+    "x": 113.1,
+    "y": 349,
+    "w": 163.7,
+    "h": 31.9
+   },
+   "burbujaUsuario_final": {
+    "x": 107.9,
+    "y": 124,
+    "w": 266.1,
+    "h": 45.5
+   },
+   "tarjetaLugar_final": {
+    "x": 16,
+    "y": 305,
+    "w": 358,
+    "h": 177.7
+   },
+   "comoLlegar_final": {
+    "x": 17,
+    "y": 433.7,
+    "w": 356,
+    "h": 48
+   },
+   "copiar_final": {
+    "x": 6,
+    "y": 558.1,
+    "w": 88.3,
+    "h": 44
+   }
+  },
+  "segments": [
+   {
+    "from": 0,
+    "to": 5,
+    "what": "chat vacío con la pregunta ya escrita en el campo"
+   },
+   {
+    "from": 6,
+    "to": 7,
+    "what": "dedo en el botón Enviar"
+   },
+   {
+    "from": 8,
+    "to": 27,
+    "what": "la pregunta sube en su burbuja lavanda y aparece la firma de TibIA"
+   },
+   {
+    "from": 28,
+    "to": 31,
+    "what": "«Pensando» con brillo"
+   },
+   {
+    "from": 32,
+    "to": 61,
+    "what": "«Buscando información…»"
+   },
+   {
+    "from": 62,
+    "to": 87,
+    "what": "«Ubicando la sala…» (el texto empieza antes de que aparezca el esqueleto de la tarjeta, así que no se ve)"
+   },
+   {
+    "from": 88,
+    "to": 101,
+    "what": "se escribe la primera frase"
+   },
+   {
+    "from": 102,
+    "to": 116,
+    "what": "aparece entera la tarjeta SEDE · Valparaíso Sporting con «Cómo llegar»"
+   },
+   {
+    "from": 117,
+    "to": 127,
+    "what": "se escribe «Habrá traslados desde los hoteles; la organización publicará los horarios en la app.»"
+   },
+   {
+    "from": 128,
+    "to": 179,
+    "what": "respuesta terminada: aparece «Copiar», el botón vuelve de «Detener» a enviar; quieto"
+   }
+  ],
+  "notes": "Preguntas sugeridas fijas con preguntas.mjs (¿Qué charlas de rodilla hay el jueves? / ¿Dónde queda la sala Pacífico? / ¿Quién habla de ligamento cruzado?), las mismas que chat-vacio/chat-escrito y seq-fab; sin rotación. El campo está enfocado (anillo de foco) de f0 al toque, igual que chat-escrito. Oculto por CSS el botón redondo ↓ «Ir al final de la conversación» y el rótulo de estado saliente (.status-out): el cambio Pensando → Buscando → Ubicando es un corte con el fundido de entrada del nuevo, sin textos superpuestos. mock-tibia-B.js: primer texto 700 ms después de la última herramienta (antes 1,1 s) para que el esqueleto de la tarjeta no quede solo tanto rato. Reloj jue 19 10:20 (page.clock: también temporiza el SSE simulado, así que el ritmo es el de mock-tibia: tool 850 ms, tool 1 s, primer texto 0,7 s, 42 ms por trozo, tarjeta 220 ms, sugerencias 450 ms). Respuesta escrita en el tono de TibIA (2–3 frases, tutea) con el dato de /info/programa-social: viernes 20 de noviembre desde las 20:00 en el Valparaíso Sporting (Av. Los Castaños 404, Viña del Mar); traslados desde los hoteles (la página dice que los horarios se publicarán). «Mañana» porque el reloj es el jueves 19. Etiquetas de herramientas reales de schot-agent/app/tools.py (show_place dice «Ubicando la sala…» también para una sede). Mientras se escribe, un «**» todavía sin cerrar se dibuja como negrita solo para la foto (la app lo muestra como asteriscos un instante; se revierte tras cada captura; cuadros afectados: 11). Primeros cuadros de cada estado: {\"detener\":8,\"pensando\":28,\"buscando\":32,\"ubicando\":62,\"texto\":88,\"tarjeta\":102,\"traslados\":117,\"fin\":128}. Acciones: f6: touchStart (351,699) | f8: touchEnd → click.",
+  "statusBar": "inset",
+  "end": "seq-tibia-end.png",
+  "firstFrame": "seq-tibia/f0000.png",
+  "transparenciaReducida": true,
+  "barraPestanas": "color-mix 97 % opaca (sin blur en headless)",
+  "brilloBtnLive": "oculto",
+  "correccionQA": "2026-10-21: regrabada (cap-B en :4183)"
+ },
+ "seq-sello": {
+  "id": "seq-sello",
+  "file": "seq-sello-end.png",
+  "seqDir": "seq-sello",
+  "frames": 75,
+  "fps": 30,
+  "route": "/pasaporte/sello/K7Q2X9?m=ao-trauma",
+  "desc": "Pantalla completa del sello (QR del stand leído con la cámara): «Sumando…» y la ceremonia «Sello agregado» de AO Trauma con su logo real en tinta: el sello cae, golpea con la onda, el anillo avanza de 12 a 13 de 35 y aparecen el stand con sello más cercano y los botones.",
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "dpr": 3,
+  "safeArea": true,
+  "boxes": {
+   "sello": {
+    "x": 119,
+    "y": 211,
+    "w": 152,
+    "h": 152
+   },
+   "selloAgregado": {
+    "x": 20,
+    "y": 385,
+    "w": 350,
+    "h": 16
+   },
+   "marca": {
+    "x": 20,
+    "y": 407,
+    "w": 350,
+    "h": 28.8
+   },
+   "progreso": {
+    "x": 20,
+    "y": 453.8,
+    "w": 350,
+    "h": 64
+   },
+   "anillo": {
+    "x": 101.5,
+    "y": 453.8,
+    "w": 64,
+    "h": 64
+   },
+   "teQuedaCerca": {
+    "x": 20,
+    "y": 592,
+    "w": 350,
+    "h": 94
+   },
+   "comoLlegar": {
+    "x": 257.2,
+    "y": 632,
+    "w": 100.8,
+    "h": 36
+   },
+   "escanearOtro": {
+    "x": 20,
+    "y": 700,
+    "w": 350,
+    "h": 52
+   },
+   "verPasaporte": {
+    "x": 20,
+    "y": 762,
+    "w": 350,
+    "h": 48
+   }
+  },
+  "segments": [
+   {
+    "from": 0,
+    "to": 6,
+    "what": "espera del POST (estado «sumando»)"
+   },
+   {
+    "from": 7,
+    "to": 11,
+    "what": "el sello aparece levantado (0–140 ms)"
+   },
+   {
+    "from": 11,
+    "to": 15,
+    "what": "golpe e impacto con la onda magenta (140–280 ms)"
+   },
+   {
+    "from": 15,
+    "to": 37,
+    "what": "se asienta; el anillo avanza de 12 a 13 de 35 (420–1.020 ms); «SELLO AGREGADO» y el nombre (480–530 ms)"
+   },
+   {
+    "from": 33,
+    "to": 74,
+    "what": "el stand con sello más cercano y los botones (900–950 ms) y queda quieto"
+   }
+  ],
+  "notes": "POST /expo/passport/scan interceptado: {new:true, just_completed:false, passport: 13 de 35 (los 12 sellos del fixture + AO Trauma a las 10:20)}. Respuesta liberada en el cuadro 6. Reloj jue 19 10:20. Animaciones CSS de la ceremonia (con su --d por pieza) llevadas cuadro a cuadro. Se eligió AO Trauma (está en el pasaporte y no entre los 12 ya sellados; el logo de Trauma Express, que seguía en la lista, viene recortado: «RAUMATOLOGÍA»). Acciones: f6: respuesta de POST /expo/passport/scan liberada (pedidas: 1). Cajas del estado final; en los primeros cuadros de la ceremonia el sello está unos 20 px más arriba (el bloque se recentra a medida que entran el texto y el anillo).",
+  "statusBar": "inset",
+  "end": "seq-sello-end.png",
+  "firstFrame": "seq-sello/f0000.png"
+ },
+ "seq-fab": {
+  "id": "seq-fab",
+  "file": "seq-fab-end.png",
+  "seqDir": "seq-fab",
+  "frames": 35,
+  "fps": 30,
+  "route": "/ → /chat",
+  "desc": "Programa del jueves 19 a las 10:20 con el botón flotante de TibIA (la mascota en su disco). Se toca el botón y entra la pantalla de TibIA vacía: «Hola, Carolina · ¿Qué necesitas del congreso?», «Ahora · Qué está pasando», tres preguntas sugeridas y el campo «Pregúntale a TibIA…».",
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "dpr": 3,
+  "safeArea": true,
+  "boxes": {
+   "fabTibia": {
+    "x": 318,
+    "y": 674,
+    "w": 56,
+    "h": 56
+   },
+   "tabPrograma": {
+    "x": 4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "lesionesMeniscales": {
+    "x": 40,
+    "y": 610,
+    "w": 245.8,
+    "h": 18
+   },
+   "campoChat_final": {
+    "x": 29.6,
+    "y": 678.2,
+    "w": 291.6,
+    "h": 43
+   },
+   "saludo_final": {
+    "x": 113.1,
+    "y": 349,
+    "w": 163.7,
+    "h": 31.9
+   },
+   "cerrar_final": {
+    "x": 338,
+    "y": 59,
+    "w": 44,
+    "h": 44
+   }
+  },
+  "segments": [
+   {
+    "from": 0,
+    "to": 4,
+    "what": "Programa quieto (10:20)"
+   },
+   {
+    "from": 5,
+    "to": 6,
+    "what": "dedo sobre el botón de TibIA (touchStart)"
+   },
+   {
+    "from": 7,
+    "to": 34,
+    "what": "touchEnd → se abre /chat y entra con fundido: la mascota, «Hola, Carolina», «Ahora · Qué está pasando» y las 3 preguntas fijas (¿Qué charlas de rodilla hay el jueves? / ¿Dónde queda la sala Pacífico? / ¿Quién habla de ligamento cruzado?)"
+   }
+  ],
+  "cuadrosQuitados": [
+   "f0007 original (casi en blanco: solo barra y botón)"
+  ],
+  "notes": "Cabecera WebGL: f0 a 15000 ms de su primer cuadro (glboot.mjs), igual que programa.png (cap-A) y seq-scroll-programa f0. Preguntas fijas con preguntas.mjs (las mismas de chat-vacio/chat-escrito y seq-tibia), sin rotación. Se quitaron 1 cuadro(s) casi en blanco del primer instante del fundido (7) y se renumeró: 35 cuadros. Reloj jue 19 10:20. localStorage tibia.fab.sesiones=9 y tibia.fab.llamada=1: el botón no despliega la etiqueta «Pregúntale a TibIA» ni hace el gesto de la primera vez (si se quiere la etiqueta, es otra toma). «Lesiones meniscales» ya está en la agenda («Mi agenda 4», «Tu elección: Pacífico · Lesiones meniscales»): esta toma va después de seq-estrella en la historia. La cabecera del Programa es WebGL y se dibuja bien en headless. Acciones: f5: touchStart (346,702) | f7: touchEnd → click.",
+  "statusBar": "inset",
+  "end": "seq-fab-end.png",
+  "firstFrame": "seq-fab/f0000.png",
+  "transparenciaReducida": true,
+  "barraPestanas": "color-mix 97 % opaca (sin blur en headless)",
+  "brilloBtnLive": "oculto",
+  "correccionQA": "2026-10-21: regrabada (cap-B en :4183)"
+ },
+ "seq-scroll-programa": {
+  "id": "seq-scroll-programa",
+  "file": "seq-scroll-programa-end.png",
+  "seqDir": "seq-scroll-programa",
+  "frames": 75,
+  "fps": 30,
+  "route": "/?dia=2026-11-19",
+  "desc": "Programa del jueves 19 a las 10:20 («Ahora 10:20», el bloque de las 10:30 «Empieza en 10 min» con «Tu elección: Pacífico · Lesiones meniscales»), con scroll suave de 1400 px (unas 2 pantallas) en 2 s.",
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "dpr": 3,
+  "safeArea": true,
+  "statusBar": "inset + franja opaca #f9f6fc pintada en los 47 px de arriba",
+  "boxes": {
+   "fabTibia": {
+    "x": 318,
+    "y": 674,
+    "w": 56,
+    "h": 56
+   },
+   "tabPrograma": {
+    "x": 4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   }
+  },
+  "scrollY": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   1,
+   2,
+   3,
+   6,
+   9,
+   13,
+   19,
+   26,
+   35,
+   45,
+   57,
+   71,
+   88,
+   106,
+   127,
+   151,
+   178,
+   207,
+   240,
+   276,
+   315,
+   358,
+   405,
+   456,
+   510,
+   569,
+   632,
+   700,
+   768,
+   831,
+   890,
+   944,
+   995,
+   1042,
+   1085,
+   1124,
+   1160,
+   1193,
+   1222,
+   1249,
+   1273,
+   1294,
+   1313,
+   1329,
+   1343,
+   1355,
+   1365,
+   1374,
+   1381,
+   1387,
+   1391,
+   1394,
+   1397,
+   1398,
+   1399,
+   1400,
+   1400,
+   1400,
+   1400,
+   1400,
+   1400,
+   1400,
+   1400,
+   1400,
+   1400,
+   1400
+  ],
+  "segments": [
+   {
+    "from": 0,
+    "to": 5,
+    "what": "quieto arriba"
+   },
+   {
+    "from": 6,
+    "to": 65,
+    "what": "scroll con easing in-out cúbico de 0 a 1400 px (scrollY por cuadro en «scrollY»)"
+   },
+   {
+    "from": 66,
+    "to": 74,
+    "what": "quieto abajo"
+   }
+  ],
+  "notes": "Cabecera WebGL: f0 a 15000 ms de su primer cuadro (reloj virtual, glboot.mjs), igual que programa.png de cap-A; después sigue moviéndose con el reloj (hora 2026-11-19T13:20:15.910Z en f0). Transparencia reducida (CDP prefers-reduced-transparency) y barra de pestañas casi opaca (97 %), igual que cap-A. Scroll por cuadro con window.scrollTo (instantáneo) según el tiempo virtual; la barra compacta del Programa y lo que depende del scroll reaccionan como en el teléfono (no es lo mismo que mover la captura full). Franja superior de 47 px (141 px) pintada #f9f6fc en todos los cuadros = barra de estado opaca (si no, el contenido se ve pasar bajo la hora). Textos con errores de tipeo en el recorrido: ninguno.",
+  "end": "seq-scroll-programa-end.png",
+  "firstFrame": "seq-scroll-programa/f0000.png",
+  "transparenciaReducida": true,
+  "barraPestanas": "color-mix 97 % opaca (sin blur en headless)",
+  "brilloBtnLive": "oculto",
+  "correccionQA": "2026-10-21: regrabada (cap-B en :4183)"
  }
 }

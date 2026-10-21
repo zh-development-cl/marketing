@@ -1,5 +1,6 @@
 import React from 'react';
 import {Easing, Img, interpolate, staticFile, useCurrentFrame} from 'remotion';
+import {Streak} from '../../v4/fx/MotionBlur';
 import {BEZEL, Box, PHONE_H, PHONE_W, PT, Pose, REST, SCREEN_H, SCREEN_W} from './geometry';
 
 // El teléfono del video y todo lo que pasa en su pantalla, descrito como datos (pistas) por las escenas:
@@ -16,7 +17,7 @@ export type Transition = 'cut' | 'fade' | 'push' | 'pop' | 'sheet' | 'zoom';
 export type ScreenEvent = {
   at: number;
   src?: string; // imagen relativa a public/ (p. ej. 'schot/shots/programa.png')
-  seq?: {dir: string; frames: number; start?: number; rate?: number}; // secuencia f0000.png… a 30 fps desde `at`
+  seq?: {dir: string; frames: number; start?: number; end?: number; rate?: number}; // secuencia f0000.png… a 30 fps desde `at` (de `start` a `end`)
   full?: boolean; // página completa: se desplaza con `scroll`
   scroll?: Array<[number, number]>; // [frame absoluto, pt desplazados]; entre keyframes con easing suave
   chrome?: string; // capa fija encima (barra de pestañas + botón de TibIA) para las páginas completas
@@ -33,6 +34,8 @@ export type CamKey = {at: number; dur: number; pose: Pose; ease?: 'io' | 'out' |
 const clampOpt = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
 const ios = Easing.bezier(0.32, 0.72, 0, 1);
 const io = Easing.inOut(Easing.cubic);
+// Navegación (empuje, hoja, zoom): arranque suave y llegada larga; sin el salto del primer cuadro de una curva rápida.
+const nav = Easing.bezier(0.45, 0, 0.12, 1);
 const pr = (f: number, a: number, d: number, e = ios) => interpolate(f, [a, a + Math.max(1, d)], [0, 1], {...clampOpt, easing: e});
 
 // ---------- cámara ----------
@@ -71,8 +74,8 @@ const pad4 = (n: number) => String(n).padStart(4, '0');
 const ScreenView: React.FC<{ev: ScreenEvent; f: number}> = ({ev, f}) => {
   if (ev.render) return <>{ev.render(f)}</>;
   if (ev.seq) {
-    const {dir, frames, start = 0, rate = 1} = ev.seq;
-    const i = Math.max(0, Math.min(frames - 1, start + Math.floor((f - ev.at) * rate)));
+    const {dir, frames, start = 0, end = frames - 1, rate = 1} = ev.seq;
+    const i = Math.max(start, Math.min(end, frames - 1, start + Math.floor((f - ev.at) * rate)));
     return <Img src={staticFile(`${dir}/f${pad4(i)}.png`)} style={{position: 'absolute', left: 0, top: 0, width: SCREEN_W, height: SCREEN_H, objectFit: 'cover', objectPosition: 'top'}} />;
   }
   if (!ev.src) return null;
@@ -83,6 +86,10 @@ const ScreenView: React.FC<{ev: ScreenEvent; f: number}> = ({ev, f}) => {
         src={staticFile(ev.src)}
         style={{position: 'absolute', left: 0, top: 0, width: SCREEN_W, transform: `translateY(${(-y * PT).toFixed(2)}px)`}}
       />
+      {/* Al desplazar, el contenido pasa bajo una franja difuminada (como en iOS) para que no choque con la hora */}
+      {ev.full && y > 0.5 ? (
+        <div style={{position: 'absolute', left: 0, right: 0, top: 0, height: 50 * PT, background: 'rgba(249,246,252,.88)', backdropFilter: 'blur(14px) saturate(1.4)', boxShadow: '0 1px 0 rgba(28,18,36,.06)', opacity: Math.min(1, y / 30)}} />
+      ) : null}
       {ev.chrome ? <Img src={staticFile(ev.chrome)} style={{position: 'absolute', left: 0, top: 0, width: SCREEN_W, height: SCREEN_H}} /> : null}
     </>
   );
@@ -97,13 +104,22 @@ const Screens: React.FC<{screens: ScreenEvent[]; f: number}> = ({screens, f}) =>
   const cur = sorted[idx];
   const prev = idx > 0 ? sorted[idx - 1] : null;
   const kind = cur.enter ?? 'cut';
-  const dur = cur.enterDur ?? (kind === 'fade' ? 8 : kind === 'zoom' ? 12 : 14);
-  const t = kind === 'cut' ? 1 : pr(f, cur.at, dur, kind === 'fade' ? io : ios);
-  const layer = (child: React.ReactNode, style: React.CSSProperties, key: string) => (
+  const dur = cur.enterDur ?? (kind === 'fade' ? 8 : kind === 'zoom' ? 14 : 16);
+  const t = kind === 'cut' ? 1 : pr(f, cur.at, dur, kind === 'fade' ? io : nav);
+  // Velocidad de la transición (fracción de pantalla por frame) para el desenfoque de movimiento de empujes y hojas.
+  const dt = kind === 'cut' ? 0 : Math.abs(t - pr(f - 1, cur.at, dur, kind === 'fade' ? io : nav));
+  const layer = (child: React.ReactNode, style: React.CSSProperties, key: string, blur?: {sx: number; sy?: number}) => (
     <div key={key} style={{position: 'absolute', inset: 0, overflow: 'hidden', ...style}}>
-      {child}
+      {blur && Math.max(blur.sx, blur.sy ?? 0) >= 0.6 ? (
+        <Streak sx={blur.sx} sy={blur.sy ?? 0} style={{position: 'absolute', inset: 0}}>
+          {child}
+        </Streak>
+      ) : (
+        child
+      )}
     </div>
   );
+  const mb = (px: number) => Math.min(26, px * 0.42);
   if (!prev || t >= 1) return layer(<ScreenView ev={cur} f={f} />, {}, `s${idx}`);
   const prevView = <ScreenView ev={prev} f={f} />;
   const curView = <ScreenView ev={cur} f={f} />;
@@ -120,16 +136,16 @@ const Screens: React.FC<{screens: ScreenEvent[]; f: number}> = ({screens, f}) =>
       <>
         {layer(prevView, {}, `p${idx}`)}
         <div style={{position: 'absolute', inset: 0, background: `rgba(14,0,30,${0.35 * t})`}} />
-        {layer(curView, {transform: `translateY(${((1 - t) * SCREEN_H).toFixed(1)}px)`, boxShadow: '0 -20px 50px rgba(14,0,30,.35)'}, `s${idx}`)}
+        {layer(curView, {transform: `translateY(${((1 - t) * SCREEN_H).toFixed(1)}px)`, boxShadow: '0 -20px 50px rgba(14,0,30,.35)'}, `s${idx}`, {sx: 0, sy: mb(dt * SCREEN_H)})}
       </>
     );
   // push (navegar hacia adentro) y pop (volver): como la navegación de iOS, la anterior se corre un 30 % y se oscurece.
   const dir = kind === 'pop' ? -1 : 1;
   return (
     <>
-      {layer(prevView, {transform: `translateX(${(-dir * 0.3 * t * SCREEN_W).toFixed(1)}px)`}, `p${idx}`)}
+      {layer(prevView, {transform: `translateX(${(-dir * 0.3 * t * SCREEN_W).toFixed(1)}px)`}, `p${idx}`, {sx: mb(dt * 0.3 * SCREEN_W)})}
       <div style={{position: 'absolute', inset: 0, background: `rgba(14,0,30,${0.18 * t})`}} />
-      {layer(curView, {transform: `translateX(${(dir * (1 - t) * SCREEN_W).toFixed(1)}px)`, boxShadow: '-16px 0 40px rgba(14,0,30,.25)'}, `s${idx}`)}
+      {layer(curView, {transform: `translateX(${(dir * (1 - t) * SCREEN_W).toFixed(1)}px)`, boxShadow: '-16px 0 40px rgba(14,0,30,.25)'}, `s${idx}`, {sx: mb(dt * SCREEN_W)})}
     </>
   );
 };
@@ -181,7 +197,7 @@ const PushView: React.FC<{n: PushNote; f: number}> = ({n, f}) => {
   const inT = pr(f, n.at, 16, Easing.bezier(0.2, 0.9, 0.25, 1.15));
   const outT = pr(f, n.until, 12, Easing.in(Easing.cubic));
   if (inT <= 0 || outT >= 1) return null;
-  const y = (-130 + 140 * inT - 160 * outT) * PT;
+  const y = (-140 + 192 * inT - 210 * outT) * PT; // reposa bajo la isla dinámica (52 pt), como en iOS
   return (
     <div
       style={{
@@ -262,14 +278,19 @@ export type StageProps = {
 };
 
 // Inkjet de la barra de estado: la de la pantalla vigente (en un empuje cambia a la mitad).
-const inkAt = (screens: ScreenEvent[], f: number): 'dark' | 'light' => {
+// Cuánto de tinta clara lleva la barra de estado (0 oscura, 1 clara): cruza en fundido durante la entrada de cada
+// pantalla (6 frames en los cortes) y al desplazar una página completa.
+const inkAt = (screens: ScreenEvent[], f: number): number => {
   const sorted = [...screens].sort((a, b) => a.at - b.at);
-  let ink: 'dark' | 'light' = 'dark';
+  const val = (s: ScreenEvent) => (s.ink === 'light' ? 1 : 0) * (s.full ? 1 - Math.min(1, scrollAt(s, f) / 30) : 1);
+  let k = 0;
   for (const s of sorted) {
-    const half = s.enter && s.enter !== 'cut' ? Math.round((s.enterDur ?? 14) / 2) : 0;
-    if (f >= s.at + half) ink = s.ink ?? 'dark';
+    if (f < s.at) break;
+    const d = s.enter && s.enter !== 'cut' ? s.enterDur ?? 14 : 6;
+    const t = interpolate(f, [s.at, s.at + d], [0, 1], {...clampOpt, easing: io});
+    k = k + (val(s) - k) * t;
   }
-  return ink;
+  return k;
 };
 
 export const Stage: React.FC<StageProps> = ({screens, taps = [], glows = [], pushes = [], cam = [], opacity, time = '10:20', extra}) => {
@@ -327,7 +348,15 @@ export const Stage: React.FC<StageProps> = ({screens, taps = [], glows = [], pus
             {pushes.map((n, i) => (
               <PushView key={i} n={n} f={f} />
             ))}
-            <StatusBar ink={inkAt(screens, f)} time={time} />
+            {(() => {
+              const k = inkAt(screens, f);
+              return (
+                <>
+                  {k < 0.999 ? <div style={{position: 'absolute', inset: 0, zIndex: 40, opacity: 1 - k}}><StatusBar ink="dark" time={time} /></div> : null}
+                  {k > 0.001 ? <div style={{position: 'absolute', inset: 0, zIndex: 40, opacity: k}}><StatusBar ink="light" time={time} /></div> : null}
+                </>
+              );
+            })()}
             {/* Isla dinámica */}
             <div style={{position: 'absolute', top: 11 * PT, left: '50%', transform: 'translateX(-50%)', width: 124 * PT, height: 36 * PT, borderRadius: 20 * PT, background: '#000', zIndex: 41}} />
             {/* Indicador de inicio */}

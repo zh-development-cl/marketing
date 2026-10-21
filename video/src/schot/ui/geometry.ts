@@ -13,11 +13,25 @@ export const REST: Pose = {x: 540, y: 560 + BEZEL + SCREEN_H / 2, s: 1, r: 0}; /
 
 export type Box = {x: number; y: number; w: number; h: number};
 
-// Pose que deja el centro de una caja (en pt de la pantalla) en el punto `target` del lienzo con zoom `s`.
+// Zona reservada arriba para el titular y los subtítulos: el teléfono nunca sube su borde por encima de esta línea.
+export const TOP_MIN = 556;
+const BOTTOM_MAX = 1820; // el centro de lo enfocado nunca baja de aquí
+
+// Pose que deja el centro de una caja (en pt de la pantalla) en el punto `target` del lienzo con zoom `s`, sin invadir
+// la zona del texto: si para enfocarla habría que subir el teléfono sobre el titular, se baja hasta TOP_MIN; si con
+// eso la caja quedaría fuera del cuadro, se reduce el zoom (hasta 1).
 export const focus = (box: Box, s: number, target: {x: number; y: number} = {x: 540, y: 1180}): Pose => {
   const bx = (box.x + box.w / 2) * PT - SCREEN_W / 2;
   const by = (box.y + box.h / 2) * PT - SCREEN_H / 2;
-  return {x: target.x - bx * s, y: target.y - by * s, s, r: 0};
+  for (let z = s; z >= 1; z -= 0.02) {
+    const y = Math.max(target.y - by * z, TOP_MIN + (PHONE_H / 2) * z);
+    if (y + by * z <= BOTTOM_MAX || z - 0.02 < 1) {
+      // En x: el centro de la caja al centro, pero sin despegar el borde del teléfono más de lo necesario.
+      const x = target.x - bx * z;
+      return {x, y, s: z, r: 0};
+    }
+  }
+  return {x: 540, y: REST.y, s: 1, r: 0};
 };
 
 // Punto del lienzo donde cae un punto de la pantalla (pt) con una pose dada.

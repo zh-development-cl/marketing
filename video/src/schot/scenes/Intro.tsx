@@ -8,9 +8,11 @@ import {SceneDef, shot} from './types';
 // Escena 1 · apertura. El sello de SCHOT nace con su luz, «App oficial · Viña del Mar 2026», «62º Congreso SCHOT»;
 // en «Todo el congreso» el título sube y se va, y el teléfono sube desde abajo con el Programa real en pantalla.
 const sc = scenes.intro;
-const tSeal = 4;
-const tEyebrow = 16;
-const tTitle = 24;
+// El frame 0 ya es la portada completa (WhatsApp usa el primer cuadro como miniatura): todo nace antes del 0 y la
+// portada respira con un acercamiento lento hasta que sube el teléfono.
+const tSeal = -30;
+const tEyebrow = -20;
+const tTitle = -16;
 const tTodo = beat('intro', 'Todo');
 const tRise = tTodo - 10; // el teléfono sube justo antes de «Todo»
 const tTitleOut = tTodo - 12;
@@ -21,7 +23,7 @@ const pr = (f: number, a: number, d: number, e = ios) => interpolate(f, [a, a + 
 
 const SANS = '"Barlow", system-ui, sans-serif';
 
-const Overlay: React.FC = () => {
+const Under: React.FC = () => {
   const f = useCurrentFrame();
   const {fps} = useVideoConfig();
   const seal = spring({frame: f - tSeal, fps, config: {damping: 16, stiffness: 90}});
@@ -32,11 +34,11 @@ const Overlay: React.FC = () => {
     const b = (1 - p) * 12 + out * 12;
     return {opacity: p * (1 - out), transform: `translateY(${((1 - p) * 24 - out * 60).toFixed(1)}px)`, filter: b > 0.3 ? `blur(${b.toFixed(1)}px)` : undefined} as React.CSSProperties;
   };
-  if (f > tTitleOut + 18 && f > sc.to) return null;
+  if (out >= 1) return null;
   return (
     <>
       {out < 1 ? (
-        <div style={{position: 'absolute', left: 0, right: 0, top: 0, height: 1920}}>
+        <div style={{position: 'absolute', left: 0, right: 0, top: 0, height: 1920, transform: `scale(${(1 + 0.03 * Math.min(1, f / tTitleOut)).toFixed(4)})`, transformOrigin: '50% 45%'}}>
           {/* Sello con su luz */}
           <div style={{position: 'absolute', left: 540 - 190, top: 520, width: 380, height: 380, transform: `translateY(${(-out * 120).toFixed(1)}px) scale(${(0.7 + 0.3 * seal) * (1 - 0.25 * out)})`, opacity: Math.min(1, seal * 1.4) * (1 - out)}}>
             <div style={{position: 'absolute', inset: -160, borderRadius: '50%', background: 'radial-gradient(closest-side, rgba(195,174,242,.45), rgba(162,0,255,.18) 55%, rgba(162,0,255,0))', opacity: glow}} />
@@ -54,20 +56,22 @@ const Overlay: React.FC = () => {
           </div>
         </div>
       ) : null}
-      <Headline lines={['Todo el congreso,', 'en tu *celular*']} at={tTodo - 4} out={sc.to - 6} />
     </>
   );
 };
 
+const Overlay: React.FC = () => <Headline lines={['Todo el congreso,', 'en tu *celular*']} at={tTodo - 4} out={sc.to - 12} />;
+
 export const intro: SceneDef = {
-  screens: [{at: 0, src: shot('programa'), ink: 'light'}],
+  screens: [{at: 0, src: shot('programa'), ink: 'dark'}],
   cam: [
-    {at: 0, dur: 1, pose: {...REST, y: REST.y + 1500}},
+    {at: -2, dur: 1, pose: {...REST, y: REST.y + 1500}},
     {at: tRise, dur: 26, pose: REST, ease: 'out'},
   ],
+  Under,
   Overlay,
   sfx: [
-    {name: 'logo', at: tSeal, gain: 0.7},
+    {name: 'logo', at: 0, gain: 0.6},
     {name: 'whoosh-soft', at: tRise, gain: 0.55},
   ],
 };

@@ -40,21 +40,23 @@ node scripts/voiceover-single.mjs VvYiNBPylZtUh8Bf6u8l
 ```
 
 «SCHOT» se pronuncia «Schot» (verificado con Whisper: «Shot», también dentro de la URL). «QR» se evitó en la voz
-(el TTS lo decía mal): «escaneando su código».
+(el TTS lo decía mal): «escaneando su código». Los cortes por escena se hacen en el silencio real entre frases
+(envolvente de energía), no solo con los tiempos del STT, que a veces corría el inicio de una escena dentro de la
+última palabra de la anterior.
 
 ## Escenas
 
 | # | Escena | Voz | Pantalla |
 |---|--------|-----|----------|
-| 1 | Apertura | Esta es la app oficial… Todo el congreso, en tu celular. | Sello SCHOT con su luz, «62º Congreso SCHOT»; sube el teléfono con el Programa real. |
+| 1 | Apertura | Esta es la app oficial… Todo el congreso, en tu celular. | El primer cuadro ya es la portada (miniatura de WhatsApp): sello SCHOT con su luz y «62º Congreso SCHOT»; sube el teléfono con el Programa real por delante del título. |
 | 2 | Entrar | No se descarga… Sin contraseñas. | Safari: la dirección se escribe y carga el ingreso real; correo, «Enviarme un código», 6 dígitos; «Hola, Carolina». |
-| 3 | Agenda con IA | Cuéntale a TibIA… sin charlas que se crucen. | Intereses Rodilla y Cadera → «Armar mi agenda» → TibIA arma la agenda (secuencia real) → charlas elegidas. |
-| 4 | Programa | En el programa ves lo que está pasando ahora… | Programa del jueves 19 a las 10:20 con la línea «Ahora»; sedes; filtro Rodilla. |
+| 3 | Agenda con IA | Cuéntale a TibIA… sin charlas que se crucen. | La mascota TibIA se presenta («Tib**IA** arma tu agenda», «Asistente con IA»); intereses Rodilla y Cadera → «Armar mi agenda» → TibIA arma la agenda (secuencia real) → «4 charlas elegidas para ti». |
+| 4 | Programa | En el programa ves lo que está pasando ahora… | Programa del jueves 19 a las 10:20 con la línea «Ahora»; filtro por sede (Enjoy) y por especialidad (Rodilla). |
 | 5 | Charlas | Agregas una charla con un toque… hasta la puerta de la sala. | Ficha «Lesiones meniscales» → «Agregar a mi agenda» → «Cómo llegar» → plano del Piso 3 con la ruta animada hasta el Auditorio Pacífico. |
 | 6 | Avisos | Además, te avisa diez minutos antes… | Mi agenda «Lo próximo · en 10 min» y la notificación con el texto real del backend. |
 | 7 | Asistente | ¿Una duda? Pregúntale a TibIA… | El chat sube desde el botón flotante; la mascota saluda; «¿Cuándo es la fiesta de clausura?» y TibIA responde con la tarjeta del lugar. |
 | 8 | Expo | En la expo, junta sellos… escaneando su código. | Auspiciadores con logos reales y Pasaporte Virtual → «Sello agregado» → «Mi código QR». |
-| 9 | Cierre | Entra a app.congresoschot2026.com y agrégala… | La dirección grande; la pantalla de inicio de iOS con el ícono SCHOT que aparece; sello y datos del congreso. |
+| 9 | Cierre | Entra a app.congresoschot2026.com y agrégala… | La dirección grande; la guía «Instalar la app» de la propia app en sus tres pasos (Compartir → «Agregar a inicio» → «Agregar»); la pantalla de inicio de iOS con el ícono SCHOT que aparece; termina en la tarjeta con la dirección, el sello y «Viña del Mar · 18–21 nov 2026» (sin fundido a negro: WhatsApp se queda en el último cuadro). |
 
 ## Capturas reales
 
@@ -68,6 +70,18 @@ sello) se grabaron cuadro a cuadro.
 
 `node scripts/schot-shots.mjs <dir de capturas>` copia las capturas a `public/schot/shots/` y junta los
 manifiestos (cajas de cada botón tocado) en `src/schot/shots.json`.
+
+## Cómo se revisó
+
+- Capturas: control de calidad independiente de cada toma (barra de pestañas opaca porque el desenfoque no se dibuja
+  en headless, sugerencias de TibIA fijas entre tomas, brillo de los botones apagado, sin typos de los datos) y una
+  ronda de recaptura.
+- Video: cinco lentes independientes (comprensión de un médico de ~60 años con y sin sonido, suavidad cuadro a cuadro
+  con el detector de saltos, sincronía voz–imagen, marca y legibilidad, audio por stems) y un escéptico que refuta
+  cada hallazgo. Se corrigieron todos los confirmados: portada en el primer cuadro, el título detrás del teléfono,
+  cortes secos de subtítulos y de la tinta de la barra de estado, halos que quedaban sobre la pantalla siguiente,
+  desenfoque de movimiento en los empujes y hojas, cámara que nunca tapa el titular, sincronía de toques y efectos,
+  efectos que tapaban palabras clave, y el cierre con la guía de instalación y la dirección legible al final.
 
 ## Audio y render
 

@@ -6,6 +6,7 @@ import {Backdrop} from './ui/Backdrop';
 import {Stage} from './ui/Stage';
 import {Captions} from './ui/Text';
 import {tMascot, tMascotOut} from './scenes/Tibia';
+import {tItinMascot, tItinMascotOut} from './scenes/Itinerario';
 
 // Video demo de la app del 62º Congreso SCHOT (1080 x 1920, 30 fps). Fondo vivo de marca; un solo teléfono que
 // recorre todo el video con la app real en pantalla (las escenas aportan pistas de pantallas, toques, cámara);
@@ -22,8 +23,6 @@ const MUSIC = 'music/schot-bed.mp3';
 const MUSIC_GAIN = 0.7;
 const SFX_GAIN = 0.6;
 
-// Subtítulos fuera de la apertura (el título ya dice lo mismo) y del cierre (la dirección grande lo reemplaza).
-const hideCaptions = (f: number) => f < scenes.abrir.from || f >= scenes.cierre.from;
 
 export const SchotDemo: React.FC = () => {
   const frame = useCurrentFrame();
@@ -41,7 +40,8 @@ export const SchotDemo: React.FC = () => {
         const sc = scenes[k];
         return Overlay && frame >= sc.from - 20 && frame < sc.to + 20 ? <Overlay key={`o-${k}`} /> : null;
       })}
-      <Captions hide={hideCaptions} right={(f) => (f >= tMascot - 6 && f < tMascotOut + 14 ? 360 : 80)} />
+      {/* Subtítulos fuera de la apertura (el título dice lo mismo) y del cierre (la dirección grande lo reemplaza) */}
+      <Captions skip={['intro', 'cierre']} right={(f) => ((f >= tMascot - 6 && f < tMascotOut + 24) || (f >= tItinMascot - 6 && f < tItinMascotOut + 24) ? 330 : 80)} />
       {/* Voz por escena */}
       {order.map((k) => (
         <Sequence key={`vo-${k}`} from={scenes[k].voAt} name={`vo-${k}`}>

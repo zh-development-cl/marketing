@@ -10,15 +10,15 @@ import {SceneDef, shot} from './types';
 // especialidad» → vuelve arriba, se destacan las sedes y se toca Rodilla: el programa queda filtrado.
 const sc = scenes.programa;
 const tScroll = beat('programa', 'ves') - 4;
-const tAhora = beat('programa', 'ahora') - 2;
-const tBack = beat('programa', 'por') - 8;
+const tAhora = Math.max(beat('programa', 'ahora') - 10, tScroll + 26);
+const tBack = tAhora + 16;
 const tSede = beat('programa', 'sede') - 2;
 const tRod = beat('programa', 'especialidad') + 2;
 
-const linea = bx('programa-full', 'lineaAhora', {x: 16, y: 470, w: 358, h: 30});
+const linea = bx('programa', 'lineaAhora', {x: 16, y: 429, w: 358, h: 24});
 const SCROLL = Math.max(0, Math.min(320, linea.y - 300));
-const sedes = bx('programa', 'chipsSede', {x: 16, y: 300, w: 358, h: 40});
-const rod = bx('programa', 'chipRodilla', {x: 200, y: 300, w: 90, h: 40});
+const sedes = {x: 150, y: 303, w: 212, h: 44}; // chips Sheraton y Enjoy en la fila corrida (programa-enjoy)
+const rod = center(bx('programa-enjoy', 'chipRodilla', {x: 57, y: 303, w: 88, h: 44}));
 
 const Overlay: React.FC = () => <Headline n="3" label="Programa" lines={['Lo que pasa', '*ahora*']} at={sc.from - 2} out={sc.to - 8} />;
 
@@ -33,18 +33,19 @@ export const programa: SceneDef = {
         [tScroll, 0],
         [tScroll + 26, SCROLL],
         [tBack, SCROLL],
-        [tBack + 14, 0],
+        [tBack + 10, 0],
       ],
       enter: 'zoom',
       enterDur: 14,
-      ink: 'light',
+      ink: 'dark',
     },
-    {at: tRod + 4, src: shot('programa-rodilla'), enter: 'fade', enterDur: 8, ink: 'light'},
+    {at: tSede - 6, src: shot('programa-enjoy'), enter: 'fade', enterDur: 8, ink: 'dark'},
+    {at: tRod + 4, src: shot('programa-rodilla'), enter: 'fade', enterDur: 8, ink: 'dark'},
   ],
-  taps: [{at: tRod, ...center(rod)}],
+  taps: [{at: tRod, ...rod}],
   glows: [
     {at: tAhora, until: tBack - 2, box: {...linea, y: linea.y - SCROLL}, radius: 10},
-    {at: tSede, until: tRod - 2, box: sedes, radius: 20},
+    {at: tSede + 2, until: tRod - 2, box: sedes, radius: 22},
   ],
   cam: [
     {at: tAhora - 6, dur: 16, pose: focus({...linea, y: linea.y - SCROLL}, 1.18, {x: 540, y: 1080})},

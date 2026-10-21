@@ -17,11 +17,11 @@ const tTyped = tType + 30;
 const tGo = beat('abrir', 'abre') - 2; // «Ir»: carga la página
 const tLoaded = beat('abrir', 'navegador') - 8;
 const tTapMail = beat('abrir', 'entras') - 4;
-const tMail = tTapMail + 5;
+const tMail = Math.max(tTapMail + 5, beat('abrir', 'correo') - 6); // el correo aparece escrito con «correo»
 const tTapSend = beat('abrir', 'correo') + 6;
 const tCode = tTapSend + 5;
-const tDigit0 = beat('abrir', 'código') - 2;
-const tIn = beat('abrir', 'Sin') + 4; // adentro: bienvenida
+const tDigit0 = beat('abrir', 'código') + 8; // «Revisa tu correo · Código enviado a…» queda quieto un momento
+const tIn = beat('abrir', 'contraseñas') + 4; // adentro: bienvenida
 const tBarOut = tTapMail - 2;
 
 const clampOpt = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
@@ -41,14 +41,14 @@ const SafariBar: React.FC<{f: number}> = ({f}) => {
   const w = (358 - 230 * col) * PT;
   return (
     <div style={{position: 'absolute', left: (SCREEN_W - w) / 2, bottom: (38 - 14 * col) * PT, width: w, height: (50 - 22 * col) * PT, borderRadius: 30 * PT, background: 'rgba(255,255,255,.92)', backdropFilter: 'blur(20px)', boxShadow: '0 10px 30px rgba(28,18,36,.18), inset 0 0 0 1px rgba(28,18,36,.06)', display: 'flex', alignItems: 'center', padding: `0 ${16 * PT}px`, gap: 10 * PT, opacity: 1 - pr(f, tBarOut + 6, 8), overflow: 'hidden', zIndex: 25}}>
-      <span style={{fontFamily: SF, fontWeight: 600, fontSize: (17 - 5 * col) * PT, color: '#1C1224', opacity: 1 - col}}>
+      <span style={{fontFamily: SF, fontWeight: 600, fontSize: (17 - 5 * col) * PT, color: '#1C1224', opacity: 1 - col, width: (1 - col) * 22 * PT, overflow: 'hidden', flex: 'none'}}>
         a<span style={{fontSize: (13 - 4 * col) * PT}}>A</span>
       </span>
-      <span style={{flex: 1, fontFamily: SF, fontWeight: 500, fontSize: (17 - 5 * col) * PT, color: n ? '#1C1224' : '#8E8A96', textAlign: 'center', whiteSpace: 'nowrap'}}>
-        {n ? URL.slice(0, n) : 'Buscar o escribir el sitio'}
+      <span style={{flex: 1, fontFamily: SF, fontWeight: 500, fontSize: (17 - 6.5 * col) * PT, color: n ? '#1C1224' : '#8E8A96', textAlign: 'center', whiteSpace: 'nowrap', overflow: 'hidden'}}>
+        {n ? (col > 0.5 ? URL.replace(/^app\./, '') : URL.slice(0, n)) : 'Buscar o escribir el sitio'}
         {caret ? <span style={{display: 'inline-block', width: 2 * PT, height: 20 * PT, background: '#A200FF', marginLeft: 1, verticalAlign: 'middle'}} /> : null}
       </span>
-      <svg width={18 * PT} height={18 * PT} viewBox="0 0 24 24" fill="none" stroke="#1C1224" strokeWidth="2.2" strokeLinecap="round" style={{opacity: 1 - col}}>
+      <svg width={(1 - col) * 18 * PT} height={18 * PT} viewBox="0 0 24 24" fill="none" stroke="#1C1224" strokeWidth="2.2" strokeLinecap="round" style={{opacity: 1 - col, flex: 'none'}}>
         <path d="M20 12a8 8 0 1 1-2.3-5.6" />
         <path d="M20 4v4h-4" />
       </svg>
@@ -80,7 +80,7 @@ const SafariPage: React.FC<{f: number; id: string}> = ({f, id}) => (
 
 const mail = bx('login-1', 'campoCorreo', {x: 24, y: 520, w: 342, h: 52});
 const send = bx('login-2', 'botonEnviarCodigo', bx('login-1', 'botonEnviarCodigo', {x: 24, y: 590, w: 342, h: 52}));
-const codeBoxes = bx('login-3g', 'cajasCodigo', {x: 24, y: 330, w: 342, h: 60});
+const codeBoxes = bx('login-3g', 'grupoCodigo', {x: 48, y: 505, w: 294, h: 52});
 const bar = {x: 16, y: 756, w: 358, h: 50};
 
 const Overlay: React.FC = () => <Headline n="1" label="Entrar" lines={['Sin descargar', '*nada*']} at={sc.from - 4} out={sc.to - 8} />;
@@ -93,7 +93,8 @@ export const abrir: SceneDef = {
     {at: tLoaded, render: (f) => <SafariPage f={f} id="login-1" />, enter: 'fade', enterDur: 8, ink: 'light'},
     {at: tMail, src: shot('login-2'), enter: 'fade', enterDur: 6, ink: 'light'},
     {at: tCode, src: shot('login-3a'), enter: 'push', ink: 'light'},
-    ...digits.map((id, i) => ({at: tDigit0 + i * 3, src: shot(id), ink: 'light' as const})),
+    // Cada dígito entra con un fundido de 3 frames; el último («Verificando…») reacomoda la tarjeta: fundido más largo.
+    ...digits.map((id, i) => ({at: tDigit0 + i * 3, src: shot(id), enter: 'fade' as const, enterDur: i === digits.length - 1 ? 7 : 3, ink: 'light' as const})),
     {at: tIn, src: shot('bienvenida'), enter: 'zoom', enterDur: 14, ink: 'light'},
   ],
   taps: [
@@ -114,6 +115,6 @@ export const abrir: SceneDef = {
     {name: 'click', at: tTapMail, gain: 0.4},
     {name: 'click', at: tTapSend, gain: 0.5},
     ...digits.map((_, i) => ({name: 'tick' as const, at: tDigit0 + i * 3, gain: 0.22})),
-    {name: 'chime', at: tIn, gain: 0.4},
+    {name: 'chime', at: tIn, gain: 0.28},
   ],
 };

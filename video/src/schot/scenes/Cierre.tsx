@@ -3,17 +3,24 @@ import {Easing, Img, interpolate, spring, staticFile, useCurrentFrame, useVideoC
 import {beat, beatEnd, scenes} from '../timeline';
 import {PT, REST, SCREEN_H, SCREEN_W} from '../ui/geometry';
 import {GRAD_TEXT} from '../ui/Text';
+import {bx} from '../shots';
+import {focus} from '../ui/geometry';
 import {SceneDef, shot} from './types';
 
 // Escena 9 · cierre. Arriba, la dirección grande («Ábrela en tu celular · app.congresoschot2026.com»); en el
-// teléfono, la pantalla de ingreso real; en «agrégala» el teléfono pasa a la pantalla de inicio de iOS y el ícono de
-// SCHOT cae en su lugar con su nombre. Al final, el sello y los datos del congreso, y un fundido corto.
+// teléfono, la pantalla de ingreso real y luego la guía «Instalar la app» de la propia app en sus tres pasos
+// (Compartir → «Agregar a inicio» → «Agregar»); en «inicio» la pantalla de inicio de iOS con el ícono de SCHOT que cae
+// en su lugar. Termina en la tarjeta final (dirección, sello y datos del congreso) sin fundido a negro: WhatsApp se
+// queda en el último cuadro, que tiene que dejar la dirección legible.
 const sc = scenes.cierre;
 const tUrl = beat('cierre', 'Entra') - 4;
-const tHome = beat('cierre', 'agrégala') - 8;
-const tIcon = beat('cierre', 'agrégala') + 6;
-const tEndCard = beatEnd('cierre', 'inicio') + 14;
-const tDim = sc.to - 12;
+const tStep1 = beat('cierre', 'agrégala') - 44; // la guía de instalación de la app, paso a paso
+const tStep2 = tStep1 + 28;
+const tStep3 = tStep2 + 28;
+const tHome = tStep3 + 28;
+const tIcon = tHome + 12;
+const tEndCard = Math.max(beatEnd('cierre', 'inicio') + 10, tIcon + 16);
+const paso = bx('instalar', 'tarjetaPaso', {x: 16, y: 210, w: 358, h: 435});
 
 const clampOpt = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
 const ios = Easing.bezier(0.32, 0.72, 0, 1);
@@ -82,8 +89,7 @@ const Overlay: React.FC = () => {
   const f = useCurrentFrame();
   const urlIn = pr(f, tUrl, 16);
   const subIn = pr(f, beat('cierre', 'agrégala') - 2, 14);
-  const end = pr(f, tEndCard, 18);
-  const dim = pr(f, tDim, 12, Easing.inOut(Easing.cubic));
+  const end = pr(f, tEndCard + 8, 18);
   const blur = (p: number) => ((1 - p) * 12 > 0.3 ? `blur(${((1 - p) * 12).toFixed(1)}px)` : undefined);
   return (
     <>
@@ -105,11 +111,9 @@ const Overlay: React.FC = () => {
         <Img src={staticFile('schot/brand/schot-sello-blanco.svg')} style={{width: 92, height: 92}} />
         <div style={{fontFamily: SANS, color: '#fff'}}>
           <div style={{fontWeight: 800, fontSize: 34, letterSpacing: '0.01em'}}>62º Congreso SCHOT</div>
-          <div style={{fontWeight: 500, fontSize: 28, color: 'rgba(255,255,255,.8)'}}>Viña del Mar · noviembre 2026</div>
+          <div style={{fontWeight: 500, fontSize: 28, color: 'rgba(255,255,255,.8)'}}>Viña del Mar · 18–21 nov 2026</div>
         </div>
       </div>
-      {/* Fundido final a noche */}
-      <div style={{position: 'absolute', inset: 0, background: '#1A0033', opacity: dim, zIndex: 100}} />
     </>
   );
 };
@@ -117,16 +121,26 @@ const Overlay: React.FC = () => {
 export const cierre: SceneDef = {
   screens: [
     {at: sc.from, src: shot('login-1'), enter: 'fade', enterDur: 10, ink: 'light'},
+    {at: tStep1, src: shot('instalar'), enter: 'push', ink: 'dark'},
+    {at: tStep2, src: shot('instalar-paso2'), enter: 'fade', enterDur: 6, ink: 'dark'},
+    {at: tStep3, src: shot('instalar-paso3'), enter: 'fade', enterDur: 6, ink: 'dark'},
     {at: tHome, render: (f) => <HomeScreen f={f} fps={30} />, enter: 'zoom', enterDur: 14, ink: 'light'},
   ],
   cam: [
     {at: sc.from, dur: 20, pose: {...REST, y: 1330, s: 0.86}, ease: 'io'},
-    {at: tEndCard, dur: 26, pose: {...REST, y: 1215, s: 0.74}, ease: 'io'},
+    {at: tStep1 + 4, dur: 16, pose: focus(paso, 1.0, {x: 540, y: 1240})},
+    {at: tHome - 2, dur: 16, pose: {...REST, y: 1330, s: 0.86}, ease: 'io'},
+    {at: tEndCard - 16, dur: 26, pose: {...REST, y: 1215, s: 0.74}, ease: 'io'},
   ],
   taps: [],
+  glows: [
+    {at: tStep1 + 10, until: tHome - 4, box: paso, radius: 24},
+  ],
   Overlay,
   sfx: [
     {name: 'whoosh-soft', at: tUrl, gain: 0.5},
+    {name: 'click', at: tStep2, gain: 0.3},
+    {name: 'click', at: tStep3, gain: 0.3},
     {name: 'pop', at: tIcon, gain: 0.7},
     {name: 'chime', at: tIcon + 4, gain: 0.45},
     {name: 'logo', at: tEndCard - 4, gain: 0.55},

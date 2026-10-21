@@ -14,7 +14,7 @@
   "scenes": {
     "intro": {
       "file": "vo-schot/intro.wav",
-      "duration": 5.92,
+      "duration": 5.93,
       "captions": [
         {
           "text": "Esta es la app oficial del Congreso SCHOT 2026.",
@@ -39,7 +39,7 @@
             {
               "text": "app",
               "start": 0.64,
-              "end": 0.8
+              "end": 0.76
             },
             {
               "text": "oficial",
@@ -54,12 +54,12 @@
             {
               "text": "Congreso",
               "start": 1.5,
-              "end": 1.92
+              "end": 1.9
             },
             {
               "text": "SCHOT",
               "start": 2,
-              "end": 2.24
+              "end": 2.26
             },
             {
               "text": "2026.",
@@ -71,7 +71,7 @@
         {
           "text": "Todo el congreso, en tu celular.",
           "start": 4.039,
-          "end": 5.92,
+          "end": 5.93,
           "words": [
             {
               "text": "Todo",
@@ -101,7 +101,7 @@
             {
               "text": "celular.",
               "start": 5.48,
-              "end": 5.92
+              "end": 5.93
             }
           ]
         }
@@ -109,7 +109,7 @@
     },
     "abrir": {
       "file": "vo-schot/abrir.wav",
-      "duration": 6.02,
+      "duration": 6.04,
       "captions": [
         {
           "text": "No se descarga: se abre en el navegador,",
@@ -161,7 +161,7 @@
         {
           "text": "y entras con tu correo y un código. Sin contraseñas.",
           "start": 2.96,
-          "end": 6.02,
+          "end": 6.04,
           "words": [
             {
               "text": "y",
@@ -211,7 +211,7 @@
             {
               "text": "contraseñas.",
               "start": 5.32,
-              "end": 6.02
+              "end": 6.04
             }
           ]
         }
@@ -219,7 +219,7 @@
     },
     "itinerario": {
       "file": "vo-schot/itinerario.wav",
-      "duration": 4.52,
+      "duration": 4.54,
       "captions": [
         {
           "text": "Cuéntale a TibIA qué te interesa,",
@@ -261,7 +261,7 @@
         {
           "text": "y te arma una agenda sin charlas que se crucen.",
           "start": 2.08,
-          "end": 4.52,
+          "end": 4.54,
           "words": [
             {
               "text": "y",
@@ -270,7 +270,7 @@
             },
             {
               "text": "te",
-              "start": 2.2,
+              "start": 2.18,
               "end": 2.26
             },
             {
@@ -311,7 +311,7 @@
             {
               "text": "crucen.",
               "start": 4.1,
-              "end": 4.52
+              "end": 4.54
             }
           ]
         }
@@ -409,7 +409,7 @@
     },
     "charla": {
       "file": "vo-schot/charla.wav",
-      "duration": 3.82,
+      "duration": 3.83,
       "captions": [
         {
           "text": "Agregas una charla con un toque,",
@@ -451,7 +451,7 @@
         {
           "text": "y la app te lleva hasta la puerta de la sala.",
           "start": 1.86,
-          "end": 3.82,
+          "end": 3.83,
           "words": [
             {
               "text": "y",
@@ -506,7 +506,7 @@
             {
               "text": "sala.",
               "start": 3.56,
-              "end": 3.82
+              "end": 3.83
             }
           ]
         }
@@ -514,12 +514,12 @@
     },
     "aviso": {
       "file": "vo-schot/aviso.wav",
-      "duration": 2.8,
+      "duration": 2.81,
       "captions": [
         {
           "text": "Además, te avisa diez minutos antes de que empiece.",
           "start": 0.12,
-          "end": 2.8,
+          "end": 2.81,
           "words": [
             {
               "text": "Además,",
@@ -564,7 +564,7 @@
             {
               "text": "empiece.",
               "start": 2.38,
-              "end": 2.8
+              "end": 2.81
             }
           ]
         }
@@ -572,94 +572,101 @@
     },
     "tibia": {
       "file": "vo-schot/tibia.wav",
-      "duration": 6.5,
+      "duration": 5.96,
       "captions": [
         {
           "text": "¿Una duda? Pregúntale a TibIA,",
-          "start": -0.02,
-          "end": 2.72,
+          "start": 0.12,
+          "end": 2.17,
           "words": [
             {
               "text": "¿Una",
-              "start": -0.02,
-              "end": 0.84
+              "start": 0.12,
+              "end": 0.31
             },
             {
               "text": "duda?",
-              "start": 0.9,
-              "end": 1.14
+              "start": 0.35,
+              "end": 0.59
             },
             {
               "text": "Pregúntale",
-              "start": 1.799,
-              "end": 2.26
+              "start": 1.249,
+              "end": 1.71
             },
             {
               "text": "a",
-              "start": 2.28,
-              "end": 2.32
+              "start": 1.73,
+              "end": 1.77
             },
             {
               "text": "TibIA,",
-              "start": 2.38,
-              "end": 2.72
+              "start": 1.83,
+              "end": 2.17
             }
           ]
         },
         {
-          "text": "la asistente con inteligencia artificial que conoce todo el congreso.",
-          "start": 3.04,
-          "end": 6.5,
+          "text": "la asistente con inteligencia artificial",
+          "start": 2.49,
+          "end": 4.51,
           "words": [
             {
               "text": "la",
-              "start": 3.04,
-              "end": 3.12
+              "start": 2.49,
+              "end": 2.57
             },
             {
               "text": "asistente",
-              "start": 3.16,
-              "end": 3.68
+              "start": 2.61,
+              "end": 3.13
             },
             {
               "text": "con",
-              "start": 3.76,
-              "end": 3.86
+              "start": 3.21,
+              "end": 3.31
             },
             {
               "text": "inteligencia",
-              "start": 3.9,
-              "end": 4.48
+              "start": 3.35,
+              "end": 3.93
             },
             {
               "text": "artificial",
-              "start": 4.52,
-              "end": 5.06
-            },
+              "start": 3.97,
+              "end": 4.51
+            }
+          ]
+        },
+        {
+          "text": "que conoce todo el congreso.",
+          "start": 4.57,
+          "end": 5.96,
+          "words": [
             {
               "text": "que",
-              "start": 5.12,
-              "end": 5.24
+              "start": 4.57,
+              "end": 4.69
             },
             {
               "text": "conoce",
-              "start": 5.26,
-              "end": 5.7
+              "start": 4.71,
+              "end": 5.15
             },
             {
               "text": "todo",
-              "start": 5.74,
-              "end": 5.92
+              "start": 5.19,
+              "end": 5.37
             },
             {
               "text": "el",
-              "start": 5.94,
-              "end": 6
+              "start": 5.39,
+              "end": 5.45
             },
             {
               "text": "congreso.",
-              "start": 6.06,
-              "end": 6.5
+              "start": 5.51,
+              "end": 5.96
             }
           ]
         }
@@ -667,7 +674,7 @@
     },
     "expo": {
       "file": "vo-schot/expo.wav",
-      "duration": 5.22,
+      "duration": 5.24,
       "captions": [
         {
           "text": "En la expo, junta sellos en los stands,",
@@ -719,7 +726,7 @@
         {
           "text": "y conecta con colegas escaneando su código.",
           "start": 2.9,
-          "end": 5.22,
+          "end": 5.24,
           "words": [
             {
               "text": "y",
@@ -754,7 +761,7 @@
             {
               "text": "código.",
               "start": 4.84,
-              "end": 5.22
+              "end": 5.24
             }
           ]
         }

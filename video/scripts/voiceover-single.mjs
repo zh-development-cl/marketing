@@ -56,7 +56,7 @@ const scripts = {
     programa: ['En el programa ves lo que está pasando ahora,', 'por sede y por especialidad.'],
     charla: ['Agregas una charla con un toque,', 'y la app te lleva hasta la puerta de la sala.'],
     aviso: ['Además, te avisa diez minutos antes de que empiece.'],
-    tibia: ['¿Una duda? Pregúntale a TibIA,', 'la asistente con inteligencia artificial que conoce todo el congreso.'],
+    tibia: ['¿Una duda? Pregúntale a TibIA,', 'la asistente con inteligencia artificial', 'que conoce todo el congreso.'],
     expo: ['En la expo, junta sellos en los stands,', 'y conecta con colegas escaneando su código.'],
     cierre: ['Entra a app.congresoschot2026.com', 'y agrégala a tu pantalla de inicio.'],
   },
@@ -227,6 +227,49 @@ if (warnings.length) console.warn(warnings.join('\n'));
 
 // ---------- 3. Corte por escena ----------
 const total = Number(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', master]).toString().trim());
+// Fronteras entre escenas por energía: el STT a veces corre un límite (p. ej. hace empezar la primera palabra de una
+// escena dentro de la última de la anterior, y el corte se come el final de esa palabra). Después de que empieza la
+// última palabra de cada escena se busca el primer silencio de al menos 120 ms (< −42 dBFS): la escena termina dentro
+// de ese silencio y la primera palabra de la siguiente no puede empezar antes de que termine.
+if (!process.env.VO_DRY_RUN) {
+  const pcm = execFileSync('ffmpeg', ['-v', 'error', '-i', master, '-f', 'f32le', '-ac', '1', '-ar', '16000', '-'], {maxBuffer: 1 << 30});
+  const smp = new Float32Array(pcm.buffer, pcm.byteOffset, Math.floor(pcm.length / 4));
+  const HOP = 160; // 10 ms
+  const nFr = Math.floor(smp.length / HOP);
+  const env = new Float32Array(nFr);
+  for (let k = 0; k < nFr; k++) {
+    let e = 0;
+    for (let j = k * HOP; j < (k + 1) * HOP; j++) e += smp[j] * smp[j];
+    env[k] = 10 * Math.log10(e / HOP + 1e-12);
+  }
+  const firstGap = (from, upTo) => {
+    let run = -1;
+    for (let k = Math.max(0, Math.floor(from * 100)); k <= Math.min(nFr - 1, Math.ceil(upTo * 100)); k++) {
+      if (env[k] < -42) {
+        if (run < 0) run = k;
+      } else if (run >= 0) {
+        if (k - run >= 12) return [run / 100, k / 100];
+        run = -1;
+      }
+    }
+    return null;
+  };
+  for (let i = 0; i < order.length - 1; i++) {
+    const capsA = perScene[order[i]];
+    const capsB = perScene[order[i + 1]];
+    const lastCap = capsA[capsA.length - 1];
+    const lastW = lastCap.words[lastCap.words.length - 1];
+    const firstW = capsB[0].words[0];
+    const g = firstGap(lastW.start + 0.05, lastW.start + 3);
+    if (!g) continue;
+    if (lastW.end < g[0]) lastW.end = lastCap.end = g[0];
+    if (firstW.start < g[1]) {
+      console.log(`frontera ${order[i]}→${order[i + 1]}: «${firstW.text}» empezaba en ${firstW.start.toFixed(2)} s; el silencio termina en ${g[1].toFixed(2)} s`);
+      firstW.start = capsB[0].start = g[1];
+      if (firstW.end < g[1] + 0.1) firstW.end = g[1] + 0.1;
+    }
+  }
+}
 const result = {voiceId, model: MODEL, tempo: TEMPO, take: TAKE, tag: TAG, stability: STABILITY, style: STYLE, treble: TREBLE, eq: EQ, pauses: PAUSES, targetLufs: TARGET_LUFS, single: true, scenes: {}};
 order.forEach((scene, i) => {
   const caps = perScene[scene];
@@ -235,7 +278,7 @@ order.forEach((scene, i) => {
   const prevEnd = i > 0 ? perScene[order[i - 1]].slice(-1)[0].end : 0;
   const nextStart = i < order.length - 1 ? perScene[order[i + 1]][0].start : total;
   const cutStart = Math.max(prevEnd + 0.02, first - 0.12);
-  const cutEnd = Math.min(nextStart - 0.02, last + 0.2);
+  const cutEnd = Math.max(last + 0.03, Math.min(nextStart - 0.12, last + 0.2));
   const file = `${scene}.wav`; // WAV: una codificación con pérdida menos en la cadena (la voz llega con más aire arriba de 5 kHz)
   // La última escena termina donde termina la toma: se rellena 0,25 s y se funde en 120 ms para que la última palabra no muera cortada.
   const isLast = i === order.length - 1;
