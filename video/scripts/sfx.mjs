@@ -45,7 +45,8 @@ const SFX_LIST = [
   // sting: el mismo boom del logo 7 dB más caliente (limitado a -1 dBTP) para el golpe del cierre; se deriva sin llamar a la API.
   ['sting', 1.5, null, 'derived:logo'],
 ];
-const MUSIC_PROMPT =
+// MUSIC_PROMPT y MUSIC_NAME permiten otra cama para otra pieza (p. ej. MUSIC_NAME=schot-bed) sin tocar bed.mp3 ni audio.ts.
+const MUSIC_PROMPT = process.env.MUSIC_PROMPT ||
   'Upbeat minimal corporate tech background music for a 45 second product reel: soft synth plucks, light electronic percussion, warm pads, optimistic and modern, instrumental only, no vocals, steady tempo around 100 bpm, clean intro, builds gently, ends cleanly';
 // Con el prompt tal cual y 48 s pedidos, el modelo compuso ~42 s (los "45 segundos" del texto) y rellenó el resto con silencio.
 // Se le pide explícitamente que llene la pista y se generan 4 s de margen; el corte final a MUSIC_MS lo hace ffmpeg con fade.
@@ -57,7 +58,8 @@ const MUSIC_GEN_MS = Math.max(52000, MUSIC_MS + 4000); // duración pedida a la 
 
 const sfxDir = path.join(root, 'public', 'sfx');
 const musicDir = path.join(root, 'public', 'music');
-const musicFile = path.join(musicDir, 'bed.mp3');
+const MUSIC_NAME = process.env.MUSIC_NAME || 'bed';
+const musicFile = path.join(musicDir, `${MUSIC_NAME}.mp3`);
 const audioTs = path.join(root, 'src', 'v4', 'audio.ts');
 const rawDir = process.env.SFX_RAW_DIR || path.join(os.tmpdir(), 'zh-sfx-raw');
 const only = process.env.SFX_ONLY?.split(',').map((x) => x.trim()).filter(Boolean);
@@ -372,6 +374,12 @@ try {
       }
     }
     await music;
+  }
+  if (MUSIC_NAME !== 'bed') {
+    // Otra pieza: solo se genera su cama; audio.ts del reel v4 no se toca.
+    if (failed.length) { console.warn(`fallaron: ${failed.join('; ')}`); process.exitCode = 2; }
+    else console.log(`listo: music/${MUSIC_NAME}.mp3`);
+    process.exit();
   }
   const missing = verify();
   if (failed.length) console.warn(`\nfallaron en esta ejecución: ${failed.join('; ')}`);

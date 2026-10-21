@@ -1,0 +1,214 @@
+{
+ "login-1": {
+  "dpr": 3,
+  "safeArea": true,
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "id": "login-1",
+  "file": "login-1.png",
+  "route": "/login",
+  "desc": "Ingreso vacío: degradé de marca, sello SCHOT, «62º Congreso SCHOT», campo de correo y «Enviarme un código».",
+  "boxes": {
+   "campoCorreo": {
+    "x": 48,
+    "y": 436.3,
+    "w": 294,
+    "h": 52.8
+   },
+   "botonEnviarCodigo": {
+    "x": 48,
+    "y": 505.2,
+    "w": 294,
+    "h": 48
+   },
+   "volver": {
+    "x": 16,
+    "y": 63,
+    "w": 86.7,
+    "h": 44
+   }
+  },
+  "notes": "Sin sesión. El botón «Volver» se bajó 47 px por CSS (no usa el área segura). Reloj instalado (page.clock.install) 10:20."
+ },
+ "seq-estrella": {
+  "id": "seq-estrella",
+  "file": "seq-estrella-end.png",
+  "seqDir": "seq-estrella",
+  "frames": 36,
+  "fps": 30,
+  "route": "/sesion/01a0ab2f-b983-7f24-875b-04641370104d",
+  "desc": "Ficha de «Lesiones meniscales» (jue 19, 10:30–12:30, Pacífico · Piso 3 · Enjoy) a las 10:20 («Empieza en 10 min»). Se toca «Agregar a mi agenda» (clic real con eventos táctiles CDP) y el botón pasa a «En tu agenda» con el check que entra con pop y aparece «Quitar»; entra el toast «Agregada a tu agenda».",
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "dpr": 3,
+  "safeArea": true,
+  "boxes": {
+   "agregarAgenda": {
+    "x": 16,
+    "y": 265.8,
+    "w": 358,
+    "h": 52
+   },
+   "enTuAgenda_despues": {
+    "x": 16,
+    "y": 265.8,
+    "w": 290.8,
+    "h": 52
+   },
+   "quitar_despues": {
+    "x": 312.8,
+    "y": 269.8,
+    "w": 61.2,
+    "h": 44
+   },
+   "toast_despues": null,
+   "fabTibia": {
+    "x": 318,
+    "y": 674,
+    "w": 56,
+    "h": 56
+   },
+   "tabPrograma": {
+    "x": 4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   }
+  },
+  "segments": [
+   {
+    "from": 0,
+    "to": 5,
+    "what": "reposo: «Agregar a mi agenda» con su degradé vivo"
+   },
+   {
+    "from": 6,
+    "to": 7,
+    "what": "dedo apoyado en el botón (touchStart; el botón no tiene estado :active visible: el dedo lo dibuja el video)"
+   },
+   {
+    "from": 8,
+    "to": 19,
+    "what": "touchEnd → clic: el botón pasa a «En tu agenda» (filete) con el check en pop (360 ms) y aparece «Quitar»"
+   },
+   {
+    "from": 9,
+    "to": 35,
+    "what": "entra el toast «Agregada a tu agenda» desde abajo (300 ms) y queda quieto"
+   }
+  ],
+  "notes": "Reloj fijo jue 19 10:20 (page.clock.install + pauseAt; sin ?demo=). Cuadros 1170x2532. Acciones: f6: touchStart (195,292) | f8: touchEnd → click. Texto final del botón: «En tu agenda». Animaciones CSS/WAAPI posicionadas a mano por cuadro según el tiempo virtual (deterministas). La charla se quitó de la agenda del fixture solo en este proceso para poder agregarla."
+ },
+ "seq-ruta": {
+  "id": "seq-ruta",
+  "file": "seq-ruta-end.png",
+  "seqDir": "seq-ruta",
+  "frames": 48,
+  "fps": 30,
+  "route": "/mapa/plano/enjoy?piso=piso-3&destino=pacifico",
+  "desc": "Plano del Piso 3 del Hotel Enjoy del Mar con destino «Auditorio Pacífico»: la ruta magenta se dibuja desde «Partida» (ingreso al salón) hasta la sala (0,9 s), aparece el marcador y empieza a latir el anillo del destino. Debajo, «Ruta marcada desde el ingreso al salón hasta tu destino» y la ficha «Auditorio Pacífico · Piso 3 · 380 personas».",
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "dpr": 3,
+  "safeArea": true,
+  "boxes": {
+   "plano": {
+    "x": 16,
+    "y": 122.5,
+    "w": 358,
+    "h": 355.8
+   },
+   "partida": {
+    "x": 137.3,
+    "y": 249,
+    "w": 19.9,
+    "h": 7
+   },
+   "rutaTexto": {
+    "x": 43,
+    "y": 538.3,
+    "w": 327,
+    "h": 38.5
+   },
+   "rutaPath": {
+    "x": 113.4,
+    "y": 199,
+    "w": 197.8,
+    "h": 56.3
+   },
+   "destinoPacifico": {
+    "x": 212.4,
+    "y": 219.8,
+    "w": 158.7,
+    "h": 161.2
+   },
+   "fichaSala": {
+    "x": 89,
+    "y": 605.8,
+    "w": 228,
+    "h": 23.4
+   },
+   "chipPiso3": {
+    "x": 86.9,
+    "y": 66.5,
+    "w": 85.7,
+    "h": 36
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 674,
+    "w": 56,
+    "h": 56
+   },
+   "partida_final": {
+    "x": 137.7,
+    "y": 246.4,
+    "w": 33.2,
+    "h": 12
+   }
+  },
+  "segments": [
+   {
+    "from": 0,
+    "to": 26,
+    "what": "la ruta se dibuja (route-draw 0,9 s) desde la partida hasta Pacífico; el punto de partida entra con route-pop (0,42 s)"
+   },
+   {
+    "from": 27,
+    "to": 47,
+    "what": "ruta completa; el anillo del destino empieza a latir (map-pulse, retardo 0,9 s, 1,4 s por latido)"
+   }
+  ],
+  "notes": "Reloj jue 19 10:20. Animaciones CSS congeladas durante la carga (CDP Animation.setPlaybackRate 0) y llevadas a mano cuadro a cuadro: el cuadro f0000 es el plano recién pintado con la ruta en 0. Todo lo demás de la página (entrada de la página, logos, botón de TibIA) se dejó terminado antes de grabar. Scroll: la app sube sola el plano (scrollY 135); como su scroll-margin no suma el área segura, los chips de piso quedaban bajo la barra de estado: se dejó en scrollY 88 (47 px menos). Ojo: FloorPlanPage no aplica safe-area-inset-top a su cabecera (en un iPhone real «Hotel Enjoy del Mar» queda bajo la hora si se sube al tope). La pestaña activa es «Perfil» porque el Mapa cuelga de Mi cuenta en la app."
+ }
+}

@@ -34,7 +34,7 @@ const TARGET_LUFS = -16;
 const TRUE_PEAK = -1.5;
 const SET = process.env.VO_SET || 'v5';
 const outDir = path.join(root, 'public', `vo-${SET}`);
-const voPath = path.join(root, 'src', 'v4', 'vo.json');
+const voPath = process.env.VO_JSON ? path.resolve(root, process.env.VO_JSON) : path.join(root, 'src', 'v4', 'vo.json'); // VO_JSON=src/schot/vo.json para otra pieza
 
 // Guion por escena (texto tal como se muestra). Lo que se pronuncia distinto va en `pronounce`.
 const scripts = {
@@ -48,18 +48,45 @@ const scripts = {
     step4: ['Y todo queda a nombre de tu empresa.'],
     outro: ['ZH Development: software a medida que conecta tu operación.', 'Agenda tu llamada de 30 minutos. ¿Qué esperas?'],
   },
+  // Video demo de la app del 62º Congreso SCHOT (VO_SCRIPT=schot VO_SET=schot VO_JSON=src/schot/vo.json).
+  schot: {
+    intro: ['Esta es la app oficial del Congreso SCHOT 2026.', 'Todo el congreso, en tu celular.'],
+    abrir: ['No se descarga: se abre en el navegador,', 'y entras con tu correo y un código. Sin contraseñas.'],
+    itinerario: ['Cuéntale a TibIA qué te interesa,', 'y te arma una agenda sin charlas que se crucen.'],
+    programa: ['En el programa ves lo que está pasando ahora,', 'por sede y por especialidad.'],
+    charla: ['Agregas una charla con un toque,', 'y la app te lleva hasta la puerta de la sala.'],
+    aviso: ['Además, te avisa diez minutos antes de que empiece.'],
+    tibia: ['¿Una duda? Pregúntale a TibIA,', 'la asistente con inteligencia artificial que conoce todo el congreso.'],
+    expo: ['En la expo, junta sellos en los stands,', 'y conecta con colegas escaneando su código.'],
+    cierre: ['Entra a app.congresoschot2026.com', 'y agrégala a tu pantalla de inicio.'],
+  },
 };
 const SCRIPT = process.env.VO_SCRIPT || 'v5'; // versión del guion (VO_SET solo decide la carpeta de salida)
 const script = scripts[SCRIPT] ?? scripts[SET];
-const pronounce = {ZH: 'Zeta Hache', '30': 'treinta', IA: 'inteligencia artificial'};
+const pronounce = {ZH: 'Zeta Hache', '30': 'treinta', IA: 'inteligencia artificial', SCHOT: 'Schot', TibIA: 'Tibia', '2026': 'dos mil veintiséis', QR: 'cu erre', appcongresoschot2026com: 'app punto congreso schot dos mil veintiséis punto com'};
 // Formas en que el STT puede devolver cada palabra mostrada.
-const forms = {ZH: ['zeta hache', 'zeta ache', 'zh', 'zeta eich', 'zeta age'], '30': ['treinta', '30'], IA: ['inteligencia artificial', 'ia']};
+const forms = {
+  ZH: ['zeta hache', 'zeta ache', 'zh', 'zeta eich', 'zeta age'],
+  '30': ['treinta', '30'],
+  IA: ['inteligencia artificial', 'ia'],
+  '2026': ['dos mil veintiseis', '2026'],
+  QR: ['cu erre', 'qr', 'cuerre'],
+  appcongresoschot2026com: [
+    'app punto congreso schot dos mil veintiseis punto com',
+    'app punto congreso schot 2026 punto com',
+    'app punto congresoschot 2026 punto com',
+    'app punto congresoschot2026 punto com',
+    'app.congresoschot2026.com',
+    'appcongresoschot2026com',
+  ],
+};
 
 const cleanWord = (w) => w.replace(/[^\p{L}\p{N}]/gu, '');
 const spokenFor = (word) => {
   const base = cleanWord(word);
   const p = pronounce[base];
   if (!p) return word;
+  if (word.indexOf(base) < 0) return `${p}${/[,.:;!?]$/.test(word) && !/\.com$/.test(word) ? word.slice(-1) : ''}`;
   const lead = word.slice(0, word.indexOf(base));
   const trail = word.slice(word.indexOf(base) + base.length);
   return `${lead}${p}${trail}`;

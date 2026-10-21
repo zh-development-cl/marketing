@@ -11,3 +11,7 @@ video/out/
 
 # Tomas de casting de voz (material de prueba; la elegida se copia a vo-v5)
 video/public/vo-cast-*/
+
+# Video demo de SCHOT: recursos del cliente (sello, mascota, fuentes, capturas de su app con logos de auspiciadores).
+# El repo es público: no se suben. Se regeneran con las capturas (docs/videos/schot-demo-app.md).
+video/public/schot/
