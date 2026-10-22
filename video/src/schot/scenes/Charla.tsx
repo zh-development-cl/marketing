@@ -1,4 +1,5 @@
 import React from 'react';
+import {Img, interpolate, staticFile} from 'remotion';
 import {beat, scenes} from '../timeline';
 import {bx, center, framesOf} from '../shots';
 import {REST} from '../ui/geometry';
@@ -15,17 +16,17 @@ const tRow = sc.from + 2;
 const tFicha = tRow + 5;
 const tAddLift = beat('charla', 'charla') + 2;
 const tToque = beat('charla', 'toque');
-const tAddBack = tToque + 10;
+const tAddBack = tToque + 24; // «En tu agenda» se lee un momento antes de volver
 const NE = framesOf('seq-estrella', 36);
-const tScroll = tAddBack + 12; // la página baja cuando el botón ya volvió a su lugar
+const tScroll = tAddBack + 20; // la página baja cuando el botón ya volvió a su lugar
 const tComo = Math.max(beat('charla', 'lleva') + 2, tScroll + 26);
-const tRuta = tComo + 5;
+const tRuta = tComo + 6;
 const NR = framesOf('seq-ruta', 48);
-const RUTA_PUSH = 10;
+const RUTA_PUSH = 16;
 const tPlano = Math.max(beat('charla', 'hasta') + 4, tRuta + RUTA_PUSH);
-const tPin = beat('charla', 'sala') - 2;
-const tPlanoOut = sc.to - 13;
-export const tWhipUp = sc.to - 9;
+const tPin = beat('charla', 'sala') - 8;
+const tPlanoOut = sc.to - 20;
+export const tWhipUp = sc.to - 15;
 
 const fila = bx('programa-rodilla', 'filaMeniscales', {x: 17, y: 606, w: 356, h: 110});
 const agregar = bx('seq-estrella', 'agregarAgenda', {x: 16, y: 266, w: 358, h: 52});
@@ -45,14 +46,14 @@ const PLANO_TO = {x: 540, y: 1200, k: 2.45};
 // Dónde cae el destino sobre el plano flotante (sin contar la inclinación, que es leve).
 const PIN = {x: PLANO_TO.x + (destino.x + destino.w / 2 - (plano.x + plano.w / 2)) * PLANO_TO.k, y: PLANO_TO.y + (destino.y + destino.h / 2 - (plano.y + plano.h / 2)) * PLANO_TO.k};
 
-const Overlay: React.FC = () => <Headline n="4" label="Charlas" lines={['Un toque, y llegas', 'a la *sala*']} at={sc.from - 2} out={sc.to - 17} />;
+const Overlay: React.FC = () => <Headline n="4" label="Charlas" lines={['Un toque, y llegas', 'a la *sala*']} at={sc.from - 2} out={sc.to - 21} />;
 
 const RECEDE = {...REST, s: 0.9, y: REST.y + 50, rx: 12};
 
 export const charla: SceneDef = {
   screens: [
     {at: tFicha, src: shot('ficha'), enter: 'push', ink: 'dark'},
-    {at: tToque + 1, src: `${seqDir('seq-estrella')}/f${pad4(NE - 1)}.png`, enter: 'fade', enterDur: 4, ink: 'dark'},
+    {at: tToque + 1, src: `${seqDir('seq-estrella')}/f${pad4(NE - 1)}.png`, enter: 'fade', enterDur: 6, ink: 'dark'},
     {
       at: tScroll,
       src: shot('ficha-agendada-full'),
@@ -79,8 +80,17 @@ export const charla: SceneDef = {
       at: tAddLift,
       out: tAddBack,
       box: agregar,
-      // Al tocarlo pasa a «En tu agenda» (último cuadro de la secuencia real de la estrella).
-      src: (f) => (f < tToque + 1 ? shot('ficha') : `${seqDir('seq-estrella')}/f${pad4(NE - 1)}.png`),
+      // Al tocarlo pasa a «En tu agenda» (último cuadro de la secuencia real de la estrella), con un fundido corto.
+      render: (f, k) => {
+        const t = interpolate(f, [tToque, tToque + 5], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+        const img = (src: string, o: number) => <Img src={staticFile(src)} style={{position: 'absolute', left: -agregar.x * k, top: -agregar.y * k, width: 390 * k, opacity: o}} />;
+        return (
+          <>
+            {img(shot('ficha'), 1)}
+            {t > 0 ? img(`${seqDir('seq-estrella')}/f${pad4(NE - 1)}.png`, t) : null}
+          </>
+        );
+      },
       to: {...ADD_TO, r: -2, rx: 8},
       radius: 14,
       ring: true,
@@ -95,11 +105,11 @@ export const charla: SceneDef = {
   ],
   shakes: [{at: tToque + 1, dur: 10, amp: 7}],
   cam: [
-    {at: tFicha, dur: 12, pose: {...REST, s: 1.03}},
-    {at: tAddLift, dur: 12, pose: RECEDE},
-    {at: tAddBack, dur: 12, pose: REST},
-    {at: tPlano, dur: 12, pose: {...RECEDE, s: 0.88}},
-    {at: tWhipUp, dur: 9, pose: {...REST, y: REST.y - 1750, rx: -24, s: 0.95}, ease: 'whipIn'},
+    {at: tFicha, dur: 18, pose: {...REST, s: 1.03}},
+    {at: tAddLift, dur: 16, pose: RECEDE},
+    {at: tAddBack, dur: 16, pose: REST},
+    {at: tPlano, dur: 16, pose: {...RECEDE, s: 0.88}},
+    {at: tWhipUp, dur: 15, pose: {...REST, y: REST.y - 1750, rx: -20, s: 0.95}, ease: 'in'},
   ],
   Overlay,
   sfx: [
@@ -110,6 +120,6 @@ export const charla: SceneDef = {
     {name: 'click', at: tComo, gain: 0.4},
     {name: 'swish', at: tRuta, gain: 0.25},
     {name: 'rise', at: tPlano + 4, gain: 0.18},
-    {name: 'whip', at: tWhipUp, gain: 0.45},
+    {name: 'whoosh-soft', at: tWhipUp, gain: 0.4},
   ],
 };

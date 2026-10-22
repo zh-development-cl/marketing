@@ -12,13 +12,13 @@ import {SceneDef, seqDir, shot} from './types';
 // «y conecta con colegas escaneando su código» → «Mi código QR»: el QR salta girando y una línea de escaneo lo
 // recorre. Sale encogiéndose hacia el cierre.
 const sc = scenes.expo;
-const tPas = beat('expo', 'expo') - 4;
+const tPas = beat('expo', 'expo') - 14;
 const tScan = beat('expo', 'junta');
 const tSheet = tScan + 3;
-const tImpact = Math.max(beat('expo', 'sellos') + 6, tSheet + 14); // el sello golpea con la hoja ya arriba
+const tImpact = Math.max(beat('expo', 'sellos') + 6, tSheet + 18); // el sello golpea con la hoja ya arriba
 const SEQ_HIT = 18; // cuadro de la secuencia real con el sello ya puesto (antes del 12 → 13)
 const NS = framesOf('seq-sello', 75);
-const tProg = tImpact + 6;
+const tProg = tImpact + 8;
 const tProgOut = beat('expo', 'conecta') - 8;
 const tQr = tProgOut + 6;
 const tQrLift = beat('expo', 'colegas') - 6;
@@ -42,7 +42,7 @@ const seqAt = (f: number) => (f < tImpact ? 2 : SEQ_HIT + (f - tImpact));
 const clampOpt = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
 
 // El sello cae desde la cámara: grande, girado y desenfocado; acelera y se estampa justo en su lugar de la hoja.
-const STAMP_FALL = 9;
+const STAMP_FALL = 11;
 const Stamp: React.FC = () => {
   const f = useCurrentFrame();
   const t0 = tImpact - STAMP_FALL;
@@ -63,14 +63,14 @@ const Stamp: React.FC = () => {
 
 const Overlay: React.FC = () => (
   <>
-    <Headline n="7" label="Expo" lines={['Sellos y', '*contactos*']} at={sc.from - 2} out={sc.to - 17} />
+    <Headline n="7" label="Expo" lines={['Sellos y', '*contactos*']} at={sc.from - 2} out={sc.to - 21} />
     <Stamp />
   </>
 );
 
 // Línea de escaneo que recorre el QR flotante (dos pasadas).
 const ScanLine: React.FC<{f: number; k: number}> = ({f, k}) => {
-  const t = interpolate(f, [tScanLine, tScanLine + 26], [0, 2], clampOpt);
+  const t = interpolate(f, [tScanLine, tScanLine + 40], [0, 2], clampOpt);
   if (f < tScanLine || t >= 2) return null;
   const y = (t <= 1 ? t : 2 - t) * qr.h * k;
   return (
@@ -84,8 +84,8 @@ const ScanLine: React.FC<{f: number; k: number}> = ({f, k}) => {
 export const expo: SceneDef = {
   screens: [
     {at: sc.from, src: shot('auspiciadores'), ink: 'dark'},
-    {at: tSheet, render: (f) => <Img src={staticFile(selloFrame(seqAt(f)))} style={{position: 'absolute', left: 0, top: 0, width: 390 * PT, height: 844 * PT}} />, enter: 'sheet', enterDur: 12, ink: 'dark'},
-    {at: tQr, src: shot('qr'), enter: 'push', enterDur: 12, ink: 'dark'},
+    {at: tSheet, render: (f) => <Img src={staticFile(selloFrame(seqAt(f)))} style={{position: 'absolute', left: 0, top: 0, width: 390 * PT, height: 844 * PT}} />, enter: 'sheet', enterDur: 16, ink: 'dark'},
+    {at: tQr, src: shot('qr'), enter: 'push', enterDur: 16, ink: 'dark'},
   ],
   ctaps: [{at: tScan, ...SCAN_AT, scale: 0.85}],
   lifts: [
@@ -120,10 +120,10 @@ export const expo: SceneDef = {
   shakes: [{at: tImpact, dur: 14, amp: 18}],
   cam: [
     {at: sc.from, dur: 1, pose: {...REST, x: 1840, ry: -28, s: 0.96}},
-    {at: sc.from + 1, dur: 15, pose: REST, ease: 'whipOut'},
-    {at: tPas, dur: 12, pose: {...REST, s: 0.9, y: REST.y + 50, rx: 12}},
-    {at: tScan + 4, dur: 10, pose: REST},
-    {at: tQrLift, dur: 12, pose: {...REST, s: 0.88, y: REST.y + 60, rx: 14}},
+    {at: sc.from + 1, dur: 22, pose: REST, ease: 'whipOut'},
+    {at: tPas, dur: 16, pose: {...REST, s: 0.9, y: REST.y + 50, rx: 12}},
+    {at: tScan + 4, dur: 14, pose: REST},
+    {at: tQrLift, dur: 16, pose: {...REST, s: 0.88, y: REST.y + 60, rx: 14}},
   ],
   Overlay,
   sfx: [
@@ -135,6 +135,6 @@ export const expo: SceneDef = {
     {name: 'chime', at: tImpact + 10, gain: 0.3},
     {name: 'tick', at: tProg + 8, gain: 0.3},
     {name: 'rise', at: tScanLine - 4, gain: 0.16},
-    {name: 'tick', at: tScanLine + 13, gain: 0.25},
+    {name: 'tick', at: tScanLine + 20, gain: 0.25},
   ],
 };

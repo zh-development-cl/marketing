@@ -23,28 +23,29 @@ const tBadge = beat('abrir', 'No') - 3;
 const tStrike = beat('abrir', 'descarga');
 const tBar = beat('abrir', 'se', 1) - 4; // la barra salta
 const tType = tBar + 4;
-const tTyped = tType + 19;
-const tGo = beat('abrir', 'navegador') - 1; // «Ir» sobre la barra flotante
-const tBarBack = tGo + 9;
-const BAR_BACK = 13;
-const tLoaded = tBarBack + 8; // carga el ingreso real bajo la barra que vuelve
+const tTyped = tType + 26;
+const tGo = Math.max(beat('abrir', 'navegador') - 1, tTyped + 3); // «Ir» sobre la barra flotante
+const tBarBack = tGo + 12;
+const BAR_BACK = 18;
+const tLoaded = tBarBack + 10; // carga el ingreso real bajo la barra que vuelve
 const tBarCollapse = tBarBack + BAR_BACK + 1;
-const tTapMail = beat('abrir', 'entras') - 4;
-const tMail = beat('abrir', 'entras') + 1; // el campo salta
-const tMailTyped = beat('abrir', 'correo') - 6;
-const tMailBack = beat('abrir', 'correo') + 4;
-const tTapSend = tMailBack + 10;
+const tTapMail = beat('abrir', 'entras') - 8;
+const tMail = beat('abrir', 'entras') - 5; // el campo salta
+const tMailTyped = beat('abrir', 'correo') - 4;
+const tMailBack = beat('abrir', 'correo') + 8;
+const tTapSend = tMailBack + 12;
 const tCode = tTapSend + 3;
-const CODE_PUSH = 10;
+const CODE_PUSH = 14;
 const tGmail = Math.max(beat('abrir', 'un') - 1, tCode + 2); // llega el correo con el código
 const tCodeLift = tCode + CODE_PUSH; // sale cuando la pantalla terminó de entrar
-const FLY = 10; // frames de vuelo de cada dígito del correo a su casillero
-const tDigit0 = Math.max(beat('abrir', 'código') + 2, tCodeLift + 8, tGmail + 9 + FLY);
-const tCodeBack = Math.max(beat('abrir', 'Sin') + 2, tDigit0 + 18);
-const tGmailOut = tDigit0 + 17;
-const tSin = Math.max(beat('abrir', 'Sin') - 2, tGmailOut + 4); // cuando el correo ya se fue
-const tHome = tCodeBack + 14; // adentro: bienvenida, cuando el código ya volvió
-const tTapStart = sc.to - 8; // «Comenzar» → la escena siguiente empuja los intereses
+const FLY = 14; // frames de vuelo de cada dígito del correo a su casillero
+const DIGIT_STEP = 5;
+const tDigit0 = Math.max(beat('abrir', 'código') + 2, tCodeLift + 10, tGmail + 14 + FLY);
+const tGmailOut = tDigit0 + 5 * DIGIT_STEP + 4;
+const tCodeBack = Math.max(beat('abrir', 'Sin') + 2, tGmailOut + 2);
+const tSin = Math.max(beat('abrir', 'Sin') - 2, tGmailOut + 6); // cuando el correo ya se fue
+const tHome = tCodeBack + 20; // adentro: bienvenida, cuando el código ya volvió
+const tTapStart = sc.to - 10; // «Comenzar» → la escena siguiente empuja los intereses
 
 const clampOpt = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
 const io = Easing.inOut(Easing.cubic);
@@ -114,7 +115,7 @@ const code = bx('login-3a', 'grupoCodigo', {x: 48, y: 520, w: 294, h: 52});
 const codeLast = bx('login-3g', 'grupoCodigo', {x: 48, y: 505, w: 294, h: 52});
 const comenzar = bx('bienvenida', 'botonComenzar', {x: 24, y: 706, w: 342, h: 56});
 const digits = ['login-3b', 'login-3c', 'login-3d', 'login-3e', 'login-3f', 'login-3g'];
-const digitAt = (i: number) => tDigit0 + i * 3;
+const digitAt = (i: number) => tDigit0 + i * DIGIT_STEP;
 
 // ---------- el correo con el código ----------
 // El mismo correo que manda el backend (internal/platform/mail/smtp.go): remitente «Congreso SCHOT», asunto
@@ -263,7 +264,7 @@ const BAR_TO = {x: 540, y: 1150, k: 2.7};
 
 const Overlay: React.FC = () => (
   <>
-    <Headline n="1" label="Entrar" lines={['Sin descargar', '*nada*']} at={sc.from - 2} out={sc.to - 17} />
+    <Headline n="1" label="Entrar" lines={['Sin descargar', '*nada*']} at={sc.from - 2} out={sc.to - 21} />
     <DigitFlights />
   </>
 );
@@ -284,20 +285,20 @@ export const abrir: SceneDef = {
   ],
   ctaps: [{at: tGo, x: BAR_TO.x + (358 / 2 - 25) * BAR_TO.k, y: BAR_TO.y, scale: 0.9}],
   cam: [
-    {at: tIn, dur: 1, pose: {...REST, x: 1840, ry: -28, s: 0.96}},
-    {at: tIn + 1, dur: 16, pose: REST, ease: 'whipOut'},
-    {at: tBar, dur: 14, pose: RECEDE},
-    {at: tBarBack, dur: 14, pose: REST},
-    {at: tMail, dur: 12, pose: RECEDE},
-    {at: tMailBack, dur: 12, pose: REST},
-    {at: tCodeLift, dur: 12, pose: RECEDE},
-    {at: tCodeBack, dur: 14, pose: REST},
+    {at: tIn, dur: 1, pose: {...REST, x: 1840, ry: -22, s: 0.96}},
+    {at: tIn + 1, dur: 22, pose: REST, ease: 'whipOut'},
+    {at: tBar, dur: 16, pose: RECEDE},
+    {at: tBarBack, dur: 18, pose: REST},
+    {at: tMail, dur: 16, pose: RECEDE},
+    {at: tMailBack, dur: 16, pose: REST},
+    {at: tCodeLift, dur: 16, pose: RECEDE},
+    {at: tCodeBack, dur: 18, pose: REST},
     {at: tHome + 6, dur: 18, pose: {...REST, s: 1.05, y: REST.y - 20}},
     {at: tTapStart - 8, dur: 14, pose: REST},
   ],
   badges: [
     {at: tBadge, out: tBar - 6, x: 540, y: 1090, text: 'Descargar la app', icon: 'download', tone: 'white', size: 58, r: -4, strike: tStrike},
-    {at: tSin, out: sc.to - 14, x: 540, y: 735, text: 'Sin contraseñas', icon: 'shield', tone: 'brand', size: 46, r: -2},
+    {at: tSin, out: sc.to - 8, x: 540, y: 735, text: 'Sin contraseñas', icon: 'shield', tone: 'brand', size: 46, r: -2},
   ],
   bursts: [{at: tSin + 4, x: 540, y: 735, n: 16, r: 260, star: true}],
   lifts: [
@@ -331,7 +332,7 @@ export const abrir: SceneDef = {
   sfx: [
     {name: 'click', at: tStrike, gain: 0.45},
     {name: 'swish', at: tStrike + 1, gain: 0.25},
-    ...Array.from({length: 7}, (_, i) => ({name: 'tick' as const, at: tType + 1 + i * 3, gain: 0.2})),
+    ...Array.from({length: 7}, (_, i) => ({name: 'tick' as const, at: tType + 1 + i * 4, gain: 0.2})),
     {name: 'click', at: tGo, gain: 0.5},
     {name: 'click', at: tTapMail, gain: 0.35},
     {name: 'tick', at: tMailTyped, gain: 0.3},

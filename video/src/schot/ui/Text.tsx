@@ -39,8 +39,8 @@ export const Headline: React.FC<{
 }> = ({n, label, icon, lines, at, out, top = 132, size = 86}) => {
   const f = useCurrentFrame();
   const {fps} = useVideoConfig();
-  if (f < at - 1 || (out !== undefined && f > out + 16)) return null;
-  const pill = spring({frame: f - at, fps, config: {damping: 12, stiffness: 170, mass: 0.8}});
+  if (f < at - 1 || (out !== undefined && f > out + 19)) return null;
+  const pill = spring({frame: f - at, fps, config: {damping: 14, stiffness: 120, mass: 0.9}});
   const pillOut = out === undefined ? 0 : pr(f, out, 8, Easing.in(Easing.cubic));
   // Palabras con su línea y si van marcadas.
   let idx = 0;
@@ -92,10 +92,10 @@ export const Headline: React.FC<{
           <div key={li} style={{overflow: 'hidden', padding: '0.06em 0.2em 0.14em 0.06em', margin: '-0.06em -0.2em -0.14em -0.06em', fontFamily: SANS, fontWeight: 800, fontSize: size, lineHeight: 1.04, letterSpacing: '-0.012em', color: '#fff', whiteSpace: 'pre'}}>
             {row.map((w, k) => {
               if (w.space) return <span key={k}>{w.w}</span>;
-              const p = spring({frame: f - (t0 + w.i * 3), fps, config: {damping: 13, stiffness: 160, mass: 0.85}});
-              const o = out === undefined ? 0 : pr(f, out + (total - 1 - w.i) * 1, 9, Easing.in(Easing.cubic));
+              const p = spring({frame: f - (t0 + w.i * 4), fps, config: {damping: 15, stiffness: 110, mass: 0.9}});
+              const o = out === undefined ? 0 : pr(f, out + (total - 1 - w.i) * 1, 11, Easing.in(Easing.cubic));
               const b = Math.max(0, 1 - p) * 8 + o * 12;
-              const shimmer = w.marked ? pr(f, t0 + w.i * 3 + 10, 22, Easing.inOut(Easing.quad)) : 0;
+              const shimmer = w.marked ? pr(f, t0 + w.i * 4 + 14, 26, Easing.inOut(Easing.quad)) : 0;
               return (
                 <span
                   key={k}
@@ -144,7 +144,7 @@ export const Captions: React.FC<{top?: number; skip?: SceneKey[]; right?: (f: nu
   return (
     // El ancho y el tamaño se deciden una vez por frase (nunca cambian a mitad de frase).
     <div style={{position: 'absolute', left: 80, right: R, top, zIndex: 50, opacity: inP * (1 - outP), transform: `translateY(${((1 - inP) * 10).toFixed(1)}px)`}}>
-      <div style={{fontFamily: SANS, fontWeight: 600, fontSize: R > 200 ? 35 : 40, lineHeight: 1.22, color: '#fff', textShadow: '0 2px 16px rgba(26,0,51,.6)'}}>
+      <div style={{fontFamily: SANS, fontWeight: 600, fontSize: R > 200 ? 38 : 44, lineHeight: 1.2, color: '#fff', textShadow: '0 2px 16px rgba(26,0,51,.6)'}}>
         {c.words.map((w, k) => {
           const lit = pr(f, w.from - 2, 5, Easing.out(Easing.quad));
           return (

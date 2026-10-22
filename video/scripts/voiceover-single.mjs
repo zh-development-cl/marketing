@@ -171,7 +171,10 @@ if (process.env.VO_DRY_RUN) {
   }
 }
 const stretched = path.join(tmp, 'take-tempo.wav');
-ffmpeg(['-i', raw, '-af', TEMPO !== 1 ? `atempo=${TEMPO}` : 'anull', '-ar', '44100', '-ac', '1', '-c:a', 'pcm_s16le', stretched]);
+// VO_STRETCH=rubberband estira con Rubber Band (formantes preservados), más limpio que atempo para bajar la velocidad
+// de una voz; por defecto, atempo.
+const stretch = process.env.VO_STRETCH === 'rubberband' ? `rubberband=tempo=${TEMPO}:formant=preserved:transients=mixed` : `atempo=${TEMPO}`;
+ffmpeg(['-i', raw, '-af', TEMPO !== 1 ? stretch : 'anull', '-ar', '44100', '-ac', '1', '-c:a', 'pcm_s16le', stretched]);
 const master = path.join(tmp, 'take-norm.wav');
 normalize(stretched, master);
 fs.mkdirSync(outDir, {recursive: true});
@@ -180,7 +183,7 @@ const heard = process.env.VO_DRY_RUN ? [] : await transcribe(master);
 // Pausas extra (de atrás hacia adelante, para que los tiempos de las anteriores sigan valiendo).
 const inserts = PAUSES.map(({word, sec}) => {
   const i = heard.findIndex((w) => strip(w.text) === strip(word));
-  if (i < 0 || i + 1 >= heard.length) throw new Error(`VO_PAUSES: no encontré "${word}" en la toma`);
+  if (i < 0 || i + 1 >= heard.length) throw new Error(`VO_PAUSES: no encontré "${word}" en la toma (oído: ${heard.map((w) => w.text).join(' ')})`);
   return {word, sec, at: (heard[i].end + heard[i + 1].start) / 2};
 }).sort((a, b) => b.at - a.at);
 for (const {word, sec, at} of inserts) {

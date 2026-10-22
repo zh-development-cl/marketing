@@ -1,15 +1,15 @@
 {
   "model_id": "music_v1",
   "composition_plan": {
-    "positive_global_styles": ["energetic modern electronic pop", "product launch commercial", "punchy drums", "tight claps", "bright synth plucks", "deep pulsing bass", "confident and premium", "polished mix", "128 bpm", "instrumental"],
-    "negative_global_styles": ["vocals", "singing", "spoken words", "lo-fi", "ambient", "sad", "slow"],
+    "positive_global_styles": ["uplifting modern electronic pop", "product launch commercial", "smooth and confident", "warm deep bass", "crisp punchy drums", "bright synth plucks", "polished premium mix", "112 bpm", "instrumental"],
+    "negative_global_styles": ["vocals", "singing", "spoken words", "frantic", "aggressive", "lo-fi", "sad", "slow ballad"],
     "sections": [
-      {"section_name": "Build-up intro", "positive_local_styles": ["filtered synth arpeggio", "rising riser", "snare roll building tension", "anticipation"], "negative_local_styles": ["kick drum", "bass drop"], "duration_ms": 4600, "lines": []},
-      {"section_name": "Drop", "positive_local_styles": ["big energetic drop on the first beat", "four-on-the-floor kick", "driving bass", "bright synth stabs", "full energy"], "negative_local_styles": ["breakdown", "silence"], "duration_ms": 16400, "lines": []},
-      {"section_name": "Groove", "positive_local_styles": ["driving groove", "syncopated synth plucks", "percussion fills", "full energy"], "negative_local_styles": ["breakdown", "silence"], "duration_ms": 17000, "lines": []},
-      {"section_name": "Lift", "positive_local_styles": ["uplifting chords", "extra percussion", "rising energy"], "negative_local_styles": ["breakdown", "silence"], "duration_ms": 10000, "lines": []},
-      {"section_name": "Final chorus", "positive_local_styles": ["biggest energy", "full arrangement"], "negative_local_styles": ["breakdown", "silence"], "duration_ms": 7000, "lines": []},
-      {"section_name": "Ending", "positive_local_styles": ["one final big hit on the first beat", "short reverb tail", "clean ending"], "negative_local_styles": ["new melody"], "duration_ms": 4000, "lines": []}
+      {"section_name": "Build-up intro", "positive_local_styles": ["soft filtered synth arpeggio", "gentle rising riser", "anticipation"], "negative_local_styles": ["kick drum", "drop"], "duration_ms": 5600, "lines": []},
+      {"section_name": "Drop", "positive_local_styles": ["warm energetic drop on the first beat", "steady four-on-the-floor kick", "warm bass", "bright synth stabs"], "negative_local_styles": ["breakdown", "silence"], "duration_ms": 16400, "lines": []},
+      {"section_name": "Groove", "positive_local_styles": ["steady driving groove", "syncopated synth plucks", "light percussion fills"], "negative_local_styles": ["breakdown", "silence"], "duration_ms": 18000, "lines": []},
+      {"section_name": "Lift", "positive_local_styles": ["uplifting chords", "extra shimmer", "gently rising energy"], "negative_local_styles": ["breakdown", "silence"], "duration_ms": 14000, "lines": []},
+      {"section_name": "Final chorus", "positive_local_styles": ["full arrangement", "confident and warm"], "negative_local_styles": ["breakdown", "silence"], "duration_ms": 15800, "lines": []},
+      {"section_name": "Ending", "positive_local_styles": ["one final big hit on the first beat", "gentle reverb tail", "clean ending"], "negative_local_styles": ["new melody", "drums after the hit"], "duration_ms": 6000, "lines": []}
     ]
   }
 }

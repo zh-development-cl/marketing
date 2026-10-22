@@ -124,7 +124,7 @@ const Screens: React.FC<{screens: ScreenEvent[]; f: number}> = ({screens, f}) =>
   const cur = sorted[idx];
   const prev = idx > 0 ? sorted[idx - 1] : null;
   const kind = cur.enter ?? 'cut';
-  const dur = cur.enterDur ?? (kind === 'fade' ? 8 : kind === 'zoom' ? 14 : 16);
+  const dur = cur.enterDur ?? (kind === 'fade' ? 10 : kind === 'zoom' ? 18 : 20);
   const t = kind === 'cut' ? 1 : pr(f, cur.at, dur, kind === 'fade' ? io : nav);
   // Velocidad de la transición (fracción de pantalla por frame) para el desenfoque de movimiento de empujes y hojas.
   const dt = kind === 'cut' ? 0 : Math.abs(t - pr(f - 1, cur.at, dur, kind === 'fade' ? io : nav));
@@ -139,7 +139,7 @@ const Screens: React.FC<{screens: ScreenEvent[]; f: number}> = ({screens, f}) =>
       )}
     </div>
   );
-  const mb = (px: number) => Math.min(26, px * 0.42);
+  const mb = (px: number) => Math.min(20, px * 0.34);
   if (!prev || t >= 1) return layer(<ScreenView ev={cur} f={f} />, {}, `s${idx}`);
   const prevView = <ScreenView ev={prev} f={f} />;
   const curView = <ScreenView ev={cur} f={f} />;
@@ -308,7 +308,7 @@ const inkAt = (screens: ScreenEvent[], f: number): number => {
   let k = 0;
   for (const s of sorted) {
     if (f < s.at) break;
-    const d = s.enter && s.enter !== 'cut' ? s.enterDur ?? 14 : 6;
+    const d = s.enter && s.enter !== 'cut' ? s.enterDur ?? 18 : 6;
     const t = interpolate(f, [s.at, s.at + d], [0, 1], {...clampOpt, easing: io});
     k = k + (val(s) - k) * t;
   }
@@ -325,8 +325,8 @@ export const Stage: React.FC<StageProps> = ({screens, taps = [], glows = [], pus
   // Un giro 3D rápido (volteo) también deja estela, en x.
   const vx = Math.abs(p0.x - pp.x) + Math.abs(p0.s - pp.s) * 300 + Math.abs((p0.ry ?? 0) - (pp.ry ?? 0)) * 5;
   const vy = Math.abs(p0.y - pp.y) + Math.abs(p0.s - pp.s) * 300 + Math.abs((p0.rx ?? 0) - (pp.rx ?? 0)) * 5;
-  const bx = Math.min(44, vx * 0.38);
-  const by = Math.min(44, vy * 0.38);
+  const bx = Math.min(34, vx * 0.3);
+  const by = Math.min(34, vy * 0.3);
   const o = opacity ? opacity(f) : 1;
   if (o <= 0.001) return null;
   // El teléfono se dibuja con su esquina superior izquierda en (0,0) y se lleva a la pose con transform.

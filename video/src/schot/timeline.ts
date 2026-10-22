@@ -15,8 +15,10 @@ type VoScene = {file: string; duration: number; captions: Caption[]};
 const voScenes = vo.scenes as Record<SceneKey, VoScene>;
 
 // Aire antes de la voz (la escena ya está en pantalla) y después de la última palabra, en frames.
-const lead: Record<SceneKey, number> = {intro: 14, abrir: 8, itinerario: 8, programa: 8, charla: 8, aviso: 6, tibia: 8, expo: 8, cierre: 10};
-const tail: Record<SceneKey, number> = {intro: 8, abrir: 10, itinerario: 14, programa: 10, charla: 18, aviso: 10, tibia: 28, expo: 12, cierre: 84};
+// Con aire para procesar: el público son médicos de 50 a 70 años; cada escena se asienta antes de que hable la voz y
+// queda un respiro después de la última palabra antes de pasar a la siguiente.
+const lead: Record<SceneKey, number> = {intro: 16, abrir: 14, itinerario: 14, programa: 14, charla: 14, aviso: 12, tibia: 14, expo: 14, cierre: 14};
+const tail: Record<SceneKey, number> = {intro: 14, abrir: 24, itinerario: 34, programa: 30, charla: 40, aviso: 34, tibia: 44, expo: 24, cierre: 100};
 // Duración mínima de diseño (coreografía), en frames.
 const designed: Record<SceneKey, number> = {
   intro: s(6.6),

@@ -65,14 +65,16 @@ const originOf = (d: LiftDef, cam: CamKey[], f: number): Target => {
   return {x: c.x, y: c.y, k: PT * p.s, r: p.r ?? 0, rx: p.rx ?? 0, ry: p.ry ?? 0};
 };
 
-export const exitDurOf = (d: LiftDef) => d.exitDur ?? (d.exit === 'back' ? 13 : d.exit === 'pop' ? 9 : 11);
+// Salidas pausadas (el público tiene 50 a 70 años): nada desaparece en menos de medio segundo.
+export const exitDurOf = (d: LiftDef) => d.exitDur ?? (d.exit === 'back' ? 18 : d.exit === 'pop' ? 13 : 15);
 
 type LiftState = Target & {o: number; lift: number; presence: number};
 
 export const liftState = (d: LiftDef, cam: CamKey[], f: number): LiftState | null => {
   const ed = exitDurOf(d);
   if (f < d.at || f > d.out + ed) return null;
-  const cfg = {damping: d.damping ?? 14, stiffness: d.stiffness ?? 150, mass: 0.9};
+  // Resorte suave: llega en ~0,8 s con un rebote leve, sin latigazo.
+  const cfg = {damping: d.damping ?? 17, stiffness: d.stiffness ?? 100, mass: 1};
   const o0 = originOf(d, cam, d.at);
   const p = spring({frame: f - d.at, fps: 30, config: cfg});
   let cur = lerpT(o0, d.to, p);
@@ -86,7 +88,7 @@ export const liftState = (d: LiftDef, cam: CamKey[], f: number): LiftState | nul
   const seed = d.at * 0.37;
   cur = {
     ...cur,
-    y: cur.y + Math.sin(t * 2.1 + seed) * 7 * fl,
+    y: cur.y + Math.sin(t * 1.8 + seed) * 6 * fl,
     r: (cur.r ?? 0) + Math.sin(t * 1.4 + seed) * 0.7 * fl,
     rx: (cur.rx ?? 0) + Math.sin(t * 1.7 + seed) * 3 * fl,
     ry: (cur.ry ?? 0) + Math.cos(t * 1.3 + seed) * 4 * fl,
@@ -125,11 +127,11 @@ const LiftView: React.FC<{d: LiftDef; f: number; cam: CamKey[]; shakes: Shake[]}
   const w = d.box.w * K;
   const h = d.box.h * K;
   const sh = shakeAt(shakes, f);
-  const sx = Math.min(40, Math.abs(s.x - s1.x) * 0.36 + (Math.abs(s.k - s1.k) / s.k) * 70);
-  const sy = Math.min(40, Math.abs(s.y - s1.y) * 0.36 + (Math.abs(s.k - s1.k) / s.k) * 70);
+  const sx = Math.min(30, Math.abs(s.x - s1.x) * 0.28 + (Math.abs(s.k - s1.k) / s.k) * 50);
+  const sy = Math.min(30, Math.abs(s.y - s1.y) * 0.28 + (Math.abs(s.k - s1.k) / s.k) * 50);
   const src = typeof d.src === 'function' ? d.src(f) : d.src;
   const R = (d.radius ?? 12) * K;
-  const shine = d.shine === false ? -1 : pr(f, d.at + 5, 16, Easing.out(Easing.quad));
+  const shine = d.shine === false ? -1 : pr(f, d.at + 10, 24, Easing.inOut(Easing.quad));
   const L = s.lift;
   const card = (
     <div
@@ -203,9 +205,9 @@ export type BadgeDef = {
 };
 
 export const BadgeView: React.FC<{d: BadgeDef; f: number}> = ({d, f}) => {
-  if (f < d.at || f > d.out + 10) return null;
-  const p = spring({frame: f - d.at, fps: 30, config: {damping: 11, stiffness: 190, mass: 0.8}});
-  const q = pr(f, d.out, 9, Easing.in(Easing.back(1.6)));
+  if (f < d.at || f > d.out + 13) return null;
+  const p = spring({frame: f - d.at, fps: 30, config: {damping: 14, stiffness: 120, mass: 0.9}});
+  const q = pr(f, d.out, 12, Easing.in(Easing.back(1.3)));
   const size = d.size ?? 40;
   const tone = d.tone ?? 'white';
   const st = d.strike === undefined ? 0 : pr(f, d.strike, 7, Easing.out(Easing.cubic));
@@ -223,7 +225,7 @@ export const BadgeView: React.FC<{d: BadgeDef; f: number}> = ({d, f}) => {
           left: 0,
           top: 0,
           transform: `translate(-50%, -50%) translateX(${shake.toFixed(1)}px) rotate(${((d.r ?? 0) + (1 - p) * -14).toFixed(2)}deg) scale(${scale.toFixed(4)})`,
-          opacity: Math.min(1, p * 2.5) * (1 - pr(f, d.out + 3, 6, Easing.linear)),
+          opacity: Math.min(1, p * 2.5) * (1 - pr(f, d.out + 4, 8, Easing.linear)),
           display: 'flex',
           alignItems: 'center',
           gap: size * 0.4,
@@ -258,11 +260,11 @@ const BURST_COLORS = ['#FFFFFF', '#C3AEF2', '#E6007E', '#A200FF', '#FFD6F0'];
 
 export const BurstView: React.FC<{d: BurstDef; f: number}> = ({d, f}) => {
   const t = f - d.at;
-  if (t < 0 || t > 26) return null;
+  if (t < 0 || t > 32) return null;
   const n = d.n ?? 16;
   const R = d.r ?? 170;
-  const q = pr(f, d.at, 20, Easing.out(Easing.poly(4)));
-  const fade = 1 - pr(f, d.at + 8, 16, Easing.linear);
+  const q = pr(f, d.at, 26, Easing.out(Easing.poly(4)));
+  const fade = 1 - pr(f, d.at + 10, 20, Easing.linear);
   return (
     <div style={{position: 'absolute', left: d.x, top: d.y, width: 0, height: 0, zIndex: 48}}>
       {d.ring !== false ? (

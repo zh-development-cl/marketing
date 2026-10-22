@@ -27,8 +27,10 @@ const RATE = Math.max(1, NT / (sc.to - 10 - tSeq));
 const SKIP = 9; // los primeros cuadros de la secuencia traen el dedo en «Enviar», ya tocado en grande
 const tIA = beat('tibia', 'asistente') + 2;
 const tKnows = beat('tibia', 'conoce') - 2;
-const tAnswer = Math.max(beat('tibia', 'congreso') + 2, tSeq + Math.round((112 - SKIP) / RATE)); // la tarjeta ya está escrita
-export const tWhipOut = sc.to - 9;
+const SECTION_STEP = 8;
+// La respuesta sale de la pantalla apenas la tarjeta del lugar está escrita (cuadro 108 de la secuencia real).
+const tAnswer = tSeq + Math.round((108 - SKIP) / RATE) + 6;
+export const tWhipOut = sc.to - 15;
 
 const fab = bx('agenda', 'fabTibia', {x: 318, y: 674, w: 56, h: 56});
 const campo = bx('chat-escrito', 'campoTexto', {x: 12, y: 672, w: 366, h: 54});
@@ -40,17 +42,17 @@ const ASK_TO = {x: 540, y: 1160, k: 2.5};
 const SEND_AT = {x: ASK_TO.x + (enviar.x + enviar.w / 2 - (campo.x + campo.w / 2)) * ASK_TO.k, y: ASK_TO.y};
 
 // «Conoce todo el congreso»: las secciones reales de la app, alrededor del teléfono.
+// Encima y debajo de la respuesta flotante, sin taparla.
 const SECTIONS: Array<Pick<BadgeDef, 'text' | 'icon' | 'x' | 'y' | 'r'>> = [
-  {text: 'Programa', icon: 'calendarPlus', x: 250, y: 880, r: -5},
-  {text: 'Sedes', icon: 'building', x: 850, y: 960, r: 5},
-  {text: 'Charlas', icon: 'ticket', x: 230, y: 1250, r: -3},
-  {text: 'Expo', icon: 'qr', x: 870, y: 1340, r: 6},
-  {text: 'Auspiciadores', icon: 'users', x: 470, y: 1660, r: -2},
+  {text: 'Programa', icon: 'calendarPlus', x: 310, y: 770, r: -4},
+  {text: 'Sedes', icon: 'building', x: 770, y: 770, r: 4},
+  {text: 'Charlas', icon: 'ticket', x: 310, y: 1620, r: -3},
+  {text: 'Expo', icon: 'qr', x: 770, y: 1620, r: 4},
 ];
 
 const Overlay: React.FC = () => (
   <>
-    <Headline n="6" label="Asistente" lines={['Pregúntale', 'a Tib*IA*']} at={sc.from - 2} out={sc.to - 17} />
+    <Headline n="6" label="Asistente" lines={['Pregúntale', 'a Tib*IA*']} at={sc.from - 2} out={sc.to - 21} />
     <Mascot at={tMascot} out={tMascotOut} />
   </>
 );
@@ -71,22 +73,22 @@ export const tibia: SceneDef = {
     {at: tAnswer, out: tWhipOut - 4, box: respuesta, src: `${seqDir('seq-tibia')}/f${String(NT - 1).padStart(4, '0')}.png`, to: {x: 540, y: 1180, k: 2.42, r: -1.5, rx: 8}, exit: 'pop', radius: 18, ring: true, scrim: 0.45},
   ],
   badges: [
-    {at: tDuda, out: tChat + 10, x: 540, y: 1000, text: '¿Una duda?', icon: 'message', tone: 'white', size: 56, r: -4},
+    {at: tDuda, out: beat('tibia', 'Pregúntale') - 4, x: 540, y: 1000, text: '¿Una duda?', icon: 'message', tone: 'white', size: 56, r: -4},
     // Abajo, sobre la parte vacía del chat: arriba taparía la pregunta recién enviada.
     {at: tIA, out: tKnows - 2, x: 540, y: 1580, text: 'Asistente con IA', icon: 'sparkles', tone: 'brand', size: 46, r: -3},
-    ...SECTIONS.map((s, i) => ({...s, at: tKnows + i * 5, out: tAnswer - 6 + i, tone: 'glass' as const, size: 38, gain: 0.32})),
+    ...SECTIONS.map((s, i) => ({...s, at: tKnows + i * SECTION_STEP, out: tWhipOut - 10 + i, tone: 'glass' as const, size: 40, gain: 0.3})),
   ],
   bursts: [
     {at: tMascot + 4, x: 892, y: 300, n: 14, r: 240, star: true},
     {at: tIA + 3, x: 540, y: 1580, n: 12, r: 240, star: true},
   ],
   cam: [
-    {at: sc.from, dur: 12, pose: REST},
-    {at: tAskLift, dur: 12, pose: RECEDE},
-    {at: tSend + 6, dur: 14, pose: REST},
+    {at: sc.from, dur: 16, pose: REST},
+    {at: tAskLift, dur: 16, pose: RECEDE},
+    {at: tSend + 6, dur: 18, pose: REST},
     {at: tKnows, dur: 30, pose: {...REST, s: 0.94, ry: -8, rx: 4}},
-    {at: tAnswer, dur: 12, pose: RECEDE},
-    {at: tWhipOut, dur: 9, pose: {...REST, x: -760, ry: 28, s: 0.96}, ease: 'whipIn'},
+    {at: tAnswer, dur: 16, pose: RECEDE},
+    {at: tWhipOut, dur: 15, pose: {...REST, x: -760, ry: 22, s: 0.96}, ease: 'in'},
   ],
   Overlay,
   sfx: [
@@ -95,6 +97,6 @@ export const tibia: SceneDef = {
     {name: 'sparkle', at: tMascot + 3, gain: 0.3},
     {name: 'click', at: tSend, gain: 0.5},
     {name: 'sparkle', at: tIA + 2, gain: 0.3},
-    {name: 'whip', at: tWhipOut, gain: 0.45},
+    {name: 'whoosh-soft', at: tWhipOut, gain: 0.4},
   ],
 };

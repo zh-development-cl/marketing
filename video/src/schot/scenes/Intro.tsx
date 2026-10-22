@@ -18,6 +18,7 @@ const tEyebrow = -20;
 const tTitle = -16;
 const tTodo = beat('intro', 'Todo');
 const tRise = tTodo - 12;
+const RISE = 30;
 const tTitleOut = tTodo - 14;
 const tConverge = tTodo - 14;
 
@@ -115,24 +116,24 @@ const piece = (at: number, i: number, box: LiftDef['box'], to: {x: number; y: nu
 
 const PIECES: LiftDef[] = [
   piece(beat('intro', 'app') - 2, 0, PUSH_BOX, {x: 360, y: 330, k: 1.55, r: -4}, undefined, (_f, k) => <PushCard k={k} title={PUSH_TITLE} body={PUSH_BODY} />),
-  piece(beat('intro', 'oficial') - 2, 3, bx('qr', 'tarjetaQR', {x: 63, y: 266, w: 264, h: 264}), {x: 868, y: 318, k: 1.0, r: 6}, shot('qr')),
+  piece(beat('intro', 'app') + 13, 3, bx('qr', 'tarjetaQR', {x: 63, y: 266, w: 264, h: 264}), {x: 868, y: 318, k: 1.0, r: 6}, shot('qr')),
   // La fila se recorta antes del botón flotante de TibIA, que la tapa a la derecha.
   piece(beat('intro', 'Congreso') - 2, 1, {...bx('programa', 'primeraFila', {x: 17, y: 630, w: 356, h: 110}), w: 296}, {x: 760, y: 1488, k: 1.6, r: 4}, shot('programa')),
   piece(beat('intro', 'SCHOT') - 2, 4, bx('seq-sello', 'sello', {x: 119, y: 211, w: 152, h: 152}), {x: 178, y: 1452, k: 1.25, r: -7}, lastOf('seq-sello', 75)),
   piece(beat('intro', '2026') - 2, 2, bx('seq-tibia', 'tarjetaLugar_final', {x: 16, y: 305, w: 358, h: 178}), {x: 330, y: 1716, k: 1.32, r: -4}, lastOf('seq-tibia', 180)),
-  piece(beat('intro', '2026') + 8, 5, bx('intereses-2', 'chipRodilla', {x: 20, y: 499, w: 274, h: 44}), {x: 812, y: 1790, k: 1.3, r: 5}, shot('intereses-2')),
+  piece(beat('intro', '2026') + 16, 5, bx('intereses-2', 'chipRodilla', {x: 20, y: 499, w: 274, h: 44}), {x: 812, y: 1790, k: 1.3, r: 5}, shot('intereses-2')),
 ];
 
-const Overlay: React.FC = () => <Headline lines={['Todo el congreso,', 'en tu *celular*']} at={tTodo - 4} out={sc.to - 17} />;
+const Overlay: React.FC = () => <Headline lines={['Todo el congreso,', 'en tu *celular*']} at={tTodo - 4} out={sc.to - 21} />;
 
-const tWhip = sc.to - 8; // latigazo hacia la escena siguiente
+const tWhip = sc.to - 14; // el teléfono sale de lado hacia la escena siguiente
 export const intro: SceneDef = {
   screens: [{at: 0, src: shot('programa'), ink: 'dark'}],
   cam: [
     {at: -2, dur: 1, pose: {...REST, y: REST.y + 1500, rx: 38, s: 0.9}},
-    {at: tRise, dur: 24, pose: REST, ease: 'whipOut'},
-    {at: tRise + 26, dur: 30, pose: {...REST, ry: -7, rx: 3, s: 1.02}},
-    {at: tWhip, dur: 8, pose: {...REST, x: -760, ry: 28, s: 0.96}, ease: 'whipIn'},
+    {at: tRise, dur: RISE, pose: REST, ease: 'whipOut'},
+    {at: tRise + RISE + 2, dur: 34, pose: {...REST, ry: -7, rx: 3, s: 1.02}},
+    {at: tWhip, dur: 14, pose: {...REST, x: -760, ry: 22, s: 0.96}, ease: 'in'},
   ],
   lifts: PIECES.map((d, i) => ({...d, gain: 0.36 + 0.02 * i})),
   bursts: [{at: tRise + 18, x: 540, y: 1100, n: 18, r: 420, star: true}],
@@ -142,9 +143,9 @@ export const intro: SceneDef = {
   sfx: [
     {name: 'logo', at: 0, gain: 0.55},
     {name: 'swish', at: tConverge, gain: 0.35},
-    {name: 'whoosh-hard', at: tRise + 2, gain: 0.4},
+    {name: 'whoosh-hard', at: tRise + 2, gain: 0.32},
     {name: 'boom', at: tRise + 16, gain: 0.5},
-    {name: 'whip', at: tWhip, gain: 0.5},
+    {name: 'whoosh-soft', at: tWhip, gain: 0.4},
   ],
 };
 

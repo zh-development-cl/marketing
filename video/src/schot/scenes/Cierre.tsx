@@ -18,11 +18,11 @@ const urlWord = captionsOf('cierre').flatMap((c) => c.words).find((w) => w.text.
 const tType0 = urlWord ? urlWord.from : tUrl + 18;
 const tType1 = urlWord ? Math.min(urlWord.to - 8, tType0 + 75) : tType0 + 70;
 const tStep1 = beat('cierre', 'agrégala') - 44; // la guía de instalación de la app, paso a paso
-const STEP = 17;
+const STEP = 26; // cada paso de la guía se alcanza a leer
 const tStep2 = tStep1 + STEP;
 const tStep3 = tStep2 + STEP;
 const tFan = tStep3 + STEP;
-const tHome = Math.max(tFan + 8, beat('cierre', 'pantalla') - 4);
+const tHome = Math.max(tFan + 20, beat('cierre', 'pantalla') - 4); // el abanico de los tres pasos se alcanza a ver
 const tIcon = tHome + 12;
 const tEndCard = Math.max(beatEnd('cierre', 'inicio') + 10, tIcon + 16);
 const paso = {x: 16, y: 132, w: 358, h: 362}; // «Paso N de 3», su texto y la ilustración (sin los botones)
@@ -175,13 +175,13 @@ const STEPS: LiftDef[] = ['instalar', 'instalar-paso2', 'instalar-paso3'].map((i
 export const cierre: SceneDef = {
   screens: [
     {at: sc.from, src: shot('login-1'), enter: 'zoom', enterDur: 12, ink: 'light'},
-    {at: tStep1, src: shot('instalar'), enter: 'push', enterDur: 10, ink: 'dark'},
-    {at: tStep2, src: shot('instalar-paso2'), enter: 'fade', enterDur: 5, ink: 'dark'},
-    {at: tStep3, src: shot('instalar-paso3'), enter: 'fade', enterDur: 5, ink: 'dark'},
-    {at: tHome, render: (f) => <HomeScreen f={f} fps={30} />, enter: 'zoom', enterDur: 14, ink: 'light'},
+    {at: tStep1, src: shot('instalar'), enter: 'push', enterDur: 14, ink: 'dark'},
+    {at: tStep2, src: shot('instalar-paso2'), enter: 'fade', enterDur: 8, ink: 'dark'},
+    {at: tStep3, src: shot('instalar-paso3'), enter: 'fade', enterDur: 8, ink: 'dark'},
+    {at: tHome, render: (f) => <HomeScreen f={f} fps={30} />, enter: 'zoom', enterDur: 18, ink: 'light'},
   ],
   cam: [
-    {at: sc.from, dur: 18, pose: PHONE_POSE, ease: 'whipOut'},
+    {at: sc.from, dur: 24, pose: PHONE_POSE, ease: 'out'},
     {at: tEndCard - 16, dur: 26, pose: {...REST, y: 1215, s: 0.74}, ease: 'io'},
   ],
   lifts: STEPS,

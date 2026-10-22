@@ -17,25 +17,25 @@ const tPush = beat('aviso', 'avisa') - 10;
 const tDial = beat('aviso', 'diez') - 4;
 const tCount = beat('aviso', 'diez') - 1;
 const tPushOut = beat('aviso', 'antes') - 4;
-const tDialOut = tPushOut + 2;
 const tCard = beat('aviso', 'empiece') - 8;
-const tCardBack = sc.to - 16;
+const tDialOut = tCard; // el dial se va cuando sube la tarjeta de la agenda
+const tCardBack = sc.to - 20;
 
 const proximo = bx('agenda', 'tarjetaLoProximo', {x: 16, y: 248, w: 358, h: 168});
 const PUSH_TO = {x: 540, y: 1000, k: 2.55};
 
 const clampOpt = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
 const SANS = '"Barlow", system-ui, sans-serif';
-const countAt = (f: number) => interpolate(f, [tCount, tCount + 14], [0, 10], {...clampOpt, easing: Easing.out(Easing.cubic)});
+const countAt = (f: number) => interpolate(f, [tCount, tCount + 22], [0, 10], {...clampOpt, easing: Easing.out(Easing.cubic)});
 
 // Dial «10 min»: salta con resorte, el número rueda de 0 a 10 y el anillo se llena con el degradé de marca.
 const DIAL = {x: 540, y: 1420, d: 330};
 const Dial: React.FC = () => {
   const f = useCurrentFrame();
   const {fps} = useVideoConfig();
-  if (f < tDial - 1 || f > tDialOut + 11) return null;
-  const p = spring({frame: f - tDial, fps, config: {damping: 12, stiffness: 170, mass: 0.8}});
-  const q = interpolate(f, [tDialOut, tDialOut + 10], [0, 1], {...clampOpt, easing: Easing.in(Easing.back(1.6))});
+  if (f < tDial - 1 || f > tDialOut + 14) return null;
+  const p = spring({frame: f - tDial, fps, config: {damping: 14, stiffness: 120, mass: 0.9}});
+  const q = interpolate(f, [tDialOut, tDialOut + 13], [0, 1], {...clampOpt, easing: Easing.in(Easing.back(1.3))});
   const v = countAt(f);
   const R = DIAL.d / 2 - 16;
   const C = 2 * Math.PI * R;
@@ -62,14 +62,14 @@ const Dial: React.FC = () => {
 
 const Overlay: React.FC = () => (
   <>
-    <Headline n="5" label="Avisos" lines={['Te avisa *10 min*', 'antes']} at={sc.from - 2} out={sc.to - 17} />
+    <Headline n="5" label="Avisos" lines={['Te avisa *10 min*', 'antes']} at={sc.from - 2} out={sc.to - 21} />
     <Dial />
   </>
 );
 
 // Un tic por cada número que pasa en el dial.
 const ticks: SfxCue[] = [];
-for (let f = tCount, last = 0; f <= tCount + 14; f++) {
+for (let f = tCount, last = 0; f <= tCount + 22; f++) {
   const n = Math.floor(countAt(f) + 1e-6);
   if (n > last) {
     ticks.push({name: 'tick', at: f, gain: 0.16 + 0.012 * n});
@@ -102,9 +102,9 @@ export const aviso: SceneDef = {
   bursts: [{at: tPush + 5, x: PUSH_TO.x, y: PUSH_TO.y, n: 14, r: 520}],
   cam: [
     {at: sc.from, dur: 1, pose: {...REST, y: REST.y + 1750, rx: 24, s: 0.95}},
-    {at: sc.from + 1, dur: 15, pose: REST, ease: 'whipOut'},
-    {at: tPush, dur: 12, pose: RECEDE},
-    {at: tCardBack, dur: 13, pose: REST},
+    {at: sc.from + 1, dur: 22, pose: REST, ease: 'whipOut'},
+    {at: tPush, dur: 16, pose: RECEDE},
+    {at: tCardBack, dur: 18, pose: REST},
   ],
   Overlay,
   sfx: [

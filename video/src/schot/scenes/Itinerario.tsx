@@ -15,8 +15,8 @@ import {SceneDef, seqDir, shot} from './types';
 const sc = scenes.itinerario;
 const tRod = beat('itinerario', 'qué') - 4;
 const tCad = beat('itinerario', 'interesa') + 2;
-const tChipsBack = beat('itinerario', 'y') - 4;
-const tArmar = beat('itinerario', 'arma') - 8;
+const tChipsBack = beat('itinerario', 'y') - 1;
+const tArmar = Math.max(beat('itinerario', 'arma') - 8, tChipsBack + 14); // los chips ya volvieron
 // La secuencia real: dedo en su cuadro 6, espera «TibIA está armando tu agenda», respuesta en el cuadro 54 y tarjetas
 // que entran hasta el 95. Se acelera para que la respuesta llegue justo antes de «sin charlas que se crucen».
 const N = framesOf('seq-itinerario', 96);
@@ -24,9 +24,9 @@ const tSeq = tArmar - 4;
 const RATE = 54 / (beat('itinerario', 'sin') - 6 - tSeq);
 const tResult = tSeq + Math.round(54 / RATE);
 const tCards = beat('itinerario', 'sin') - 1;
-const tSeal = beat('itinerario', 'crucen') - 2;
-const tOut = sc.to - 20;
-export const tFlip = sc.to - 9; // volteo hacia el Programa
+const tSeal = beat('itinerario', 'crucen') - 6;
+const tOut = sc.to - 30;
+export const tFlip = sc.to - 15; // volteo hacia el Programa
 
 const rod = bx('intereses-1', 'chipRodilla', {x: 20, y: 499, w: 274, h: 44});
 const cad = bx('intereses-2', 'chipCadera', {x: 20, y: 291, w: 102, h: 44});
@@ -37,7 +37,7 @@ export const tItinMascot = beat('itinerario', 'TibIA') - 6;
 export const tItinMascotOut = sc.to - 16;
 const Overlay: React.FC = () => (
   <>
-    <Headline n="2" label="Asistente con IA" lines={['Tib*IA* arma', 'tu agenda']} at={sc.from - 2} out={sc.to - 17} />
+    <Headline n="2" label="Asistente con IA" lines={['Tib*IA* arma', 'tu agenda']} at={sc.from - 2} out={sc.to - 21} />
     <Mascot at={tItinMascot} out={tItinMascotOut} size={260} />
   </>
 );
@@ -53,7 +53,7 @@ const CARDS = [
 const K = 1.78;
 const ys = [692, 952, 1222, 1482];
 const cards: LiftDef[] = CARDS.map((b, i) => ({
-  at: tCards + i * 4,
+  at: tCards + i * 7,
   out: tOut + i * 2,
   box: b,
   src: i < 2 ? shot('itinerario') : shot('itinerario-full'),
@@ -87,15 +87,15 @@ export const itinerario: SceneDef = {
     {at: tCad + 3, out: tChipsBack + 2, box: cad, src: shot('intereses-2'), to: {x: 800, y: 1090, k: 3.0, r: 6, rx: 6, ry: -10}, radius: 22, ring: true, scrim: 0.3},
     ...cards,
   ],
-  badges: [{at: tSeal, out: tOut + 4, x: 540, y: 1760, text: 'Sin cruces de horario', icon: 'check', tone: 'brand', size: 48, r: -3}],
+  badges: [{at: tSeal, out: tOut + 10, x: 540, y: 1760, text: 'Sin cruces de horario', icon: 'check', tone: 'brand', size: 48, r: -3}],
   bursts: [{at: tSeal + 3, x: 540, y: 1760, n: 18, r: 300, star: true}],
   cam: [
-    {at: sc.from, dur: 12, pose: REST},
-    {at: tRod + 3, dur: 12, pose: {...REST, s: 0.92, y: REST.y + 40, rx: 10}},
-    {at: tChipsBack, dur: 12, pose: REST},
+    {at: sc.from, dur: 16, pose: REST},
+    {at: tRod + 3, dur: 16, pose: {...REST, s: 0.92, y: REST.y + 40, rx: 10}},
+    {at: tChipsBack, dur: 16, pose: REST},
     {at: tArmar + 6, dur: 30, pose: {...focus(espera, 1.2, {x: 540, y: 1180}), ry: -6}},
-    {at: tCards - 2, dur: 12, pose: {...REST, s: 0.88, y: REST.y + 60, rx: 12}},
-    {at: tFlip, dur: 9, pose: {...REST, ry: 90, s: 0.9}, ease: 'whipIn'},
+    {at: tCards - 2, dur: 16, pose: {...REST, s: 0.88, y: REST.y + 60, rx: 12}},
+    {at: tFlip, dur: 15, pose: {...REST, ry: 90, s: 0.9}, ease: 'in'},
   ],
   Overlay,
   sfx: [
@@ -103,6 +103,6 @@ export const itinerario: SceneDef = {
     {name: 'rise', at: tSeq + 6, gain: 0.2},
     {name: 'sparkle', at: tSeal + 2, gain: 0.32},
     {name: 'chime', at: tSeal + 8, gain: 0.3},
-    {name: 'whoosh-hard', at: tFlip, gain: 0.32},
+    {name: 'whoosh-soft', at: tFlip, gain: 0.36},
   ],
 };
