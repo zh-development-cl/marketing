@@ -1,16 +1,20 @@
-import React from 'react';
-import {Easing, Img, interpolate, staticFile} from 'remotion';
+import React, {useContext} from 'react';
+import {Easing, Img, interpolate, staticFile, useCurrentFrame} from 'remotion';
+import {Streak} from '../../v4/fx/MotionBlur';
 import {beat, scenes} from '../timeline';
 import {bx, center} from '../shots';
 import {PT, REST, SCREEN_H, SCREEN_W} from '../ui/geometry';
 import {Headline} from '../ui/Text';
+import {CamCtx, LiftDef, liftState} from '../ui/Pop';
 import {SceneDef, shot} from './types';
 
 // Escena 2 · entrar. Llega con un latigazo desde la apertura. «No se descarga» → la insignia «Descargar la app» se
 // tacha; «se abre en el navegador» → la barra de Safari salta de la pantalla, la dirección se escribe en grande, se
 // toca «Ir» y vuelve a su lugar mientras carga el ingreso real; «entras con tu correo» → el campo del correo sale ya
-// escrito; «y un código» → los seis casilleros salen y los dígitos caen uno a uno; «Sin contraseñas» → insignia con
-// estallido y adentro: «Hola, Carolina».
+// escrito; «y un código» → llega el correo con el código (notificación de Gmail con el remitente, el asunto y la vista
+// previa reales del backend: «482915 es tu código para el Congreso SCHOT»), los seis casilleros salen de la pantalla y
+// cada dígito vuela desde el correo a su casillero; «Sin contraseñas» → insignia con estallido y adentro: «Hola,
+// Carolina».
 const sc = scenes.abrir;
 const URL = 'app.congresoschot2026.com';
 
@@ -32,10 +36,13 @@ const tMailBack = beat('abrir', 'correo') + 4;
 const tTapSend = tMailBack + 10;
 const tCode = tTapSend + 3;
 const CODE_PUSH = 10;
+const tGmail = Math.max(beat('abrir', 'un') - 1, tCode + 2); // llega el correo con el código
 const tCodeLift = tCode + CODE_PUSH; // sale cuando la pantalla terminó de entrar
-const tDigit0 = Math.max(beat('abrir', 'código') + 2, tCodeLift + 6);
+const FLY = 10; // frames de vuelo de cada dígito del correo a su casillero
+const tDigit0 = Math.max(beat('abrir', 'código') + 2, tCodeLift + 8, tGmail + 9 + FLY);
 const tCodeBack = Math.max(beat('abrir', 'Sin') + 2, tDigit0 + 18);
-const tSin = beat('abrir', 'Sin') - 2;
+const tGmailOut = tDigit0 + 17;
+const tSin = Math.max(beat('abrir', 'Sin') - 2, tGmailOut + 4); // cuando el correo ya se fue
 const tHome = tCodeBack + 14; // adentro: bienvenida, cuando el código ya volvió
 const tTapStart = sc.to - 8; // «Comenzar» → la escena siguiente empuja los intereses
 
@@ -109,12 +116,157 @@ const comenzar = bx('bienvenida', 'botonComenzar', {x: 24, y: 706, w: 342, h: 56
 const digits = ['login-3b', 'login-3c', 'login-3d', 'login-3e', 'login-3f', 'login-3g'];
 const digitAt = (i: number) => tDigit0 + i * 3;
 
+// ---------- el correo con el código ----------
+// El mismo correo que manda el backend (internal/platform/mail/smtp.go): remitente «Congreso SCHOT», asunto
+// «<código> es tu código para el Congreso SCHOT» y la vista previa «Vence en 10 minutos y solo sirve una vez.».
+// El código es el que se escribe en las capturas (login-3b…3g).
+const CODE = '482915';
+// Ícono de Gmail (la M de cuatro colores sobre blanco).
+const GmailIcon: React.FC<{size: number}> = ({size}) => (
+  <div style={{width: size, height: size, borderRadius: size * 0.23, background: '#fff', boxShadow: 'inset 0 0 0 1px rgba(28,18,36,.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none'}}>
+    <svg width={size * 0.66} height={size * 0.53} viewBox="0 0 52 42">
+      <path fill="#4285f4" d="M3.5 42h8V22.5L0 13.75V38.5c0 1.94 1.57 3.5 3.5 3.5" />
+      <path fill="#34a853" d="M40.5 42h8c1.94 0 3.5-1.57 3.5-3.5V13.75L40.5 22.5" />
+      <path fill="#fbbc04" d="M40.5 7.33v15.17L52 13.75V9.08c0-4.33-4.94-6.8-8.4-4.2" />
+      <path fill="#ea4335" d="M11.5 22.5V7.33L26 18.17 40.5 7.33v15.17L26 33.33" />
+      <path fill="#c5221f" d="M0 9.08v4.67l11.5 8.75V7.33L8.28 4.92C4.83 2.32 0 4.79 0 9.08" />
+    </svg>
+  </div>
+);
+// Medidas de la notificación (pt): los dígitos tienen ancho fijo para saber de dónde sale cada uno.
+const GM = {w: 372, h: 98, pad: 12, icon: 38, gap: 10, row1: 17, row2: 20, row3: 19, digitW: 8.4};
+const GM_TEXT_X = 13 + GM.icon + GM.gap;
+const digitInMail = (i: number) => ({x: GM_TEXT_X + GM.digitW * (i + 0.5) - GM.w / 2, y: GM.pad + GM.row1 + GM.row2 + GM.row3 / 2 - GM.h / 2});
+const launchAt = (i: number) => digitAt(i) - FLY;
+const GmailCard: React.FC<{f: number; k: number}> = ({f, k}) => (
+  <div style={{position: 'absolute', inset: 0, borderRadius: 22 * k, padding: `${GM.pad * k}px ${13 * k}px`, background: 'rgba(247,245,250,.98)', display: 'flex', gap: GM.gap * k, alignItems: 'flex-start', fontFamily: SF, color: '#1C1224'}}>
+    <div style={{paddingTop: 8 * k}}>
+      <GmailIcon size={GM.icon * k} />
+    </div>
+    <div style={{flex: 1, minWidth: 0}}>
+      <div style={{display: 'flex', justifyContent: 'space-between', fontSize: 13 * k, lineHeight: `${GM.row1 * k}px`, color: '#6B6178', fontWeight: 500}}>
+        <span style={{fontWeight: 600, color: '#3C3346'}}>Gmail</span>
+        <span>ahora</span>
+      </div>
+      <div style={{fontSize: 15.5 * k, lineHeight: `${GM.row2 * k}px`, fontWeight: 700}}>Congreso SCHOT</div>
+      <div style={{fontSize: 14 * k, lineHeight: `${GM.row3 * k}px`, fontWeight: 600, whiteSpace: 'nowrap'}}>
+        {/* El código se marca (resaltador lila) antes de salir; la sombra no mueve los dígitos de su lugar. */}
+        <span style={{display: 'inline-block', borderRadius: 5 * k, background: `rgba(162,0,255,${(0.14 * pr(f, tGmail + 6, 6) * (1 - pr(f, launchAt(5) + 2, 6))).toFixed(3)})`, boxShadow: `0 0 0 ${3 * k}px rgba(162,0,255,${(0.14 * pr(f, tGmail + 6, 6) * (1 - pr(f, launchAt(5) + 2, 6))).toFixed(3)})`}}>
+          {CODE.split('').map((d, i) => (
+            // Cada dígito se apaga cuando sale volando hacia su casillero.
+            <span key={i} style={{display: 'inline-block', width: GM.digitW * k, textAlign: 'center', fontWeight: 800, color: '#7A00D6', opacity: f >= launchAt(i) ? 0.28 : 1}}>
+              {d}
+            </span>
+          ))}
+        </span>
+        <span> es tu código para el Congreso SCHOT</span>
+      </div>
+      <div style={{fontSize: 13.5 * k, lineHeight: `${18 * k}px`, color: '#6B6178', fontWeight: 500, whiteSpace: 'nowrap'}}>Vence en 10 minutos y solo sirve una vez.</div>
+    </div>
+  </div>
+);
+const GMAIL_LIFT: LiftDef = {
+  at: tGmail,
+  out: tGmailOut,
+  box: {x: 9, y: 52, w: GM.w, h: GM.h},
+  render: (f, k) => <GmailCard f={f} k={k} />,
+  from: {x: 540, y: 600, k: 0.9, r: 0},
+  to: {x: 540, y: 792, k: 2.45},
+  exit: 'pop', // se encoge en su lugar: volando hacia arriba cruzaría el titular
+  radius: 22,
+  ring: true,
+  float: 0, // quieta: los dígitos salen de posiciones exactas
+  shine: false,
+};
+
+const CODE_TO = {x: 540, y: 1150, k: 3.0};
+const CODE_LIFT: LiftDef = {
+  at: tCodeLift,
+  out: tCodeBack,
+  box: code,
+  // Cada dígito que entra cambia el recorte; el último reacomoda la tarjeta 15 pt más arriba.
+  render: (f, k) => {
+    let id = 'login-3a';
+    digits.forEach((d, i) => {
+      if (f >= digitAt(i)) id = d;
+    });
+    const y = id === 'login-3g' ? codeLast.y : code.y;
+    return <Img src={staticFile(shot(id))} style={{position: 'absolute', left: -code.x * k, top: -y * k, width: 390 * k}} />;
+  },
+  to: {...CODE_TO, rx: 8},
+  radius: 14,
+  ring: true,
+  scrim: 0.35,
+};
+
+// Los seis dígitos vuelan del correo a los casilleros flotantes: cada uno en una tecla blanca que crece hasta el
+// tamaño del casillero y cae justo cuando la captura real muestra ese dígito escrito.
+const boxCenter = (i: number) => {
+  const d = bx('login-3a', `digito${i + 1}`, {x: 48 + i * 50.4, y: 520, w: 42, h: 52});
+  return {x: d.x + d.w / 2 - (code.x + code.w / 2), y: d.y + d.h / 2 - (code.y + code.h / 2), w: d.w, h: d.h};
+};
+const DigitFlights: React.FC = () => {
+  const f = useCurrentFrame();
+  const {cam} = useContext(CamCtx);
+  return (
+    <>
+      {CODE.split('').map((digit, i) => {
+        const t0 = launchAt(i);
+        const t1 = digitAt(i);
+        if (f < t0 || f >= t1) return null;
+        const a = liftState(GMAIL_LIFT, cam, t0);
+        const b = liftState(CODE_LIFT, cam, t1);
+        if (!a || !b) return null;
+        const m = digitInMail(i);
+        const bc = boxCenter(i);
+        const A = {x: a.x + m.x * a.k, y: a.y + m.y * a.k, w: GM.digitW * a.k * 1.25, h: GM.row3 * a.k * 1.15};
+        const B = {x: b.x + bc.x * b.k, y: b.y + bc.y * b.k, w: bc.w * b.k, h: bc.h * b.k};
+        const pos = (fr: number) => {
+          const t = interpolate(fr, [t0, t1], [0, 1], {...clampOpt, easing: Easing.inOut(Easing.cubic)});
+          // Arco: sube un poco y se abre hacia su lado antes de caer en el casillero.
+          const cx = (A.x + B.x) / 2 + (i - 2.5) * 34;
+          const cy = Math.min(A.y, B.y) - 90;
+          const u = 1 - t;
+          return {t, x: u * u * A.x + 2 * u * t * cx + t * t * B.x, y: u * u * A.y + 2 * u * t * cy + t * t * B.y};
+        };
+        const p = pos(f);
+        const q = pos(f - 1);
+        const w = A.w + (B.w - A.w) * p.t;
+        const h = A.h + (B.h - A.h) * p.t;
+        const sx = Math.min(30, Math.abs(p.x - q.x) * 0.35);
+        const sy = Math.min(30, Math.abs(p.y - q.y) * 0.35);
+        const tile = (
+          <div style={{position: 'absolute', left: p.x - w / 2, top: p.y - h / 2, width: w, height: h, borderRadius: Math.min(w, h) * 0.24, background: '#fff', boxShadow: `0 ${(10 + 20 * Math.sin(p.t * Math.PI)).toFixed(1)}px ${(24 + 30 * Math.sin(p.t * Math.PI)).toFixed(1)}px rgba(14,0,30,.4), inset 0 0 0 ${Math.max(1.5, 3 * p.t).toFixed(1)}px rgba(162,0,255,.55)`, display: 'flex', alignItems: 'center', justifyContent: 'center', transform: `rotate(${(Math.sin(p.t * Math.PI) * (i % 2 ? 10 : -10)).toFixed(2)}deg)`, fontFamily: '"Barlow", system-ui, sans-serif', fontWeight: 800, fontSize: h * 0.52, color: '#2B0054', zIndex: 46}}>
+            {digit}
+          </div>
+        );
+        return (
+          <div key={i} style={{position: 'absolute', inset: 0, zIndex: 46}}>
+            {Math.max(sx, sy) >= 0.7 ? (
+              <Streak sx={sx} sy={sy} style={{position: 'absolute', inset: 0}}>
+                {tile}
+              </Streak>
+            ) : (
+              tile
+            )}
+          </div>
+        );
+      })}
+    </>
+  );
+};
+
 // El teléfono se echa atrás (más chico e inclinado) mientras una pieza está afuera: separa los planos.
 const RECEDE = {...REST, s: 0.9, y: REST.y + 50, rx: 12};
 // Dónde queda el botón «Ir» de la barra flotante.
 const BAR_TO = {x: 540, y: 1150, k: 2.7};
 
-const Overlay: React.FC = () => <Headline n="1" label="Entrar" lines={['Sin descargar', '*nada*']} at={sc.from - 2} out={sc.to - 17} />;
+const Overlay: React.FC = () => (
+  <>
+    <Headline n="1" label="Entrar" lines={['Sin descargar', '*nada*']} at={sc.from - 2} out={sc.to - 17} />
+    <DigitFlights />
+  </>
+);
 
 export const abrir: SceneDef = {
   screens: [
@@ -172,24 +324,8 @@ export const abrir: SceneDef = {
       ring: true,
       scrim: 0.35,
     },
-    {
-      at: tCodeLift,
-      out: tCodeBack,
-      box: code,
-      // Cada dígito que entra cambia el recorte; el último reacomoda la tarjeta 15 pt más arriba.
-      render: (f, k) => {
-        let id = 'login-3a';
-        digits.forEach((d, i) => {
-          if (f >= digitAt(i)) id = d;
-        });
-        const y = id === 'login-3g' ? codeLast.y : code.y;
-        return <Img src={staticFile(shot(id))} style={{position: 'absolute', left: -code.x * k, top: -y * k, width: 390 * k}} />;
-      },
-      to: {x: 540, y: 1130, k: 3.0, rx: 8},
-      radius: 14,
-      ring: true,
-      scrim: 0.35,
-    },
+    CODE_LIFT,
+    {...GMAIL_LIFT, sound: 'chime', gain: 0.38}, // suena como un correo que llega
   ],
   Overlay,
   sfx: [
