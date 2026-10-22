@@ -5,20 +5,21 @@ import {bx, framesOf} from '../shots';
 import {PT, REST, toCanvas} from '../ui/geometry';
 import {Headline} from '../ui/Text';
 import {SceneDef, seqDir, shot} from './types';
+import {dipIn} from './Intro';
 
-// Escena 8 · expo. Llega con un latigazo. «En la expo» → la tarjeta del Pasaporte Virtual salta de los Auspiciadores;
+// Escena 8 · expo. «En la expo» → la tarjeta del Pasaporte Virtual salta de los Auspiciadores;
 // «junta sellos» → se toca «Escanear sello» sobre la tarjeta flotante; sube la hoja real y el sello de AO Trauma cae
-// desde la cámara y se estampa (golpe, temblor, estallido); el avance «13 de 35 sellos» salta y rueda de 12 a 13.
+// desde la cámara y se estampa (golpe leve y estallido); después salta el avance «13 de 35 sellos».
 // «y conecta con colegas escaneando su código» → «Mi código QR»: el QR salta girando y una línea de escaneo lo
 // recorre. Sale encogiéndose hacia el cierre.
 const sc = scenes.expo;
 const tPas = beat('expo', 'expo') - 14;
 const tScan = beat('expo', 'junta');
 const tSheet = tScan + 3;
-const tImpact = Math.max(beat('expo', 'sellos') + 6, tSheet + 18); // el sello golpea con la hoja ya arriba
+const tImpact = Math.max(beat('expo', 'sellos') + 6, tSheet + 26); // el sello cae cuando la hoja ya está quieta
 const SEQ_HIT = 18; // cuadro de la secuencia real con el sello ya puesto (antes del 12 → 13)
 const NS = framesOf('seq-sello', 75);
-const tProg = tImpact + 8;
+const tProg = tImpact + 18; // el avance sale después: el golpe del sello queda solo
 const tProgOut = beat('expo', 'conecta') - 8;
 const tQr = tProgOut + 6;
 const tQrLift = beat('expo', 'colegas') - 6;
@@ -42,7 +43,7 @@ const seqAt = (f: number) => (f < tImpact ? 2 : SEQ_HIT + (f - tImpact));
 const clampOpt = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
 
 // El sello cae desde la cámara: grande, girado y desenfocado; acelera y se estampa justo en su lugar de la hoja.
-const STAMP_FALL = 11;
+const STAMP_FALL = 16;
 const Stamp: React.FC = () => {
   const f = useCurrentFrame();
   const t0 = tImpact - STAMP_FALL;
@@ -83,7 +84,7 @@ const ScanLine: React.FC<{f: number; k: number}> = ({f, k}) => {
 
 export const expo: SceneDef = {
   screens: [
-    {at: sc.from, src: shot('auspiciadores'), ink: 'dark'},
+    {at: sc.from - 2, src: shot('auspiciadores'), enter: 'fade', enterDur: 14, ink: 'dark'},
     {at: tSheet, render: (f) => <Img src={staticFile(selloFrame(seqAt(f)))} style={{position: 'absolute', left: 0, top: 0, width: 390 * PT, height: 844 * PT}} />, enter: 'sheet', enterDur: 16, ink: 'dark'},
     {at: tQr, src: shot('qr'), enter: 'push', enterDur: 16, ink: 'dark'},
   ],
@@ -112,15 +113,12 @@ export const expo: SceneDef = {
     },
   ],
   badges: [
-    {at: tImpact + 2, out: tProgOut - 2, x: 760, y: 760, text: 'Sello agregado', icon: 'star', tone: 'brand', size: 42, r: 6, sound: null},
     {at: beat('expo', 'conecta') - 2, out: tQrOut, x: 540, y: 1720, text: 'Conecta con colegas', icon: 'users', tone: 'white', size: 44, r: -3},
   ],
-  bursts: [{at: tImpact, ...toCanvas(REST, sello.x + sello.w / 2, sello.y + sello.h / 2), n: 20, r: 360, star: true}],
-  flashes: [{at: tImpact, dur: 10, y: 1000, a: 0.45}],
-  shakes: [{at: tImpact, dur: 14, amp: 18}],
+  bursts: [{at: tImpact, ...toCanvas(REST, sello.x + sello.w / 2, sello.y + sello.h / 2), n: 12, r: 280, star: true}],
+  shakes: [{at: tImpact, dur: 8, amp: 7}],
   cam: [
-    {at: sc.from, dur: 1, pose: {...REST, x: 1840, ry: -28, s: 0.96}},
-    {at: sc.from + 1, dur: 22, pose: REST, ease: 'whipOut'},
+    ...dipIn(sc.from),
     {at: tPas, dur: 16, pose: {...REST, s: 0.9, y: REST.y + 50, rx: 12}},
     {at: tScan + 4, dur: 14, pose: REST},
     {at: tQrLift, dur: 16, pose: {...REST, s: 0.88, y: REST.y + 60, rx: 14}},
@@ -130,9 +128,9 @@ export const expo: SceneDef = {
     {name: 'click', at: tScan, gain: 0.5},
     {name: 'swish', at: tSheet, gain: 0.25},
     {name: 'whoosh-soft', at: tImpact - STAMP_FALL, gain: 0.3},
-    {name: 'stamp', at: tImpact, gain: 0.7},
-    {name: 'boom', at: tImpact, gain: 0.5},
-    {name: 'chime', at: tImpact + 10, gain: 0.3},
+    {name: 'stamp', at: tImpact, gain: 0.55},
+    {name: 'boom', at: tImpact, gain: 0.3},
+
     {name: 'tick', at: tProg + 8, gain: 0.3},
     {name: 'rise', at: tScanLine - 4, gain: 0.16},
     {name: 'tick', at: tScanLine + 20, gain: 0.25},

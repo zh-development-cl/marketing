@@ -148,7 +148,8 @@ export const Captions: React.FC<{top?: number; skip?: SceneKey[]; right?: (f: nu
         {c.words.map((w, k) => {
           const lit = pr(f, w.from - 2, 5, Easing.out(Easing.quad));
           return (
-            <span key={k} style={{opacity: 0.4 + 0.6 * lit}}>
+            // Lo que aún no se dice queda legible (al 72 %): quien lo ve sin sonido lee adelantado.
+            <span key={k} style={{opacity: 0.72 + 0.28 * lit}}>
               {w.text}
               {k < c.words.length - 1 ? ' ' : ''}
             </span>

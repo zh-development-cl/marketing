@@ -5,6 +5,7 @@ import {beat, scenes} from '../timeline';
 import {bx, center} from '../shots';
 import {PT, REST, SCREEN_H, SCREEN_W} from '../ui/geometry';
 import {Headline} from '../ui/Text';
+import {dipIn} from './Intro';
 import {CamCtx, LiftDef, liftState} from '../ui/Pop';
 import {SceneDef, shot} from './types';
 
@@ -18,7 +19,7 @@ import {SceneDef, shot} from './types';
 const sc = scenes.abrir;
 const URL = 'app.congresoschot2026.com';
 
-const tIn = sc.from + 1; // el teléfono vuelve con el latigazo
+const tIn = sc.from; // cambio de escena tranquilo (ver dipIn en Intro)
 const tBadge = beat('abrir', 'No') - 3;
 const tStrike = beat('abrir', 'descarga');
 const tBar = beat('abrir', 'se', 1) - 4; // la barra salta
@@ -38,12 +39,15 @@ const tCode = tTapSend + 3;
 const CODE_PUSH = 14;
 const tGmail = Math.max(beat('abrir', 'un') - 1, tCode + 2); // llega el correo con el código
 const tCodeLift = tCode + CODE_PUSH; // sale cuando la pantalla terminó de entrar
-const FLY = 14; // frames de vuelo de cada dígito del correo a su casillero
-const DIGIT_STEP = 5;
-const tDigit0 = Math.max(beat('abrir', 'código') + 2, tCodeLift + 10, tGmail + 14 + FLY);
-const tGmailOut = tDigit0 + 5 * DIGIT_STEP + 4;
-const tCodeBack = Math.max(beat('abrir', 'Sin') + 2, tGmailOut + 2);
-const tSin = Math.max(beat('abrir', 'Sin') - 2, tGmailOut + 6); // cuando el correo ya se fue
+// El correo se lee solo un segundo; después el código entero (marcado) vuela una vez del correo a los casilleros y
+// ahí se escribe de corrido. Queda completo a la vista antes de volver.
+const tFly = tGmail + 34;
+const FLY = 20;
+const DIGIT_STEP = 0; // al aterrizar, la fila real ya tiene el código completo
+const tDigit0 = tFly + FLY;
+const tGmailOut = tFly + FLY + 6;
+const tCodeBack = tDigit0 + 36; // el código completo queda a la vista
+const tSin = Math.max(beat('abrir', 'Sin') - 2, tGmailOut + 14); // cuando el correo ya se fue
 const tHome = tCodeBack + 20; // adentro: bienvenida, cuando el código ya volvió
 const tTapStart = sc.to - 10; // «Comenzar» → la escena siguiente empuja los intereses
 
@@ -138,7 +142,7 @@ const GmailIcon: React.FC<{size: number}> = ({size}) => (
 const GM = {w: 372, h: 98, pad: 12, icon: 38, gap: 10, row1: 17, row2: 20, row3: 19, digitW: 8.4};
 const GM_TEXT_X = 13 + GM.icon + GM.gap;
 const digitInMail = (i: number) => ({x: GM_TEXT_X + GM.digitW * (i + 0.5) - GM.w / 2, y: GM.pad + GM.row1 + GM.row2 + GM.row3 / 2 - GM.h / 2});
-const launchAt = (i: number) => digitAt(i) - FLY;
+const launchAt = (_i: number) => tFly; // el código sale entero
 const GmailCard: React.FC<{f: number; k: number}> = ({f, k}) => (
   <div style={{position: 'absolute', inset: 0, borderRadius: 22 * k, padding: `${GM.pad * k}px ${13 * k}px`, background: 'rgba(247,245,250,.98)', display: 'flex', gap: GM.gap * k, alignItems: 'flex-start', fontFamily: SF, color: '#1C1224'}}>
     <div style={{paddingTop: 8 * k}}>
@@ -202,58 +206,60 @@ const CODE_LIFT: LiftDef = {
 
 // Los seis dígitos vuelan del correo a los casilleros flotantes: cada uno en una tecla blanca que crece hasta el
 // tamaño del casillero y cae justo cuando la captura real muestra ese dígito escrito.
-const boxCenter = (i: number) => {
+// Centro de cada casillero dentro de la fila (pt desde su borde izquierdo).
+const boxX = (i: number) => {
   const d = bx('login-3a', `digito${i + 1}`, {x: 48 + i * 50.4, y: 520, w: 42, h: 52});
-  return {x: d.x + d.w / 2 - (code.x + code.w / 2), y: d.y + d.h / 2 - (code.y + code.h / 2), w: d.w, h: d.h};
+  return d.x + d.w / 2 - code.x;
 };
-const DigitFlights: React.FC = () => {
+// El código marcado vuela entero del correo a la fila de casilleros: una pastilla blanca que crece hasta el tamaño de
+// la fila, con los seis dígitos repartidos como en los casilleros; se apaga mientras la captura real los escribe.
+const CodeFlight: React.FC = () => {
   const f = useCurrentFrame();
   const {cam} = useContext(CamCtx);
-  return (
-    <>
-      {CODE.split('').map((digit, i) => {
-        const t0 = launchAt(i);
-        const t1 = digitAt(i);
-        if (f < t0 || f >= t1) return null;
-        const a = liftState(GMAIL_LIFT, cam, t0);
-        const b = liftState(CODE_LIFT, cam, t1);
-        if (!a || !b) return null;
-        const m = digitInMail(i);
-        const bc = boxCenter(i);
-        const A = {x: a.x + m.x * a.k, y: a.y + m.y * a.k, w: GM.digitW * a.k * 1.25, h: GM.row3 * a.k * 1.15};
-        const B = {x: b.x + bc.x * b.k, y: b.y + bc.y * b.k, w: bc.w * b.k, h: bc.h * b.k};
-        const pos = (fr: number) => {
-          const t = interpolate(fr, [t0, t1], [0, 1], {...clampOpt, easing: Easing.inOut(Easing.cubic)});
-          // Arco: sube un poco y se abre hacia su lado antes de caer en el casillero.
-          const cx = (A.x + B.x) / 2 + (i - 2.5) * 34;
-          const cy = Math.min(A.y, B.y) - 90;
-          const u = 1 - t;
-          return {t, x: u * u * A.x + 2 * u * t * cx + t * t * B.x, y: u * u * A.y + 2 * u * t * cy + t * t * B.y};
-        };
-        const p = pos(f);
-        const q = pos(f - 1);
-        const w = A.w + (B.w - A.w) * p.t;
-        const h = A.h + (B.h - A.h) * p.t;
-        const sx = Math.min(30, Math.abs(p.x - q.x) * 0.35);
-        const sy = Math.min(30, Math.abs(p.y - q.y) * 0.35);
-        const tile = (
-          <div style={{position: 'absolute', left: p.x - w / 2, top: p.y - h / 2, width: w, height: h, borderRadius: Math.min(w, h) * 0.24, background: '#fff', boxShadow: `0 ${(10 + 20 * Math.sin(p.t * Math.PI)).toFixed(1)}px ${(24 + 30 * Math.sin(p.t * Math.PI)).toFixed(1)}px rgba(14,0,30,.4), inset 0 0 0 ${Math.max(1.5, 3 * p.t).toFixed(1)}px rgba(162,0,255,.55)`, display: 'flex', alignItems: 'center', justifyContent: 'center', transform: `rotate(${(Math.sin(p.t * Math.PI) * (i % 2 ? 10 : -10)).toFixed(2)}deg)`, fontFamily: '"Barlow", system-ui, sans-serif', fontWeight: 800, fontSize: h * 0.52, color: '#2B0054', zIndex: 46}}>
-            {digit}
-          </div>
-        );
+  const t0 = tFly;
+  const t1 = tFly + FLY;
+  if (f < t0 || f >= t1 + 4) return null;
+  const a = liftState(GMAIL_LIFT, cam, t0);
+  const b = liftState(CODE_LIFT, cam, t1);
+  if (!a || !b) return null;
+  const m0 = digitInMail(0);
+  const m5 = digitInMail(5);
+  const A = {x: a.x + ((m0.x + m5.x) / 2) * a.k, y: a.y + m0.y * a.k, w: GM.digitW * 6.4 * a.k, h: GM.row3 * 1.2 * a.k};
+  const B = {x: b.x, y: b.y, w: code.w * b.k, h: code.h * b.k};
+  const pos = (fr: number) => {
+    const t = interpolate(fr, [t0, t1], [0, 1], {...clampOpt, easing: Easing.inOut(Easing.cubic)});
+    const cy = Math.min(A.y, B.y) + (B.y - A.y) * 0.5 - 60; // arco suave
+    const u = 1 - t;
+    return {t, x: A.x + (B.x - A.x) * t, y: u * u * A.y + 2 * u * t * cy + t * t * B.y};
+  };
+  const p = pos(f);
+  const q = pos(f - 1);
+  const w = A.w + (B.w - A.w) * p.t;
+  const h = A.h + (B.h - A.h) * p.t;
+  const fade = 1 - interpolate(f, [t1, t1 + 4], [0, 1], clampOpt);
+  const sy = Math.min(16, Math.abs(p.y - q.y) * 0.25);
+  const pill = (
+    <div style={{position: 'absolute', left: p.x - w / 2, top: p.y - h / 2, width: w, height: h, borderRadius: Math.min(w, h) * 0.3, background: '#fff', opacity: fade, boxShadow: `0 ${(12 + 18 * Math.sin(p.t * Math.PI)).toFixed(1)}px ${(28 + 24 * Math.sin(p.t * Math.PI)).toFixed(1)}px rgba(14,0,30,.38), inset 0 0 0 ${(2 + 2 * p.t).toFixed(1)}px rgba(162,0,255,.5)`, fontFamily: '"Barlow", system-ui, sans-serif', fontWeight: 800, fontSize: h * 0.5, color: '#2B0054'}}>
+      {CODE.split('').map((d, i) => {
+        const cx = (boxX(i) / code.w) * w;
         return (
-          <div key={i} style={{position: 'absolute', inset: 0, zIndex: 46}}>
-            {Math.max(sx, sy) >= 0.7 ? (
-              <Streak sx={sx} sy={sy} style={{position: 'absolute', inset: 0}}>
-                {tile}
-              </Streak>
-            ) : (
-              tile
-            )}
-          </div>
+          <span key={i} style={{position: 'absolute', left: cx, top: '50%', transform: 'translate(-50%, -50%)', lineHeight: 1}}>
+            {d}
+          </span>
         );
       })}
-    </>
+    </div>
+  );
+  return (
+    <div style={{position: 'absolute', inset: 0, zIndex: 46}}>
+      {sy >= 0.7 ? (
+        <Streak sx={0} sy={sy} style={{position: 'absolute', inset: 0}}>
+          {pill}
+        </Streak>
+      ) : (
+        pill
+      )}
+    </div>
   );
 };
 
@@ -265,13 +271,13 @@ const BAR_TO = {x: 540, y: 1150, k: 2.7};
 const Overlay: React.FC = () => (
   <>
     <Headline n="1" label="Entrar" lines={['Sin descargar', '*nada*']} at={sc.from - 2} out={sc.to - 21} />
-    <DigitFlights />
+    <CodeFlight />
   </>
 );
 
 export const abrir: SceneDef = {
   screens: [
-    {at: sc.from, render: (f) => <SafariStart f={f} />, ink: 'dark'},
+    {at: sc.from - 4, render: (f) => <SafariStart f={f} />, enter: 'fade', enterDur: 14, ink: 'dark'},
     {at: tLoaded, render: (f) => <SafariPage f={f} id="login-1" />, enter: 'fade', enterDur: 8, ink: 'light'},
     {at: tMailBack + 8, src: shot('login-2'), enter: 'fade', enterDur: 4, ink: 'light'},
     {at: tCode, src: shot('login-3a'), enter: 'push', enterDur: CODE_PUSH, ink: 'light'},
@@ -285,8 +291,7 @@ export const abrir: SceneDef = {
   ],
   ctaps: [{at: tGo, x: BAR_TO.x + (358 / 2 - 25) * BAR_TO.k, y: BAR_TO.y, scale: 0.9}],
   cam: [
-    {at: tIn, dur: 1, pose: {...REST, x: 1840, ry: -22, s: 0.96}},
-    {at: tIn + 1, dur: 22, pose: REST, ease: 'whipOut'},
+    ...dipIn(tIn),
     {at: tBar, dur: 16, pose: RECEDE},
     {at: tBarBack, dur: 18, pose: REST},
     {at: tMail, dur: 16, pose: RECEDE},
@@ -298,7 +303,7 @@ export const abrir: SceneDef = {
   ],
   badges: [
     {at: tBadge, out: tBar - 6, x: 540, y: 1090, text: 'Descargar la app', icon: 'download', tone: 'white', size: 58, r: -4, strike: tStrike},
-    {at: tSin, out: sc.to - 8, x: 540, y: 735, text: 'Sin contraseñas', icon: 'shield', tone: 'brand', size: 46, r: -2},
+    {at: tSin, out: sc.to - 8, x: 540, y: 735, text: 'Sin contraseñas', icon: 'shield', tone: 'brand', size: 46, r: -2, gain: 0.3},
   ],
   bursts: [{at: tSin + 4, x: 540, y: 735, n: 16, r: 260, star: true}],
   lifts: [
@@ -326,7 +331,7 @@ export const abrir: SceneDef = {
       scrim: 0.35,
     },
     CODE_LIFT,
-    {...GMAIL_LIFT, sound: 'chime', gain: 0.38}, // suena como un correo que llega
+    {...GMAIL_LIFT, sound: 'chime', gain: 0.24}, // suena como un correo que llega, debajo de la voz
   ],
   Overlay,
   sfx: [
@@ -337,9 +342,9 @@ export const abrir: SceneDef = {
     {name: 'click', at: tTapMail, gain: 0.35},
     {name: 'tick', at: tMailTyped, gain: 0.3},
     {name: 'click', at: tTapSend, gain: 0.45},
-    ...digits.map((_, i) => ({name: (i % 2 ? 'pop-hi' : 'pop-mid') as 'pop-hi' | 'pop-mid', at: digitAt(i), gain: 0.28})),
-    {name: 'sparkle', at: tSin + 3, gain: 0.35},
-    {name: 'chime', at: tHome + 2, gain: 0.22},
+    {name: 'swish', at: tFly + 2, gain: 0.14},
+    {name: 'pop-mid', at: tFly + FLY, gain: 0.26},
+    {name: 'sparkle', at: tSin + 3, gain: 0.22},
     {name: 'click', at: tTapStart, gain: 0.4},
   ],
 };

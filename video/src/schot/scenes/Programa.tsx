@@ -5,18 +5,17 @@ import {bx} from '../shots';
 import {focus, REST} from '../ui/geometry';
 import {Headline} from '../ui/Text';
 import {SceneDef, shot} from './types';
+import {dipIn} from './Intro';
 
-// Escena 4 · programa en vivo. Entra con el volteo 3D del teléfono. «En el programa ves lo que está pasando ahora» →
-// baja hasta la línea «Ahora 10:20», que salta de la pantalla junto con el bloque que viene («10:30 · Empieza en
-// 10 min»); «por sede y por especialidad» → la fila de filtros salta de la pantalla: un anillo marca las sedes
+// Escena 4 · programa en vivo. «En el programa ves lo que está pasando ahora» → baja hasta la línea «Ahora 10:20»,
+// que salta de la pantalla y vuelve en la pausa de la voz; «por sede y por especialidad» → la fila de filtros salta de la pantalla: un anillo marca las sedes
 // (Sheraton, Enjoy) y luego la especialidad (Rodilla), que se toca; la fila vuelve y el programa queda filtrado. Sale
 // tocando «Lesiones meniscales» (escena siguiente).
 const sc = scenes.programa;
-const tScroll = beat('programa', 'ves') - 4;
-const tAhora = Math.max(beat('programa', 'pasando') - 4, tScroll + 26);
-const tBloque = tAhora + 8;
-const tAhoraBack = beat('programa', 'por') - 4;
-const tTop = tAhoraBack + 16; // vuelve arriba
+const tScroll = beat('programa', 'programa');
+const tAhora = Math.max(beat('programa', 'ves'), tScroll + 28);
+const tAhoraBack = beat('programa', 'por') - 18; // vuelve en la pausa de la voz, antes de «por sede»
+const tTop = tAhoraBack + 18; // vuelve arriba
 const tRow = beat('programa', 'por') + 2; // la fila de filtros salta
 const tSedeRing = beat('programa', 'sede') - 1;
 const tEspRing = beat('programa', 'especialidad') - 3;
@@ -24,10 +23,10 @@ const tRod = beat('programa', 'especialidad') + 6; // toque sobre Rodilla en la 
 const tRowBack = tRod + 12;
 const tFiltered = tRowBack + 10; // la fila ya volvió: el programa filtrado
 
-const linea = bx('programa', 'lineaAhora', {x: 16, y: 429, w: 358, h: 24});
-const SCROLL = Math.max(0, Math.min(320, linea.y - 300));
-// Cabecera del bloque de las 10:30 («10:30 – 12:30 · Empieza en 10 min»), medida en la captura.
-const bloque = {x: 16, y: 559, w: 358, h: 32};
+const lineaApp = bx('programa', 'lineaAhora', {x: 16, y: 429, w: 358, h: 24});
+const SCROLL = Math.max(0, Math.min(320, lineaApp.y - 300));
+// Con margen alrededor: «Ahora 10:20» no queda pegado al borde de la tarjeta flotante.
+const linea = {x: 6, y: lineaApp.y - 8, w: 378, h: lineaApp.h + 16};
 const up = (b: {x: number; y: number; w: number; h: number}) => ({...b, y: b.y - SCROLL});
 // Fila de filtros de programa-enjoy: Rodilla · Sheraton · Enjoy (la fila está corrida; se recorta entre los bordes).
 const rodEnjoy = bx('programa-enjoy', 'chipRodilla', {x: 57, y: 303, w: 88, h: 44});
@@ -71,6 +70,8 @@ export const programa: SceneDef = {
         [tAhoraBack + 2, SCROLL],
         [tTop, 0],
       ],
+      enter: 'fade',
+      enterDur: 14,
       ink: 'dark',
     },
     {at: tRow - 10, src: shot('programa-enjoy'), enter: 'fade', enterDur: 10, ink: 'dark'},
@@ -78,8 +79,7 @@ export const programa: SceneDef = {
   ],
   ctaps: [{at: tRod, x: ROW_TO.x + (rodEnjoy.x + rodEnjoy.w / 2 - (fila.x + fila.w / 2)) * ROW_TO.k, y: ROW_TO.y, scale: 0.9}],
   lifts: [
-    {at: tAhora, out: tAhoraBack, box: linea, view: up(linea), src: shot('programa-full'), to: {x: 540, y: 960, k: 2.75, r: -2, rx: 8}, radius: 8, ring: true, scrim: 0.4},
-    {at: tBloque, out: tAhoraBack + 2, box: bloque, view: up(bloque), src: shot('programa-full'), to: {x: 540, y: 1150, k: 2.75, r: 1.5, rx: 8}, radius: 10, ring: true, scrim: 0.4},
+    {at: tAhora, out: tAhoraBack, box: linea, view: up(linea), src: shot('programa-full'), to: {x: 540, y: 1000, k: 2.75, r: -2, rx: 8}, radius: 14, ring: true, scrim: 0.4, shine: false},
     {
       at: tRow,
       out: tRowBack,
@@ -98,11 +98,9 @@ export const programa: SceneDef = {
   ],
   bursts: [{at: tRod + 2, x: ROW_TO.x + (rodEnjoy.x + rodEnjoy.w / 2 - (fila.x + fila.w / 2)) * ROW_TO.k, y: ROW_TO.y, n: 12, r: 180}],
   cam: [
-    {at: sc.from, dur: 1, pose: {...REST, ry: -90, s: 0.9}},
-    {at: sc.from + 1, dur: 22, pose: REST, ease: 'whipOut'},
+    ...dipIn(sc.from),
+    // Echado atrás desde «ahora» hasta que vuelve la fila de filtros: sin vaivén entre las dos piezas.
     {at: tAhora, dur: 16, pose: RECEDE},
-    {at: tAhoraBack, dur: 16, pose: REST},
-    {at: tRow, dur: 16, pose: RECEDE},
     {at: tRowBack, dur: 16, pose: REST},
     // El programa filtrado: la cámara se acerca a la charla que se toca en la escena siguiente.
     {at: tFiltered + 4, dur: 22, pose: focus(meniscales, 1.08, {x: 540, y: 1200})},

@@ -31,18 +31,19 @@ const dims = [...all.flatMap((d) => d.dims ?? []), ...liftDims(lifts)];
 const POPS = ['pop-mid', 'pop-hi', 'pop', 'pop-lo'] as const;
 const autoSfx: SfxCue[] = [
   ...lifts.flatMap((d, i) => [
-    ...(d.sound === null ? [] : [{name: d.sound ?? POPS[i % 3], at: d.at + 1, gain: d.gain ?? 0.42}]),
-    ...(d.sound === null || (d.exit ?? 'back') !== 'back' ? [] : [{name: 'swish' as const, at: d.out + 2, gain: 0.16}]),
+    ...(d.sound === null ? [] : [{name: d.sound ?? POPS[i % 3], at: d.at + 1, gain: d.gain ?? 0.3}]),
+    ...(d.sound === null || (d.exit ?? 'back') !== 'back' ? [] : [{name: 'swish' as const, at: d.out + 2, gain: 0.1}]),
     ...(d.sound !== null && d.exit && d.exit !== 'back' && d.exit !== 'pop' ? [{name: 'swish' as const, at: d.out, gain: 0.2}] : []),
   ]),
-  ...badges.flatMap((d, i) => (d.sound === null ? [] : [{name: d.sound ?? POPS[(i + 1) % 4], at: d.at + 1, gain: d.gain ?? 0.45}])),
+  ...badges.flatMap((d, i) => (d.sound === null ? [] : [{name: d.sound ?? POPS[(i + 1) % 4], at: d.at + 1, gain: d.gain ?? 0.32}])),
 ];
 export const SFX = [...all.flatMap((d) => d.sfx ?? []), ...autoSfx].sort((a, b) => a.at - b.at);
 
 const MUSIC = 'music/schot-drive.mp3';
 // La música baja bajo la voz (ducking) y sube en los respiros entre frases y escenas.
-const MUSIC_HI = 0.85;
-const MUSIC_LO = 0.55;
+// Bajo la voz la música queda ~15 dB por debajo (público mayor, parlante del teléfono); sube en los respiros.
+const MUSIC_HI = 0.62;
+const MUSIC_LO = 0.3;
 const voiceSpans = order.map((k) => [scenes[k].voAt, scenes[k].voAt + Math.round(scenes[k].voice.duration * 30)] as const);
 const duckAt = (f: number) =>
   Math.max(0, ...voiceSpans.map(([a, b]) => Math.min(1, Math.max(0, (f - (a - 8)) / 8)) * Math.min(1, Math.max(0, (b + 8 - f) / 8))));
@@ -85,7 +86,7 @@ export const SchotDemo: React.FC = () => {
       {/* Música: entra suave y se apaga con el fundido final */}
       <Audio
         src={staticFile(MUSIC)}
-        volume={(f) => (MUSIC_HI - (MUSIC_HI - MUSIC_LO) * duckAt(f)) * Math.min(1, f / 24) * Math.min(1, Math.max(0, (TOTAL - f) / 40))}
+        volume={(f) => (MUSIC_HI - (MUSIC_HI - MUSIC_LO) * duckAt(f)) * (f >= scenes.cierre.from ? 0.75 : 1) * Math.min(1, f / 24) * Math.min(1, Math.max(0, (TOTAL - f) / 40))}
       />
     </AbsoluteFill>
     </CamCtx.Provider>

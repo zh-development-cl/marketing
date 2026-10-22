@@ -17,15 +17,20 @@ const tUrl = beat('cierre', 'Entra') - 4;
 const urlWord = captionsOf('cierre').flatMap((c) => c.words).find((w) => w.text.includes('congresoschot'));
 const tType0 = urlWord ? urlWord.from : tUrl + 18;
 const tType1 = urlWord ? Math.min(urlWord.to - 8, tType0 + 75) : tType0 + 70;
-const tStep1 = beat('cierre', 'agrégala') - 44; // la guía de instalación de la app, paso a paso
-const STEP = 26; // cada paso de la guía se alcanza a leer
+// La guía de instalación de la propia app, paso a paso, cuando la dirección ya quedó escrita. Un paso por
+// vez, grande (título e ilustración), con tiempo de leerlo.
+const tStep1 = tType1 + 4; // apenas la dirección quedó escrita entera
+const STEP = 48;
 const tStep2 = tStep1 + STEP;
 const tStep3 = tStep2 + STEP;
-const tFan = tStep3 + STEP;
-const tHome = Math.max(tFan + 20, beat('cierre', 'pantalla') - 4); // el abanico de los tres pasos se alcanza a ver
+const tHome = Math.max(tStep3 + STEP, beat('cierre', 'pantalla') - 4);
 const tIcon = tHome + 12;
 const tEndCard = Math.max(beatEnd('cierre', 'inicio') + 10, tIcon + 16);
-const paso = {x: 16, y: 132, w: 358, h: 362}; // «Paso N de 3», su texto y la ilustración (sin los botones)
+// Cada paso flotante: arriba «Paso N de 3» y su título (sin el texto chico de ayuda) y abajo la ilustración del
+// teléfono con el botón marcado. En pt de la captura.
+const PASO_TOP = {x: 16, y: 132, w: 358, h: 70};
+const PASO_ILU = {x: 16, y: 250, w: 358, h: 246};
+const paso = {x: 16, y: 132, w: 358, h: PASO_TOP.h + PASO_ILU.h};
 const PHONE_POSE = {...REST, y: 1330, s: 0.86};
 
 const clampOpt = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
@@ -151,52 +156,57 @@ const Overlay: React.FC = () => {
   );
 };
 
-// Los tres pasos de la guía: cada uno salta al centro en grande y, cuando llega el siguiente, se corre al abanico.
-const FAN = [
-  {x: 262, y: 1250, r: -8},
-  {x: 540, y: 1215, r: 0},
-  {x: 818, y: 1250, r: 8},
-];
+// Los tres pasos de la guía: cada uno salta al centro y se va cuando llega el siguiente.
+const STEP_AT = [tStep1, tStep2, tStep3];
 const STEPS: LiftDef[] = ['instalar', 'instalar-paso2', 'instalar-paso3'].map((id, i) => ({
-  at: [tStep1, tStep2, tStep3][i] + 3,
-  out: tHome - 6 + i * 2,
+  at: STEP_AT[i] + 3,
+  out: (STEP_AT[i + 1] ?? tHome) - 2,
   box: paso,
-  src: shot(id),
-  to: {x: 540, y: 1180, k: 1.85, r: i === 1 ? 2 : -2, rx: 6},
-  moves: [{at: [tStep2, tStep3, tFan][i] + 3, to: {...FAN[i], k: 1.12, rx: 4, ry: (1 - i) * 10}}],
+  render: (_f, k) => (
+    <>
+      <div style={{position: 'absolute', left: 0, top: 0, width: paso.w * k, height: PASO_TOP.h * k, overflow: 'hidden'}}>
+        <Img src={staticFile(shot(id))} style={{position: 'absolute', left: -PASO_TOP.x * k, top: -PASO_TOP.y * k, width: 390 * k}} />
+      </div>
+      <div style={{position: 'absolute', left: 0, top: PASO_TOP.h * k, width: paso.w * k, height: PASO_ILU.h * k, overflow: 'hidden'}}>
+        <Img src={staticFile(shot(id))} style={{position: 'absolute', left: -PASO_ILU.x * k, top: -PASO_ILU.y * k, width: 390 * k}} />
+      </div>
+    </>
+  ),
+  to: {x: 540, y: 1180, k: 1.9, r: i === 1 ? 1.5 : -1.5, rx: 5},
   exit: 'pop',
-  radius: 20,
-  ring: i === 2,
+  radius: 22,
+  ring: true,
   scrim: 0.4,
-  dim: [tStep2, tStep3, tFan][i],
+  shine: false,
+  dim: (STEP_AT[i + 1] ?? tHome) - 2,
   z: i,
 }));
 
 export const cierre: SceneDef = {
   screens: [
-    {at: sc.from, src: shot('login-1'), enter: 'zoom', enterDur: 12, ink: 'light'},
-    {at: tStep1, src: shot('instalar'), enter: 'push', enterDur: 14, ink: 'dark'},
+    {at: sc.from, src: shot('login-1'), enter: 'fade', enterDur: 16, ink: 'light'},
+    {at: tStep1 - 12, src: shot('instalar'), enter: 'push', enterDur: 14, ink: 'dark'},
     {at: tStep2, src: shot('instalar-paso2'), enter: 'fade', enterDur: 8, ink: 'dark'},
     {at: tStep3, src: shot('instalar-paso3'), enter: 'fade', enterDur: 8, ink: 'dark'},
     {at: tHome, render: (f) => <HomeScreen f={f} fps={30} />, enter: 'zoom', enterDur: 18, ink: 'light'},
   ],
   cam: [
-    {at: sc.from, dur: 24, pose: PHONE_POSE, ease: 'out'},
+    {at: sc.from, dur: 30, pose: PHONE_POSE, ease: 'out'},
     {at: tEndCard - 16, dur: 26, pose: {...REST, y: 1215, s: 0.74}, ease: 'io'},
   ],
-  lifts: STEPS,
-  bursts: [{at: tIcon + 2, x: ICON_AT.x, y: ICON_AT.y, n: 18, r: 260, star: true}],
-  flashes: [{at: tIcon + 1, dur: 12, x: ICON_AT.x, y: ICON_AT.y, a: 0.35}],
+  lifts: STEPS.map((d) => ({...d, gain: 0.26})),
+  // Los pasos que se muestran son los de iPhone; la app también trae su guía para Android.
+  badges: [
+    {at: tStep1 + 8, out: tHome - 4, x: 540, y: 800, text: 'En iPhone', icon: 'share', tone: 'white', size: 40, r: -2, gain: 0.25},
+    {at: tStep2 + 10, out: tHome - 2, x: 540, y: 1580, text: 'En Android, la app también te guía', icon: 'check', tone: 'glass', size: 34, r: 1.5, gain: 0.2},
+  ],
+  bursts: [{at: tIcon + 2, x: ICON_AT.x, y: ICON_AT.y, n: 12, r: 220, star: true}],
   Overlay,
   sfx: [
-    {name: 'whoosh-hard', at: sc.from, gain: 0.3},
-    {name: 'pop-hi', at: tType0 - 6, gain: 0.45},
-    ...Array.from({length: 13}, (_, i) => ({name: 'tick' as const, at: Math.round(tType0 + ((tType1 - tType0) * i * 2) / 25), gain: 0.14})),
-    {name: 'swish', at: tStep2 + 3, gain: 0.18},
-    {name: 'swish', at: tStep3 + 3, gain: 0.18},
-    {name: 'swish', at: tFan + 3, gain: 0.2},
-    {name: 'pop', at: tIcon, gain: 0.6},
-    {name: 'sparkle', at: tIcon + 2, gain: 0.4},
+    {name: 'whoosh-soft', at: sc.from, gain: 0.25},
+    {name: 'pop-hi', at: tType0 - 6, gain: 0.3},
+    {name: 'pop', at: tIcon, gain: 0.45},
+    {name: 'sparkle', at: tIcon + 2, gain: 0.28},
     {name: 'logo', at: tEndCard - 4, gain: 0.5},
   ],
 };

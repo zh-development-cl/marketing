@@ -5,12 +5,13 @@ import {bx, center, framesOf} from '../shots';
 import {REST} from '../ui/geometry';
 import {Headline} from '../ui/Text';
 import {SceneDef, seqDir, shot} from './types';
+import {dipOut} from './Intro';
 
 // Escena 5 · charla. Se toca «Lesiones meniscales» en el programa filtrado → su ficha («Empieza en 10 min»).
 // «Agregas una charla» → el botón «Agregar a mi agenda» salta de la pantalla; «con un toque» → el dedo lo toca en
 // grande, pasa a «En tu agenda» y estalla. «y la app te lleva hasta la puerta de la sala» → «Cómo llegar», y el plano
 // del Piso 3 sale de la pantalla inclinado como sobre una mesa, con la ruta real dibujándose; en «sala» cae el pin
-// «Pacífico · Piso 3». Sale con un latigazo hacia arriba.
+// «Pacífico · Piso 3».
 const sc = scenes.charla;
 const tRow = sc.from + 2;
 const tFicha = tRow + 5;
@@ -24,9 +25,12 @@ const tRuta = tComo + 6;
 const NR = framesOf('seq-ruta', 48);
 const RUTA_PUSH = 16;
 const tPlano = Math.max(beat('charla', 'hasta') + 4, tRuta + RUTA_PUSH);
-const tPin = beat('charla', 'sala') - 8;
+// La ruta se dibuja sobre el plano flotante, ya quieto y en grande (no durante el empuje de la pantalla).
+const tRouteStart = tPlano + 10;
+const ROUTE_RATE = 2;
+const tRouteDone = tRouteStart + Math.ceil((NR - 1) / ROUTE_RATE);
+const tPin = Math.max(beat('charla', 'sala') - 8, tRouteDone - 2); // el pin cae cuando la ruta llegó a la sala
 const tPlanoOut = sc.to - 20;
-export const tWhipUp = sc.to - 15;
 
 const fila = bx('programa-rodilla', 'filaMeniscales', {x: 17, y: 606, w: 356, h: 110});
 const agregar = bx('seq-estrella', 'agregarAgenda', {x: 16, y: 266, w: 358, h: 52});
@@ -39,7 +43,7 @@ const plano = bx('seq-ruta', 'plano', {x: 16, y: 122, w: 358, h: 356});
 const destino = bx('seq-ruta', 'destinoPacifico', {x: 212, y: 220, w: 159, h: 161});
 
 const pad4 = (n: number) => String(n).padStart(4, '0');
-const rutaAt = (f: number) => `${seqDir('seq-ruta')}/f${pad4(Math.max(0, Math.min(NR - 1, f - tRuta)))}.png`;
+const rutaAt = (f: number) => `${seqDir('seq-ruta')}/f${pad4(Math.max(0, Math.min(NR - 1, Math.floor((f - tRouteStart) * ROUTE_RATE))))}.png`;
 
 const ADD_TO = {x: 540, y: 1120, k: 2.6};
 const PLANO_TO = {x: 540, y: 1200, k: 2.45};
@@ -68,7 +72,7 @@ export const charla: SceneDef = {
       ink: 'dark',
     },
     {at: tScroll + 18, src: shot('ficha-donde'), enter: 'fade', enterDur: 5, ink: 'dark'},
-    {at: tRuta, seq: {dir: seqDir('seq-ruta'), frames: NR}, enter: 'push', enterDur: RUTA_PUSH, ink: 'dark'},
+    {at: tRuta, render: (f) => <Img src={staticFile(rutaAt(f))} style={{position: 'absolute', left: 0, top: 0, width: 390 * 1.5, height: 844 * 1.5}} />, enter: 'push', enterDur: RUTA_PUSH, ink: 'dark'},
   ],
   taps: [
     {at: tRow, ...center(fila)},
@@ -109,7 +113,7 @@ export const charla: SceneDef = {
     {at: tAddLift, dur: 16, pose: RECEDE},
     {at: tAddBack, dur: 16, pose: REST},
     {at: tPlano, dur: 16, pose: {...RECEDE, s: 0.88}},
-    {at: tWhipUp, dur: 15, pose: {...REST, y: REST.y - 1750, rx: -20, s: 0.95}, ease: 'in'},
+    ...dipOut(sc.to),
   ],
   Overlay,
   sfx: [
@@ -119,7 +123,7 @@ export const charla: SceneDef = {
     {name: 'sparkle', at: tToque + 2, gain: 0.35},
     {name: 'click', at: tComo, gain: 0.4},
     {name: 'swish', at: tRuta, gain: 0.25},
-    {name: 'rise', at: tPlano + 4, gain: 0.18},
-    {name: 'whoosh-soft', at: tWhipUp, gain: 0.4},
+    {name: 'rise', at: tRouteStart, gain: 0.16},
+    {name: 'swish', at: sc.to - 12, gain: 0.2},
   ],
 };

@@ -1,34 +1,30 @@
 import React from 'react';
 import {Easing, interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import {beat, scenes} from '../timeline';
-import {bx} from '../shots';
 import {REST} from '../ui/geometry';
 import {Headline, GRAD_TEXT} from '../ui/Text';
-import {Rolling} from '../ui/Pop';
-import {SceneDef, SfxCue, shot} from './types';
-import {PUSH_BODY, PUSH_BOX, PUSH_TITLE, PushCard} from './Intro';
+import {SceneDef, shot} from './types';
+import {dipIn, PUSH_BODY, PUSH_BOX, PUSH_TITLE, PushCard} from './Intro';
 
-// Escena 6 · aviso. Llega con un latigazo desde abajo a «Mi agenda». «Además, te avisa» → la notificación real del
-// backend («10:30 · Lesiones meniscales / En 10 min en Pacífico (Piso 3) · Enjoy») salta de la pantalla en grande con
-// un golpe de cámara; «diez minutos» → un dial que cuenta hasta 10; «antes de que empiece» → la notificación se va y
-// salta la tarjeta viva «Lo próximo · en 10 min» de la agenda.
+// Escena 6 · aviso. «Mi agenda» en el teléfono. «Además, te avisa» → la notificación real del backend («10:30 ·
+// Lesiones meniscales / En 10 min en Pacífico (Piso 3) · Enjoy») sale de la pantalla en grande y queda sola un
+// momento; «diez minutos» → debajo aparece el dial «10 min» con su anillo que se llena. Las dos se quedan hasta el
+// final de la frase.
 const sc = scenes.aviso;
+// La notificación entra limpia y queda sola un momento; «10 min» aparece cuando la voz dice «minutos». Las dos se
+// quedan hasta el final de la frase.
 const tPush = beat('aviso', 'avisa') - 10;
-const tDial = beat('aviso', 'diez') - 4;
-const tCount = beat('aviso', 'diez') - 1;
-const tPushOut = beat('aviso', 'antes') - 4;
-const tCard = beat('aviso', 'empiece') - 8;
-const tDialOut = tCard; // el dial se va cuando sube la tarjeta de la agenda
-const tCardBack = sc.to - 20;
-
-const proximo = bx('agenda', 'tarjetaLoProximo', {x: 16, y: 248, w: 358, h: 168});
+const tDial = beat('aviso', 'minutos');
+const tFill = tDial + 4;
+const tPushOut = sc.to - 28;
+const tDialOut = sc.to - 24;
 const PUSH_TO = {x: 540, y: 1000, k: 2.55};
 
 const clampOpt = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
 const SANS = '"Barlow", system-ui, sans-serif';
-const countAt = (f: number) => interpolate(f, [tCount, tCount + 22], [0, 10], {...clampOpt, easing: Easing.out(Easing.cubic)});
-
-// Dial «10 min»: salta con resorte, el número rueda de 0 a 10 y el anillo se llena con el degradé de marca.
+// Dial «10 min»: salta con resorte con el 10 ya escrito (sin cuenta: un número que cambia no se alcanza a leer) y el
+// anillo se llena con el degradé de marca.
+const fillAt = (f: number) => interpolate(f, [tFill, tFill + 24], [0, 1], {...clampOpt, easing: Easing.inOut(Easing.cubic)});
 const DIAL = {x: 540, y: 1420, d: 330};
 const Dial: React.FC = () => {
   const f = useCurrentFrame();
@@ -36,7 +32,7 @@ const Dial: React.FC = () => {
   if (f < tDial - 1 || f > tDialOut + 14) return null;
   const p = spring({frame: f - tDial, fps, config: {damping: 14, stiffness: 120, mass: 0.9}});
   const q = interpolate(f, [tDialOut, tDialOut + 13], [0, 1], {...clampOpt, easing: Easing.in(Easing.back(1.3))});
-  const v = countAt(f);
+  const v = fillAt(f) * 10;
   const R = DIAL.d / 2 - 16;
   const C = 2 * Math.PI * R;
   return (
@@ -53,7 +49,7 @@ const Dial: React.FC = () => {
         <circle cx={DIAL.d / 2} cy={DIAL.d / 2} r={R} fill="none" stroke="url(#dialg)" strokeWidth={18} strokeLinecap="round" strokeDasharray={`${(C * v) / 10} ${C}`} />
       </svg>
       <div style={{position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
-        <Rolling value={v} size={128} color="#2B0054" digits={1} />
+        <span style={{fontFamily: SANS, fontWeight: 800, fontSize: 128, lineHeight: 1.05, color: '#2B0054'}}>10</span>
         <div style={{marginTop: -6, fontFamily: SANS, fontWeight: 800, fontSize: 40, letterSpacing: '0.04em', backgroundImage: GRAD_TEXT, WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent'}}>min</div>
       </div>
     </div>
@@ -67,20 +63,11 @@ const Overlay: React.FC = () => (
   </>
 );
 
-// Un tic por cada número que pasa en el dial.
-const ticks: SfxCue[] = [];
-for (let f = tCount, last = 0; f <= tCount + 22; f++) {
-  const n = Math.floor(countAt(f) + 1e-6);
-  if (n > last) {
-    ticks.push({name: 'tick', at: f, gain: 0.16 + 0.012 * n});
-    last = n;
-  }
-}
 
 const RECEDE = {...REST, s: 0.88, y: REST.y + 60, rx: 14};
 
 export const aviso: SceneDef = {
-  screens: [{at: sc.from, src: shot('agenda'), ink: 'dark'}],
+  screens: [{at: sc.from - 2, src: shot('agenda'), enter: 'fade', enterDur: 14, ink: 'dark'}],
   lifts: [
     {
       at: tPush,
@@ -94,23 +81,17 @@ export const aviso: SceneDef = {
       scrim: 0.4,
       dim: false,
       sound: 'chime',
-      gain: 0.45,
+      gain: 0.3,
+      shine: false,
     },
-    {at: tCard, out: tCardBack, box: proximo, src: shot('agenda'), to: {x: 540, y: 1150, k: 2.45, r: 1.5, rx: 8}, radius: 22, ring: true, scrim: 0.4},
   ],
-  shakes: [{at: tPush + 6, dur: 12, amp: 9}],
-  bursts: [{at: tPush + 5, x: PUSH_TO.x, y: PUSH_TO.y, n: 14, r: 520}],
   cam: [
-    {at: sc.from, dur: 1, pose: {...REST, y: REST.y + 1750, rx: 24, s: 0.95}},
-    {at: sc.from + 1, dur: 22, pose: REST, ease: 'whipOut'},
+    ...dipIn(sc.from),
     {at: tPush, dur: 16, pose: RECEDE},
-    {at: tCardBack, dur: 18, pose: REST},
+    {at: tPushOut + 4, dur: 18, pose: REST},
   ],
   Overlay,
   sfx: [
-    {name: 'pop-mid', at: tPush + 1, gain: 0.35},
-    {name: 'boom', at: tPush + 5, gain: 0.32},
-    {name: 'pop-hi', at: tDial + 1, gain: 0.4},
-    ...ticks,
+    {name: 'pop-hi', at: tDial + 1, gain: 0.26},
   ],
 };

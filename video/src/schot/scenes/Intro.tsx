@@ -7,8 +7,8 @@ import {Headline} from '../ui/Text';
 import type {LiftDef} from '../ui/Pop';
 import {SceneDef, seqDir, shot} from './types';
 
-// Escena 1 · apertura. El cuadro 0 ya es la portada (WhatsApp lo usa de miniatura): sello de SCHOT con su luz y
-// «62º Congreso SCHOT». Mientras la voz dice «Esta es la app oficial del Congreso SCHOT 2026», piezas reales de la
+// Escena 1 · apertura. El cuadro 0 ya es la portada (WhatsApp lo usa de miniatura): sello de SCHOT con su luz,
+// «App oficial» en una píldora blanca, «62º Congreso SCHOT» y dos piezas de la app ya flotando. Mientras la voz dice «Esta es la app oficial del Congreso SCHOT 2026», piezas reales de la
 // app saltan alrededor del título, una por palabra (el aviso, el QR, una charla del programa, un sello de la expo,
 // la respuesta de TibIA, un interés). En «Todo el congreso» el título se va hacia la cámara, las piezas vuelan hacia
 // el centro y el teléfono sube inclinado desde abajo con el Programa real: todo eso cabe en el celular.
@@ -17,10 +17,12 @@ const tSeal = -30;
 const tEyebrow = -20;
 const tTitle = -16;
 const tTodo = beat('intro', 'Todo');
-const tRise = tTodo - 12;
-const RISE = 30;
-const tTitleOut = tTodo - 14;
-const tConverge = tTodo - 14;
+// Una cosa a la vez: primero se va el título, después sube el teléfono y recién con el teléfono quieto las piezas
+// entran a su pantalla, una por una.
+const tTitleOut = tTodo - 34;
+const tRise = tTodo - 24;
+const RISE = 40;
+const tLand = tRise + RISE;
 
 const clampOpt = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
 const ios = Easing.bezier(0.32, 0.72, 0, 1);
@@ -31,8 +33,8 @@ const Under: React.FC = () => {
   const f = useCurrentFrame();
   const {fps} = useVideoConfig();
   const seal = spring({frame: f - tSeal, fps, config: {damping: 16, stiffness: 90}});
-  // Salida «hacia la cámara»: crece, se desenfoca y se apaga.
-  const out = pr(f, tTitleOut, 14, Easing.in(Easing.quad));
+  // Salida suave: crece apenas, se desenfoca poco y se apaga.
+  const out = pr(f, tTitleOut, 22, Easing.inOut(Easing.quad));
   const glow = pr(f, tSeal, 40) * (0.85 + 0.15 * Math.sin(f / 10));
   const fade = (at: number, d = 14) => {
     const p = pr(f, at, d);
@@ -40,7 +42,7 @@ const Under: React.FC = () => {
     return {opacity: p, transform: `translateY(${((1 - p) * 24).toFixed(1)}px)`, filter: b > 0.3 ? `blur(${b.toFixed(1)}px)` : undefined} as React.CSSProperties;
   };
   if (out >= 1) return null;
-  const ob = out * 22;
+  const ob = out * 8;
   return (
     <div
       style={{
@@ -49,7 +51,7 @@ const Under: React.FC = () => {
         right: 0,
         top: 0,
         height: 1920,
-        transform: `scale(${(1 + 0.04 * Math.min(1, Math.max(0, f) / tTitleOut) + 0.7 * out).toFixed(4)})`,
+        transform: `scale(${(1 + 0.04 * Math.min(1, Math.max(0, f) / tTitleOut) + 0.08 * out).toFixed(4)})`,
         transformOrigin: '50% 48%',
         opacity: 1 - out,
         filter: ob > 0.3 ? `blur(${ob.toFixed(1)}px)` : undefined,
@@ -60,8 +62,9 @@ const Under: React.FC = () => {
         <div style={{position: 'absolute', inset: -160, borderRadius: '50%', background: 'radial-gradient(closest-side, rgba(195,174,242,.45), rgba(162,0,255,.18) 55%, rgba(162,0,255,0))', opacity: glow}} />
         <Img src={staticFile('schot/brand/schot-sello-blanco.svg')} style={{position: 'absolute', inset: 0, width: 380, height: 380}} />
       </div>
-      <div style={{position: 'absolute', left: 0, right: 0, top: 960, textAlign: 'center', ...fade(tEyebrow)}}>
-        <span style={{fontFamily: SANS, fontWeight: 700, fontSize: 30, letterSpacing: '0.24em', textTransform: 'uppercase', color: '#C3AEF2'}}>App oficial · Viña del Mar 2026</span>
+      {/* «App oficial» en una píldora blanca: es lo que dice que esto es una app (se lee en la miniatura de WhatsApp) */}
+      <div style={{position: 'absolute', left: 0, right: 0, top: 930, textAlign: 'center', ...fade(tEyebrow)}}>
+        <span style={{display: 'inline-block', padding: '12px 30px', borderRadius: 999, background: '#fff', boxShadow: '0 12px 30px rgba(14,0,30,.35)', fontFamily: SANS, fontWeight: 800, fontSize: 34, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#2B0054'}}>App oficial · Viña del Mar 2026</span>
       </div>
       <div style={{position: 'absolute', left: 0, right: 0, top: 1016, textAlign: 'center', ...fade(tTitle)}}>
         <div style={{fontFamily: SANS, fontWeight: 800, fontSize: 118, lineHeight: 1.0, letterSpacing: '-0.015em', color: '#fff'}}>62º Congreso</div>
@@ -95,57 +98,71 @@ export const PUSH_BOX = {x: 9, y: 52, w: 372, h: 86};
 const pad4 = (n: number) => String(n).padStart(4, '0');
 const lastOf = (id: string, fallback: number) => `${seqDir(id)}/f${pad4(framesOf(id, fallback) - 1)}.png`;
 
-// Las seis piezas: cada una nace en su lugar con resorte (una por palabra) y en tConverge vuela al centro.
-const piece = (at: number, i: number, box: LiftDef['box'], to: {x: number; y: number; k: number; r: number}, src?: string, render?: LiftDef['render']): LiftDef => ({
-  at,
-  out: tConverge + 6 + i,
-  box,
-  src,
-  render,
-  from: {x: to.x, y: to.y + 40, k: to.k * 0.2, r: to.r - 10},
-  to: {...to, rx: 6, ry: (to.x < 540 ? 1 : -1) * 12},
-  moves: [{at: tConverge + i, to: {x: 540, y: 1330, k: to.k * 0.35, r: 0}}],
-  exit: 'pop',
-  exitDur: 8,
-  radius: 16,
-  stiffness: 170,
-  damping: 13,
-  dim: false,
-  shine: true,
-});
+// Las seis piezas: dos ya están en la portada (el cuadro 0 muestra que es una app), las demás nacen con resorte, una
+// por palabra. Cuando se va el título, las de arriba bajan para dejar libre el titular; con el teléfono ya quieto,
+// cada una entra a su pantalla, una tras otra.
+const piece = (at: number, order: number, box: LiftDef['box'], to: {x: number; y: number; k: number; r: number}, src?: string, render?: LiftDef['render']): LiftDef => {
+  const into = tLand + 4 + order * 7;
+  const top = to.y < 600;
+  return {
+    at,
+    out: into + 7,
+    box,
+    src,
+    render,
+    from: {x: to.x, y: to.y + 40, k: to.k * 0.2, r: to.r - 10},
+    to: {...to, rx: 6, ry: (to.x < 540 ? 1 : -1) * 10},
+    moves: [
+      ...(top ? [{at: tTitleOut + 4, to: {x: to.x < 540 ? 300 : 790, y: to.x < 540 ? 700 : 760, k: to.k * 0.92, r: to.r, rx: 6}}] : []),
+      {at: into, to: {x: 540, y: 1180, k: to.k * 0.3, r: 0}},
+    ],
+    exit: 'pop',
+    exitDur: 10,
+    radius: 16,
+    dim: false,
+    shine: false,
+    stiffness: 130,
+    damping: 16,
+  };
+};
 
 const PIECES: LiftDef[] = [
-  piece(beat('intro', 'app') - 2, 0, PUSH_BOX, {x: 360, y: 330, k: 1.55, r: -4}, undefined, (_f, k) => <PushCard k={k} title={PUSH_TITLE} body={PUSH_BODY} />),
-  piece(beat('intro', 'app') + 13, 3, bx('qr', 'tarjetaQR', {x: 63, y: 266, w: 264, h: 264}), {x: 868, y: 318, k: 1.0, r: 6}, shot('qr')),
+  piece(-40, 0, PUSH_BOX, {x: 360, y: 330, k: 1.55, r: -4}, undefined, (_f, k) => <PushCard k={k} title={PUSH_TITLE} body={PUSH_BODY} />),
+  piece(-34, 5, bx('seq-tibia', 'tarjetaLugar_final', {x: 16, y: 305, w: 358, h: 178}), {x: 330, y: 1716, k: 1.32, r: -4}, lastOf('seq-tibia', 180)),
+  piece(beat('intro', 'app') + 7, 1, bx('qr', 'tarjetaQR', {x: 63, y: 266, w: 264, h: 264}), {x: 868, y: 318, k: 1.0, r: 6}, shot('qr')),
   // La fila se recorta antes del botón flotante de TibIA, que la tapa a la derecha.
-  piece(beat('intro', 'Congreso') - 2, 1, {...bx('programa', 'primeraFila', {x: 17, y: 630, w: 356, h: 110}), w: 296}, {x: 760, y: 1488, k: 1.6, r: 4}, shot('programa')),
-  piece(beat('intro', 'SCHOT') - 2, 4, bx('seq-sello', 'sello', {x: 119, y: 211, w: 152, h: 152}), {x: 178, y: 1452, k: 1.25, r: -7}, lastOf('seq-sello', 75)),
-  piece(beat('intro', '2026') - 2, 2, bx('seq-tibia', 'tarjetaLugar_final', {x: 16, y: 305, w: 358, h: 178}), {x: 330, y: 1716, k: 1.32, r: -4}, lastOf('seq-tibia', 180)),
-  piece(beat('intro', '2026') + 16, 5, bx('intereses-2', 'chipRodilla', {x: 20, y: 499, w: 274, h: 44}), {x: 812, y: 1790, k: 1.3, r: 5}, shot('intereses-2')),
+  piece(beat('intro', 'Congreso') - 2, 2, {...bx('programa', 'primeraFila', {x: 17, y: 630, w: 356, h: 110}), w: 296}, {x: 760, y: 1488, k: 1.6, r: 4}, shot('programa')),
+  piece(beat('intro', 'SCHOT') - 2, 3, bx('seq-sello', 'sello', {x: 119, y: 211, w: 152, h: 152}), {x: 178, y: 1452, k: 1.25, r: -7}, lastOf('seq-sello', 75)),
+  piece(beat('intro', '2026') + 4, 4, bx('intereses-2', 'chipRodilla', {x: 20, y: 499, w: 274, h: 44}), {x: 812, y: 1790, k: 1.3, r: 5}, shot('intereses-2')),
 ];
 
 const Overlay: React.FC = () => <Headline lines={['Todo el congreso,', 'en tu *celular*']} at={tTodo - 4} out={sc.to - 21} />;
 
-const tWhip = sc.to - 14; // el teléfono sale de lado hacia la escena siguiente
+// Cambio de escena tranquilo (el mismo en todo el video): el teléfono se achica un poco y gira apenas mientras la
+// pantalla cambia con un fundido; nunca sale de cuadro.
+export const dipOut = (to: number) => [{at: to - 12, dur: 14, pose: {...REST, s: 0.93, ry: -6, y: REST.y + 20}}];
+export const dipIn = (from: number) => [{at: from + 3, dur: 22, pose: REST, ease: 'out' as const}];
+const TO_ABRIR = dipOut(sc.to);
 export const intro: SceneDef = {
   screens: [{at: 0, src: shot('programa'), ink: 'dark'}],
   cam: [
     {at: -2, dur: 1, pose: {...REST, y: REST.y + 1500, rx: 38, s: 0.9}},
-    {at: tRise, dur: RISE, pose: REST, ease: 'whipOut'},
-    {at: tRise + RISE + 2, dur: 34, pose: {...REST, ry: -7, rx: 3, s: 1.02}},
-    {at: tWhip, dur: 14, pose: {...REST, x: -760, ry: 22, s: 0.96}, ease: 'in'},
+    {at: tRise, dur: RISE, pose: REST, ease: 'out'},
+    {at: tLand + 50, dur: 40, pose: {...REST, ry: -5, rx: 2, s: 1.02}},
+    ...TO_ABRIR,
   ],
-  lifts: PIECES.map((d, i) => ({...d, gain: 0.36 + 0.02 * i})),
-  bursts: [{at: tRise + 18, x: 540, y: 1100, n: 18, r: 420, star: true}],
-  flashes: [{at: tRise + 16, dur: 14, y: 1150, a: 0.4}],
+  // Las dos piezas de la portada no suenan (ya están en el cuadro 0); las otras, un pop suave cada una.
+  lifts: PIECES.map((d) => ({...d, sound: d.at < 0 ? null : undefined, gain: 0.3})),
+  bursts: [{at: tLand - 2, x: 540, y: 1180, n: 10, r: 260, star: true}],
   Under,
   Overlay,
   sfx: [
     {name: 'logo', at: 0, gain: 0.55},
-    {name: 'swish', at: tConverge, gain: 0.35},
-    {name: 'whoosh-hard', at: tRise + 2, gain: 0.32},
-    {name: 'boom', at: tRise + 16, gain: 0.5},
-    {name: 'whoosh-soft', at: tWhip, gain: 0.4},
+    {name: 'whoosh-soft', at: tTitleOut, gain: 0.25},
+    {name: 'whoosh-soft', at: tRise + 4, gain: 0.3},
+    {name: 'boom', at: tLand - 4, gain: 0.28},
+    ...PIECES.map((d, i) => ({name: 'tick' as const, at: tLand + 4 + i * 7 + 6, gain: 0.12})),
+    {name: 'swish', at: sc.to - 12, gain: 0.2},
   ],
 };
 

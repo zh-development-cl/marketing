@@ -19,7 +19,7 @@
     },
     {
       "word": "código",
-      "sec": 0.5
+      "sec": 1.25
     },
     {
       "word": "interesa",
@@ -43,7 +43,7 @@
     },
     {
       "word": "stands",
-      "sec": 0.5
+      "sec": 1.1
     },
     {
       "word": "appcongresoshot2026com",
@@ -150,7 +150,7 @@
     },
     "abrir": {
       "file": "vo-schot/abrir.wav",
-      "duration": 8,
+      "duration": 8.75,
       "captions": [
         {
           "text": "No se descarga: se abre en el navegador,",
@@ -202,7 +202,7 @@
         {
           "text": "y entras con tu correo y un código. Sin contraseñas.",
           "start": 3.63,
-          "end": 8,
+          "end": 8.75,
           "words": [
             {
               "text": "y",
@@ -246,13 +246,13 @@
             },
             {
               "text": "Sin",
-              "start": 6.79,
-              "end": 7.01
+              "start": 7.54,
+              "end": 7.76
             },
             {
               "text": "contraseñas.",
-              "start": 7.07,
-              "end": 8
+              "start": 7.82,
+              "end": 8.75
             }
           ]
         }
@@ -715,7 +715,7 @@
     },
     "expo": {
       "file": "vo-schot/expo.wav",
-      "duration": 6.44,
+      "duration": 7.04,
       "captions": [
         {
           "text": "En la expo, junta sellos en los stands,",
@@ -766,43 +766,43 @@
         },
         {
           "text": "y conecta con colegas escaneando su código.",
-          "start": 3.54,
-          "end": 6.44,
+          "start": 4.14,
+          "end": 7.04,
           "words": [
             {
               "text": "y",
-              "start": 3.54,
-              "end": 3.62
+              "start": 4.14,
+              "end": 4.22
             },
             {
               "text": "conecta",
-              "start": 3.68,
-              "end": 4.12
+              "start": 4.28,
+              "end": 4.72
             },
             {
               "text": "con",
-              "start": 4.18,
-              "end": 4.34
+              "start": 4.78,
+              "end": 4.94
             },
             {
               "text": "colegas",
-              "start": 4.38,
-              "end": 4.92
+              "start": 4.98,
+              "end": 5.52
             },
             {
               "text": "escaneando",
-              "start": 5.04,
-              "end": 5.72
+              "start": 5.64,
+              "end": 6.32
             },
             {
               "text": "su",
-              "start": 5.78,
-              "end": 5.88
+              "start": 6.38,
+              "end": 6.48
             },
             {
               "text": "código.",
-              "start": 5.94,
-              "end": 6.44
+              "start": 6.54,
+              "end": 7.04
             }
           ]
         }
