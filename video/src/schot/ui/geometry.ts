@@ -8,7 +8,8 @@ export const PHONE_W = SCREEN_W + 2 * BEZEL; // 645
 export const PHONE_H = SCREEN_H + 2 * BEZEL; // 1326
 
 // Pose del teléfono: centro de la PANTALLA en el lienzo y escala. Reposo: centrado, con aire arriba para el titular.
-export type Pose = {x: number; y: number; s: number; r?: number};
+// r: giro en el plano (grados); rx / ry: inclinación 3D (grados, con perspectiva).
+export type Pose = {x: number; y: number; s: number; r?: number; rx?: number; ry?: number};
 export const REST: Pose = {x: 540, y: 560 + BEZEL + SCREEN_H / 2, s: 1, r: 0}; // pantalla de y=590 a y=1856
 
 export type Box = {x: number; y: number; w: number; h: number};

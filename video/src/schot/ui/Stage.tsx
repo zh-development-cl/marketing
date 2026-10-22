@@ -29,7 +29,11 @@ export type ScreenEvent = {
 export type Tap = {at: number; x: number; y: number};
 export type Glow = {at: number; until: number; box: Box; radius?: number};
 export type PushNote = {at: number; until: number; title: string; body: string; app?: string; when?: string};
-export type CamKey = {at: number; dur: number; pose: Pose; ease?: 'io' | 'out' | 'in'};
+export type CamKey = {at: number; dur: number; pose: Pose; ease?: 'io' | 'out' | 'in' | 'whipIn' | 'whipOut'};
+// Temblor de cámara (impactos): amplitud en px que decae en `dur` frames.
+export type Shake = {at: number; dur: number; amp: number};
+// Zona de la pantalla que se oscurece mientras su contenido «sale» del teléfono (Lift).
+export type Dim = {at: number; until: number; box: Box; radius?: number};
 
 const clampOpt = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
 const ios = Easing.bezier(0.32, 0.72, 0, 1);
@@ -39,17 +43,33 @@ const nav = Easing.bezier(0.45, 0, 0.12, 1);
 const pr = (f: number, a: number, d: number, e = ios) => interpolate(f, [a, a + Math.max(1, d)], [0, 1], {...clampOpt, easing: e});
 
 // ---------- cámara ----------
+export const shakeAt = (shakes: Shake[], f: number) => {
+  let dx = 0;
+  let dy = 0;
+  for (const k of shakes) {
+    const d = f - k.at;
+    if (d < 0 || d > k.dur) continue;
+    const a = k.amp * Math.pow(1 - d / k.dur, 2);
+    dx += a * Math.sin(d * 2.3 + k.at);
+    dy += a * Math.cos(d * 2.9 + k.at * 0.7);
+  }
+  return {dx, dy};
+};
+
 export const poseAt = (cam: CamKey[], f: number): Pose => {
   let cur: Pose = REST;
   for (const k of [...cam].sort((a, b) => a.at - b.at)) {
     if (f < k.at) break;
-    const e = k.ease === 'out' ? ios : k.ease === 'in' ? Easing.in(Easing.cubic) : io;
+    const e =
+      k.ease === 'out' ? ios : k.ease === 'in' ? Easing.in(Easing.cubic) : k.ease === 'whipIn' ? Easing.in(Easing.poly(3)) : k.ease === 'whipOut' ? Easing.out(Easing.poly(4)) : io;
     const t = pr(f, k.at, k.dur, e);
     cur = {
       x: cur.x + (k.pose.x - cur.x) * t,
       y: cur.y + (k.pose.y - cur.y) * t,
       s: cur.s + (k.pose.s - cur.s) * t,
       r: (cur.r ?? 0) + ((k.pose.r ?? 0) - (cur.r ?? 0)) * t,
+      rx: (cur.rx ?? 0) + ((k.pose.rx ?? 0) - (cur.rx ?? 0)) * t,
+      ry: (cur.ry ?? 0) + ((k.pose.ry ?? 0) - (cur.ry ?? 0)) * t,
     };
   }
   return cur;
@@ -268,6 +288,8 @@ const StatusBar: React.FC<{ink: 'dark' | 'light'; time: string}> = ({ink, time})
 
 export type StageProps = {
   screens: ScreenEvent[];
+  shakes?: Shake[];
+  dims?: Dim[];
   taps?: Tap[];
   glows?: Glow[];
   pushes?: PushNote[];
@@ -293,15 +315,24 @@ const inkAt = (screens: ScreenEvent[], f: number): number => {
   return k;
 };
 
-export const Stage: React.FC<StageProps> = ({screens, taps = [], glows = [], pushes = [], cam = [], opacity, time = '10:20', extra}) => {
+export const Stage: React.FC<StageProps> = ({screens, taps = [], glows = [], pushes = [], cam = [], shakes = [], dims = [], opacity, time = '10:20', extra}) => {
   const f = useCurrentFrame();
-  const p = poseAt(cam, f);
+  const sh = shakeAt(shakes, f);
+  const p0 = poseAt(cam, f);
+  const p = {...p0, x: p0.x + sh.dx, y: p0.y + sh.dy};
+  // Desenfoque de movimiento del teléfono entero según su velocidad (latigazos y vuelos), como en el reel de ZH.
+  const pp = poseAt(cam, f - 1);
+  // Un giro 3D rápido (volteo) también deja estela, en x.
+  const vx = Math.abs(p0.x - pp.x) + Math.abs(p0.s - pp.s) * 300 + Math.abs((p0.ry ?? 0) - (pp.ry ?? 0)) * 5;
+  const vy = Math.abs(p0.y - pp.y) + Math.abs(p0.s - pp.s) * 300 + Math.abs((p0.rx ?? 0) - (pp.rx ?? 0)) * 5;
+  const bx = Math.min(44, vx * 0.38);
+  const by = Math.min(44, vy * 0.38);
   const o = opacity ? opacity(f) : 1;
   if (o <= 0.001) return null;
   // El teléfono se dibuja con su esquina superior izquierda en (0,0) y se lleva a la pose con transform.
   const left = p.x - PHONE_W / 2;
   const top = p.y - PHONE_H / 2;
-  return (
+  const phone = (
     <div
       style={{
         position: 'absolute',
@@ -309,7 +340,7 @@ export const Stage: React.FC<StageProps> = ({screens, taps = [], glows = [], pus
         top: 0,
         width: PHONE_W,
         height: PHONE_H,
-        transform: `translate(${left.toFixed(2)}px, ${top.toFixed(2)}px) scale(${p.s.toFixed(4)}) rotate(${(p.r ?? 0).toFixed(3)}deg)`,
+        transform: `translate(${left.toFixed(2)}px, ${top.toFixed(2)}px) perspective(2400px) rotateX(${(p.rx ?? 0).toFixed(3)}deg) rotateY(${(p.ry ?? 0).toFixed(3)}deg) scale(${p.s.toFixed(4)}) rotate(${(p.r ?? 0).toFixed(3)}deg)`,
         transformOrigin: '50% 50%',
         opacity: o,
       }}
@@ -338,6 +369,12 @@ export const Stage: React.FC<StageProps> = ({screens, taps = [], glows = [], pus
         <div style={{position: 'relative', width: '100%', height: '100%', borderRadius: 80, background: '#0B0710', padding: BEZEL - 18}}>
           <div style={{position: 'relative', width: SCREEN_W, height: SCREEN_H, borderRadius: 68, overflow: 'hidden', background: '#F9F6FC'}}>
             <Screens screens={screens} f={f} />
+            {dims.map((d, i) => {
+              const a = pr(f, d.at, 8, io) * (1 - pr(f, d.until, 10, io));
+              return a > 0.001 ? (
+                <div key={`dim${i}`} style={{position: 'absolute', left: d.box.x * PT, top: d.box.y * PT, width: d.box.w * PT, height: d.box.h * PT, borderRadius: (d.radius ?? 12) * PT, background: 'rgba(43,0,84,.16)', boxShadow: 'inset 0 6px 18px rgba(26,0,51,.28)', opacity: a, zIndex: 14}} />
+              ) : null;
+            })}
             {glows.map((g, i) => (
               <GlowView key={i} g={g} f={f} />
             ))}
@@ -367,5 +404,12 @@ export const Stage: React.FC<StageProps> = ({screens, taps = [], glows = [], pus
         </div>
       </div>
     </div>
+  );
+  return Math.max(bx, by) >= 0.8 ? (
+    <Streak sx={bx} sy={by} style={{position: 'absolute', inset: 0}}>
+      {phone}
+    </Streak>
+  ) : (
+    phone
   );
 };

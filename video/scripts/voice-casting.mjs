@@ -11,8 +11,11 @@ const env = fs.existsSync(path.join(root, '.env')) ? fs.readFileSync(path.join(r
 const key = process.env.ELEVENLABS_API_KEY || env.match(/ELEVENLABS_API_KEY=(.+)/)?.[1]?.trim();
 if (!key) throw new Error('Falta ELEVENLABS_API_KEY');
 const MODEL = process.env.VO_MODEL || 'eleven_v3';
-const TAG = process.env.VO_TAG || '[confident, warm]';
-const CANDIDATES = [
+const TAG = process.env.VO_TAG ?? '[confident, warm]';
+// CAST_FILE=archivo.json con {candidates: [[slug, voiceId, etiqueta]…], lines: […], pronounce: {…}} para otra pieza;
+// CAST_OUT=carpeta de salida (por defecto out/casting).
+const CAST = process.env.CAST_FILE ? JSON.parse(fs.readFileSync(process.env.CAST_FILE, 'utf8')) : null;
+const CANDIDATES = CAST?.candidates ?? [
   ['antonio', 'htFfPSZGJwjBv1CL0aMD', 'Antonio · latino joven, claro y seguro'],
   ['mauricio', '94zOad0g7T7K4oa7zhDq', 'Mauricio · latino adulto, narrador calmado'],
   ['cristian', 'ClNifCEVq1smkl4M3aTk', 'Cristian · chileno, redes sociales, seguro'],
@@ -22,12 +25,12 @@ const CANDIDATES = [
   ['valeria', 'JddqVF50ZSIR7SRbJE6u', 'Valeria · mujer latina joven, cercana'],
   ['fernanda', 'JM2A9JbRp8XUJ7bdCXJc', 'Fernanda · mujer latina joven, segura'],
 ];
-const pronounce = {ZH: 'Zeta Hache', 30: 'treinta', IA: 'inteligencia artificial'};
-const lines = ['¿Qué hacemos en ZH Development?', 'En tu empresa, el día se va en lo mismo: cotizar por WhatsApp, cuadrar planillas, perseguir pagos.', 'Hacemos el software que lo resuelve.'];
+const pronounce = CAST?.pronounce ?? {ZH: 'Zeta Hache', 30: 'treinta', IA: 'inteligencia artificial'};
+const lines = CAST?.lines ?? ['¿Qué hacemos en ZH Development?', 'En tu empresa, el día se va en lo mismo: cotizar por WhatsApp, cuadrar planillas, perseguir pagos.', 'Hacemos el software que lo resuelve.'];
 let text = lines.join('\n\n');
 for (const [k, v] of Object.entries(pronounce)) text = text.replace(new RegExp(`\\b${k}\\b`, 'g'), v);
-text = `${TAG} ${text}`;
-const outDir = path.join(root, 'out', 'casting');
+text = TAG ? `${TAG} ${text}` : text;
+const outDir = process.env.CAST_OUT ? path.resolve(root, process.env.CAST_OUT) : path.join(root, 'out', 'casting');
 fs.mkdirSync(outDir, {recursive: true});
 const ffmpeg = (args) => execFileSync('ffmpeg', ['-v', 'error', '-y', ...args], {stdio: ['ignore', 'pipe', 'inherit']});
 const files = [];

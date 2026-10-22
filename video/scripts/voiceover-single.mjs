@@ -162,7 +162,7 @@ if (process.env.VO_DRY_RUN) {
     const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}?output_format=mp3_44100_128`, {
       method: 'POST',
       headers: {'xi-api-key': key, 'content-type': 'application/json'},
-      body: JSON.stringify({text: fullText, model_id: MODEL, voice_settings: {stability: STABILITY, similarity_boost: 0.8, use_speaker_boost: true, ...(MODEL === 'eleven_v3' ? {} : {style: STYLE})}}),
+      body: JSON.stringify({text: fullText, model_id: MODEL, voice_settings: {stability: STABILITY, similarity_boost: 0.8, use_speaker_boost: true, ...(MODEL === 'eleven_multilingual_v2' ? {style: STYLE} : {})}}),
     });
     if (!res.ok) throw new Error(`TTS ${res.status}: ${await res.text()}`);
     fs.writeFileSync(raw, Buffer.from(await res.arrayBuffer()));

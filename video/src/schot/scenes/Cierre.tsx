@@ -1,26 +1,32 @@
 import React from 'react';
 import {Easing, Img, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
-import {beat, beatEnd, scenes} from '../timeline';
-import {PT, REST, SCREEN_H, SCREEN_W} from '../ui/geometry';
+import {beat, beatEnd, captionsOf, scenes} from '../timeline';
+import {PT, REST, SCREEN_H, SCREEN_W, toCanvas} from '../ui/geometry';
 import {GRAD_TEXT} from '../ui/Text';
-import {bx} from '../shots';
-import {focus} from '../ui/geometry';
+import type {LiftDef} from '../ui/Pop';
 import {SceneDef, shot} from './types';
 
-// Escena 9 · cierre. Arriba, la dirección grande («Ábrela en tu celular · app.congresoschot2026.com»); en el
-// teléfono, la pantalla de ingreso real y luego la guía «Instalar la app» de la propia app en sus tres pasos
-// (Compartir → «Agregar a inicio» → «Agregar»); en «inicio» la pantalla de inicio de iOS con el ícono de SCHOT que cae
-// en su lugar. Termina en la tarjeta final (dirección, sello y datos del congreso) sin fundido a negro: WhatsApp se
-// queda en el último cuadro, que tiene que dejar la dirección legible.
+// Escena 9 · cierre. El teléfono se aleja con la pantalla de ingreso; arriba, la dirección en una cápsula que salta y
+// se escribe letra a letra mientras la voz la dice. «y agrégala a tu pantalla de inicio» → los tres pasos de la guía
+// «Instalar la app» de la propia app saltan uno sobre otro y quedan en abanico; la pantalla de inicio de iOS recibe el
+// ícono de SCHOT con un estallido. Termina en la tarjeta final (dirección, sello y datos del congreso) sin fundido a
+// negro: WhatsApp se queda en el último cuadro, que tiene que dejar la dirección legible.
 const sc = scenes.cierre;
+const URL = 'app.congresoschot2026.com';
 const tUrl = beat('cierre', 'Entra') - 4;
+const urlWord = captionsOf('cierre').flatMap((c) => c.words).find((w) => w.text.includes('congresoschot'));
+const tType0 = urlWord ? urlWord.from : tUrl + 18;
+const tType1 = urlWord ? Math.min(urlWord.to - 8, tType0 + 75) : tType0 + 70;
 const tStep1 = beat('cierre', 'agrégala') - 44; // la guía de instalación de la app, paso a paso
-const tStep2 = tStep1 + 28;
-const tStep3 = tStep2 + 28;
-const tHome = tStep3 + 28;
+const STEP = 17;
+const tStep2 = tStep1 + STEP;
+const tStep3 = tStep2 + STEP;
+const tFan = tStep3 + STEP;
+const tHome = Math.max(tFan + 8, beat('cierre', 'pantalla') - 4);
 const tIcon = tHome + 12;
 const tEndCard = Math.max(beatEnd('cierre', 'inicio') + 10, tIcon + 16);
-const paso = bx('instalar', 'tarjetaPaso', {x: 16, y: 210, w: 358, h: 435});
+const paso = {x: 16, y: 132, w: 358, h: 362}; // «Paso N de 3», su texto y la ilustración (sin los botones)
+const PHONE_POSE = {...REST, y: 1330, s: 0.86};
 
 const clampOpt = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
 const ios = Easing.bezier(0.32, 0.72, 0, 1);
@@ -36,6 +42,7 @@ const PITCH_X = (390 - 2 * X0 - ICON) / (COLS - 1);
 const Y0 = 78;
 const PITCH_Y = 96;
 const SLOT = {c: 1, r: 2}; // donde queda SCHOT
+const ICON_AT = toCanvas(PHONE_POSE, X0 + SLOT.c * PITCH_X + ICON / 2, Y0 + SLOT.r * PITCH_Y + ICON / 2);
 const HomeScreen: React.FC<{f: number; fps: number}> = ({f, fps}) => {
   const pop = spring({frame: f - tIcon, fps, config: {damping: 11, stiffness: 150}});
   const glass = (key: string, x: number, y: number, a = 1) => (
@@ -87,20 +94,46 @@ const HomeScreen: React.FC<{f: number; fps: number}> = ({f, fps}) => {
 
 const Overlay: React.FC = () => {
   const f = useCurrentFrame();
-  const urlIn = pr(f, tUrl, 16);
+  const {fps} = useVideoConfig();
+  // La cápsula salta justo antes de que la voz diga la dirección (vacía se vería como un error).
+  const pill = spring({frame: f - (tType0 - 7), fps, config: {damping: 12, stiffness: 150, mass: 0.9}});
+  const eyebrow = pr(f, tUrl + 4, 14);
   const subIn = pr(f, beat('cierre', 'agrégala') - 2, 14);
   const end = pr(f, tEndCard + 8, 18);
   const blur = (p: number) => ((1 - p) * 12 > 0.3 ? `blur(${((1 - p) * 12).toFixed(1)}px)` : undefined);
+  // Letras de la dirección: cada una salta en su lugar (las posiciones no se mueven mientras se escribe).
+  const n = URL.length;
+  const charAt = (i: number) => tType0 + ((tType1 - tType0) * i) / (n - 1);
+  const chars = URL.split('').map((ch, i) => {
+    const p = spring({frame: f - charAt(i), fps, config: {damping: 11, stiffness: 220, mass: 0.6}});
+    const grad = i >= 17 && i <= 20; // «2026»
+    return (
+      <span
+        key={i}
+        style={{
+          display: 'inline-block',
+          opacity: Math.min(1, p * 2.2),
+          transform: `translateY(${((1 - p) * 26).toFixed(1)}px) scale(${(0.5 + 0.5 * p).toFixed(3)})`,
+          ...(grad ? {backgroundImage: 'linear-gradient(100deg, #8A00E6 0%, #E6007E 100%)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent'} : {}),
+        }}
+      >
+        {ch}
+      </span>
+    );
+  });
+  const typing = f >= tType0 - 4 && f < tType1 + 10;
+  const caretX = Math.min(n, Math.max(0, Math.floor(((f - tType0) / (tType1 - tType0)) * (n - 1)) + 1));
   return (
     <>
-      <div style={{position: 'absolute', left: 60, right: 60, top: 150, textAlign: 'center', zIndex: 50}}>
-        <div style={{opacity: urlIn, transform: `translateY(${((1 - urlIn) * 24).toFixed(1)}px)`, filter: blur(urlIn)}}>
-          <div style={{fontFamily: SANS, fontWeight: 700, fontSize: 30, letterSpacing: '0.24em', textTransform: 'uppercase', color: '#C3AEF2'}}>Ábrela en tu celular</div>
-          <div style={{marginTop: 18, display: 'inline-block', padding: '20px 40px', borderRadius: 999, background: 'rgba(255,255,255,.96)', boxShadow: '0 20px 60px rgba(14,0,30,.45), 0 0 0 6px rgba(195,174,242,.25)'}}>
-            <span style={{fontFamily: SANS, fontWeight: 800, fontSize: 60, letterSpacing: '-0.01em', color: '#2B0054'}}>
-              app.congresoschot<span style={{backgroundImage: 'linear-gradient(100deg, #8A00E6 0%, #E6007E 100%)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent'}}>2026</span>.com
-            </span>
-          </div>
+      <div style={{position: 'absolute', left: 40, right: 40, top: 150, textAlign: 'center', zIndex: 50}}>
+        <div style={{opacity: eyebrow, transform: `translateY(${((1 - eyebrow) * 20).toFixed(1)}px)`, filter: blur(eyebrow), fontFamily: SANS, fontWeight: 700, fontSize: 30, letterSpacing: '0.24em', textTransform: 'uppercase', color: '#C3AEF2'}}>Ábrela en tu celular</div>
+        <div style={{marginTop: 18, display: 'inline-block', position: 'relative', padding: '20px 40px', borderRadius: 999, background: 'rgba(255,255,255,.97)', boxShadow: '0 20px 60px rgba(14,0,30,.45), 0 0 0 6px rgba(195,174,242,.25)', opacity: Math.min(1, pill * 2), transform: `scale(${(0.4 + 0.6 * pill).toFixed(4)}) rotate(${((1 - pill) * -6).toFixed(2)}deg)`}}>
+          <span style={{position: 'relative', fontFamily: SANS, fontWeight: 800, fontSize: 60, letterSpacing: '-0.01em', color: '#2B0054', whiteSpace: 'nowrap'}}>
+            {chars}
+            {typing && Math.floor(f / 6) % 2 === 0 ? (
+              <span style={{position: 'absolute', top: 8, bottom: 8, width: 4, borderRadius: 2, background: '#A200FF', left: `${((caretX / n) * 100).toFixed(2)}%`}} />
+            ) : null}
+          </span>
         </div>
         <div style={{marginTop: 26, opacity: subIn, transform: `translateY(${((1 - subIn) * 18).toFixed(1)}px)`, filter: blur(subIn), fontFamily: SANS, fontWeight: 600, fontSize: 44, color: '#fff'}}>
           y agrégala a tu <span style={{backgroundImage: GRAD_TEXT, WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent'}}>pantalla de inicio</span>
@@ -118,31 +151,52 @@ const Overlay: React.FC = () => {
   );
 };
 
+// Los tres pasos de la guía: cada uno salta al centro en grande y, cuando llega el siguiente, se corre al abanico.
+const FAN = [
+  {x: 262, y: 1250, r: -8},
+  {x: 540, y: 1215, r: 0},
+  {x: 818, y: 1250, r: 8},
+];
+const STEPS: LiftDef[] = ['instalar', 'instalar-paso2', 'instalar-paso3'].map((id, i) => ({
+  at: [tStep1, tStep2, tStep3][i] + 3,
+  out: tHome - 6 + i * 2,
+  box: paso,
+  src: shot(id),
+  to: {x: 540, y: 1180, k: 1.85, r: i === 1 ? 2 : -2, rx: 6},
+  moves: [{at: [tStep2, tStep3, tFan][i] + 3, to: {...FAN[i], k: 1.12, rx: 4, ry: (1 - i) * 10}}],
+  exit: 'pop',
+  radius: 20,
+  ring: i === 2,
+  scrim: 0.4,
+  dim: [tStep2, tStep3, tFan][i],
+  z: i,
+}));
+
 export const cierre: SceneDef = {
   screens: [
-    {at: sc.from, src: shot('login-1'), enter: 'fade', enterDur: 10, ink: 'light'},
-    {at: tStep1, src: shot('instalar'), enter: 'push', ink: 'dark'},
-    {at: tStep2, src: shot('instalar-paso2'), enter: 'fade', enterDur: 6, ink: 'dark'},
-    {at: tStep3, src: shot('instalar-paso3'), enter: 'fade', enterDur: 6, ink: 'dark'},
+    {at: sc.from, src: shot('login-1'), enter: 'zoom', enterDur: 12, ink: 'light'},
+    {at: tStep1, src: shot('instalar'), enter: 'push', enterDur: 10, ink: 'dark'},
+    {at: tStep2, src: shot('instalar-paso2'), enter: 'fade', enterDur: 5, ink: 'dark'},
+    {at: tStep3, src: shot('instalar-paso3'), enter: 'fade', enterDur: 5, ink: 'dark'},
     {at: tHome, render: (f) => <HomeScreen f={f} fps={30} />, enter: 'zoom', enterDur: 14, ink: 'light'},
   ],
   cam: [
-    {at: sc.from, dur: 20, pose: {...REST, y: 1330, s: 0.86}, ease: 'io'},
-    {at: tStep1 + 4, dur: 16, pose: focus(paso, 1.0, {x: 540, y: 1240})},
-    {at: tHome - 2, dur: 16, pose: {...REST, y: 1330, s: 0.86}, ease: 'io'},
+    {at: sc.from, dur: 18, pose: PHONE_POSE, ease: 'whipOut'},
     {at: tEndCard - 16, dur: 26, pose: {...REST, y: 1215, s: 0.74}, ease: 'io'},
   ],
-  taps: [],
-  glows: [
-    {at: tStep1 + 10, until: tHome - 4, box: paso, radius: 24},
-  ],
+  lifts: STEPS,
+  bursts: [{at: tIcon + 2, x: ICON_AT.x, y: ICON_AT.y, n: 18, r: 260, star: true}],
+  flashes: [{at: tIcon + 1, dur: 12, x: ICON_AT.x, y: ICON_AT.y, a: 0.35}],
   Overlay,
   sfx: [
-    {name: 'whoosh-soft', at: tUrl, gain: 0.5},
-    {name: 'click', at: tStep2, gain: 0.3},
-    {name: 'click', at: tStep3, gain: 0.3},
-    {name: 'pop', at: tIcon, gain: 0.7},
-    {name: 'chime', at: tIcon + 4, gain: 0.45},
-    {name: 'logo', at: tEndCard - 4, gain: 0.55},
+    {name: 'whoosh-hard', at: sc.from, gain: 0.3},
+    {name: 'pop-hi', at: tType0 - 6, gain: 0.45},
+    ...Array.from({length: 13}, (_, i) => ({name: 'tick' as const, at: Math.round(tType0 + ((tType1 - tType0) * i * 2) / 25), gain: 0.14})),
+    {name: 'swish', at: tStep2 + 3, gain: 0.18},
+    {name: 'swish', at: tStep3 + 3, gain: 0.18},
+    {name: 'swish', at: tFan + 3, gain: 0.2},
+    {name: 'pop', at: tIcon, gain: 0.6},
+    {name: 'sparkle', at: tIcon + 2, gain: 0.4},
+    {name: 'logo', at: tEndCard - 4, gain: 0.5},
   ],
 };
