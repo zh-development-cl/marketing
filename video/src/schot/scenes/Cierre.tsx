@@ -1,42 +1,57 @@
 import React from 'react';
 import {Easing, Img, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
 import {beat, beatEnd, captionsOf, scenes} from '../timeline';
-import {PT, REST, SCREEN_H, SCREEN_W, toCanvas} from '../ui/geometry';
+import {focus, PT, REST, SCREEN_H, SCREEN_W, toCanvas} from '../ui/geometry';
 import {GRAD_TEXT} from '../ui/Text';
 import type {LiftDef} from '../ui/Pop';
 import {SceneDef, shot} from './types';
 
-// Escena 9 · cierre. El teléfono se aleja con la pantalla de ingreso; arriba, la dirección en una cápsula que salta y
-// se escribe letra a letra mientras la voz la dice. «y agrégala a tu pantalla de inicio» → los tres pasos de la guía
-// «Instalar la app» de la propia app saltan uno sobre otro y quedan en abanico; la pantalla de inicio de iOS recibe el
-// ícono de SCHOT con un estallido. Termina en la tarjeta final (dirección, sello y datos del congreso) sin fundido a
-// negro: WhatsApp se queda en el último cuadro, que tiene que dejar la dirección legible.
+// Escena 9 · cierre. El teléfono muestra la app abierta en Safari; arriba, la dirección en una cápsula que salta y se
+// escribe letra a letra mientras la voz la dice. «y agrégala a tu pantalla de inicio» → el proceso real, como en un
+// video de la pantalla: cada captura real de iOS 26 (las mismas que usa la guía «Instalar la app» de la propia app)
+// sale en grande, numerada con el texto de esa guía, y el dedo toca: ⋯ → «Compartir» → «Ver más» → «Agregar a
+// Inicio» → «Agregar». Después, la pantalla de inicio recibe el ícono de SCHOT, se toca y la app se abre. Termina en
+// la tarjeta final (dirección, sello y datos del congreso) sin fundido a negro: WhatsApp se queda en el último cuadro,
+// que tiene que dejar la dirección legible.
 const sc = scenes.cierre;
 const URL = 'app.congresoschot2026.com';
 const tUrl = beat('cierre', 'Entra') - 4;
 const urlWord = captionsOf('cierre').flatMap((c) => c.words).find((w) => w.text.includes('congresoschot'));
 const tType0 = urlWord ? urlWord.from : tUrl + 18;
 const tType1 = urlWord ? Math.min(urlWord.to - 8, tType0 + 75) : tType0 + 70;
-// La guía de instalación de la propia app, paso a paso, cuando la dirección ya quedó escrita. Un paso por
-// vez, grande (título e ilustración), con tiempo de leerlo.
-const tStep1 = tType1 + 4; // apenas la dirección quedó escrita entera
-const STEP = 48;
-const tStep2 = tStep1 + STEP;
-const tStep3 = tStep2 + STEP;
-const tHome = Math.max(tStep3 + STEP, beat('cierre', 'pantalla') - 4);
-const tIcon = tHome + 12;
-const tEndCard = Math.max(beatEnd('cierre', 'inicio') + 10, tIcon + 16);
-// Cada paso flotante: arriba «Paso N de 3» y su título (sin el texto chico de ayuda) y abajo la ilustración del
-// teléfono con el botón marcado. En pt de la captura.
-const PASO_TOP = {x: 16, y: 132, w: 358, h: 70};
-const PASO_ILU = {x: 16, y: 250, w: 358, h: 246};
-const paso = {x: 16, y: 132, w: 358, h: PASO_TOP.h + PASO_ILU.h};
+// El proceso real de iOS 26 para agregarla a la pantalla de inicio: las capturas y los textos de la guía «Instalar la
+// app» de la propia app (schot-app-frontend, InstallGuide.tsx). `tap`: dónde se toca, en px de la captura.
+const GUIDE = [
+  {img: 'ios26-1-barra.jpg', w: 720, h: 198, tap: {x: 614, y: 93}, text: 'Toca el botón ⋯'},
+  {img: 'ios26-2-menu.jpg', w: 720, h: 776, tap: {x: 400, y: 84}, text: 'Toca «Compartir»'},
+  {img: 'ios26-3-compartir.jpg', w: 720, h: 776, tap: {x: 588, y: 612}, text: 'Toca «Ver más»'},
+  {img: 'ios26-4-lista.jpg', w: 720, h: 776, tap: {x: 300, y: 457}, text: 'Toca «Agregar a Inicio»'},
+  {img: 'ios26-5-agregar.jpg', w: 720, h: 776, tap: {x: 590, y: 107}, text: 'Toca «Agregar»'},
+];
+const CARD = {x: 540, y: 1230, w: 760}; // las capturas flotan sobre el teléfono, a 760 px de ancho
+const tGuide = beat('cierre', 'agrégala') - 2;
+const STEP = 46; // cada paso: la captura llega, se lee, el dedo toca y llega la siguiente
+const stepAt = (i: number) => tGuide + i * STEP;
+const tapAt = (i: number) => stepAt(i) + 28;
+const tHome = stepAt(GUIDE.length) + 4; // la pantalla de inicio
+const tIcon = tHome + 14; // el ícono de SCHOT aparece
+const tTapIcon = tIcon + 32; // se toca
+const tOpen = tTapIcon + 5; // y la app se abre, sin la barra de Safari
+const tEndCard = tOpen + 60; // la app abierta se alcanza a ver
 const PHONE_POSE = {...REST, y: 1330, s: 0.86};
 
 const clampOpt = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
 const ios = Easing.bezier(0.32, 0.72, 0, 1);
 const pr = (f: number, a: number, d: number, e = ios) => interpolate(f, [a, a + d], [0, 1], {...clampOpt, easing: e});
 const SANS = '"Barlow", system-ui, sans-serif';
+
+// La app abierta en Safari: el Programa con la barra real de Safari de iOS 26 abajo (la de la guía, a todo el ancho).
+const SafariApp: React.FC = () => (
+  <div style={{position: 'absolute', inset: 0}}>
+    <Img src={staticFile(shot('programa'))} style={{position: 'absolute', left: 0, top: 0, width: SCREEN_W, height: SCREEN_H}} />
+    <Img src={staticFile('schot/guia/ios26-1-barra.jpg')} style={{position: 'absolute', left: 0, bottom: 4 * PT, width: SCREEN_W, height: (SCREEN_W * 198) / 720}} />
+  </div>
+);
 
 // Pantalla de inicio de iOS dibujada en código: fondo de marca, íconos de vidrio sin marca (otras apps) y el ícono
 // real de SCHOT que aparece con un resorte en `tIcon`.
@@ -47,7 +62,6 @@ const PITCH_X = (390 - 2 * X0 - ICON) / (COLS - 1);
 const Y0 = 78;
 const PITCH_Y = 96;
 const SLOT = {c: 1, r: 2}; // donde queda SCHOT
-const ICON_AT = toCanvas(PHONE_POSE, X0 + SLOT.c * PITCH_X + ICON / 2, Y0 + SLOT.r * PITCH_Y + ICON / 2);
 const HomeScreen: React.FC<{f: number; fps: number}> = ({f, fps}) => {
   const pop = spring({frame: f - tIcon, fps, config: {damping: 11, stiffness: 150}});
   const glass = (key: string, x: number, y: number, a = 1) => (
@@ -105,7 +119,7 @@ const Overlay: React.FC = () => {
   const eyebrow = pr(f, tUrl + 4, 14);
   // El objetivo («y agrégala a tu pantalla de inicio») aparece con el primer paso, antes de que la voz lo diga: quien
   // lo ve sin sonido sabe para qué son los pasos.
-  const subIn = pr(f, tStep1 - 6, 14);
+  const subIn = pr(f, tType1 + 4, 14);
   const end = pr(f, tEndCard + 8, 18);
   const blur = (p: number) => ((1 - p) * 12 > 0.3 ? `blur(${((1 - p) * 12).toFixed(1)}px)` : undefined);
   // Letras de la dirección: cada una salta en su lugar (las posiciones no se mueven mientras se escribe).
@@ -158,57 +172,64 @@ const Overlay: React.FC = () => {
   );
 };
 
-// Los tres pasos de la guía: cada uno salta al centro y se va cuando llega el siguiente.
-const STEP_AT = [tStep1, tStep2, tStep3];
-const STEPS: LiftDef[] = ['instalar', 'instalar-paso2', 'instalar-paso3'].map((id, i) => ({
-  at: STEP_AT[i] + 3,
-  out: (STEP_AT[i + 1] ?? tHome) - 2,
-  box: paso,
-  render: (_f, k) => (
-    <>
-      <div style={{position: 'absolute', left: 0, top: 0, width: paso.w * k, height: PASO_TOP.h * k, overflow: 'hidden'}}>
-        <Img src={staticFile(shot(id))} style={{position: 'absolute', left: -PASO_TOP.x * k, top: -PASO_TOP.y * k, width: 390 * k}} />
-      </div>
-      <div style={{position: 'absolute', left: 0, top: PASO_TOP.h * k, width: paso.w * k, height: PASO_ILU.h * k, overflow: 'hidden'}}>
-        <Img src={staticFile(shot(id))} style={{position: 'absolute', left: -PASO_ILU.x * k, top: -PASO_ILU.y * k, width: 390 * k}} />
-      </div>
-    </>
-  ),
-  to: {x: 540, y: 1180, k: 1.9, r: i === 1 ? 1.5 : -1.5, rx: 5},
+// Cada paso: la captura real sale del teléfono en grande y se va cuando llega la siguiente.
+const CARD_K = CARD.w / 360; // las capturas se describen en «pt» de 2 px
+const STEPS: LiftDef[] = GUIDE.map((g, i) => ({
+  at: stepAt(i),
+  out: stepAt(i + 1) - 3,
+  box: {x: 0, y: 0, w: g.w / 2, h: g.h / 2},
+  render: (_f, k) => <Img src={staticFile(`schot/guia/${g.img}`)} style={{position: 'absolute', left: 0, top: 0, width: (g.w / 2) * k, height: (g.h / 2) * k}} />,
+  from: {x: 540, y: 1330, k: CARD_K * 0.35, r: 0},
+  to: {x: CARD.x, y: CARD.y, k: CARD_K, r: i % 2 ? 1 : -1, rx: 4},
   exit: 'pop',
-  radius: 22,
+  radius: 18,
   ring: true,
-  scrim: 0.4,
+  scrim: 0.45,
   shine: false,
-  dim: (STEP_AT[i + 1] ?? tHome) - 2,
+  float: 0.3,
+  dim: false,
   z: i,
 }));
+// Dónde cae el dedo sobre la captura flotante (sin contar el leve giro).
+const tapOn = (i: number) => {
+  const g = GUIDE[i];
+  return {x: CARD.x + (g.tap.x / 2 - g.w / 4) * CARD_K, y: CARD.y + (g.tap.y / 2 - g.h / 4) * CARD_K};
+};
+const iconBox = {x: X0 + SLOT.c * PITCH_X, y: Y0 + SLOT.r * PITCH_Y, w: ICON, h: ICON};
 
 export const cierre: SceneDef = {
   screens: [
-    {at: sc.from, src: shot('login-1'), enter: 'fade', enterDur: 16, ink: 'light'},
-    {at: tStep1 - 12, src: shot('instalar'), enter: 'push', enterDur: 14, ink: 'dark'},
-    {at: tStep2, src: shot('instalar-paso2'), enter: 'fade', enterDur: 8, ink: 'dark'},
-    {at: tStep3, src: shot('instalar-paso3'), enter: 'fade', enterDur: 8, ink: 'dark'},
+    {at: sc.from, render: () => <SafariApp />, enter: 'fade', enterDur: 16, ink: 'dark'},
     {at: tHome, render: (f) => <HomeScreen f={f} fps={30} />, enter: 'zoom', enterDur: 18, ink: 'light'},
+    // Al tocar el ícono la app se abre como app: a pantalla completa, sin la barra de Safari.
+    {at: tOpen, src: shot('programa'), enter: 'zoom', enterDur: 16, ink: 'dark'},
   ],
   cam: [
     {at: sc.from, dur: 30, pose: PHONE_POSE, ease: 'out'},
+    // En la pantalla de inicio la cámara se acerca al ícono nuevo.
+    {at: tHome + 4, dur: 22, pose: focus(iconBox, 1.3, {x: 540, y: 1150})},
+    {at: tOpen + 2, dur: 22, pose: PHONE_POSE},
     {at: tEndCard - 16, dur: 26, pose: {...REST, y: 1215, s: 0.74}, ease: 'io'},
   ],
-  lifts: STEPS.map((d) => ({...d, gain: 0.26})),
-  // Los pasos que se muestran son los de iPhone; la app también trae su guía para Android.
+  lifts: STEPS.map((d) => ({...d, gain: 0.2})),
+  ctaps: GUIDE.map((_, i) => ({at: tapAt(i), ...tapOn(i), scale: 0.75})),
+  taps: [{at: tTapIcon, x: iconBox.x + ICON / 2, y: iconBox.y + ICON / 2}],
+  // Cada paso numerado con el texto de la guía de la app; arriba, que es en iPhone (la app trae su guía para Android).
   badges: [
-    {at: tStep1 + 8, out: tHome - 4, x: 540, y: 800, text: 'En iPhone', icon: 'share', tone: 'white', size: 40, r: -2, gain: 0.25},
-    {at: tStep3 + 12, out: tHome - 2, x: 540, y: 1580, text: 'En Android, la app también te guía', icon: 'check', tone: 'glass', size: 34, r: 1.5, gain: 0.2},
+    {at: tGuide + 2, out: tHome - 2, x: 540, y: 640, text: 'En iPhone', icon: 'share', tone: 'glass', size: 32, r: 0, sound: null},
+    ...GUIDE.map((g, i) => ({at: stepAt(i) + 3, out: stepAt(i + 1) - 4, x: 540, y: 740, text: `${i + 1}. ${g.text}`, tone: 'white' as const, size: 42, r: i % 2 ? 1.5 : -1.5, sound: null})),
+    {at: tIcon + 6, out: tEndCard - 6, x: 540, y: 1700, text: 'En Android, la app también te guía', icon: 'check', tone: 'glass', size: 32, r: 1, gain: 0.18},
   ],
-  bursts: [{at: tIcon + 2, x: ICON_AT.x, y: ICON_AT.y, n: 12, r: 220, star: true}],
+  bursts: [{at: tIcon + 2, ...toCanvas(focus(iconBox, 1.3, {x: 540, y: 1150}), iconBox.x + ICON / 2, iconBox.y + ICON / 2), n: 12, r: 220, star: true}],
   Overlay,
   sfx: [
     {name: 'whoosh-soft', at: sc.from, gain: 0.25},
     {name: 'pop-hi', at: tType0 - 6, gain: 0.3},
+    ...GUIDE.map((_, i) => ({name: 'click' as const, at: tapAt(i), gain: 0.32})),
     {name: 'pop', at: tIcon, gain: 0.45},
-    {name: 'sparkle', at: tIcon + 2, gain: 0.28},
+    {name: 'sparkle', at: tIcon + 2, gain: 0.26},
+    {name: 'click', at: tTapIcon, gain: 0.4},
+    {name: 'whoosh-soft', at: tOpen, gain: 0.25},
     {name: 'logo', at: tEndCard - 4, gain: 0.5},
   ],
 };

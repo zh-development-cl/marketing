@@ -1,6 +1,6 @@
 # Video demo · App del 62º Congreso SCHOT
 
-Video vertical (1080x1920, 30 fps, ~76 s) para el lanzamiento de la web app oficial del 62º Congreso Chileno de
+Video vertical (1080x1920, 30 fps, ~84 s) para el lanzamiento de la web app oficial del 62º Congreso Chileno de
 Ortopedia y Traumatología (SCHOT, Viña del Mar, noviembre 2026). SCHOT lo envía a los asistentes al lanzar la app
 para que entiendan qué es, cómo se abre y qué pueden hacer. Mismo lenguaje que el reel de ZH
 (`docs/reels/01-que-es-zh.md`): composición continua, un solo teléfono que recorre todo el video con la app real
@@ -78,7 +78,7 @@ node scripts/voiceover-single.mjs G4IAP30yc6c1gK0csDfu
 | 6 | Avisos | Además, te avisa diez minutos antes… | Mi agenda; la notificación real del backend sale en grande y queda sola un momento; en «minutos» aparece debajo el dial «10 min» (el 10 fijo, el anillo se llena). |
 | 7 | Asistente | ¿Una duda? Pregúntale a TibIA… | Insignia «¿Una duda?» y el chat sube desde el botón flotante; la mascota salta; la pregunta «¿Cuándo es la fiesta de clausura?» sale en grande, se lee unos dos segundos y se envía tocándola; insignia «Asistente con IA»; la respuesta con la tarjeta del lugar sale de la pantalla, sola, con tiempo para leerla. |
 | 8 | Expo | En la expo, junta sellos… escaneando su código. | La tarjeta del Pasaporte Virtual salta y se toca «Escanear sello» sobre ella; sube la hoja real y, ya quieta, el sello de AO Trauma cae desde la cámara y se estampa (golpe leve y estallido); después salta el avance «13 de 35 sellos»; «Mi código QR»: el QR salta girando y una línea de escaneo lo recorre; insignia «Conecta con colegas». |
-| 9 | Cierre | Entra a app.congresoschot2026.com y agrégala… | La dirección en una cápsula que se escribe letra a letra con la voz; los tres pasos de la guía «Instalar la app» de la propia app, uno por vez y grandes (título e ilustración), marcados «En iPhone», con la insignia «En Android, la app también te guía» (la app trae su guía para Android: tres puntos → «Agregar a la pantalla principal» → «Instalar»); la pantalla de inicio de iOS recibe el ícono SCHOT con estallido; termina en la tarjeta con la dirección, el sello y «Viña del Mar · 18–21 nov 2026» (sin fundido a negro: WhatsApp se queda en el último cuadro). |
+| 9 | Cierre | Entra a app.congresoschot2026.com y agrégala… | El teléfono muestra la app abierta en Safari (barra real de iOS 26); la dirección en una cápsula que se escribe letra a letra con la voz y debajo «y agrégala a tu pantalla de inicio». Luego el proceso real, como un video de la pantalla: cada captura real de iOS 26 de la guía «Instalar la app» de la propia app (`public/schot/guia/`, las mismas de `InstallGuide.tsx`) sale en grande, numerada con el texto de esa guía, y el dedo toca: «1. Toca el botón ⋯» → «2. Toca «Compartir»» → «3. Toca «Ver más»» → «4. Toca «Agregar a Inicio»» → «5. Toca «Agregar»», con «En iPhone» arriba. La pantalla de inicio recibe el ícono de SCHOT (la cámara se acerca), se toca y la app se abre a pantalla completa; «En Android, la app también te guía». Termina en la tarjeta con la dirección, el sello y «Viña del Mar · 18–21 nov 2026» (sin fundido a negro: WhatsApp se queda en el último cuadro). |
 
 Piezas de animación en `video/src/schot/ui/Pop.tsx` (Lift, Badge, Burst, Rolling, Flash, toques sobre piezas
 flotantes) y `ui/Stage.tsx` (inclinación 3D, latigazos, temblor, huecos oscurecidos, desenfoque por velocidad).
@@ -125,7 +125,8 @@ manifiestos (cajas de cada botón tocado) en `src/schot/shots.json`.
   de ElevenLabs (US$0,15 por minuto) con un plan por secciones que pide bajo y batería hasta el final (plan en
   `video/scripts/schot-music-plan.json`). Edición: se recortan 8,64 s de la introducción para que el drop caiga a los
   8,5 s (se tacha «Descargar la app») y se repiten 2 compases exactos (4,284 s, corte en 22,68 s de la pista con
-  25 ms de fundido) para que alcance; se apaga sola con la tarjeta final (73 s). Normalizada a −20 LUFS. Bajo la voz queda
+  25 ms de fundido) y otros 4 compases (8,571 s, corte en 52,14 s) para cubrir la demostración de instalación; se
+  apaga sola un segundo después de la tarjeta final. Normalizada a −20 LUFS. Bajo la voz queda
   ~15 dB por debajo (`MUSIC_LO` 0,3) y un poco más baja en el cierre, donde se dice la dirección.
 - Efectos: los de `public/sfx/` más variantes hechas con ffmpeg (sin API): `pop-hi`, `pop-mid`, `pop-lo` (el pop
   con otra altura, para que una serie de piezas no suene igual), `swish`, `sparkle` y `boom` (impacto grave
