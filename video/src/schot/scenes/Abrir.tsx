@@ -20,7 +20,7 @@ const sc = scenes.abrir;
 const URL = 'app.congresoschot2026.com';
 
 const tIn = sc.from; // cambio de escena tranquilo (ver dipIn en Intro)
-const tBadge = beat('abrir', 'No') - 3;
+const tBadge = beat('abrir', 'No') - 9; // se alcanza a leer antes de tacharse
 const tStrike = beat('abrir', 'descarga');
 const tBar = beat('abrir', 'se', 1) - 4; // la barra salta
 const tType = tBar + 4;

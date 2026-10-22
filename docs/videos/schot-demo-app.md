@@ -1,6 +1,6 @@
 # Video demo · App del 62º Congreso SCHOT
 
-Video vertical (1080x1920, 30 fps, ~79 s) para el lanzamiento de la web app oficial del 62º Congreso Chileno de
+Video vertical (1080x1920, 30 fps, ~76 s) para el lanzamiento de la web app oficial del 62º Congreso Chileno de
 Ortopedia y Traumatología (SCHOT, Viña del Mar, noviembre 2026). SCHOT lo envía a los asistentes al lanzar la app
 para que entiendan qué es, cómo se abre y qué pueden hacer. Mismo lenguaje que el reel de ZH
 (`docs/reels/01-que-es-zh.md`): composición continua, un solo teléfono que recorre todo el video con la app real
@@ -17,12 +17,12 @@ Composición: `video/src/schot/` (entry `src/schot/index.ts`, composición `Scho
 ## Público y criterios
 
 **Ritmo (v3, 22-10-2026).** La versión de 57 s era demasiado rápida para procesarla (lo dijo Nicolás, de 22 años; el
-público tiene 50 a 70). Se bajó el ritmo sin quitar animación: la misma toma de voz un 10 % más lenta (Rubber Band,
-formantes preservados) y con pausas entre ideas (`VO_PAUSES`), aire antes y después de cada escena, resortes suaves,
+público tiene 50 a 70). Se bajó el ritmo sin quitar animación: la voz a su velocidad natural (una versión un 10 %
+más lenta sonó «en cámara lenta» y se descartó) con pausas entre ideas (`VO_PAUSES`), aire antes y después de cada escena, resortes suaves,
 salidas de al menos medio segundo, cada pieza flotante a la vista lo que tarda en leerse (`holds.ts` en la revisión),
 una idea por vez (nada nuevo aparece mientras otra pieza todavía llega), cambios de escena tranquilos (el teléfono se
 achica y gira apenas mientras la pantalla cambia con fundido; ya no sale de cuadro), subtítulos más grandes y legibles
-antes de que la voz los diga, y efectos y música más bajos bajo la voz. Pasó de 57 a ~79 s.
+antes de que la voz los diga, y efectos y música más bajos bajo la voz. Pasó de 57 a ~76 s.
 
 - Médicos traumatólogos de ~60 años: una idea por toma, el dedo que toca visible, zoom suave a lo que importa,
   titulares grandes y subtítulos siempre (muchos lo verán sin sonido).
@@ -56,8 +56,8 @@ inteligibilidad medida con STT, la mayor variación de entonación y timbre cál
 ```
 cd video
 VO_SCRIPT=schot VO_SET=schot VO_JSON=src/schot/vo.json VO_MODEL=eleven_v4 VO_TAG='' VO_STABILITY=0.5 \
-VO_TREBLE=0 VO_TEMPO=0.9 VO_STRETCH=rubberband \
-VO_PAUSES='2026:0.45,navegador:0.55,código:1.25,interesa:0.5,ahora:0.45,toque:0.5,duda:0.35,artificial:0.2,stands:1.1,appcongresoshot2026com:0.5' \
+VO_TREBLE=0 VO_TEMPO=1 \
+VO_PAUSES='2026:0.6,navegador:0.7,código:1.4,interesa:0.65,ahora:0.6,toque:0.65,duda:0.45,artificial:0.25,stands:1.25,appcongresoshot2026com:0.6' \
 node scripts/voiceover-single.mjs G4IAP30yc6c1gK0csDfu
 ```
 
@@ -123,9 +123,9 @@ manifiestos (cajas de cada botón tocado) en `src/schot/shots.json`.
 
 - Música propia: `public/music/schot-drive.mp3`, electrónica alegre y pareja (112 bpm) generada con la API de música
   de ElevenLabs (US$0,15 por minuto) con un plan por secciones que pide bajo y batería hasta el final (plan en
-  `video/scripts/schot-music-plan.json`). Edición: se recortan 8,07 s de la introducción para que el drop caiga a los
-  9,1 s (se tacha «Descargar la app») y se repiten 4 compases exactos (8,571 s, corte en 52,14 s con 25 ms de
-  fundido) para que alcance los 78,5 s; se apaga sola con la tarjeta final. Normalizada a −20 LUFS. Bajo la voz queda
+  `video/scripts/schot-music-plan.json`). Edición: se recortan 8,64 s de la introducción para que el drop caiga a los
+  8,5 s (se tacha «Descargar la app») y se repiten 2 compases exactos (4,284 s, corte en 22,68 s de la pista con
+  25 ms de fundido) para que alcance; se apaga sola con la tarjeta final (73 s). Normalizada a −20 LUFS. Bajo la voz queda
   ~15 dB por debajo (`MUSIC_LO` 0,3) y un poco más baja en el cierre, donde se dice la dirección.
 - Efectos: los de `public/sfx/` más variantes hechas con ffmpeg (sin API): `pop-hi`, `pop-mid`, `pop-lo` (el pop
   con otra altura, para que una serie de piezas no suene igual), `swish`, `sparkle` y `boom` (impacto grave
