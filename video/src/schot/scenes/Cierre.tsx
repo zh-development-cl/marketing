@@ -103,7 +103,9 @@ const Overlay: React.FC = () => {
   // La cápsula salta justo antes de que la voz diga la dirección (vacía se vería como un error).
   const pill = spring({frame: f - (tType0 - 7), fps, config: {damping: 12, stiffness: 150, mass: 0.9}});
   const eyebrow = pr(f, tUrl + 4, 14);
-  const subIn = pr(f, beat('cierre', 'agrégala') - 2, 14);
+  // El objetivo («y agrégala a tu pantalla de inicio») aparece con el primer paso, antes de que la voz lo diga: quien
+  // lo ve sin sonido sabe para qué son los pasos.
+  const subIn = pr(f, tStep1 - 6, 14);
   const end = pr(f, tEndCard + 8, 18);
   const blur = (p: number) => ((1 - p) * 12 > 0.3 ? `blur(${((1 - p) * 12).toFixed(1)}px)` : undefined);
   // Letras de la dirección: cada una salta en su lugar (las posiciones no se mueven mientras se escribe).
@@ -198,7 +200,7 @@ export const cierre: SceneDef = {
   // Los pasos que se muestran son los de iPhone; la app también trae su guía para Android.
   badges: [
     {at: tStep1 + 8, out: tHome - 4, x: 540, y: 800, text: 'En iPhone', icon: 'share', tone: 'white', size: 40, r: -2, gain: 0.25},
-    {at: tStep2 + 10, out: tHome - 2, x: 540, y: 1580, text: 'En Android, la app también te guía', icon: 'check', tone: 'glass', size: 34, r: 1.5, gain: 0.2},
+    {at: tStep3 + 12, out: tHome - 2, x: 540, y: 1580, text: 'En Android, la app también te guía', icon: 'check', tone: 'glass', size: 34, r: 1.5, gain: 0.2},
   ],
   bursts: [{at: tIcon + 2, x: ICON_AT.x, y: ICON_AT.y, n: 12, r: 220, star: true}],
   Overlay,

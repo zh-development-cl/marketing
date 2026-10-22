@@ -1,6 +1,6 @@
 # Video demo · App del 62º Congreso SCHOT
 
-Video vertical (1080x1920, 30 fps, ~78 s) para el lanzamiento de la web app oficial del 62º Congreso Chileno de
+Video vertical (1080x1920, 30 fps, ~79 s) para el lanzamiento de la web app oficial del 62º Congreso Chileno de
 Ortopedia y Traumatología (SCHOT, Viña del Mar, noviembre 2026). SCHOT lo envía a los asistentes al lanzar la app
 para que entiendan qué es, cómo se abre y qué pueden hacer. Mismo lenguaje que el reel de ZH
 (`docs/reels/01-que-es-zh.md`): composición continua, un solo teléfono que recorre todo el video con la app real
@@ -22,7 +22,7 @@ formantes preservados) y con pausas entre ideas (`VO_PAUSES`), aire antes y desp
 salidas de al menos medio segundo, cada pieza flotante a la vista lo que tarda en leerse (`holds.ts` en la revisión),
 una idea por vez (nada nuevo aparece mientras otra pieza todavía llega), cambios de escena tranquilos (el teléfono se
 achica y gira apenas mientras la pantalla cambia con fundido; ya no sale de cuadro), subtítulos más grandes y legibles
-antes de que la voz los diga, y efectos y música más bajos bajo la voz. Pasó de 57 a ~78 s.
+antes de que la voz los diga, y efectos y música más bajos bajo la voz. Pasó de 57 a ~79 s.
 
 - Médicos traumatólogos de ~60 años: una idea por toma, el dedo que toca visible, zoom suave a lo que importa,
   titulares grandes y subtítulos siempre (muchos lo verán sin sonido).
@@ -98,6 +98,16 @@ sello) se grabaron cuadro a cuadro.
 manifiestos (cajas de cada botón tocado) en `src/schot/shots.json`.
 
 ## Cómo se revisó
+
+- v3 (ritmo pausado): dos rondas de revisión independiente con varios agentes por tramos del video (comprensión de un
+  médico de 50 a 70 años con y sin sonido, ritmo, sincronía con la voz, cortes, legibilidad, mezcla medida por stems),
+  cada hallazgo intentado refutar por un verificador escéptico y un crítico de completitud. Primera ronda: 21
+  problemas confirmados (la apertura con cinco cosas a la vez, el correo del código desarmado antes de leerse, dos
+  charlas a las 08:00 que parecían cruzarse, el contador que parpadeaba, los pasos de instalación ilegibles,
+  latigazos, música a 10 dB de la voz, entre otros); todos corregidos y confirmados en la segunda ronda, que dejó 7
+  detalles menores, también corregidos (el correo se escribe letra a letra, Rodilla queda marcada en la fila
+  flotante, la respuesta de TibIA sale junto con su pregunta y con más tiempo, menos efectos sobre «junta sellos»,
+  el objetivo del cierre aparece con el primer paso).
 
 - Capturas: control de calidad independiente de cada toma (barra de pestañas opaca porque el desenfoque no se dibuja
   en headless, sugerencias de TibIA fijas entre tomas, brillo de los botones apagado, sin typos de los datos) y una

@@ -126,10 +126,8 @@ export const expo: SceneDef = {
   Overlay,
   sfx: [
     {name: 'click', at: tScan, gain: 0.5},
-    {name: 'swish', at: tSheet, gain: 0.25},
-    {name: 'whoosh-soft', at: tImpact - STAMP_FALL, gain: 0.3},
-    {name: 'stamp', at: tImpact, gain: 0.55},
-    {name: 'boom', at: tImpact, gain: 0.3},
+    {name: 'whoosh-soft', at: tImpact - STAMP_FALL, gain: 0.15},
+    {name: 'stamp', at: tImpact, gain: 0.32},
 
     {name: 'tick', at: tProg + 8, gain: 0.3},
     {name: 'rise', at: tScanLine - 4, gain: 0.16},

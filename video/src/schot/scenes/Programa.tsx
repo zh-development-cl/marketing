@@ -19,9 +19,9 @@ const tTop = tAhoraBack + 18; // vuelve arriba
 const tRow = beat('programa', 'por') + 2; // la fila de filtros salta
 const tSedeRing = beat('programa', 'sede') - 1;
 const tEspRing = beat('programa', 'especialidad') - 3;
-const tRod = beat('programa', 'especialidad') + 6; // toque sobre Rodilla en la fila flotante
-const tRowBack = tRod + 12;
-const tFiltered = tRowBack + 10; // la fila ya volvió: el programa filtrado
+const tRod = tEspRing + 16; // toque sobre Rodilla cuando el anillo ya llegó
+const tRowBack = tRod + 26; // Rodilla marcada se alcanza a ver en grande
+const tFiltered = tRowBack + 18; // la fila ya volvió: el programa filtrado
 
 const lineaApp = bx('programa', 'lineaAhora', {x: 16, y: 429, w: 358, h: 24});
 const SCROLL = Math.max(0, Math.min(320, lineaApp.y - 300));
@@ -34,11 +34,12 @@ const sedes = {x: 150, y: 303, w: 212, h: 44}; // chips Sheraton y Enjoy
 const fila = {x: 50, y: 297, w: 316, h: 56};
 const ROW_TO = {x: 540, y: 1000, k: 3.0};
 const meniscales = bx('programa-rodilla', 'filaMeniscales', {x: 17, y: 606, w: 356, h: 110});
+const rodOn = bx('programa-rodilla', 'chipRodilla', {x: 270, y: 303, w: 88, h: 44});
 
 const clampOpt = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
 // Anillo que marca chips sobre la fila flotante: primero las sedes, luego Rodilla (se desliza de una a otra).
 const RowRing: React.FC<{f: number; k: number}> = ({f, k}) => {
-  const a = interpolate(f, [tSedeRing, tSedeRing + 10], [0, 1], {...clampOpt, easing: Easing.out(Easing.cubic)});
+  const a = interpolate(f, [tSedeRing, tSedeRing + 10], [0, 1], {...clampOpt, easing: Easing.out(Easing.cubic)}) * (1 - interpolate(f, [tRod + 8, tRod + 16], [0, 1], {...clampOpt}));
   if (a <= 0) return null;
   const m = interpolate(f, [tEspRing, tEspRing + 14], [0, 1], {...clampOpt, easing: Easing.inOut(Easing.cubic)});
   const from = sedes;
@@ -75,7 +76,7 @@ export const programa: SceneDef = {
       ink: 'dark',
     },
     {at: tRow - 10, src: shot('programa-enjoy'), enter: 'fade', enterDur: 10, ink: 'dark'},
-    {at: tRowBack + 6, src: shot('programa-rodilla'), enter: 'fade', enterDur: 10, ink: 'dark'},
+    {at: tRowBack + 16, src: shot('programa-rodilla'), enter: 'fade', enterDur: 10, ink: 'dark'},
   ],
   ctaps: [{at: tRod, x: ROW_TO.x + (rodEnjoy.x + rodEnjoy.w / 2 - (fila.x + fila.w / 2)) * ROW_TO.k, y: ROW_TO.y, scale: 0.9}],
   lifts: [
@@ -87,6 +88,12 @@ export const programa: SceneDef = {
       render: (f, k) => (
         <>
           <Img src={staticFile(shot('programa-enjoy'))} style={{position: 'absolute', left: -fila.x * k, top: -fila.y * k, width: 390 * k}} />
+          {/* Al tocarla, Rodilla pasa a marcada: el chip real marcado (de programa-rodilla, mismo tamaño) en su lugar */}
+          {f >= tRod ? (
+            <div style={{position: 'absolute', left: (rodEnjoy.x - fila.x) * k, top: (rodEnjoy.y - fila.y) * k, width: rodEnjoy.w * k, height: rodEnjoy.h * k, overflow: 'hidden', borderRadius: (rodEnjoy.h / 2) * k, opacity: interpolate(f, [tRod, tRod + 5], [0, 1], clampOpt)}}>
+              <Img src={staticFile(shot('programa-rodilla'))} style={{position: 'absolute', left: -rodOn.x * k, top: -rodOn.y * k, width: 390 * k}} />
+            </div>
+          ) : null}
           <RowRing f={f} k={k} />
         </>
       ),

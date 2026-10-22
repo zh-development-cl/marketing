@@ -114,6 +114,8 @@ const SafariPage: React.FC<{f: number; id: string}> = ({f, id}) => (
 );
 
 const mail = bx('login-1', 'campoCorreo', {x: 48, y: 436, w: 294, h: 53});
+// Dónde empieza y termina «c.munoz@hospital.cl» dentro del campo (pt, medido en la captura login-2).
+const MAIL_TEXT = {x0: 64, x1: 208};
 const send = bx('login-2', 'botonEnviarCodigo', {x: 48, y: 505, w: 294, h: 48});
 const code = bx('login-3a', 'grupoCodigo', {x: 48, y: 520, w: 294, h: 52});
 const codeLast = bx('login-3g', 'grupoCodigo', {x: 48, y: 505, w: 294, h: 52});
@@ -324,7 +326,19 @@ export const abrir: SceneDef = {
       at: tMail,
       out: tMailBack,
       box: mail,
-      src: (f) => shot(f < tMailTyped ? 'login-1' : 'login-2'),
+      // El correo se escribe letra a letra sobre la captura real ya escrita (login-2): una franja del color del campo
+      // tapa lo que falta por escribir.
+      render: (f, k) => {
+        const t = interpolate(f, [tMail + 6, tMailTyped], [0, 1], {...clampOpt, easing: Easing.linear});
+        const x0 = MAIL_TEXT.x0 + (MAIL_TEXT.x1 - MAIL_TEXT.x0) * t;
+        return (
+          <>
+            <Img src={staticFile(shot('login-2'))} style={{position: 'absolute', left: -mail.x * k, top: -mail.y * k, width: 390 * k}} />
+            {t < 1 ? <div style={{position: 'absolute', left: (x0 - mail.x) * k, top: 5 * k, width: (mail.x + mail.w - 5 - x0) * k, height: (mail.h - 10) * k, background: '#FBFAFD'}} /> : null}
+            {f < tMailTyped + 8 && Math.floor(f / 6) % 2 === 0 ? <div style={{position: 'absolute', left: (x0 - mail.x + 1) * k, top: 15 * k, width: 2 * k, height: (mail.h - 30) * k, background: '#A200FF'}} /> : null}
+          </>
+        );
+      },
       to: {x: 540, y: 1130, k: 3.0, rx: 8},
       radius: 14,
       ring: true,
