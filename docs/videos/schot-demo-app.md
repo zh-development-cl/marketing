@@ -1,6 +1,6 @@
 # Video demo · App del 62º Congreso SCHOT
 
-Video vertical (1080x1920, 30 fps, ~85 s) para el lanzamiento de la web app oficial del 62º Congreso Chileno de
+Video vertical (1080x1920, 30 fps, ~86 s) para el lanzamiento de la web app oficial del 62º Congreso Chileno de
 Ortopedia y Traumatología (SCHOT, Viña del Mar, noviembre 2026). SCHOT lo envía a los asistentes al lanzar la app
 para que entiendan qué es, cómo se abre y qué pueden hacer. Mismo lenguaje que el reel de ZH
 (`docs/reels/01-que-es-zh.md`): composición continua, un solo teléfono que recorre todo el video con la app real
@@ -90,7 +90,7 @@ node scripts/voiceover-single.mjs 3mmJ2Z5SLZ9OkeZZcv5p
 
 | # | Escena | Voz | Pantalla y piezas que saltan |
 |---|--------|-----|------------------------------|
-| 1 | Apertura | Esta es la app oficial… Todo el congreso, en tu celular. | El primer cuadro ya es la portada (miniatura de WhatsApp): sello SCHOT, «App oficial · Viña del Mar 2026» en una píldora blanca, «62º Congreso SCHOT» y «Ortopedia y Traumatología», limpia, sin piezas flotando (lo pidió Nicolás el 23-10-2026; el aviso y la sede ya aparecen en sus escenas). Las piezas saltan alrededor del título, una por palabra (QR, una charla, el sello de AO Trauma, el chip Rodilla). Una cosa a la vez: se va el título, sube el teléfono y, ya quieto, cada pieza entra a su pantalla. |
+| 1 | Apertura | Esta es la app oficial… Todo el congreso, en tu celular. | El primer cuadro ya es la portada (miniatura de WhatsApp): sello SCHOT, «App oficial · Viña del Mar 2026» en una píldora blanca, «62º Congreso SCHOT» y «Ortopedia y Traumatología». Durante la primera frase solo está el título: nada flota antes de que aparezca el celular (lo pidió Nicolás el 23-10-2026; el aviso y la sede ya aparecen en sus escenas). Una cosa a la vez: se va el título y sube el teléfono; ya quieto, en «Todo el congreso» saltan a su alrededor cuatro piezas de la app, una por una (QR, el sello de AO Trauma, una charla, el chip Rodilla), y en «en tu celular» cada una entra a su pantalla. |
 | 2 | Entrar | No se descarga… Sin contraseñas. | «Descargar la app» se tacha; la barra de Safari salta y la dirección se escribe en grande, se toca «Ir» y vuelve mientras carga el ingreso real; el campo del correo sale ya escrito; llega el correo con el código como notificación de Gmail (remitente, asunto y vista previa reales del backend: «Congreso SCHOT · 482915 es tu código para el Congreso SCHOT · Vence en 10 minutos y solo sirve una vez.»), se lee solo un segundo, el código se resalta y vuela entero a la fila de casilleros, donde queda escrito; insignia «Sin contraseñas» con estallido; «Hola, Carolina». |
 | 3 | Agenda con IA | Cuéntale a TibIA… sin charlas que se crucen. | La mascota salta junto al titular; Rodilla y Cadera se marcan y saltan una a cada lado; «Armar mi agenda» y TibIA trabaja (secuencia real); salen los dos días de la agenda con su encabezado (jueves y viernes: dos charlas a las 08:00 en días distintos, no un cruce) y la insignia «Sin cruces de horario» los sella. |
 | 4 | Programa | En el programa ves lo que está pasando ahora… | Programa del jueves 19 a las 10:20: salta la línea «Ahora 10:20» y vuelve en la pausa; «por sede y por especialidad» → la fila de filtros salta, un anillo marca las sedes y luego Rodilla, que se toca; el programa queda filtrado y la cámara se acerca a «Lesiones meniscales». |
@@ -159,8 +159,8 @@ manifiestos (cajas de cada botón tocado) en `src/schot/shots.json`.
   8,5 s (se tacha «Descargar la app») y se repiten 2 compases exactos (4,284 s, corte en 22,68 s de la pista con
   25 ms de fundido), otros 4 compases (8,571 s, corte en 52,14 s) y 1 compás (2,143 s: se repite el compás de 68,61 a
   70,755 s de la pista, con el fundido de 25 ms terminando justo antes del golpe de bombo; en la revisión
-  independiente se vio que cortado a mitad de compás se oía 0,4 s del acorde siguiente y luego volvía atrás) para cubrir la demostración de instalación; con la voz de Oscar el drop cae
-  en el tachado a los 8,17 s y la música se apaga sola 2 s después de la tarjeta final (83,5 s).
+  independiente se vio que cortado a mitad de compás se oía 0,4 s del acorde siguiente y luego volvía atrás) para cubrir la demostración de instalación; con la voz de Oscar y la apertura
+  más larga el drop cae en el tachado a los 9,03 s y la música se apaga sola 2 s después de la tarjeta final (84,4 s).
   Licencia: la pista se generó cuando la cuenta estaba en el plan gratuito, que según ElevenLabs no da licencia
   comercial (la música del plan gratuito además exige atribución); para un video de cliente conviene regenerarla con
   la cuenta Starter (sería otra pista con el mismo plan, y habría que volver a editarla). Decisión pendiente de

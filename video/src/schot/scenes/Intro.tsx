@@ -7,23 +7,26 @@ import {Headline} from '../ui/Text';
 import type {LiftDef} from '../ui/Pop';
 import {SceneDef, seqDir, shot} from './types';
 
-// Escena 1 · apertura. El cuadro 0 ya es la portada (WhatsApp lo usa de miniatura) y queda limpia, sin piezas
-// flotando (lo pidió Nicolás): sello de SCHOT con su luz, «App oficial» en una píldora blanca y «62º Congreso SCHOT».
-// Mientras la voz dice «Esta es la app oficial del Congreso SCHOT 2026», piezas reales de la app saltan alrededor del
-// título, una por palabra (el QR, una charla del programa, un sello de la expo, un interés). En «Todo el congreso» el
-// título se va hacia la cámara, las piezas vuelan hacia el centro y el teléfono sube inclinado desde abajo con el
-// Programa real: todo eso cabe en el celular.
+// Escena 1 · apertura. El cuadro 0 ya es la portada (WhatsApp lo usa de miniatura): sello de SCHOT con su luz,
+// «App oficial» en una píldora blanca y «62º Congreso SCHOT». Mientras la voz dice «Esta es la app oficial del Congreso
+// SCHOT 2026» solo está el título (Nicolás pidió que nada flote antes del celular). El título se va hacia la cámara y
+// el teléfono sube inclinado desde abajo con el Programa real; ya quieto, en «Todo el congreso» saltan a su alrededor
+// piezas reales de la app, una por una (el QR, un sello de la expo, una charla del programa, un interés), y en «en tu
+// celular» cada una entra a su pantalla: todo eso cabe en el celular.
 const sc = scenes.intro;
 const tSeal = -30;
 const tEyebrow = -20;
 const tTitle = -16;
 const tTodo = beat('intro', 'Todo');
-// Una cosa a la vez: primero se va el título, después sube el teléfono y recién con el teléfono quieto las piezas
-// entran a su pantalla, una por una.
+// Una cosa a la vez: primero se va el título, después sube el teléfono; con el teléfono casi quieto saltan las piezas a
+// su alrededor (una cada 6 cuadros) y, después de verse algo más de un segundo, entran a su pantalla una por una.
 const tTitleOut = tTodo - 34;
 const tRise = tTodo - 24;
 const RISE = 40;
 const tLand = tRise + RISE;
+const tPop = tLand - 6;
+const tInto = tLand + 30;
+const STEP = 6;
 
 const clampOpt = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
 const ios = Easing.bezier(0.32, 0.72, 0, 1);
@@ -99,23 +102,20 @@ export const PUSH_BOX = {x: 9, y: 52, w: 372, h: 86};
 const pad4 = (n: number) => String(n).padStart(4, '0');
 const lastOf = (id: string, fallback: number) => `${seqDir(id)}/f${pad4(framesOf(id, fallback) - 1)}.png`;
 
-// Las cuatro piezas nacen con resorte, una por palabra. Cuando se va el título, las de arriba bajan para dejar libre el
-// titular; con el teléfono ya quieto, cada una entra a su pantalla, una tras otra.
-const piece = (at: number, order: number, box: LiftDef['box'], to: {x: number; y: number; k: number; r: number}, src?: string, render?: LiftDef['render']): LiftDef => {
-  const into = tLand + 4 + order * 7;
-  const top = to.y < 600;
+// Las cuatro piezas nacen con resorte alrededor del teléfono (dos a cada lado, bajo el titular) y después vuelan a su
+// pantalla, en el mismo orden.
+const intoAt = (order: number) => tInto + order * STEP;
+const piece = (order: number, box: LiftDef['box'], to: {x: number; y: number; k: number; r: number}, src?: string, render?: LiftDef['render']): LiftDef => {
+  const into = intoAt(order);
   return {
-    at,
+    at: tPop + order * STEP,
     out: into + 7,
     box,
     src,
     render,
     from: {x: to.x, y: to.y + 40, k: to.k * 0.2, r: to.r - 10},
     to: {...to, rx: 6, ry: (to.x < 540 ? 1 : -1) * 10},
-    moves: [
-      ...(top ? [{at: tTitleOut + 4, to: {x: to.x < 540 ? 300 : 790, y: to.x < 540 ? 700 : 760, k: to.k * 0.92, r: to.r, rx: 6}}] : []),
-      {at: into, to: {x: 540, y: 1180, k: to.k * 0.3, r: 0}},
-    ],
+    moves: [{at: into, to: {x: 540, y: 1180, k: to.k * 0.3, r: 0}}],
     exit: 'pop',
     exitDur: 10,
     radius: 16,
@@ -127,11 +127,11 @@ const piece = (at: number, order: number, box: LiftDef['box'], to: {x: number; y
 };
 
 const PIECES: LiftDef[] = [
-  piece(beat('intro', 'app') + 7, 0, bx('qr', 'tarjetaQR', {x: 63, y: 266, w: 264, h: 264}), {x: 868, y: 318, k: 1.0, r: 6}, shot('qr')),
+  piece(0, bx('qr', 'tarjetaQR', {x: 63, y: 266, w: 264, h: 264}), {x: 880, y: 780, k: 1.0, r: 6}, shot('qr')),
+  piece(1, bx('seq-sello', 'sello', {x: 119, y: 211, w: 152, h: 152}), {x: 180, y: 920, k: 1.25, r: -7}, lastOf('seq-sello', 75)),
   // La fila se recorta antes del botón flotante de TibIA, que la tapa a la derecha.
-  piece(beat('intro', 'Congreso') - 2, 1, {...bx('programa', 'primeraFila', {x: 17, y: 630, w: 356, h: 110}), w: 296}, {x: 760, y: 1488, k: 1.6, r: 4}, shot('programa')),
-  piece(beat('intro', 'SCHOT') - 2, 2, bx('seq-sello', 'sello', {x: 119, y: 211, w: 152, h: 152}), {x: 178, y: 1452, k: 1.25, r: -7}, lastOf('seq-sello', 75)),
-  piece(beat('intro', '2026') + 4, 3, bx('intereses-2', 'chipRodilla', {x: 20, y: 499, w: 274, h: 44}), {x: 812, y: 1790, k: 1.3, r: 5}, shot('intereses-2')),
+  piece(2, {...bx('programa', 'primeraFila', {x: 17, y: 630, w: 356, h: 110}), w: 296}, {x: 770, y: 1500, k: 1.6, r: 4}, shot('programa')),
+  piece(3, bx('intereses-2', 'chipRodilla', {x: 20, y: 499, w: 274, h: 44}), {x: 290, y: 1720, k: 1.3, r: -5}, shot('intereses-2')),
 ];
 
 const Overlay: React.FC = () => <Headline lines={['Todo el congreso,', 'en tu *celular*']} at={tTodo - 4} out={sc.to - 21} />;
@@ -159,7 +159,7 @@ export const intro: SceneDef = {
     {name: 'whoosh-soft', at: tTitleOut, gain: 0.25},
     {name: 'whoosh-soft', at: tRise + 4, gain: 0.3},
     {name: 'boom', at: tLand - 4, gain: 0.28},
-    ...PIECES.map((d, i) => ({name: 'tick' as const, at: tLand + 4 + i * 7 + 6, gain: 0.12})),
+    ...PIECES.map((_d, i) => ({name: 'tick' as const, at: intoAt(i) + 6, gain: 0.12})),
     {name: 'swish', at: sc.to - 12, gain: 0.2},
   ],
 };
