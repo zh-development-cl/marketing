@@ -387,6 +387,9 @@ export const cierre: SceneDef = {
   screens: [
     {at: sc.from, render: (f) => <InstallFlow f={f} />, enter: 'fade', enterDur: 16, ink: 'dark'},
     {at: tHome, render: (f) => <HomeScreen f={f} />, enter: 'cut', ink: 'light'},
+    // La misma pantalla otra vez (el fundido entre dos iguales no se ve): solo para que la barra de estado pase a tinta
+    // oscura mientras la app crece desde el ícono y llega arriba, y no quede blanca sobre la app blanca.
+    {at: tOpen, render: (f) => <HomeScreen f={f} />, enter: 'fade', enterDur: OPEN_DUR, ink: 'dark'},
     // Al terminar de crecer desde el ícono queda la app abierta como app: a pantalla completa, sin la barra de Safari.
     {at: tOpen + OPEN_DUR, src: shot('programa'), enter: 'cut', ink: 'dark'},
   ],
