@@ -8,7 +8,7 @@ import {SceneDef, seqDir, shot} from './types';
 import {dipIn} from './Intro';
 
 // Escena 8 · expo. «En la expo» → la tarjeta del Pasaporte Virtual salta de los Auspiciadores;
-// «junta sellos» → se toca «Escanear sello» sobre la tarjeta flotante; sube la hoja real y el sello de AO Trauma cae
+// «junta sellos» → se toca «Escanear sello» sobre la tarjeta flotante; sube la hoja real y el sello (sin marca: el ícono del apretón de manos) cae
 // desde la cámara y se estampa (golpe leve y estallido); después salta el avance «13 de 35 sellos».
 // «y conecta con colegas escaneando su código» → «Mi código QR»: el QR salta girando y una línea de escaneo lo
 // recorre. Sale encogiéndose hacia el cierre.

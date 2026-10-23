@@ -3826,7 +3826,7 @@
   "full": "auspiciadores-full.png",
   "fullHeight": 5345,
   "route": "/auspiciadores",
-  "desc": "Pestaña Auspiciadores: «35 marcas · 35 dan sello · Sheraton y Enjoy», la tarjeta del Pasaporte Virtual (anillo 12 de 35, «Te faltan 23 para completarlo», «Escanear sello»), buscador, chips de sede y la primera marca grande (Arenysmed, Platinum) con sus logos reales.",
+  "desc": "Pestaña Auspiciadores: «35 marcas · 35 dan sello · Sheraton y Enjoy», la tarjeta del Pasaporte Virtual (anillo 12 de 35, «Te faltan 23 para completarlo», «Escanear sello»), buscador, chips de sede y la primera marca grande (Platinum). Sin logos ni nombres de empresas: todas las marcas se llaman «Auspiciador» y su logo es el ícono del apretón de manos de la pestaña.",
   "boxes": {
    "tarjetaPasaporte": {
     "x": 16,
@@ -3951,7 +3951,7 @@
     "h": 44
    }
   },
-  "notes": "Logos reales de producción (caché local de storage.googleapis.com). Se recorrió la página para cargar todos los logos antes de la full. tarjetaPasaporte = contenedor de la tarjeta; enlacePasaporte = el enlace que abre /pasaporte.",
+  "notes": "Recapturada el 23-10-2026 con los datos de producción anonimizados (api-anon: nombre «Auspiciador», sin descripción ni redes, logo neutro = ícono handshake de lucide en morado), porque no está claro que se puedan mostrar las marcas reales. Mismas cajas que la captura original.",
   "boxesCrudas": {
    "tarjetaPasaporte": {
     "x": 16,
@@ -6150,7 +6150,7 @@
   "frames": 75,
   "fps": 30,
   "route": "/pasaporte/sello/K7Q2X9?m=ao-trauma",
-  "desc": "Pantalla completa del sello (QR del stand leído con la cámara): «Sumando…» y la ceremonia «Sello agregado» de AO Trauma con su logo real en tinta: el sello cae, golpea con la onda, el anillo avanza de 12 a 13 de 35 y aparecen el stand con sello más cercano y los botones.",
+  "desc": "Pantalla completa del sello (QR del stand leído con la cámara): «Sumando tu sello…» y la ceremonia «Sello agregado»: el sello (ícono neutro del apretón de manos, en tinta) cae, golpea con la onda, el anillo avanza de 12 a 13 de 35 y aparecen el stand con sello más cercano («Auspiciador · Stand 1 · en este piso») y los botones. Sin logos ni nombres de empresas.",
   "viewport": {
    "w": 390,
    "h": 844
@@ -6240,7 +6240,7 @@
     "what": "el stand con sello más cercano y los botones (900–950 ms) y queda quieto"
    }
   ],
-  "notes": "POST /expo/passport/scan interceptado: {new:true, just_completed:false, passport: 13 de 35 (los 12 sellos del fixture + AO Trauma a las 10:20)}. Respuesta liberada en el cuadro 6. Reloj jue 19 10:20. Animaciones CSS de la ceremonia (con su --d por pieza) llevadas cuadro a cuadro. Se eligió AO Trauma (está en el pasaporte y no entre los 12 ya sellados; el logo de Trauma Express, que seguía en la lista, viene recortado: «RAUMATOLOGÍA»). Acciones: f6: respuesta de POST /expo/passport/scan liberada (pedidas: 1). Cajas del estado final; en los primeros cuadros de la ceremonia el sello está unos 20 px más arriba (el bloque se recentra a medida que entran el texto y el anillo).",
+  "notes": "Recapturada el 23-10-2026 con los datos anonimizados y sin «?m=» en la ruta (así la app dice «Sumando tu sello…» en vez del nombre de la marca). Misma animación y mismas cajas que la original (comparado cuadro a cuadro en el anillo y los botones). POST /expo/passport/scan interceptado: {new:true, just_completed:false, passport: 13 de 35}. Respuesta liberada en el cuadro 6. Reloj jue 19 10:20.",
   "statusBar": "inset",
   "end": "seq-sello-end.png",
   "firstFrame": "seq-sello/f0000.png"
