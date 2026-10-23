@@ -9,9 +9,10 @@ import {dipIn} from './Intro';
 import {CamCtx, LiftDef, liftState} from '../ui/Pop';
 import {SceneDef, shot} from './types';
 
-// Escena 2 · entrar. Llega con un latigazo desde la apertura. «No se descarga» → la insignia «Descargar la app» se
-// tacha; «se abre en el navegador» → la barra de Safari salta de la pantalla, la dirección se escribe en grande, se
-// toca «Ir» y vuelve a su lugar mientras carga el ingreso real; «entras con tu correo» → el campo del correo sale ya
+// Escena 2 · entrar. Llega con un cambio de escena tranquilo desde la apertura. «Se abre en el navegador» → la barra
+// de Safari salta de la pantalla, la dirección se escribe en grande, se toca «Ir» y vuelve a su lugar mientras carga el
+// ingreso real (antes decía «No se descarga» con «Descargar la app» tachado; Nicolás lo cambió el 23-10-2026 porque
+// contradecía el cierre, que enseña a agregarla a la pantalla de inicio); «entras con tu correo» → el campo del correo sale ya
 // escrito; «y un código» → llega el correo con el código (notificación de Gmail con el remitente, el asunto y la vista
 // previa reales del backend: «482915 es tu código para el Congreso SCHOT»), los seis casilleros salen de la pantalla y
 // cada dígito vuela desde el correo a su casillero; «Sin contraseñas» → insignia con estallido y adentro: «Hola,
@@ -20,12 +21,11 @@ const sc = scenes.abrir;
 const URL = 'app.congresoschot2026.com';
 
 const tIn = sc.from; // cambio de escena tranquilo (ver dipIn en Intro)
-const tBadge = beat('abrir', 'No') - 9; // se alcanza a leer antes de tacharse
-const tStrike = beat('abrir', 'descarga');
-const tBar = beat('abrir', 'se', 1) - 4; // la barra salta
+// La barra salta con «Se abre», cuando el teléfono ya terminó de asentarse.
+const tBar = Math.max(beat('abrir', 'abre') - 8, tIn + 22);
 const tType = tBar + 4;
 const tTyped = tType + 26;
-const tGo = Math.max(beat('abrir', 'navegador') - 1, tTyped + 3); // «Ir» sobre la barra flotante
+export const tGo = Math.max(beat('abrir', 'navegador') - 1, tTyped + 3); // «Ir» sobre la barra flotante: la app se abre y cae el drop de la música
 const tBarBack = tGo + 12;
 const BAR_BACK = 18;
 const tLoaded = tBarBack + 10; // carga el ingreso real bajo la barra que vuelve
@@ -33,7 +33,7 @@ const tBarCollapse = tBarBack + BAR_BACK + 1;
 const tTapMail = beat('abrir', 'entras') - 8;
 const tMail = beat('abrir', 'entras') - 5; // el campo salta
 const tMailTyped = beat('abrir', 'correo') - 4;
-const tMailBack = beat('abrir', 'correo') + 8;
+const tMailBack = beat('abrir', 'correo') + 14; // con la pausa tras «correo»: el campo escrito se alcanza a leer
 const tTapSend = tMailBack + 12;
 const tCode = tTapSend + 3;
 const CODE_PUSH = 14;
@@ -272,7 +272,7 @@ const BAR_TO = {x: 540, y: 1150, k: 2.7};
 
 const Overlay: React.FC = () => (
   <>
-    <Headline n="1" label="Entrar" lines={['Sin descargar', '*nada*']} at={sc.from - 2} out={sc.to - 21} />
+    <Headline n="1" label="Entrar" lines={['Entra con', 'tu *correo*']} at={sc.from - 2} out={sc.to - 21} />
     <CodeFlight />
   </>
 );
@@ -304,7 +304,6 @@ export const abrir: SceneDef = {
     {at: tTapStart - 8, dur: 14, pose: REST},
   ],
   badges: [
-    {at: tBadge, out: tBar - 6, x: 540, y: 1090, text: 'Descargar la app', icon: 'download', tone: 'white', size: 58, r: -4, strike: tStrike},
     {at: tSin, out: sc.to - 8, x: 540, y: 735, text: 'Sin contraseñas', icon: 'shield', tone: 'brand', size: 46, r: -2, gain: 0.3},
   ],
   bursts: [{at: tSin + 4, x: 540, y: 735, n: 16, r: 260, star: true}],
@@ -349,8 +348,6 @@ export const abrir: SceneDef = {
   ],
   Overlay,
   sfx: [
-    {name: 'click', at: tStrike, gain: 0.45},
-    {name: 'swish', at: tStrike + 1, gain: 0.25},
     ...Array.from({length: 7}, (_, i) => ({name: 'tick' as const, at: tType + 1 + i * 4, gain: 0.2})),
     {name: 'click', at: tGo, gain: 0.5},
     {name: 'click', at: tTapMail, gain: 0.35},

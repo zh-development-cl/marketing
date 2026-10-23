@@ -51,14 +51,14 @@ const scripts = {
   // Video demo de la app del 62º Congreso SCHOT (VO_SCRIPT=schot VO_SET=schot VO_JSON=src/schot/vo.json).
   schot: {
     intro: ['Esta es la app oficial del Congreso SCHOT 2026.', 'Todo el congreso, en tu celular.'],
-    abrir: ['No se descarga: se abre en el navegador,', 'y entras con tu correo y un código. Sin contraseñas.'],
+    abrir: ['Se abre en el navegador,', 'y entras con tu correo y un código. Sin contraseñas.'],
     itinerario: ['Cuéntale a TibIA qué te interesa,', 'y te arma una agenda sin charlas que se crucen.'],
     programa: ['En el programa ves lo que está pasando ahora,', 'por sede y por especialidad.'],
     charla: ['Agregas una charla con un toque,', 'y la app te lleva hasta la puerta de la sala.'],
     aviso: ['Además, te avisa diez minutos antes de que empiece.'],
     tibia: ['¿Una duda? Pregúntale a TibIA,', 'la asistente con inteligencia artificial', 'que conoce todo el congreso.'],
     expo: ['En la expo, junta sellos en los stands,', 'y conecta con colegas escaneando su código.'],
-    cierre: ['Entra a app.congresoschot2026.com', 'y agrégala a tu pantalla de inicio.'],
+    cierre: ['Entra a app.congresoschot2026.com', 'y agrégala a tu pantalla de inicio para usarla como una app.'],
   },
 };
 const SCRIPT = process.env.VO_SCRIPT || 'v5'; // versión del guion (VO_SET solo decide la carpeta de salida)
