@@ -82,7 +82,7 @@ tachada, titular «Entra con tu correo») y el cierre agrega «para usarla como 
 cd video
 VO_SCRIPT=schot VO_SET=schot VO_JSON=src/schot/vo.json VO_MODEL=eleven_v4 VO_TAG='' VO_STABILITY=0.5 \
 VO_TREBLE=0 VO_TEMPO=1 \
-VO_PAUSES='2026:0.6,navegador:0.7,correo:0.3,código:1.4,interesa:0.75,ahora:0.6,toque:0.65,duda:0.45,artificial:0.25,expo:0.25,stands:1.4,appcongresoshot2026com:0.6' \
+VO_PAUSES='2026:0.6,navegador:0.7,código:1.4,interesa:0.75,ahora:0.6,toque:0.65,duda:0.45,artificial:0.25,expo:0.25,stands:1.4,appcongresoshot2026com:0.6' \
 node scripts/voiceover-single.mjs 3mmJ2Z5SLZ9OkeZZcv5p
 ```
 
@@ -141,6 +141,14 @@ manifiestos (cajas de cada botón tocado) en `src/schot/shots.json`.
   corregido. Segunda ronda (sobre el render final, con audio): confirmó las correcciones y dejó detalles menores
   (parpadeo de la cápsula, la nota de Android sobre la app al abrirse, el ícono en un hueco de la grilla), también
   corregidos. Sin problemas de audio confirmados.
+- Escena 2 nueva (23-10-2026): revisión independiente enfocada (apertura y escena 2, sincronía del resto con la toma
+  nueva, audio medido). Corregido: la pausa de 0,3 s tras «correo» cortaba la voz encadenada («correo y») con dos
+  clics (se sacó; `voiceover-single.mjs` ahora corta en el tramo más silencioso, con fundidos, y avisa si cae en voz
+  encadenada); «para usarla como una app» no se veía escrito (va en la tarjeta final); el destello de «toque» tapaba
+  la palabra (va al final); el toque de «Ir» caía en el botón de recargar (ahora aparece la tecla «ir» azul de iOS);
+  doble imagen al entrar el código (corte directo al código completo); «Sin contraseñas» tapaba el sello de la
+  bienvenida (se va antes); el subtítulo dejaba «Sin» solo al final de una línea (espacio duro tras una palabra corta
+  que abre oración).
 - Voz de Oscar (23-10-2026): revisión independiente del video completo (sincronía voz–imagen y subtítulos en cada
   escena, cierre, mezcla medida) con verificador escéptico. Sin problemas de sincronía, subtítulos ni cierre; un
   hallazgo de audio confirmado (el compás repetido en la música empezaba a mitad de compás), corregido. Como solo

@@ -369,9 +369,12 @@ const Overlay: React.FC = () => {
         </div>
       </div>
       <StepLabel />
+      {/* En la tarjeta final, bajo «y agrégala a tu pantalla de inicio»: el resto de lo que dice la voz, para quien lo ve
+          sin sonido (en el cierre no hay subtítulos). */}
+      <div style={{position: 'absolute', left: 40, right: 40, top: 408, textAlign: 'center', zIndex: 50, opacity: end, transform: `translateY(${((1 - end) * 12).toFixed(1)}px)`, fontFamily: SANS, fontWeight: 600, fontSize: 44, color: '#fff'}}>para usarla como una app</div>
       {/* En la tarjeta final, donde estuvieron los pasos: la nota para Android, quieta y sin sonido. Antes aparecía junto
           al ícono, el momento más cargado, y quedaba sobre la app al abrirse. Se queda hasta el último cuadro. */}
-      <div style={{position: 'absolute', left: 0, right: 0, top: 430, display: 'flex', justifyContent: 'center', zIndex: 50, opacity: note, transform: `translateY(${((1 - note) * 12).toFixed(1)}px)`}}>
+      <div style={{position: 'absolute', left: 0, right: 0, top: 492, display: 'flex', justifyContent: 'center', zIndex: 50, opacity: note, transform: `translateY(${((1 - note) * 12).toFixed(1)}px)`}}>
         <div style={{display: 'flex', alignItems: 'center', gap: 14, padding: '10px 28px 10px 12px', borderRadius: 999, background: 'rgba(255,255,255,.12)', boxShadow: 'inset 0 0 0 1.5px rgba(255,255,255,.28)'}}>
           <span style={{width: 48, height: 48, borderRadius: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #8A00E6, #E6007E)'}}>
             <svg width={26} height={26} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">

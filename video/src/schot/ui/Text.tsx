@@ -151,7 +151,8 @@ export const Captions: React.FC<{top?: number; skip?: SceneKey[]; right?: (f: nu
             // Lo que aún no se dice queda legible (al 72 %): quien lo ve sin sonido lee adelantado.
             <span key={k} style={{opacity: 0.72 + 0.28 * lit}}>
               {w.text}
-              {k < c.words.length - 1 ? ' ' : ''}
+              {/* Una palabra corta que abre oración («Sin contraseñas») no queda sola al final de una línea. */}
+              {k < c.words.length - 1 ? (k > 0 && /[.?!:]$/.test(c.words[k - 1].text) && w.text.replace(/[^\p{L}]/gu, '').length <= 3 ? '\u00a0' : ' ') : ''}
             </span>
           );
         })}

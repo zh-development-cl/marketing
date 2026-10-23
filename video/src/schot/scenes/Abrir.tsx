@@ -55,6 +55,7 @@ const clampOpt = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
 const io = Easing.inOut(Easing.cubic);
 const pr = (f: number, a: number, d: number, e = io) => interpolate(f, [a, a + Math.max(1, d)], [0, 1], {...clampOpt, easing: e});
 const SF = '-apple-system, "SF Pro Text", "Barlow", system-ui, sans-serif';
+const IR_W = 36; // ancho de la tecla «ir» (pt)
 
 // Barra de direcciones de Safari (iOS 26: cápsula flotante) dibujada a escala k (px por pt) en una caja de 358 x 50 pt.
 const SafariBarView: React.FC<{f: number; k: number; col?: number}> = ({f, k, col = 0}) => {
@@ -71,10 +72,16 @@ const SafariBarView: React.FC<{f: number; k: number; col?: number}> = ({f, k, co
         {n ? (col > 0.5 ? URL.replace(/^app\./, '') : URL.slice(0, n)) : 'Buscar o escribir el sitio'}
         {caret ? <span style={{display: 'inline-block', width: 2 * k, height: 20 * k, background: '#A200FF', marginLeft: 1, verticalAlign: 'middle'}} /> : null}
       </span>
-      <svg width={(1 - col) * 18 * k} height={18 * k} viewBox="0 0 24 24" fill="none" stroke="#1C1224" strokeWidth="2.2" strokeLinecap="round" style={{opacity: 1 - col, flex: 'none'}}>
-        <path d="M20 12a8 8 0 1 1-2.3-5.6" />
-        <path d="M20 4v4h-4" />
-      </svg>
+      {f < tLoaded ? (
+        // Mientras se edita la dirección no está el botón de recargar: con la dirección escrita aparece la tecla «ir»
+        // azul del teclado de iOS, que es la que se toca.
+        <span style={{flex: 'none', width: IR_W * k, height: 30 * k, borderRadius: 9 * k, background: '#0A84FF', color: '#fff', fontFamily: SF, fontWeight: 600, fontSize: 15 * k, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: pr(f, tTyped - 4, 5) * (1 - pr(f, tGo + 6, 5)), transform: `scale(${(1 - 0.08 * (f >= tGo && f < tGo + 4 ? 1 : 0)).toFixed(3)})`}}>ir</span>
+      ) : (
+        <svg width={(1 - col) * 18 * k} height={18 * k} viewBox="0 0 24 24" fill="none" stroke="#1C1224" strokeWidth="2.2" strokeLinecap="round" style={{opacity: 1 - col, flex: 'none'}}>
+          <path d="M20 12a8 8 0 1 1-2.3-5.6" />
+          <path d="M20 4v4h-4" />
+        </svg>
+      )}
       {loading ? <div style={{position: 'absolute', left: 0, bottom: 0, height: 3 * k, width: `${(load * 100).toFixed(1)}%`, background: 'linear-gradient(90deg, #8A00E6, #E6007E)', borderRadius: 2}} /> : null}
     </div>
   );
@@ -283,7 +290,9 @@ export const abrir: SceneDef = {
     {at: tLoaded, render: (f) => <SafariPage f={f} id="login-1" />, enter: 'fade', enterDur: 8, ink: 'light'},
     {at: tMailBack + 8, src: shot('login-2'), enter: 'fade', enterDur: 4, ink: 'light'},
     {at: tCode, src: shot('login-3a'), enter: 'push', enterDur: CODE_PUSH, ink: 'light'},
-    ...digits.map((id, i) => ({at: digitAt(i), src: shot(id), enter: 'fade' as const, enterDur: i === digits.length - 1 ? 7 : 3, ink: 'light' as const})),
+    // El código completo aparece de una vez (corte), bajo la fila flotante que aterriza: un fundido entre capturas con
+    // la fila en otra altura dejaba una doble imagen.
+    {at: digitAt(digits.length - 1), src: shot('login-3g'), enter: 'cut', ink: 'light'},
     {at: tHome, src: shot('bienvenida'), enter: 'zoom', enterDur: 14, ink: 'light'},
   ],
   taps: [
@@ -291,7 +300,7 @@ export const abrir: SceneDef = {
     {at: tTapSend, ...center(send)},
     {at: tTapStart, ...center(comenzar)},
   ],
-  ctaps: [{at: tGo, x: BAR_TO.x + (358 / 2 - 25) * BAR_TO.k, y: BAR_TO.y, scale: 0.9}],
+  ctaps: [{at: tGo, x: BAR_TO.x + (358 / 2 - 16 - IR_W / 2) * BAR_TO.k, y: BAR_TO.y, scale: 0.9}], // sobre la tecla «ir»
   cam: [
     ...dipIn(tIn),
     {at: tBar, dur: 16, pose: RECEDE},
@@ -304,7 +313,8 @@ export const abrir: SceneDef = {
     {at: tTapStart - 8, dur: 14, pose: REST},
   ],
   badges: [
-    {at: tSin, out: sc.to - 8, x: 540, y: 735, text: 'Sin contraseñas', icon: 'shield', tone: 'brand', size: 46, r: -2, gain: 0.3},
+    // Se va cuando entra la bienvenida: no tapa el sello ni el encabezado de «Hola, Carolina».
+    {at: tSin, out: tHome - 4, x: 540, y: 735, text: 'Sin contraseñas', icon: 'shield', tone: 'brand', size: 46, r: -2, gain: 0.3},
   ],
   bursts: [{at: tSin + 4, x: 540, y: 735, n: 16, r: 260, star: true}],
   lifts: [

@@ -120,7 +120,7 @@ export const charla: SceneDef = {
     {name: 'click', at: tRow, gain: 0.4},
     {name: 'swish', at: tFicha, gain: 0.25},
     {name: 'click', at: tToque, gain: 0.5},
-    {name: 'sparkle', at: tToque + 2, gain: 0.35},
+    {name: 'sparkle', at: tToque + 8, gain: 0.35}, // al terminar «toque»: encima de la palabra tapaba sus consonantes
     {name: 'click', at: tComo, gain: 0.4},
     {name: 'swish', at: tRuta, gain: 0.25},
     {name: 'rise', at: tRouteStart, gain: 0.16},

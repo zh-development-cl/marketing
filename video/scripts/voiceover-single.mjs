@@ -181,14 +181,37 @@ fs.mkdirSync(outDir, {recursive: true});
 // ---------- 2. Palabras sobre el audio final ----------
 const heard = process.env.VO_DRY_RUN ? [] : await transcribe(master);
 // Pausas extra (de atrás hacia adelante, para que los tiempos de las anteriores sigan valiendo).
+// El corte va en el tramo de 10 ms más silencioso entre las dos palabras (el STT no marca bien dónde termina la voz) y
+// con fundidos cortos a cada lado del silencio: un corte seco en medio de la voz suena como un clic. Si ni el tramo
+// más silencioso lo es (habla encadenada, como «correo y»), se avisa: esa pausa conviene sacarla.
+const SR_PAUSE = 44100;
+const samples = (() => {
+  if (process.env.VO_DRY_RUN || !PAUSES.length) return new Float32Array(0);
+  const buf = execFileSync('ffmpeg', ['-v', 'error', '-i', master, '-ac', '1', '-ar', String(SR_PAUSE), '-f', 'f32le', '-'], {maxBuffer: 1 << 30});
+  return new Float32Array(buf.buffer, buf.byteOffset, Math.floor(buf.length / 4));
+})();
+const quietest = (t0, t1) => {
+  const n = Math.round(0.01 * SR_PAUSE);
+  let best = {at: (t0 + t1) / 2, db: Infinity};
+  for (let s0 = Math.max(0, Math.round(t0 * SR_PAUSE)); s0 + n <= Math.min(samples.length, Math.round(t1 * SR_PAUSE)); s0 += Math.round(n / 2)) {
+    let e = 0;
+    for (let j = s0; j < s0 + n; j++) e += samples[j] * samples[j];
+    const db = 10 * Math.log10(e / n + 1e-12);
+    if (db < best.db) best = {at: (s0 + n / 2) / SR_PAUSE, db};
+  }
+  return best;
+};
 const inserts = PAUSES.map(({word, sec}) => {
   const i = heard.findIndex((w) => strip(w.text) === strip(word));
   if (i < 0 || i + 1 >= heard.length) throw new Error(`VO_PAUSES: no encontré "${word}" en la toma (oído: ${heard.map((w) => w.text).join(' ')})`);
-  return {word, sec, at: (heard[i].end + heard[i + 1].start) / 2};
+  const q = quietest(heard[i].end - 0.05, heard[i + 1].start + 0.05);
+  if (q.db > -40) console.warn(`aviso: la pausa tras "${word}" cae en voz encadenada (${q.db.toFixed(0)} dBFS en el tramo más silencioso); escúchala o sácala`);
+  return {word, sec, at: q.at};
 }).sort((a, b) => b.at - a.at);
 for (const {word, sec, at} of inserts) {
   const padded = `${master}.pad.wav`;
-  ffmpeg(['-i', master, '-filter_complex', `[0:a]atrim=0:${at.toFixed(4)},asetpts=PTS-STARTPTS[a];anullsrc=r=44100:cl=mono,atrim=0:${sec}[z];[0:a]atrim=${at.toFixed(4)},asetpts=PTS-STARTPTS[b];[a][z][b]concat=n=3:v=0:a=1[o]`, '-map', '[o]', '-ar', '44100', '-ac', '1', '-c:a', 'pcm_s16le', padded]);
+  const fo = Math.min(0.03, at);
+  ffmpeg(['-i', master, '-filter_complex', `[0:a]atrim=0:${at.toFixed(4)},asetpts=PTS-STARTPTS,afade=t=out:st=${(at - fo).toFixed(4)}:d=${fo.toFixed(3)}[a];anullsrc=r=44100:cl=mono,atrim=0:${sec}[z];[0:a]atrim=${at.toFixed(4)},asetpts=PTS-STARTPTS,afade=t=in:d=0.015[b];[a][z][b]concat=n=3:v=0:a=1[o]`, '-map', '[o]', '-ar', '44100', '-ac', '1', '-c:a', 'pcm_s16le', padded]);
   fs.renameSync(padded, master);
   for (const w of heard) if (w.start >= at) { w.start += sec; w.end += sec; }
   console.log(`pausa +${sec} s tras "${word}" (en ${at.toFixed(2)} s)`);
