@@ -1,6 +1,6 @@
 # Video demo · App del 62º Congreso SCHOT
 
-Video vertical (1080x1920, 30 fps, ~84 s) para el lanzamiento de la web app oficial del 62º Congreso Chileno de
+Video vertical (1080x1920, 30 fps, ~85 s) para el lanzamiento de la web app oficial del 62º Congreso Chileno de
 Ortopedia y Traumatología (SCHOT, Viña del Mar, noviembre 2026). SCHOT lo envía a los asistentes al lanzar la app
 para que entiendan qué es, cómo se abre y qué pueden hacer. Mismo lenguaje que el reel de ZH
 (`docs/reels/01-que-es-zh.md`): composición continua, un solo teléfono que recorre todo el video con la app real
@@ -33,7 +33,7 @@ antes de que la voz los diga, y efectos y música más bajos bajo la voz. Pasó 
   asistencia con QR ni certificados (sin confirmar por SCHOT), panel de administración.
 - La URL que se comunica es **app.congresoschot2026.com** (congreso-schot.web.app se elimina).
 
-## Voz en off (una toma, voz «Alejandro – Corporate and Elegant» de ElevenLabs, eleven_v4)
+## Voz en off (una toma, voz «Oscar – Fluid pitch, easy to listen» de ElevenLabs, eleven_v4)
 
 La toma está en caché (`/tmp/zh-vo-raw`): cambiar velocidad o pausas no vuelve a generar la voz, solo la
 transcribe de nuevo. Las palabras de `VO_PAUSES` son las que oye el STT («2026», la URL sin puntos).
@@ -54,8 +54,14 @@ más usada en español) quedó con el mismo ritmo que «Juan Carlos» (+3 %), la
 más estable (temblor 0,16 vs 0,20 semitonos), menos artefactos (0,58 vs 0,73 picos/s), más dinámica, el timbre más
 cálido y sin «s» silbantes. Descartadas: «Alejandro Ballesteros» (14 % más rápido y sibilante), «Santiago» (sibilante)
 y «Enrique M. Nieto» (más rápido y menos melódico). Comparación para escuchar: `video/out/voces/`.
-Pendiente de Nicolás: confirmar la voz de oído, y decidir si se regenera la música (también se hizo con el plan
-gratuito; ver «Audio y render»).
+
+**Voz elegida por Nicolás (23-10-2026): «Oscar».** Le gustó la formalidad de «Santiago» pero le faltaba emoción. Se
+buscaron voces parecidas con la API de voces similares de ElevenLabs (`POST /v1/similar-voices`, con la toma de
+Santiago y la de Alejandro), se generó la misma muestra con 8 (más Santiago en modo «creativo») y se le pasaron 6 para
+escuchar (`video/out/voces/opciones/`). Eligió «Oscar – Fluid pitch, easy to listen» (`3mmJ2Z5SLZ9OkeZZcv5p`, latino
+adulto). En la toma completa es la más pausada (6,06 sílabas/s), la de mayor rango de entonación (14,1 semitonos),
+la de tono más estable (0,15) y la de menos artefactos (0,24 picos/s, un tercio de la anterior), sin «s» silbantes.
+Pendiente de Nicolás: decidir si se regenera la música (también se hizo con el plan gratuito; ver «Audio y render»).
 
 > Esta es la app oficial del Congreso SCHOT 2026. Todo el congreso, en tu celular.
 > No se descarga: se abre en el navegador, y entras con tu correo y un código. Sin contraseñas.
@@ -72,7 +78,7 @@ cd video
 VO_SCRIPT=schot VO_SET=schot VO_JSON=src/schot/vo.json VO_MODEL=eleven_v4 VO_TAG='' VO_STABILITY=0.5 \
 VO_TREBLE=0 VO_TEMPO=1 \
 VO_PAUSES='2026:0.6,navegador:0.7,código:1.4,interesa:0.75,ahora:0.6,toque:0.65,duda:0.45,artificial:0.25,expo:0.25,stands:1.4,appcongresoshot2026com:0.6' \
-node scripts/voiceover-single.mjs sDh3eviBhiuHKi0MjTNq
+node scripts/voiceover-single.mjs 3mmJ2Z5SLZ9OkeZZcv5p
 ```
 
 «SCHOT» se pronuncia «Schot» (verificado con Whisper: «Shot», también dentro de la URL). «QR» se evitó en la voz
@@ -146,8 +152,9 @@ manifiestos (cajas de cada botón tocado) en `src/schot/shots.json`.
   de ElevenLabs (US$0,15 por minuto) con un plan por secciones que pide bajo y batería hasta el final (plan en
   `video/scripts/schot-music-plan.json`). Edición: se recortan 8,64 s de la introducción para que el drop caiga a los
   8,5 s (se tacha «Descargar la app») y se repiten 2 compases exactos (4,284 s, corte en 22,68 s de la pista con
-  25 ms de fundido) y otros 4 compases (8,571 s, corte en 52,14 s) para cubrir la demostración de instalación; con la
-  voz nueva el drop cae en el tachado a los 8,37 s y la música se apaga sola al asentarse la tarjeta final (81,6 s).
+  25 ms de fundido), otros 4 compases (8,571 s, corte en 52,14 s) y 1 compás (2,143 s, en 69,0 s de la pista, el más
+  parecido a sí mismo de la parte final) para cubrir la demostración de instalación; con la voz de Oscar el drop cae
+  en el tachado a los 8,17 s y la música se apaga sola 2 s después de la tarjeta final (83,5 s).
   Licencia: la pista se generó cuando la cuenta estaba en el plan gratuito, que según ElevenLabs no da licencia
   comercial (la música del plan gratuito además exige atribución); para un video de cliente conviene regenerarla con
   la cuenta Starter (sería otra pista con el mismo plan, y habría que volver a editarla). Decisión pendiente de

@@ -1,5 +1,5 @@
 {
-  "voiceId": "sDh3eviBhiuHKi0MjTNq",
+  "voiceId": "3mmJ2Z5SLZ9OkeZZcv5p",
   "model": "eleven_v4",
   "tempo": 1,
   "take": "1",
@@ -59,12 +59,12 @@
   "scenes": {
     "intro": {
       "file": "vo-schot/intro.wav",
-      "duration": 6.53,
+      "duration": 6.32,
       "captions": [
         {
           "text": "Esta es la app oficial del Congreso SCHOT 2026.",
           "start": 0.08,
-          "end": 3.48,
+          "end": 3.5,
           "words": [
             {
               "text": "Esta",
@@ -78,8 +78,8 @@
             },
             {
               "text": "la",
-              "start": 0.52,
-              "end": 0.62
+              "start": 0.54,
+              "end": 0.64
             },
             {
               "text": "app",
@@ -89,64 +89,64 @@
             {
               "text": "oficial",
               "start": 0.84,
-              "end": 1.28
+              "end": 1.3
             },
             {
               "text": "del",
-              "start": 1.32,
-              "end": 1.42
+              "start": 1.34,
+              "end": 1.44
             },
             {
               "text": "Congreso",
-              "start": 1.5,
-              "end": 1.92
+              "start": 1.52,
+              "end": 1.98
             },
             {
               "text": "SCHOT",
-              "start": 2.04,
-              "end": 2.26
+              "start": 2.12,
+              "end": 2.34
             },
             {
               "text": "2026.",
-              "start": 2.56,
-              "end": 3.48
+              "start": 2.64,
+              "end": 3.5
             }
           ]
         },
         {
           "text": "Todo el congreso, en tu celular.",
-          "start": 4.54,
-          "end": 6.53,
+          "start": 4.46,
+          "end": 6.32,
           "words": [
             {
               "text": "Todo",
-              "start": 4.54,
-              "end": 4.74
+              "start": 4.46,
+              "end": 4.68
             },
             {
               "text": "el",
-              "start": 4.78,
-              "end": 4.84
+              "start": 4.7,
+              "end": 4.76
             },
             {
               "text": "congreso,",
-              "start": 4.9,
-              "end": 5.42
+              "start": 4.82,
+              "end": 5.46
             },
             {
               "text": "en",
-              "start": 5.72,
-              "end": 5.8
+              "start": 5.52,
+              "end": 5.6
             },
             {
               "text": "tu",
-              "start": 5.86,
-              "end": 5.92
+              "start": 5.66,
+              "end": 5.72
             },
             {
               "text": "celular.",
-              "start": 6,
-              "end": 6.53
+              "start": 5.78,
+              "end": 6.32
             }
           ]
         }
@@ -154,109 +154,109 @@
     },
     "abrir": {
       "file": "vo-schot/abrir.wav",
-      "duration": 8.14,
+      "duration": 8.05,
       "captions": [
         {
           "text": "No se descarga: se abre en el navegador,",
           "start": 0.12,
-          "end": 2.42,
+          "end": 2.38,
           "words": [
             {
               "text": "No",
               "start": 0.12,
-              "end": 0.2
+              "end": 0.18
             },
             {
               "text": "se",
-              "start": 0.28,
-              "end": 0.36
+              "start": 0.26,
+              "end": 0.34
             },
             {
               "text": "descarga:",
               "start": 0.38,
-              "end": 0.88
+              "end": 0.84
             },
             {
               "text": "se",
-              "start": 1.26,
-              "end": 1.36
+              "start": 1.18,
+              "end": 1.3
             },
             {
               "text": "abre",
-              "start": 1.46,
-              "end": 1.64
+              "start": 1.4,
+              "end": 1.58
             },
             {
               "text": "en",
-              "start": 1.68,
-              "end": 1.76
+              "start": 1.62,
+              "end": 1.7
             },
             {
               "text": "el",
-              "start": 1.8,
-              "end": 1.86
+              "start": 1.74,
+              "end": 1.82
             },
             {
               "text": "navegador,",
-              "start": 1.9,
-              "end": 2.42
+              "start": 1.86,
+              "end": 2.38
             }
           ]
         },
         {
           "text": "y entras con tu correo y un código. Sin contraseñas.",
-          "start": 3.42,
-          "end": 8.14,
+          "start": 3.34,
+          "end": 8.05,
           "words": [
             {
               "text": "y",
-              "start": 3.42,
-              "end": 3.46
+              "start": 3.34,
+              "end": 3.38
             },
             {
               "text": "entras",
-              "start": 3.56,
-              "end": 3.86
+              "start": 3.46,
+              "end": 3.78
             },
             {
               "text": "con",
-              "start": 3.88,
-              "end": 3.98
+              "start": 3.82,
+              "end": 3.92
             },
             {
               "text": "tu",
-              "start": 4.04,
-              "end": 4.08
+              "start": 3.98,
+              "end": 4.04
             },
             {
               "text": "correo",
-              "start": 4.16,
-              "end": 4.62
+              "start": 4.12,
+              "end": 4.48
             },
             {
               "text": "y",
-              "start": 4.66,
-              "end": 4.72
+              "start": 4.62,
+              "end": 4.66
             },
             {
               "text": "un",
-              "start": 4.78,
-              "end": 4.9
+              "start": 4.74,
+              "end": 4.86
             },
             {
               "text": "código.",
-              "start": 4.94,
-              "end": 5.32
+              "start": 4.9,
+              "end": 5.22
             },
             {
               "text": "Sin",
-              "start": 7.12,
-              "end": 7.28
+              "start": 7,
+              "end": 7.18
             },
             {
               "text": "contraseñas.",
-              "start": 7.32,
-              "end": 8.14
+              "start": 7.26,
+              "end": 8.05
             }
           ]
         }
@@ -264,12 +264,12 @@
     },
     "itinerario": {
       "file": "vo-schot/itinerario.wav",
-      "duration": 5.14,
+      "duration": 5.31,
       "captions": [
         {
           "text": "Cuéntale a TibIA qué te interesa,",
           "start": 0.12,
-          "end": 1.7,
+          "end": 1.74,
           "words": [
             {
               "text": "Cuéntale",
@@ -278,8 +278,8 @@
             },
             {
               "text": "a",
-              "start": 0.48,
-              "end": 0.56
+              "start": 0.46,
+              "end": 0.5
             },
             {
               "text": "TibIA",
@@ -288,75 +288,75 @@
             },
             {
               "text": "qué",
-              "start": 0.98,
-              "end": 1.08
+              "start": 1,
+              "end": 1.1
             },
             {
               "text": "te",
-              "start": 1.14,
-              "end": 1.18
+              "start": 1.18,
+              "end": 1.24
             },
             {
               "text": "interesa,",
-              "start": 1.2,
-              "end": 1.7
+              "start": 1.26,
+              "end": 1.74
             }
           ]
         },
         {
           "text": "y te arma una agenda sin charlas que se crucen.",
-          "start": 2.69,
-          "end": 5.14,
+          "start": 2.71,
+          "end": 5.31,
           "words": [
             {
               "text": "y",
-              "start": 2.69,
+              "start": 2.71,
               "end": 2.73
             },
             {
               "text": "te",
-              "start": 2.79,
-              "end": 2.87
+              "start": 2.83,
+              "end": 2.91
             },
             {
               "text": "arma",
-              "start": 2.93,
-              "end": 3.15
+              "start": 2.97,
+              "end": 3.19
             },
             {
               "text": "una",
-              "start": 3.19,
-              "end": 3.33
+              "start": 3.25,
+              "end": 3.37
             },
             {
               "text": "agenda",
-              "start": 3.35,
-              "end": 3.79
+              "start": 3.41,
+              "end": 3.89
             },
             {
               "text": "sin",
-              "start": 3.83,
-              "end": 3.97
+              "start": 3.97,
+              "end": 4.13
             },
             {
               "text": "charlas",
-              "start": 4.05,
-              "end": 4.39
+              "start": 4.23,
+              "end": 4.61
             },
             {
               "text": "que",
-              "start": 4.45,
-              "end": 4.53
+              "start": 4.669,
+              "end": 4.77
             },
             {
               "text": "se",
-              "start": 4.55,
-              "end": 4.67
+              "start": 4.79,
+              "end": 4.849
             },
             {
               "text": "crucen.",
-              "start": 4.69,
-              "end": 5.14
+              "start": 4.93,
+              "end": 5.31
             }
           ]
         }
@@ -364,12 +364,12 @@
     },
     "programa": {
       "file": "vo-schot/programa.wav",
-      "duration": 4.78,
+      "duration": 4.91,
       "captions": [
         {
           "text": "En el programa ves lo que está pasando ahora,",
           "start": 0.12,
-          "end": 2.32,
+          "end": 2.48,
           "words": [
             {
               "text": "En",
@@ -378,75 +378,75 @@
             },
             {
               "text": "el",
-              "start": 0.2,
-              "end": 0.32
+              "start": 0.22,
+              "end": 0.28
             },
             {
               "text": "programa",
-              "start": 0.34,
-              "end": 0.78
+              "start": 0.36,
+              "end": 0.8
             },
             {
               "text": "ves",
-              "start": 0.94,
-              "end": 1.1
+              "start": 1,
+              "end": 1.16
             },
             {
               "text": "lo",
-              "start": 1.12,
-              "end": 1.18
+              "start": 1.22,
+              "end": 1.26
             },
             {
               "text": "que",
-              "start": 1.26,
-              "end": 1.32
+              "start": 1.34,
+              "end": 1.42
             },
             {
               "text": "está",
-              "start": 1.36,
-              "end": 1.6
+              "start": 1.46,
+              "end": 1.74
             },
             {
               "text": "pasando",
-              "start": 1.62,
-              "end": 1.98
+              "start": 1.78,
+              "end": 2.16
             },
             {
               "text": "ahora,",
-              "start": 2.04,
-              "end": 2.32
+              "start": 2.22,
+              "end": 2.48
             }
           ]
         },
         {
           "text": "por sede y por especialidad.",
-          "start": 3.18,
-          "end": 4.78,
+          "start": 3.32,
+          "end": 4.91,
           "words": [
             {
               "text": "por",
-              "start": 3.18,
-              "end": 3.28
+              "start": 3.32,
+              "end": 3.42
             },
             {
               "text": "sede",
-              "start": 3.38,
-              "end": 3.74
+              "start": 3.52,
+              "end": 3.9
             },
             {
               "text": "y",
-              "start": 3.78,
-              "end": 3.88
+              "start": 3.94,
+              "end": 3.98
             },
             {
               "text": "por",
-              "start": 3.9,
-              "end": 4
+              "start": 4.08,
+              "end": 4.16
             },
             {
               "text": "especialidad.",
-              "start": 4.04,
-              "end": 4.78
+              "start": 4.2,
+              "end": 4.91
             }
           ]
         }
@@ -454,104 +454,104 @@
     },
     "charla": {
       "file": "vo-schot/charla.wav",
-      "duration": 4.77,
+      "duration": 5.03,
       "captions": [
         {
           "text": "Agregas una charla con un toque,",
           "start": 0.12,
-          "end": 1.72,
+          "end": 1.9,
           "words": [
             {
               "text": "Agregas",
               "start": 0.12,
-              "end": 0.48
+              "end": 0.5
             },
             {
               "text": "una",
-              "start": 0.54,
-              "end": 0.7
+              "start": 0.56,
+              "end": 0.68
             },
             {
               "text": "charla",
-              "start": 0.72,
-              "end": 1
+              "start": 0.76,
+              "end": 1.16
             },
             {
               "text": "con",
-              "start": 1.08,
-              "end": 1.2
+              "start": 1.2,
+              "end": 1.34
             },
             {
               "text": "un",
-              "start": 1.24,
-              "end": 1.32
+              "start": 1.4,
+              "end": 1.48
             },
             {
               "text": "toque,",
-              "start": 1.4,
-              "end": 1.72
+              "start": 1.6,
+              "end": 1.9
             }
           ]
         },
         {
           "text": "y la app te lleva hasta la puerta de la sala.",
-          "start": 2.63,
-          "end": 4.77,
+          "start": 2.77,
+          "end": 5.03,
           "words": [
             {
               "text": "y",
-              "start": 2.63,
-              "end": 2.67
-            },
-            {
-              "text": "la",
-              "start": 2.73,
+              "start": 2.77,
               "end": 2.83
             },
             {
+              "text": "la",
+              "start": 2.89,
+              "end": 2.99
+            },
+            {
               "text": "app",
-              "start": 2.85,
-              "end": 3.03
+              "start": 3.01,
+              "end": 3.19
             },
             {
               "text": "te",
-              "start": 3.13,
-              "end": 3.21
+              "start": 3.27,
+              "end": 3.37
             },
             {
               "text": "lleva",
-              "start": 3.25,
-              "end": 3.49
+              "start": 3.43,
+              "end": 3.69
             },
             {
               "text": "hasta",
-              "start": 3.51,
-              "end": 3.71
+              "start": 3.73,
+              "end": 3.97
             },
             {
               "text": "la",
-              "start": 3.75,
-              "end": 3.81
+              "start": 4.01,
+              "end": 4.07
             },
             {
               "text": "puerta",
-              "start": 3.91,
-              "end": 4.21
+              "start": 4.19,
+              "end": 4.49
             },
             {
               "text": "de",
-              "start": 4.25,
-              "end": 4.29
+              "start": 4.53,
+              "end": 4.59
             },
             {
               "text": "la",
-              "start": 4.33,
-              "end": 4.37
+              "start": 4.63,
+              "end": 4.67
             },
             {
               "text": "sala.",
-              "start": 4.47,
-              "end": 4.77
+              "start": 4.77,
+              "end": 5.03
             }
           ]
         }
@@ -559,57 +559,57 @@
     },
     "aviso": {
       "file": "vo-schot/aviso.wav",
-      "duration": 2.93,
+      "duration": 2.96,
       "captions": [
         {
           "text": "Además, te avisa diez minutos antes de que empiece.",
           "start": 0.12,
-          "end": 2.93,
+          "end": 2.96,
           "words": [
             {
               "text": "Además,",
               "start": 0.12,
-              "end": 0.52
+              "end": 0.5
             },
             {
               "text": "te",
-              "start": 0.72,
-              "end": 0.76
+              "start": 0.68,
+              "end": 0.74
             },
             {
               "text": "avisa",
-              "start": 0.8,
-              "end": 1.1
+              "start": 0.78,
+              "end": 1.08
             },
             {
               "text": "diez",
-              "start": 1.22,
-              "end": 1.44
+              "start": 1.24,
+              "end": 1.48
             },
             {
               "text": "minutos",
-              "start": 1.48,
-              "end": 1.88
+              "start": 1.52,
+              "end": 1.96
             },
             {
               "text": "antes",
-              "start": 1.96,
-              "end": 2.2
-            },
-            {
-              "text": "de",
-              "start": 2.22,
+              "start": 2.04,
               "end": 2.28
             },
             {
+              "text": "de",
+              "start": 2.32,
+              "end": 2.38
+            },
+            {
               "text": "que",
-              "start": 2.34,
-              "end": 2.4
+              "start": 2.44,
+              "end": 2.5
             },
             {
               "text": "empiece.",
-              "start": 2.42,
-              "end": 2.93
+              "start": 2.54,
+              "end": 2.96
             }
           ]
         }
@@ -617,12 +617,12 @@
     },
     "tibia": {
       "file": "vo-schot/tibia.wav",
-      "duration": 6.46,
+      "duration": 6.6,
       "captions": [
         {
           "text": "¿Una duda? Pregúntale a TibIA,",
           "start": 0.12,
-          "end": 2.29,
+          "end": 2.21,
           "words": [
             {
               "text": "¿Una",
@@ -636,82 +636,82 @@
             },
             {
               "text": "Pregúntale",
-              "start": 1.39,
-              "end": 1.83
+              "start": 1.35,
+              "end": 1.77
             },
             {
               "text": "a",
-              "start": 1.85,
-              "end": 1.93
+              "start": 1.81,
+              "end": 1.83
             },
             {
               "text": "TibIA,",
-              "start": 1.95,
-              "end": 2.29
+              "start": 1.91,
+              "end": 2.21
             }
           ]
         },
         {
           "text": "la asistente con inteligencia artificial",
-          "start": 2.59,
-          "end": 4.55,
+          "start": 2.53,
+          "end": 4.67,
           "words": [
             {
               "text": "la",
-              "start": 2.59,
-              "end": 2.65
+              "start": 2.53,
+              "end": 2.59
             },
             {
               "text": "asistente",
-              "start": 2.69,
-              "end": 3.17
+              "start": 2.65,
+              "end": 3.19
             },
             {
               "text": "con",
-              "start": 3.25,
-              "end": 3.35
+              "start": 3.27,
+              "end": 3.37
             },
             {
               "text": "inteligencia",
-              "start": 3.39,
-              "end": 3.97
+              "start": 3.41,
+              "end": 4.01
             },
             {
               "text": "artificial",
-              "start": 4.01,
-              "end": 4.55
+              "start": 4.05,
+              "end": 4.67
             }
           ]
         },
         {
           "text": "que conoce todo el congreso.",
-          "start": 4.88,
-          "end": 6.46,
+          "start": 4.94,
+          "end": 6.6,
           "words": [
             {
               "text": "que",
-              "start": 4.88,
-              "end": 4.98
+              "start": 4.94,
+              "end": 5.06
             },
             {
               "text": "conoce",
-              "start": 5.02,
+              "start": 5.1,
               "end": 5.5
             },
             {
               "text": "todo",
-              "start": 5.54,
-              "end": 5.76
+              "start": 5.74,
+              "end": 5.96
             },
             {
               "text": "el",
-              "start": 5.8,
-              "end": 5.88
+              "start": 6,
+              "end": 6.08
             },
             {
               "text": "congreso.",
-              "start": 5.9,
-              "end": 6.46
+              "start": 6.12,
+              "end": 6.6
             }
           ]
         }
@@ -719,12 +719,12 @@
     },
     "expo": {
       "file": "vo-schot/expo.wav",
-      "duration": 6.59,
+      "duration": 6.48,
       "captions": [
         {
           "text": "En la expo, junta sellos en los stands,",
           "start": 0.12,
-          "end": 2.59,
+          "end": 2.67,
           "words": [
             {
               "text": "En",
@@ -739,74 +739,74 @@
             {
               "text": "expo,",
               "start": 0.4,
-              "end": 0.68
+              "end": 0.7
             },
             {
               "text": "junta",
-              "start": 1.19,
-              "end": 1.51
+              "start": 1.17,
+              "end": 1.45
             },
             {
               "text": "sellos",
               "start": 1.55,
-              "end": 1.83
+              "end": 1.87
             },
             {
               "text": "en",
-              "start": 1.87,
-              "end": 1.95
+              "start": 1.91,
+              "end": 1.97
             },
             {
               "text": "los",
-              "start": 1.97,
-              "end": 2.09
+              "start": 2.01,
+              "end": 2.11
             },
             {
               "text": "stands,",
-              "start": 2.25,
-              "end": 2.59
+              "start": 2.29,
+              "end": 2.67
             }
           ]
         },
         {
           "text": "y conecta con colegas escaneando su código.",
-          "start": 4.21,
-          "end": 6.59,
+          "start": 4.11,
+          "end": 6.48,
           "words": [
             {
               "text": "y",
-              "start": 4.21,
-              "end": 4.29
+              "start": 4.11,
+              "end": 4.13
             },
             {
               "text": "conecta",
-              "start": 4.31,
-              "end": 4.71
+              "start": 4.23,
+              "end": 4.63
             },
             {
               "text": "con",
-              "start": 4.73,
-              "end": 4.89
+              "start": 4.65,
+              "end": 4.77
             },
             {
               "text": "colegas",
-              "start": 4.91,
-              "end": 5.33
+              "start": 4.83,
+              "end": 5.29
             },
             {
               "text": "escaneando",
-              "start": 5.41,
-              "end": 5.97
+              "start": 5.35,
+              "end": 5.87
             },
             {
               "text": "su",
-              "start": 6.01,
-              "end": 6.13
+              "start": 5.95,
+              "end": 6.01
             },
             {
               "text": "código.",
-              "start": 6.17,
-              "end": 6.59
+              "start": 6.11,
+              "end": 6.48
             }
           ]
         }
@@ -814,69 +814,69 @@
     },
     "cierre": {
       "file": "vo-schot/cierre.wav",
-      "duration": 6.32,
+      "duration": 6.62,
       "captions": [
         {
           "text": "Entra a app.congresoschot2026.com",
           "start": 0.12,
-          "end": 3.66,
+          "end": 3.86,
           "words": [
             {
               "text": "Entra",
               "start": 0.12,
-              "end": 0.4
+              "end": 0.46
             },
             {
               "text": "a",
-              "start": 0.42,
+              "start": 0.54,
               "end": 0.6
             },
             {
               "text": "app.congresoschot2026.com",
-              "start": 0.72,
-              "end": 3.66
+              "start": 0.84,
+              "end": 3.86
             }
           ]
         },
         {
           "text": "y agrégala a tu pantalla de inicio.",
-          "start": 4.48,
-          "end": 6.32,
+          "start": 4.78,
+          "end": 6.62,
           "words": [
             {
               "text": "y",
-              "start": 4.48,
-              "end": 4.52
+              "start": 4.78,
+              "end": 4.82
             },
             {
               "text": "agrégala",
-              "start": 4.6,
-              "end": 5.02
+              "start": 4.9,
+              "end": 5.38
             },
             {
               "text": "a",
-              "start": 5.06,
-              "end": 5.1
+              "start": 5.4,
+              "end": 5.44
             },
             {
               "text": "tu",
-              "start": 5.16,
-              "end": 5.22
+              "start": 5.5,
+              "end": 5.58
             },
             {
               "text": "pantalla",
-              "start": 5.3,
-              "end": 5.74
+              "start": 5.66,
+              "end": 6.1
             },
             {
               "text": "de",
-              "start": 5.78,
-              "end": 5.84
+              "start": 6.14,
+              "end": 6.2
             },
             {
               "text": "inicio.",
-              "start": 5.9,
-              "end": 6.32
+              "start": 6.24,
+              "end": 6.62
             }
           ]
         }
