@@ -35,11 +35,11 @@ const T = {
   agregar: tGuide + 282, // toque en «Agregar»
 };
 const tHome = T.agregar + 8; // Safari se cierra encogiéndose y queda la pantalla de inicio, como en iOS
-const CLOSE_DUR = 16;
+const CLOSE_DUR = 18;
 const tIcon = tHome + 44; // el ícono aparece cuando la cámara ya terminó de acercarse
 const tTapIcon = tIcon + 44; // se lee la etiqueta y se ve el ícono quieto antes del toque
 const tOpen = tTapIcon + 4; // la app se abre creciendo desde el ícono, sin la barra de Safari
-const OPEN_DUR = 16;
+const OPEN_DUR = 18;
 const tEndCard = tOpen + 40; // la app abierta se alcanza a ver
 // La etiqueta de arriba: un solo texto que cambia con cada paso (los de la guía de la app).
 const LABELS: Array<{at: number; n?: number; text: string}> = [
@@ -55,6 +55,8 @@ const PHONE_POSE = {...REST, y: 1330, s: 0.86};
 const clampOpt = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
 const ios = Easing.bezier(0.32, 0.72, 0, 1);
 const io = Easing.inOut(Easing.cubic);
+// Cierre y apertura de la app: arranque suave y llegada larga (la curva de iOS arranca de golpe y se ve como un salto).
+const smooth = Easing.bezier(0.45, 0, 0.12, 1);
 const pr = (f: number, a: number, d: number, e = ios) => interpolate(f, [a, a + d], [0, 1], {...clampOpt, easing: e});
 const SANS = '"Barlow", system-ui, sans-serif';
 
@@ -239,10 +241,12 @@ const HomeScreen: React.FC<{f: number}> = ({f}) => {
   // Toque en el ícono: se hunde y se oscurece un instante, como en iOS.
   const press = pr(f, tTapIcon - 1, 3, io) * (1 - pr(f, tTapIcon + 3, 5, io));
   // Safari se cierra: la página se encoge hacia abajo y se apaga; la pantalla de inicio se asienta (de 1,06 a 1).
-  const close = pr(f, tHome, CLOSE_DUR);
+  const close = pr(f, tHome, CLOSE_DUR, smooth);
   const home = 1.06 - 0.06 * close;
-  // La app se abre: un rectángulo crece desde el ícono hasta la pantalla completa, con la app adentro.
-  const open = pr(f, tOpen, OPEN_DUR);
+  // La app se abre: un rectángulo opaco crece desde el ícono hasta la pantalla completa, con la app adentro; el ícono
+  // queda encima al principio y se funde en la app (según el avance, no por cuadros: nunca se ve a través).
+  const open = pr(f, tOpen, OPEN_DUR, smooth);
+  const iconFade = interpolate(open, [0.12, 0.42], [1, 0], {...clampOpt, easing: io});
   const tile = (key: string, x: number, y: number, k: number) => (
     <div
       key={key}
@@ -296,14 +300,14 @@ const HomeScreen: React.FC<{f: number}> = ({f}) => {
         </div>
       </div>
       {close < 1 ? (
-        <div style={{position: 'absolute', inset: 0, overflow: 'hidden', transform: `scale(${(1 - 0.84 * close).toFixed(4)})`, transformOrigin: '50% 92%', borderRadius: 60 * close * PT, opacity: 1 - pr(f, tHome + CLOSE_DUR * 0.5, CLOSE_DUR * 0.5, io), boxShadow: '0 20px 60px rgba(10,10,40,.4)'}}>
+        <div style={{position: 'absolute', inset: 0, overflow: 'hidden', transform: `scale(${(1 - 0.84 * close).toFixed(4)})`, transformOrigin: '50% 92%', borderRadius: 60 * close * PT, opacity: 1 - interpolate(close, [0.5, 1], [0, 1], {...clampOpt, easing: io}), boxShadow: '0 20px 60px rgba(10,10,40,.4)'}}>
           <InstallFlow f={f} />
         </div>
       ) : null}
       {f >= tOpen ? (
-        <div style={{position: 'absolute', left: ox * PT, top: oy * PT, width: ow * PT, height: oh * PT, overflow: 'hidden', borderRadius: interpolate(open, [0, 1], [15, 0]) * PT, boxShadow: '0 20px 60px rgba(10,10,40,.4)'}}>
-          <Img src={staticFile(shot('programa'))} style={{position: 'absolute', left: 0, top: 0, width: '100%', height: (844 / 390) * ow * PT, opacity: pr(f, tOpen + 2, 5, io)}} />
-          {open < 0.5 ? <Img src={staticFile('schot/brand/apple-touch-icon.png')} style={{position: 'absolute', left: 0, top: 0, width: ow * PT, height: ow * PT, opacity: 1 - pr(f, tOpen + 2, 5, io)}} /> : null}
+        <div style={{position: 'absolute', left: ox * PT, top: oy * PT, width: ow * PT, height: oh * PT, overflow: 'hidden', borderRadius: interpolate(open, [0, 1], [15, 0]) * PT, background: '#F9F6FC', boxShadow: '0 20px 60px rgba(10,10,40,.4)'}}>
+          <Img src={staticFile(shot('programa'))} style={{position: 'absolute', left: 0, top: 0, width: '100%', height: (844 / 390) * ow * PT}} />
+          {iconFade > 0.001 ? <Img src={staticFile('schot/brand/apple-touch-icon.png')} style={{position: 'absolute', left: 0, top: 0, width: ow * PT, height: ow * PT, opacity: iconFade}} /> : null}
         </div>
       ) : null}
     </div>
@@ -398,7 +402,7 @@ export const cierre: SceneDef = {
     // El teléfono se acerca cuando ya se escribió la dirección y queda quieto antes del primer paso.
     {at: tGuide - 24, dur: 24, pose: FLOW},
     // En la pantalla de inicio, cuando Safari ya se cerró, la cámara se acerca despacio al lugar del ícono nuevo.
-    {at: tHome + CLOSE_DUR - 4, dur: 36, pose: ICON_POSE, blur: 0.3},
+    {at: tHome + 12, dur: 36, pose: ICON_POSE, blur: 0.3},
     // Con la app ya abierta, el teléfono se aleja hasta la pose de la tarjeta final.
     {at: tOpen + OPEN_DUR + 2, dur: 40, pose: END_POSE, blur: 0.3},
   ],
