@@ -7,11 +7,12 @@ import {Headline} from '../ui/Text';
 import type {LiftDef} from '../ui/Pop';
 import {SceneDef, seqDir, shot} from './types';
 
-// Escena 1 · apertura. El cuadro 0 ya es la portada (WhatsApp lo usa de miniatura): sello de SCHOT con su luz,
-// «App oficial» en una píldora blanca, «62º Congreso SCHOT» y dos piezas de la app ya flotando. Mientras la voz dice «Esta es la app oficial del Congreso SCHOT 2026», piezas reales de la
-// app saltan alrededor del título, una por palabra (el aviso, el QR, una charla del programa, un sello de la expo,
-// la respuesta de TibIA, un interés). En «Todo el congreso» el título se va hacia la cámara, las piezas vuelan hacia
-// el centro y el teléfono sube inclinado desde abajo con el Programa real: todo eso cabe en el celular.
+// Escena 1 · apertura. El cuadro 0 ya es la portada (WhatsApp lo usa de miniatura) y queda limpia, sin piezas
+// flotando (lo pidió Nicolás): sello de SCHOT con su luz, «App oficial» en una píldora blanca y «62º Congreso SCHOT».
+// Mientras la voz dice «Esta es la app oficial del Congreso SCHOT 2026», piezas reales de la app saltan alrededor del
+// título, una por palabra (el QR, una charla del programa, un sello de la expo, un interés). En «Todo el congreso» el
+// título se va hacia la cámara, las piezas vuelan hacia el centro y el teléfono sube inclinado desde abajo con el
+// Programa real: todo eso cabe en el celular.
 const sc = scenes.intro;
 const tSeal = -30;
 const tEyebrow = -20;
@@ -98,9 +99,8 @@ export const PUSH_BOX = {x: 9, y: 52, w: 372, h: 86};
 const pad4 = (n: number) => String(n).padStart(4, '0');
 const lastOf = (id: string, fallback: number) => `${seqDir(id)}/f${pad4(framesOf(id, fallback) - 1)}.png`;
 
-// Las seis piezas: dos ya están en la portada (el cuadro 0 muestra que es una app), las demás nacen con resorte, una
-// por palabra. Cuando se va el título, las de arriba bajan para dejar libre el titular; con el teléfono ya quieto,
-// cada una entra a su pantalla, una tras otra.
+// Las cuatro piezas nacen con resorte, una por palabra. Cuando se va el título, las de arriba bajan para dejar libre el
+// titular; con el teléfono ya quieto, cada una entra a su pantalla, una tras otra.
 const piece = (at: number, order: number, box: LiftDef['box'], to: {x: number; y: number; k: number; r: number}, src?: string, render?: LiftDef['render']): LiftDef => {
   const into = tLand + 4 + order * 7;
   const top = to.y < 600;
@@ -127,13 +127,11 @@ const piece = (at: number, order: number, box: LiftDef['box'], to: {x: number; y
 };
 
 const PIECES: LiftDef[] = [
-  piece(-40, 0, PUSH_BOX, {x: 360, y: 330, k: 1.55, r: -4}, undefined, (_f, k) => <PushCard k={k} title={PUSH_TITLE} body={PUSH_BODY} />),
-  piece(-34, 5, bx('seq-tibia', 'tarjetaLugar_final', {x: 16, y: 305, w: 358, h: 178}), {x: 330, y: 1716, k: 1.32, r: -4}, lastOf('seq-tibia', 180)),
-  piece(beat('intro', 'app') + 7, 1, bx('qr', 'tarjetaQR', {x: 63, y: 266, w: 264, h: 264}), {x: 868, y: 318, k: 1.0, r: 6}, shot('qr')),
+  piece(beat('intro', 'app') + 7, 0, bx('qr', 'tarjetaQR', {x: 63, y: 266, w: 264, h: 264}), {x: 868, y: 318, k: 1.0, r: 6}, shot('qr')),
   // La fila se recorta antes del botón flotante de TibIA, que la tapa a la derecha.
-  piece(beat('intro', 'Congreso') - 2, 2, {...bx('programa', 'primeraFila', {x: 17, y: 630, w: 356, h: 110}), w: 296}, {x: 760, y: 1488, k: 1.6, r: 4}, shot('programa')),
-  piece(beat('intro', 'SCHOT') - 2, 3, bx('seq-sello', 'sello', {x: 119, y: 211, w: 152, h: 152}), {x: 178, y: 1452, k: 1.25, r: -7}, lastOf('seq-sello', 75)),
-  piece(beat('intro', '2026') + 4, 4, bx('intereses-2', 'chipRodilla', {x: 20, y: 499, w: 274, h: 44}), {x: 812, y: 1790, k: 1.3, r: 5}, shot('intereses-2')),
+  piece(beat('intro', 'Congreso') - 2, 1, {...bx('programa', 'primeraFila', {x: 17, y: 630, w: 356, h: 110}), w: 296}, {x: 760, y: 1488, k: 1.6, r: 4}, shot('programa')),
+  piece(beat('intro', 'SCHOT') - 2, 2, bx('seq-sello', 'sello', {x: 119, y: 211, w: 152, h: 152}), {x: 178, y: 1452, k: 1.25, r: -7}, lastOf('seq-sello', 75)),
+  piece(beat('intro', '2026') + 4, 3, bx('intereses-2', 'chipRodilla', {x: 20, y: 499, w: 274, h: 44}), {x: 812, y: 1790, k: 1.3, r: 5}, shot('intereses-2')),
 ];
 
 const Overlay: React.FC = () => <Headline lines={['Todo el congreso,', 'en tu *celular*']} at={tTodo - 4} out={sc.to - 21} />;
@@ -151,8 +149,8 @@ export const intro: SceneDef = {
     {at: tLand + 50, dur: 40, pose: {...REST, ry: -5, rx: 2, s: 1.02}},
     ...TO_ABRIR,
   ],
-  // Las dos piezas de la portada no suenan (ya están en el cuadro 0); las otras, un pop suave cada una.
-  lifts: PIECES.map((d) => ({...d, sound: d.at < 0 ? null : undefined, gain: 0.3})),
+  // Cada pieza, un pop suave al saltar.
+  lifts: PIECES.map((d) => ({...d, gain: 0.3})),
   bursts: [{at: tLand - 2, x: 540, y: 1180, n: 10, r: 260, star: true}],
   Under,
   Overlay,
