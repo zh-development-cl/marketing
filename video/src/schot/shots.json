@@ -6480,5 +6480,616 @@
   "barraPestanas": "color-mix 97 % opaca (sin blur en headless)",
   "brilloBtnLive": "oculto",
   "correccionQA": "2026-10-21: regrabada (cap-B en :4183)"
+ },
+ "ciencia": {
+  "dpr": 3,
+  "safeArea": true,
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "id": "ciencia",
+  "file": "ciencia.png",
+  "route": "/ciencia?esp=rodilla-y-traumatologia-deportiva",
+  "desc": "Pestaña Ciencia: «Trabajos libres seleccionados por el comité científico del 62º Congreso», especialidad Rodilla y Traumatología Deportiva, vistas Destacados · Orales 23 · E-pósters 561 · Videos 25 y los trabajos orales a premio que se presentan hoy.",
+  "boxes": {
+   "subtitulo": {
+    "x": 16,
+    "y": 98,
+    "w": 358,
+    "h": 40
+   },
+   "especialidad": {
+    "x": 16,
+    "y": 154,
+    "w": 358,
+    "h": 90.1
+   },
+   "vistas": {
+    "x": 16,
+    "y": 334.1,
+    "w": 358,
+    "h": 56
+   },
+   "vistaDestacados": {
+    "x": 20,
+    "y": 338.1,
+    "w": 87.5,
+    "h": 48
+   },
+   "vistaOrales": {
+    "x": 107.5,
+    "y": 338.1,
+    "w": 87.5,
+    "h": 48
+   },
+   "vistaEposters": {
+    "x": 195,
+    "y": 338.1,
+    "w": 87.5,
+    "h": 48
+   },
+   "vistaVideos": {
+    "x": 282.5,
+    "y": 338.1,
+    "w": 87.5,
+    "h": 48
+   },
+   "primerTrabajo": {
+    "x": 17,
+    "y": 477.1,
+    "w": 356,
+    "h": 168
+   },
+   "tabPrograma": {
+    "x": 4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 674,
+    "w": 56,
+    "h": 56
+   }
+  },
+  "notes": "Datos públicos de producción al 23-oct (787 trabajos). Especialidad por la URL (?esp=). statusBar 'opaca': la pestaña Ciencia y la ficha de un trabajo no usan el área segura de arriba; se dibujaron en 390x797 bajo la barra (como la app instalada) y se antepuso la franja de 47 px con el theme-color; cajas ya con +47. Datos: GET públicos de /science/works y /science/works/{n} (producción, 23-oct-2026).",
+  "boxesCrudas": {
+   "subtitulo": {
+    "x": 16,
+    "y": 98,
+    "w": 358,
+    "h": 40
+   },
+   "especialidad": {
+    "x": 16,
+    "y": 154,
+    "w": 358,
+    "h": 90.1
+   },
+   "vistas": {
+    "x": 16,
+    "y": 334.1,
+    "w": 358,
+    "h": 56
+   },
+   "vistaDestacados": {
+    "x": 20,
+    "y": 338.1,
+    "w": 87.5,
+    "h": 48
+   },
+   "vistaOrales": {
+    "x": 107.5,
+    "y": 338.1,
+    "w": 87.5,
+    "h": 48
+   },
+   "vistaEposters": {
+    "x": 195,
+    "y": 338.1,
+    "w": 87.5,
+    "h": 48
+   },
+   "vistaVideos": {
+    "x": 282.5,
+    "y": 338.1,
+    "w": 87.5,
+    "h": 48
+   },
+   "primerTrabajo": {
+    "x": 17,
+    "y": 477.1,
+    "w": 356,
+    "h": 168
+   },
+   "tabPrograma": {
+    "x": 4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 674,
+    "w": 56,
+    "h": 56
+   }
+  },
+  "statusBar": "opaca",
+  "render": {
+   "w": 390,
+   "h": 797,
+   "safeAreaTop": 0,
+   "safeAreaBottom": 34,
+   "franjaArriba": 47
+  },
+  "modo": "app instalada (standalone), avisos concedidos",
+  "transparenciaReducida": true,
+  "reloj": "2026-11-19T13:20:00Z (jue 19, 10:20 Chile)",
+  "boxesNota": "boxes = px CSS relativos al viewport compuesto 390x844; una caja cuyo centro queda fuera de pantalla va en null."
+ },
+ "ciencia-poster": {
+  "dpr": 3,
+  "safeArea": true,
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "id": "ciencia-poster",
+  "file": "ciencia-poster.png",
+  "full": "ciencia-poster-full.png",
+  "fullHeight": 4109,
+  "route": "/ciencia/266",
+  "desc": "E-póster #266 (estenorraquis lumbar): el PDF real del póster dibujado por la app (pdf.js), con sus gráficos.",
+  "boxes": {
+   "poster": {
+    "x": 16,
+    "y": 471.8,
+    "w": 358,
+    "h": 636.3
+   },
+   "titulo": {
+    "x": 16,
+    "y": 137.8,
+    "w": 358,
+    "h": 190.3
+   },
+   "tabPrograma": {
+    "x": 4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 674,
+    "w": 56,
+    "h": 56
+   }
+  },
+  "boxesFull": {
+   "poster": {
+    "x": 16,
+    "y": 471.8,
+    "w": 358,
+    "h": 636.3
+   },
+   "titulo": {
+    "x": 16,
+    "y": 137.8,
+    "w": 358,
+    "h": 190.3
+   }
+  },
+  "notes": "PDF público del bucket del congreso servido desde un archivo local; pdf.js con relleno de Map.getOrInsertComputed y Math.sumPrecise (no están en el Chromium de captura). statusBar 'opaca': la pestaña Ciencia y la ficha de un trabajo no usan el área segura de arriba; se dibujaron en 390x797 bajo la barra (como la app instalada) y se antepuso la franja de 47 px con el theme-color; cajas ya con +47. Datos: GET públicos de /science/works y /science/works/{n} (producción, 23-oct-2026).",
+  "boxesCrudas": {
+   "poster": {
+    "x": 16,
+    "y": 471.8,
+    "w": 358,
+    "h": 636.3
+   },
+   "titulo": {
+    "x": 16,
+    "y": 137.8,
+    "w": 358,
+    "h": 190.3
+   },
+   "tabPrograma": {
+    "x": 4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 674,
+    "w": 56,
+    "h": 56
+   }
+  },
+  "boxesParciales": [
+   "poster"
+  ],
+  "statusBar": "opaca",
+  "render": {
+   "w": 390,
+   "h": 797,
+   "safeAreaTop": 0,
+   "safeAreaBottom": 34,
+   "franjaArriba": 47
+  },
+  "modo": "app instalada (standalone), avisos concedidos",
+  "transparenciaReducida": true,
+  "reloj": "2026-11-19T13:20:00Z (jue 19, 10:20 Chile)",
+  "boxesNota": "boxes = px CSS relativos al viewport compuesto 390x844; una caja cuyo centro queda fuera de pantalla va en null. boxesFull = px CSS relativos a la parte superior de la página completa (<id>-full.png)."
+ },
+ "ciencia-resumen": {
+  "dpr": 3,
+  "safeArea": true,
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "id": "ciencia-resumen",
+  "file": "ciencia-resumen.png",
+  "full": "ciencia-resumen-full.png",
+  "fullHeight": 3990,
+  "route": "/ciencia/458",
+  "desc": "Trabajo oral #458 (Rodilla, a premio; el primero de la lista Destacados): título, autores, sala y el «Resumen» (abstract) completo.",
+  "boxes": {
+   "resumen": null,
+   "titulo": {
+    "x": 16,
+    "y": 156.5,
+    "w": 358,
+    "h": 222
+   },
+   "tabPrograma": {
+    "x": 4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 674,
+    "w": 56,
+    "h": 56
+   }
+  },
+  "boxesFull": {
+   "resumen": {
+    "x": 16,
+    "y": 1201.4,
+    "w": 358,
+    "h": 1717.9
+   },
+   "titulo": {
+    "x": 16,
+    "y": 156.5,
+    "w": 358,
+    "h": 222
+   },
+   "resumenInicio": {
+    "x": 6,
+    "y": 1191,
+    "w": 378,
+    "h": 185
+   }
+  },
+  "boxesCrudas": {
+   "resumen": {
+    "x": 16,
+    "y": 1201.4,
+    "w": 358,
+    "h": 1717.9
+   },
+   "titulo": {
+    "x": 16,
+    "y": 156.5,
+    "w": 358,
+    "h": 222
+   },
+   "tabPrograma": {
+    "x": 4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 674,
+    "w": 56,
+    "h": 56
+   }
+  },
+  "boxesFueraDePantalla": [
+   "resumen"
+  ],
+  "statusBar": "opaca",
+  "render": {
+   "w": 390,
+   "h": 797,
+   "safeAreaTop": 0,
+   "safeAreaBottom": 34,
+   "franjaArriba": 47
+  },
+  "modo": "app instalada (standalone), avisos concedidos",
+  "transparenciaReducida": true,
+  "reloj": "2026-11-19T13:20:00Z (jue 19, 10:20 Chile)",
+  "notes": "statusBar 'opaca': la pestaña Ciencia y la ficha de un trabajo no usan el área segura de arriba; se dibujaron en 390x797 bajo la barra (como la app instalada) y se antepuso la franja de 47 px con el theme-color; cajas ya con +47. Datos: GET públicos de /science/works y /science/works/{n} (producción, 23-oct-2026).",
+  "boxesNota": "boxes = px CSS relativos al viewport compuesto 390x844; una caja cuyo centro queda fuera de pantalla va en null. boxesFull = px CSS relativos a la parte superior de la página completa (<id>-full.png)."
+ },
+ "ciencia-video": {
+  "dpr": 3,
+  "safeArea": true,
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "id": "ciencia-video",
+  "file": "ciencia-video.png",
+  "route": "/ciencia/248",
+  "desc": "Video #248: la tarjeta del video (degradé de marca, botón de reproducir, «Ver video»).",
+  "boxes": {
+   "video": {
+    "x": 16,
+    "y": 440.1,
+    "w": 358,
+    "h": 201.4
+   },
+   "titulo": {
+    "x": 16,
+    "y": 137.8,
+    "w": 358,
+    "h": 158.6
+   },
+   "tabPrograma": {
+    "x": 4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 674,
+    "w": 56,
+    "h": 56
+   }
+  },
+  "boxesCrudas": {
+   "video": {
+    "x": 16,
+    "y": 440.1,
+    "w": 358,
+    "h": 201.4
+   },
+   "titulo": {
+    "x": 16,
+    "y": 137.8,
+    "w": 358,
+    "h": 158.6
+   },
+   "tabPrograma": {
+    "x": 4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAgenda": {
+    "x": 80.4,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabCiencia": {
+    "x": 156.8,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabAuspiciadores": {
+    "x": 233.2,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "tabPerfil": {
+    "x": 309.6,
+    "y": 744.8,
+    "w": 76.4,
+    "h": 65.3
+   },
+   "fabTibia": {
+    "x": 318,
+    "y": 674,
+    "w": 56,
+    "h": 56
+   }
+  },
+  "statusBar": "opaca",
+  "render": {
+   "w": 390,
+   "h": 797,
+   "safeAreaTop": 0,
+   "safeAreaBottom": 34,
+   "franjaArriba": 47
+  },
+  "modo": "app instalada (standalone), avisos concedidos",
+  "transparenciaReducida": true,
+  "reloj": "2026-11-19T13:20:00Z (jue 19, 10:20 Chile)",
+  "notes": "statusBar 'opaca': la pestaña Ciencia y la ficha de un trabajo no usan el área segura de arriba; se dibujaron en 390x797 bajo la barra (como la app instalada) y se antepuso la franja de 47 px con el theme-color; cajas ya con +47. Datos: GET públicos de /science/works y /science/works/{n} (producción, 23-oct-2026).",
+  "boxesNota": "boxes = px CSS relativos al viewport compuesto 390x844; una caja cuyo centro queda fuera de pantalla va en null."
  }
 }

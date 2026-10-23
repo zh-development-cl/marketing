@@ -6,8 +6,8 @@ import vo from './vo.json';
 export const FPS = 30;
 export const s = (sec: number) => Math.round(sec * FPS);
 
-export type SceneKey = 'intro' | 'abrir' | 'itinerario' | 'programa' | 'charla' | 'aviso' | 'tibia' | 'expo' | 'cierre';
-export const order: SceneKey[] = ['intro', 'abrir', 'itinerario', 'programa', 'charla', 'aviso', 'tibia', 'expo', 'cierre'];
+export type SceneKey = 'intro' | 'abrir' | 'itinerario' | 'programa' | 'charla' | 'aviso' | 'tibia' | 'ciencia' | 'expo' | 'cierre';
+export const order: SceneKey[] = ['intro', 'abrir', 'itinerario', 'programa', 'charla', 'aviso', 'tibia', 'ciencia', 'expo', 'cierre'];
 
 type Word = {text: string; start: number; end: number};
 type Caption = {text: string; start: number; end: number; words: Word[]};
@@ -17,8 +17,10 @@ const voScenes = vo.scenes as Record<SceneKey, VoScene>;
 // Aire antes de la voz (la escena ya está en pantalla) y después de la última palabra, en frames.
 // Con aire para procesar: el público son médicos de 50 a 70 años; cada escena se asienta antes de que hable la voz y
 // queda un respiro después de la última palabra antes de pasar a la siguiente.
-const lead: Record<SceneKey, number> = {intro: 16, abrir: 14, itinerario: 14, programa: 14, charla: 14, aviso: 12, tibia: 14, expo: 14, cierre: 14};
-const tail: Record<SceneKey, number> = {intro: 40, abrir: 40, itinerario: 76, programa: 44, charla: 82, aviso: 30, tibia: 70, expo: 24, cierre: 461};
+const lead: Record<SceneKey, number> = {intro: 16, abrir: 14, itinerario: 14, programa: 14, charla: 14, aviso: 12, tibia: 14, ciencia: 12, expo: 14, cierre: 14};
+// Ciencia: 12 + 148 + 33 = 193 cuadros, tres compases de la música (3 × 2,1429 s = 192,86 cuadros): la pista se alarga
+// en esos tres compases y lo que viene después sigue cayendo donde caía (ver docs/videos/schot-demo-app.md).
+const tail: Record<SceneKey, number> = {intro: 40, abrir: 40, itinerario: 76, programa: 44, charla: 82, aviso: 30, tibia: 70, ciencia: 33, expo: 24, cierre: 461};
 // Duración mínima de diseño (coreografía), en frames.
 const designed: Record<SceneKey, number> = {
   intro: s(6.6),
@@ -28,6 +30,7 @@ const designed: Record<SceneKey, number> = {
   charla: s(5.6),
   aviso: s(4.0),
   tibia: s(8.0),
+  ciencia: s(6.4),
   expo: s(6.0),
   cierre: s(9.0),
 };

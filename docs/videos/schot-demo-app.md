@@ -1,6 +1,6 @@
 # Video demo · App del 62º Congreso SCHOT
 
-Video vertical (1080x1920, 30 fps, ~86 s) para el lanzamiento de la web app oficial del 62º Congreso Chileno de
+Video vertical (1080x1920, 30 fps, ~92 s) para el lanzamiento de la web app oficial del 62º Congreso Chileno de
 Ortopedia y Traumatología (SCHOT, Viña del Mar, noviembre 2026). SCHOT lo envía a los asistentes al lanzar la app
 para que entiendan qué es, cómo se abre y qué pueden hacer. Mismo lenguaje que el reel de ZH
 (`docs/reels/01-que-es-zh.md`): composición continua, un solo teléfono que recorre todo el video con la app real
@@ -40,6 +40,13 @@ antes de que la voz los diga, y efectos y música más bajos bajo la voz. Pasó 
   versionadas). Siguen a la vista, porque no son auspiciadores: las sedes del congreso (Sheraton Miramar, Enjoy,
   Valparaíso Sporting), los nombres reales de conferencistas del programa público, el botón «Continuar con Google» del
   ingreso real, la notificación tipo Gmail que se pidió para el código y la hoja de compartir de iOS.
+- **Ciencia (23-10-2026, Nicolás).** Pidió incluir la parte científica (trabajos seleccionados, abstracts, e-pósters y
+  videos) sin alargar mucho el video: una escena de 6,4 s entre TibIA y la expo (+6,4 s en total). Se muestran trabajos
+  reales del endpoint público `/science/works` (787 trabajos al 23-10: 201 orales, 561 e-pósters y 25 videos; 20
+  e-pósters ya tienen su PDF y 1 video su archivo): la lista «Destacados» de Rodilla, el resumen del #458, el e-póster
+  #266 (gráficos, sin fotos clínicas) y la tarjeta del video #248 (degradé de la app, sin cuadros de cirugía). Quedan
+  a la vista, como en el programa, nombres reales de autores y, en la cabecera del póster, el logo pequeño de la
+  institución de los autores (no es un auspiciador). No hizo falta la cuenta de Nicolás: la sesión es la simulada.
 
 ## Voz en off (una toma, voz «Oscar – Fluid pitch, easy to listen» de ElevenLabs, eleven_v4)
 
@@ -78,6 +85,7 @@ Pendiente de Nicolás: decidir si se regenera la música (también se hizo con e
 > Agregas una charla con un toque, y la app te lleva hasta la puerta de la sala.
 > Además, te avisa diez minutos antes de que empiece.
 > ¿Una duda? Pregúntale a TibIA, la asistente con inteligencia artificial que conoce todo el congreso.
+> En Ciencia están los trabajos seleccionados: abstracts, e-pósters y videos.
 > En la expo, junta sellos en los stands, y conecta con colegas escaneando su código.
 > Entra a app.congresoschot2026.com y agrégala a tu pantalla de inicio para usarla como una app.
 
@@ -92,6 +100,19 @@ VO_SCRIPT=schot VO_SET=schot VO_JSON=src/schot/vo.json VO_MODEL=eleven_v4 VO_TAG
 VO_TREBLE=0 VO_TEMPO=1 \
 VO_PAUSES='2026:0.6,navegador:0.7,código:1.4,interesa:0.75,ahora:0.6,toque:0.65,duda:0.45,artificial:0.25,expo:0.25,stands:1.4,appcongresoshot2026com:0.6' \
 node scripts/voiceover-single.mjs 3mmJ2Z5SLZ9OkeZZcv5p
+```
+
+**Frase de Ciencia (23-10-2026).** Para no regenerar la toma aprobada (cambiaría la actuación de todas las frases),
+`scripts/voiceover-bridge.mjs` genera una toma «puente» con la escena anterior, la frase nueva y la siguiente (misma
+voz y ajustes, leídos de `vo.json`), la transcribe, corta solo la frase nueva con las mismas reglas de frontera e
+iguala su volumen al de la toma aprobada comparando las escenas vecinas, que están en las dos (corrección −0,2 dB).
+Se hicieron 3 tomas (262 caracteres cada una; `video/out/voces/ciencia/`): la 1 subía mucho el tono en «Ciencia»
+(mediana 151 Hz contra ~125 Hz del resto) y la 3 no cerraba la frase; quedó la 2 (133 Hz, «videos» cae como fin de
+frase, 2,1 palabras/s como el resto). Dice «e-pósters» como «i-pósters», como se dice en los congresos.
+
+```
+cd video
+VO_SCENE=ciencia VO_SET=schot VO_JSON=src/schot/vo.json VO_TAKE=2 node scripts/voiceover-bridge.mjs
 ```
 
 «SCHOT» se pronuncia «Schot» (verificado con Whisper: «Shot», también dentro de la URL). «QR» se evitó en la voz
@@ -110,8 +131,9 @@ node scripts/voiceover-single.mjs 3mmJ2Z5SLZ9OkeZZcv5p
 | 5 | Charlas | Agregas una charla con un toque… hasta la puerta de la sala. | Ficha «Lesiones meniscales»: el botón «Agregar a mi agenda» salta, el dedo lo toca en grande y pasa a «En tu agenda» con estallido y temblor; «Cómo llegar» y el plano del Piso 3 sale inclinado como sobre una mesa; ahí, ya quieto y en grande, se dibuja la ruta real y cae el pin «Pacífico · Piso 3». |
 | 6 | Avisos | Además, te avisa diez minutos antes… | Mi agenda; la notificación real del backend sale en grande y queda sola un momento; en «minutos» aparece debajo el dial «10 min» (el 10 fijo, el anillo se llena). |
 | 7 | Asistente | ¿Una duda? Pregúntale a TibIA… | Insignia «¿Una duda?» y el chat sube desde el botón flotante; la mascota salta; la pregunta «¿Cuándo es la fiesta de clausura?» sale en grande, se lee unos dos segundos y se envía tocándola; insignia «Asistente con IA»; la respuesta con la tarjeta del lugar sale de la pantalla, sola, con tiempo para leerla. |
-| 8 | Expo | En la expo, junta sellos… escaneando su código. | La tarjeta del Pasaporte Virtual salta y se toca «Escanear sello» sobre ella; sube la hoja real y, ya quieta, el sello cae desde la cámara y se estampa (golpe leve y estallido); después salta el avance «13 de 35 sellos»; «Mi código QR»: el QR salta girando y una línea de escaneo lo recorre; insignia «Conecta con colegas». |
-| 9 | Cierre | Entra a app.congresoschot2026.com y agrégala… | El teléfono muestra la app abierta en Safari (barra real de iOS 26); la dirección en una cápsula que se escribe letra a letra con la voz y debajo «y agrégala a tu pantalla de inicio». Luego el proceso completo dentro del teléfono, como una grabación de pantalla continua (sin cortes ni capturas sueltas): las piezas son las capturas reales de iOS 26 de la guía «Instalar la app» de la propia app (`public/schot/guia/`, las mismas de `InstallGuide.tsx`), recortadas por elemento y animadas como en iOS: se toca ⋯ y el menú crece desde el botón; se toca «Compartir» y sube la hoja; se toca «Ver más» y la hoja se expande con la lista (su fila pasa a «Ver menos», como en el iPhone); se toca «Agregar a Inicio» y sube esa hoja; se toca «Agregar» y Safari se cierra encogiéndose. El teléfono queda quieto y completo durante los pasos, y cada paso dura unos 2 s: arriba una sola etiqueta numerada de ancho fijo cambia con un fundido cruzado (texto de la guía y «en iPhone»): «1 Toca el botón ⋯» → «2 Toca «Compartir»» → «3 Toca «Ver más»» → «4 Toca «Agregar a Inicio»» → «5 Toca «Agregar»»; un marco señala el botón 1,3 s antes de que el dedo lo toque, y el anillo del dedo se apaga antes de que la pantalla responda. La etiqueta pasa a «El ícono SCHOT queda en tu pantalla de inicio» apenas se cierra Safari; la pantalla de inicio (fondo azul violeta, íconos de colores sin marca) recibe el ícono de SCHOT después de la última app, como en la captura real, cuando la cámara terminó de acercarse; el ícono se hunde al tocarlo y la app se abre creciendo desde él, a pantalla completa y sin la barra de Safari. Termina en la tarjeta con la dirección, «y agrégala a tu pantalla de inicio / para usarla como una app» y «En Android, la app también te guía» (quieta, donde estuvieron los pasos). Para cerrar (lo pidió Nicolás el 23-10-2026), el teléfono se funde en el fondo y salta en grande el sello de SCHOT con el mismo sonido de la apertura, con su luz y un estallido, justo cuando se detiene la música (83,1 s); debajo, «62º Congreso SCHOT · Viña del Mar · 18–21 nov 2026». La dirección se queda arriba (sin fundido a negro: WhatsApp se queda en el último cuadro). |
+| 8 | Ciencia | En Ciencia están los trabajos seleccionados: abstracts, e-pósters y videos. | La pestaña Ciencia real (Rodilla, «Destacados»: «Orales 23 · E-pósters 561 · Videos 25» y los orales a premio de hoy). En «trabajos seleccionados» un halo marca «Trabajos libres seleccionados por el comité científico del 62º Congreso». Con «abstracts, e-pósters y videos» el teléfono se aleja y salta una pieza real por palabra, cada una desde su lugar en la pantalla: el resumen del primer trabajo de la lista (#458) arriba y ancho, para que se lea; un e-póster (#266, el PDF que dibuja la app) desde la pestaña «E-pósters», y la tarjeta de un video (#248) desde «Videos». Las tres quedan juntas algo más de un segundo y se encogen hacia la expo. |
+| 9 | Expo | En la expo, junta sellos… escaneando su código. | La tarjeta del Pasaporte Virtual salta y se toca «Escanear sello» sobre ella; sube la hoja real y, ya quieta, el sello cae desde la cámara y se estampa (golpe leve y estallido); después salta el avance «13 de 35 sellos»; «Mi código QR»: el QR salta girando y una línea de escaneo lo recorre; insignia «Conecta con colegas». |
+| 10 | Cierre | Entra a app.congresoschot2026.com y agrégala… | El teléfono muestra la app abierta en Safari (barra real de iOS 26); la dirección en una cápsula que se escribe letra a letra con la voz y debajo «y agrégala a tu pantalla de inicio». Luego el proceso completo dentro del teléfono, como una grabación de pantalla continua (sin cortes ni capturas sueltas): las piezas son las capturas reales de iOS 26 de la guía «Instalar la app» de la propia app (`public/schot/guia/`, las mismas de `InstallGuide.tsx`), recortadas por elemento y animadas como en iOS: se toca ⋯ y el menú crece desde el botón; se toca «Compartir» y sube la hoja; se toca «Ver más» y la hoja se expande con la lista (su fila pasa a «Ver menos», como en el iPhone); se toca «Agregar a Inicio» y sube esa hoja; se toca «Agregar» y Safari se cierra encogiéndose. El teléfono queda quieto y completo durante los pasos, y cada paso dura unos 2 s: arriba una sola etiqueta numerada de ancho fijo cambia con un fundido cruzado (texto de la guía y «en iPhone»): «1 Toca el botón ⋯» → «2 Toca «Compartir»» → «3 Toca «Ver más»» → «4 Toca «Agregar a Inicio»» → «5 Toca «Agregar»»; un marco señala el botón 1,3 s antes de que el dedo lo toque, y el anillo del dedo se apaga antes de que la pantalla responda. La etiqueta pasa a «El ícono SCHOT queda en tu pantalla de inicio» apenas se cierra Safari; la pantalla de inicio (fondo azul violeta, íconos de colores sin marca) recibe el ícono de SCHOT después de la última app, como en la captura real, cuando la cámara terminó de acercarse; el ícono se hunde al tocarlo y la app se abre creciendo desde él, a pantalla completa y sin la barra de Safari. Termina en la tarjeta con la dirección, «y agrégala a tu pantalla de inicio / para usarla como una app» y «En Android, la app también te guía» (quieta, donde estuvieron los pasos). Para cerrar (lo pidió Nicolás el 23-10-2026), el teléfono se funde en el fondo y salta en grande el sello de SCHOT con el mismo sonido de la apertura, con su luz y un estallido, justo cuando se detiene la música (89,5 s); debajo, «62º Congreso SCHOT · Viña del Mar · 18–21 nov 2026». La dirección se queda arriba (sin fundido a negro: WhatsApp se queda en el último cuadro). |
 
 Piezas de animación en `video/src/schot/ui/Pop.tsx` (Lift, Badge, Burst, Rolling, Flash, toques sobre piezas
 flotantes) y `ui/Stage.tsx` (inclinación 3D, latigazos, temblor, huecos oscurecidos, desenfoque por velocidad).
@@ -126,6 +148,12 @@ una cuenta ficticia («Carolina», Rodilla y Cadera). No se escribe nada en prod
 jueves 19 de noviembre a las 10:20, diez minutos antes de «Lesiones meniscales» (Pacífico, Piso 3, Enjoy), para que
 toda la historia calce. Las microinteracciones (estrella, ruta del plano, agenda de TibIA, respuesta de TibIA,
 sello) se grabaron cuadro a cuadro.
+
+Ciencia (23-10-2026) se capturó con el mismo arnés y los datos públicos actuales de `/science/works` y
+`/science/works/{n}`; el PDF del e-póster (bucket público del congreso) se sirve desde un archivo local. Como la
+pestaña Ciencia y la ficha de un trabajo no usan el área segura de arriba, van en modo de barra opaca (igual que el
+Pasaporte y el QR). El Chromium de captura no trae `Map.getOrInsertComputed` ni `Math.sumPrecise`, que usa pdf.js para
+dibujar el póster: se agregan en la página y en el worker solo para la captura (la app no se toca).
 
 `node scripts/schot-shots.mjs <dir de capturas>` copia las capturas a `public/schot/shots/` y junta los
 manifiestos (cajas de cada botón tocado) en `src/schot/shots.json`.
@@ -181,7 +209,11 @@ manifiestos (cajas de cada botón tocado) en `src/schot/shots.json`.
   hizo caer en la llegada del correo (12,7 s) porque la entrada de la pista es una base suave sin bajo, 15 dB más
   baja: el video quedaba casi 13 s sin energía. Se repiten 2 compases exactos (4,284 s, corte en 22,68 s de la pista
   con 25 ms de fundido) y otros 4 compases (8,571 s, corte en 52,14 s) para cubrir la demostración de instalación; la
-  música se apaga sola 2 s después de la tarjeta final (83,4 s). Si hace falta un compás más, repetir uno entero desde
+  música se apaga sola 2 s después de la tarjeta final (89,8 s). Para la escena de Ciencia se repiten 3 compases
+  (6,4286 s) justo antes del compás 19 de la pista (57,88 s, tiempo fuerte verificado con el bombo), y la escena dura
+  193 cuadros (3 compases redondeados): desde la expo todo suena igual que antes (correlación 0,999, desfase 5 ms). La
+  pista tiene un ciclo de 4 compases (La bemol – Sol – La bemol – Fa menor); 3 compases solo calzan donde un La bemol
+  sigue a otro La bemol, que es justo ese punto. Si hace falta un compás más, repetir uno entero desde
   un tiempo fuerte (p. ej. 68,61–70,755 s de la pista, con el fundido terminando antes del golpe de bombo): en la
   revisión independiente se vio que un compás cortado a mitad dejaba oír 0,4 s del acorde siguiente.
   Licencia: la pista se generó cuando la cuenta estaba en el plan gratuito, que según ElevenLabs no da licencia

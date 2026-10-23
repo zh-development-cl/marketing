@@ -702,6 +702,84 @@
         }
       ]
     },
+    "ciencia": {
+      "file": "vo-schot/ciencia.wav",
+      "duration": 4.94,
+      "captions": [
+        {
+          "text": "En Ciencia están los trabajos seleccionados:",
+          "start": 0.12,
+          "end": 2.5,
+          "words": [
+            {
+              "text": "En",
+              "start": 0.12,
+              "end": 0.2
+            },
+            {
+              "text": "Ciencia",
+              "start": 0.3,
+              "end": 0.72
+            },
+            {
+              "text": "están",
+              "start": 0.9,
+              "end": 1.16
+            },
+            {
+              "text": "los",
+              "start": 1.2,
+              "end": 1.32
+            },
+            {
+              "text": "trabajos",
+              "start": 1.36,
+              "end": 1.8
+            },
+            {
+              "text": "seleccionados:",
+              "start": 1.84,
+              "end": 2.5
+            }
+          ]
+        },
+        {
+          "text": "abstracts, e-pósters y videos.",
+          "start": 2.84,
+          "end": 4.94,
+          "words": [
+            {
+              "text": "abstracts,",
+              "start": 2.84,
+              "end": 3.36
+            },
+            {
+              "text": "e-pósters",
+              "start": 3.62,
+              "end": 4.34
+            },
+            {
+              "text": "y",
+              "start": 4.38,
+              "end": 4.42
+            },
+            {
+              "text": "videos.",
+              "start": 4.48,
+              "end": 4.94
+            }
+          ]
+        }
+      ],
+      "bridge": {
+        "take": "2",
+        "between": [
+          "tibia",
+          "expo"
+        ],
+        "gainDb": -0.2
+      }
+    },
     "expo": {
       "file": "vo-schot/expo.wav",
       "duration": 6.64,

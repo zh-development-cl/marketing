@@ -8,7 +8,7 @@ import {BurstView} from '../ui/Pop';
 import type {Glow, Tap} from '../ui/Stage';
 import {SceneDef, shot} from './types';
 
-// Escena 9 · cierre. El teléfono muestra la app abierta en Safari; arriba, la dirección en una cápsula que salta y se
+// Escena 10 · cierre. El teléfono muestra la app abierta en Safari; arriba, la dirección en una cápsula que salta y se
 // escribe letra a letra mientras la voz la dice. «y agrégala a tu pantalla de inicio» → el proceso completo de iOS 26
 // dentro del teléfono, como una grabación de pantalla continua (sin capturas sueltas): ⋯ → «Compartir» → «Ver más» →
 // «Agregar a Inicio» → «Agregar». Cada paso tiene su etiqueta numerada arriba, un marco que señala lo que hay que
