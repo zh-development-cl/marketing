@@ -1,78 +1,93 @@
 import React from 'react';
 import {Easing, Img, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
-import {beat, beatEnd, captionsOf, scenes} from '../timeline';
-import {focus, PT, REST, SCREEN_H, SCREEN_W, toCanvas} from '../ui/geometry';
+import {beat, captionsOf, scenes} from '../timeline';
+import {Box, focus, PT, REST, SCREEN_H, SCREEN_W, toCanvas} from '../ui/geometry';
 import {GRAD_TEXT} from '../ui/Text';
+import type {Glow, Tap} from '../ui/Stage';
 import {SceneDef, shot} from './types';
 
 // Escena 9 · cierre. El teléfono muestra la app abierta en Safari; arriba, la dirección en una cápsula que salta y se
-// escribe letra a letra mientras la voz la dice. «y agrégala a tu pantalla de inicio» → el proceso real, como en un
-// video de la pantalla: cada captura real de iOS 26 (las mismas que usa la guía «Instalar la app» de la propia app)
-// sale en grande, numerada con el texto de esa guía, y el dedo toca: ⋯ → «Compartir» → «Ver más» → «Agregar a
-// Inicio» → «Agregar». Después, la pantalla de inicio recibe el ícono de SCHOT, se toca y la app se abre. Termina en
-// la tarjeta final (dirección, sello y datos del congreso) sin fundido a negro: WhatsApp se queda en el último cuadro,
-// que tiene que dejar la dirección legible.
+// escribe letra a letra mientras la voz la dice. «y agrégala a tu pantalla de inicio» → el proceso completo de iOS 26
+// dentro del teléfono, como una grabación de pantalla continua (sin capturas sueltas): ⋯ → «Compartir» → «Ver más» →
+// «Agregar a Inicio» → «Agregar». Cada paso tiene su etiqueta numerada arriba, un marco que señala lo que hay que
+// tocar y el dedo que lo toca. Al agregar, Safari se cierra, la pantalla de inicio recibe el ícono de SCHOT, se toca y
+// la app se abre creciendo desde el ícono. Termina en la tarjeta final (dirección, sello y datos del congreso) sin
+// fundido a negro: WhatsApp se queda en el último cuadro, que tiene que dejar la dirección legible.
 const sc = scenes.cierre;
 const URL = 'app.congresoschot2026.com';
 const tUrl = beat('cierre', 'Entra') - 4;
 const urlWord = captionsOf('cierre').flatMap((c) => c.words).find((w) => w.text.includes('congresoschot'));
 const tType0 = urlWord ? urlWord.from : tUrl + 18;
 const tType1 = urlWord ? Math.min(urlWord.to - 8, tType0 + 75) : tType0 + 70;
-// El proceso real de iOS 26 para agregarla a la pantalla de inicio, como una grabación de pantalla continua dentro del
-// teléfono. Las piezas son las capturas reales de iOS 26 que usa la guía «Instalar la app» de la propia app
-// (schot-app-frontend, InstallGuide.tsx; public/schot/guia/), recortadas por elemento (barra, menú, hojas) y animadas
-// como en iOS: el menú crece desde el botón ⋯, la hoja de compartir sube, se expande con la lista, sube la hoja
-// «Agregar a Inicio» y, al agregar, se vuelve a la pantalla de inicio. Los textos de la etiqueta son los de esa guía.
+// Los pasos. Para un público de 50 a 70 años cada uno da tiempo de leer la etiqueta y encontrar el botón: la etiqueta
+// y el marco aparecen ~40 cuadros (1,3 s) antes del toque, y la pantalla responde 6 cuadros después del toque, cuando
+// el anillo del dedo ya se apagó (si no, quedaría sobre lo que sube).
 const tGuide = beat('cierre', 'agrégala') - 2;
 const T = {
-  dots: tGuide + 22, // toque en ⋯
-  menu: tGuide + 26, // se abre el menú
-  compartir: tGuide + 66, // toque en «Compartir»
-  share: tGuide + 70, // sube la hoja de compartir
-  verMas: tGuide + 110, // toque en «Ver más»
-  expand: tGuide + 114, // la hoja se expande con la lista
-  inicio: tGuide + 154, // toque en «Agregar a Inicio»
-  add: tGuide + 158, // sube la hoja «Agregar a Inicio»
-  agregar: tGuide + 204, // toque en «Agregar»
+  dots: tGuide + 40, // toque en ⋯
+  menu: tGuide + 46, // se abre el menú
+  compartir: tGuide + 98, // toque en «Compartir»
+  share: tGuide + 104, // sube la hoja de compartir
+  verMas: tGuide + 158, // toque en «Ver más»
+  expand: tGuide + 164, // la hoja se expande con la lista
+  inicio: tGuide + 220, // toque en «Agregar a Inicio»
+  add: tGuide + 226, // sube la hoja «Agregar a Inicio»
+  agregar: tGuide + 282, // toque en «Agregar»
 };
-const tHome = tGuide + 220; // al agregar, Safari se cierra y aparece la pantalla de inicio (como en iOS)
-const tIcon = tHome + 14; // el ícono de SCHOT aparece
-const tTapIcon = tIcon + 34; // se toca
-const tOpen = tTapIcon + 5; // y la app se abre, sin la barra de Safari
-const tEndCard = tOpen + 60; // la app abierta se alcanza a ver
+const tHome = T.agregar + 8; // Safari se cierra encogiéndose y queda la pantalla de inicio, como en iOS
+const CLOSE_DUR = 16;
+const tIcon = tHome + 44; // el ícono aparece cuando la cámara ya terminó de acercarse
+const tTapIcon = tIcon + 44; // se lee la etiqueta y se ve el ícono quieto antes del toque
+const tOpen = tTapIcon + 4; // la app se abre creciendo desde el ícono, sin la barra de Safari
+const OPEN_DUR = 16;
+const tEndCard = tOpen + 40; // la app abierta se alcanza a ver
 // La etiqueta de arriba: un solo texto que cambia con cada paso (los de la guía de la app).
 const LABELS: Array<{at: number; n?: number; text: string}> = [
   {at: tGuide, n: 1, text: 'Toca el botón ⋯'},
-  {at: T.menu + 8, n: 2, text: 'Toca «Compartir»'},
-  {at: T.share + 10, n: 3, text: 'Toca «Ver más»'},
-  {at: T.expand + 10, n: 4, text: 'Toca «Agregar a Inicio»'},
-  {at: T.add + 10, n: 5, text: 'Toca «Agregar»'},
-  {at: tHome + 4, text: 'El ícono SCHOT queda en tu pantalla de inicio'},
+  {at: T.menu + 12, n: 2, text: 'Toca «Compartir»'},
+  {at: T.share + 12, n: 3, text: 'Toca «Ver más»'},
+  {at: T.expand + 14, n: 4, text: 'Toca «Agregar a Inicio»'},
+  {at: T.add + 14, n: 5, text: 'Toca «Agregar»'},
+  {at: tIcon - 2, text: 'El ícono SCHOT queda en tu pantalla de inicio'},
 ];
 const PHONE_POSE = {...REST, y: 1330, s: 0.86};
 
 const clampOpt = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
 const ios = Easing.bezier(0.32, 0.72, 0, 1);
+const io = Easing.inOut(Easing.cubic);
 const pr = (f: number, a: number, d: number, e = ios) => interpolate(f, [a, a + d], [0, 1], {...clampOpt, easing: e});
 const SANS = '"Barlow", system-ui, sans-serif';
 
 // ---------- el flujo de instalación dentro del teléfono ----------
-// Las capturas de la guía son de pantalla completa a 720 px de ancho: 1 px = 390/720 pt.
+// Las capturas de la guía miden 720 px de ancho (la parte de abajo de la pantalla del iPhone): 1 px = 390/720 pt.
+// Las posiciones en px de cada botón se midieron sobre esas capturas.
 const GS = 390 / 720;
 // La barra de Safari, abajo. Su captura trae arriba media fila de textos de la barra de pestañas de la app: se recorta
 // desde debajo de esos textos y la barra tapa la de la captura de la página (si no, se verían dos barras).
 const BAR = {sy: 24, sh: 174};
-const BAR_H = BAR.sh * GS;
-const BAR_Y = 844 - BAR_H - 4;
+const BAR_Y = 844 - BAR.sh * GS - 4;
 const MENU = {sx: 212, sy: 32, sw: 446, sh: 693}; // el menú del botón ⋯ en su captura (px)
 const MENU_Y = BAR_Y - 6 - MENU.sh * GS; // pt: el menú queda justo sobre la barra
+// La hoja de compartir y, debajo, la lista que aparece con «Ver más» (de la captura de la hoja expandida). La lista se
+// pega a la hoja a la altura `JOIN` de la hoja (entre los botones redondos y sus nombres), que corresponde a `LIST.sy`
+// de la captura expandida: así la fila de nombres pasa a ser la real («Ver menos») y la hoja expandida queda continua,
+// sin el borde redondeado de la hoja chica.
 const SHEET = {sx: 18, sy: 78, sw: 682, sh: 698}; // la hoja de compartir (px)
+const JOIN = 683;
+const LIST = {sx: 18, sy: 38, sw: 682, sh: 738}; // desde la fila de nombres de los botones hasta abajo (px)
 const SHEET_Y = 844 - SHEET.sh * GS; // pt
-const LIST = {sx: 18, sy: 110, sw: 682, sh: 666}; // la lista de «Ver más» (px)
-const EXPAND = LIST.sh * GS; // cuánto sube la hoja al expandirse (pt)
+const LIST_IN = (JOIN - SHEET.sy) * GS; // pt: dónde empieza la lista dentro de la hoja
+const EXPAND = (LIST.sh - (SHEET.sy + SHEET.sh - JOIN)) * GS; // cuánto sube la hoja al expandirse (pt)
 const ADD = {sx: 0, sy: 38, sw: 720, sh: 738}; // la hoja «Agregar a Inicio» (px)
 const ADD_Y = 52; // pt
 const guia = (img: string) => staticFile(`schot/guia/${img}`);
+// Punto (px de cada captura) → pt de la pantalla, ya con cada pieza en su lugar final.
+const onBar = (x: number, y: number) => ({x: x * GS, y: BAR_Y + (y - BAR.sy) * GS});
+const onMenu = (x: number, y: number) => ({x: x * GS, y: MENU_Y + (y - MENU.sy) * GS});
+const onSheet = (x: number, y: number) => ({x: x * GS, y: SHEET_Y + (y - SHEET.sy) * GS});
+const onList = (x: number, y: number) => ({x: x * GS, y: SHEET_Y - EXPAND + LIST_IN + (y - LIST.sy) * GS});
+const onAdd = (x: number, y: number) => ({x: x * GS, y: ADD_Y + (y - ADD.sy) * GS});
+const boxOf = (p: {x: number; y: number}, w: number, h: number): Box => ({x: p.x, y: p.y, w: w * GS, h: h * GS});
 
 // Un recorte de una captura de la guía dibujado en (x, y) pt de la pantalla.
 const GuideCrop: React.FC<{img: string; c: {sx: number; sy: number; sw: number; sh: number}; x: number; y: number; radius?: string; style?: React.CSSProperties}> = ({img, c, x, y, radius, style}) => (
@@ -81,19 +96,20 @@ const GuideCrop: React.FC<{img: string; c: {sx: number; sy: number; sw: number; 
   </div>
 );
 
-const nav = Easing.bezier(0.32, 0.72, 0, 1);
 const InstallFlow: React.FC<{f: number}> = ({f}) => {
   const {fps} = useVideoConfig();
-  // menú: crece desde el botón ⋯ y se apaga cuando sube la hoja
+  // menú: crece desde el botón ⋯ y se va apenas se toca «Compartir» (antes de que suba la hoja: sin doble imagen)
   const m = spring({frame: f - T.menu, fps, config: {damping: 18, stiffness: 220, mass: 0.7}});
-  const mOut = pr(f, T.share, 8, Easing.out(Easing.quad));
+  const mOut = pr(f, T.compartir + 1, 5, Easing.out(Easing.quad));
   // hoja de compartir: sube; al expandirse, sube con la lista; se va cuando sube «Agregar a Inicio»
-  const sh = pr(f, T.share, 16, nav);
-  const ex = pr(f, T.expand, 18, nav);
+  const sh = pr(f, T.share, 16);
+  const ex = pr(f, T.expand, 18);
+  const swap = pr(f, T.expand, 6, io); // la fila de nombres y el borde de la hoja chica dan paso a la lista
   const shOut = pr(f, T.add, 12, Easing.in(Easing.quad));
-  // hoja «Agregar a Inicio»: sube y se queda hasta que aparece la pantalla de inicio
-  const ad = pr(f, T.add, 18, nav);
+  // hoja «Agregar a Inicio»: sube y se queda hasta que Safari se cierra
+  const ad = pr(f, T.add, 18);
   const dim = 0.22 * Math.max(sh * (1 - shOut), ad);
+  const sheetH = LIST_IN + LIST.sh * GS;
   return (
     <div style={{position: 'absolute', inset: 0, overflow: 'hidden'}}>
       <Img src={staticFile(shot('programa'))} style={{position: 'absolute', left: 0, top: 0, width: SCREEN_W, height: SCREEN_H}} />
@@ -111,10 +127,13 @@ const InstallFlow: React.FC<{f: number}> = ({f}) => {
       ) : null}
       {f >= T.share && shOut < 1 ? (
         // La hoja expandida es la hoja de compartir con la lista debajo: antes de expandirse está corrida hacia abajo lo
-        // que mide la lista, así que se ve igual que la hoja normal; al expandirse sube y aparece la lista.
-        <div style={{position: 'absolute', left: SHEET.sx * GS * PT, top: (SHEET_Y - EXPAND) * PT, width: SHEET.sw * GS * PT, height: (SHEET.sh * GS + EXPAND) * PT, borderRadius: `${24 * PT}px ${24 * PT}px 0 0`, overflow: 'hidden', transform: `translateY(${(((1 - sh) * (SHEET.sh * GS + 30) + (1 - ex) * EXPAND + shOut * 300) * PT).toFixed(1)}px)`, opacity: 1 - shOut * 0.6, boxShadow: '0 -10px 40px rgba(14,0,30,.2)'}}>
-          <GuideCrop img="ios26-3-compartir.jpg" c={SHEET} x={0} y={0} />
-          <GuideCrop img="ios26-4-lista.jpg" c={LIST} x={0} y={SHEET.sh * GS} />
+        // que sube al expandirse, así que se ve igual que la hoja normal; al expandirse sube y aparece la lista.
+        <div style={{position: 'absolute', left: SHEET.sx * GS * PT, top: (SHEET_Y - EXPAND) * PT, width: SHEET.sw * GS * PT, height: sheetH * PT, borderRadius: `${24 * PT}px ${24 * PT}px 0 0`, overflow: 'hidden', transform: `translateY(${(((1 - sh) * (SHEET.sh * GS + 30) + (1 - ex) * EXPAND + shOut * 300) * PT).toFixed(1)}px)`, opacity: 1 - shOut * 0.6, boxShadow: '0 -10px 40px rgba(14,0,30,.2)'}}>
+          <GuideCrop img="ios26-4-lista.jpg" c={LIST} x={0} y={LIST_IN} />
+          {/* La hoja chica: arriba hasta la unión (con un borde difuso de 7 px para que no se note el cambio de tono) y
+              abajo su fila de nombres con «Ver más» y su borde redondeado, que se apagan al expandirse. */}
+          <GuideCrop img="ios26-3-compartir.jpg" c={{...SHEET, sh: JOIN + 7 - SHEET.sy}} x={0} y={0} style={{WebkitMaskImage: `linear-gradient(180deg, #000 calc(100% - ${(7 * GS * PT).toFixed(1)}px), transparent)`, maskImage: `linear-gradient(180deg, #000 calc(100% - ${(7 * GS * PT).toFixed(1)}px), transparent)`}} />
+          {swap < 1 ? <GuideCrop img="ios26-3-compartir.jpg" c={{...SHEET, sy: JOIN, sh: SHEET.sy + SHEET.sh - JOIN}} x={0} y={LIST_IN} style={{opacity: 1 - swap}} /> : null}
         </div>
       ) : null}
       {ad > 0.001 ? (
@@ -125,56 +144,86 @@ const InstallFlow: React.FC<{f: number}> = ({f}) => {
     </div>
   );
 };
-// Dónde se toca en cada paso (pt de la pantalla).
-const TAPS = {
-  dots: {x: 614 * GS, y: BAR_Y + (93 - BAR.sy) * GS},
-  compartir: {x: 400 * GS, y: MENU_Y + (84 - MENU.sy) * GS},
-  verMas: {x: 588 * GS, y: SHEET_Y + (612 - SHEET.sy) * GS},
-  inicio: {x: 300 * GS, y: SHEET_Y - EXPAND + SHEET.sh * GS + (457 - LIST.sy) * GS},
-  agregar: {x: 590 * GS, y: ADD_Y + (107 - ADD.sy) * GS},
-};
 
-// La etiqueta del paso, arriba del teléfono: el número y el texto cambian con un fundido, en el mismo lugar.
+// Dónde se toca en cada paso (pt de la pantalla). En las filas de menú y lista el dedo va sobre el ícono de la fila, no
+// sobre la palabra que dice la etiqueta, para que se siga leyendo.
+const TAPS = {
+  dots: onBar(616, 94),
+  compartir: onMenu(284, 88),
+  verMas: onSheet(597, 615),
+  inicio: onList(86, 461),
+  agregar: onAdd(605, 108),
+};
+// El marco que señala qué tocar, desde que aparece la etiqueta del paso hasta el toque.
+const TARGETS: Array<{box: Box; radius: number}> = [
+  {box: boxOf(onBar(573, 51), 86, 86), radius: 43 * GS},
+  {box: boxOf(onMenu(236, 56), 404, 64), radius: 12},
+  {box: boxOf(onSheet(528, 546), 140, 176), radius: 22},
+  {box: boxOf(onList(34, 418), 652, 84), radius: 12},
+  {box: boxOf(onAdd(516, 66), 178, 84), radius: 42 * GS},
+];
+const STEP_TAPS = [T.dots, T.compartir, T.verMas, T.inicio, T.agregar];
+// Cada marco aparece cuando la pantalla de ese paso ya está quieta (su etiqueta + 4) y se apaga mientras el dedo llega (sin quedar sobre lo que se mueve después del toque).
+const GLOWS: Glow[] = TARGETS.map((t, i) => ({at: LABELS[i].at + 4, until: STEP_TAPS[i] - 4, box: t.box, radius: t.radius}));
+
+// La etiqueta del paso, arriba del teléfono. Los pasos 1 a 5 usan una cápsula de ancho fijo y el texto cambia con un
+// fundido cruzado en el mismo lugar (la cápsula nunca queda vacía ni salta de ancho); para el resultado final la
+// cápsula se ensancha.
+const W_STEP = 700;
+const W_DONE = 930;
 const StepLabel: React.FC = () => {
   const f = useCurrentFrame();
   const {fps} = useVideoConfig();
   if (f < LABELS[0].at - 2 || f > tEndCard) return null;
-  let i = 0;
-  LABELS.forEach((l, k) => {
-    if (f >= l.at) i = k;
-  });
-  const l = LABELS[i];
-  const p = spring({frame: f - l.at, fps, config: {damping: 16, stiffness: 140, mass: 0.8}});
-  // El texto de este paso sale (sube y se apaga) justo antes de que entre el siguiente: nunca se ven dos a la vez.
-  const next = LABELS[i + 1];
-  const q = next ? pr(f, next.at - 5, 5, Easing.in(Easing.quad)) : 0;
-  const tx = Math.min(1, p * 2) * (1 - q);
-  const ty = (1 - p) * 12 - q * 10;
-  // La cápsula cambia de ancho con el texto: un pequeño salto al cambiar lo acompaña.
-  const bump = i > 0 ? 1 - 0.05 * Math.sin(Math.PI * Math.min(1, Math.max(0, (f - l.at) / 8))) : 1;
   const out = pr(f, tEndCard - 14, 12);
   const first = spring({frame: f - LABELS[0].at, fps, config: {damping: 15, stiffness: 120}});
+  const last = LABELS[LABELS.length - 1];
+  const w = interpolate(f, [last.at - 8, last.at + 2], [W_STEP, W_DONE], {...clampOpt, easing: io});
+  // Visibilidad de cada etiqueta: entra en [at−2, at+4] y sale en [siguiente−6, siguiente]; la final entra un poco
+  // después, cuando la cápsula ya se ensanchó.
+  const vis = LABELS.map((l, k) => {
+    const next = LABELS[k + 1];
+    const inAt = k === LABELS.length - 1 ? l.at : l.at - 2;
+    const vin = k === 0 ? 1 : pr(f, inAt, 6, io);
+    const vout = next ? pr(f, next.at - (next === last ? 10 : 6), 6, io) : 0;
+    return {v: vin * (1 - vout), vin, vout};
+  });
+  const iPhone = LABELS.reduce((a, l, k) => (l.n ? Math.max(a, vis[k].v) : a), 0);
+  const stack: React.CSSProperties = {gridArea: '1 / 1', display: 'flex', alignItems: 'center', justifyContent: 'center'};
   return (
-    <div style={{position: 'absolute', left: 0, right: 0, top: 438, display: 'flex', justifyContent: 'center', zIndex: 50, opacity: Math.min(1, first * 2) * (1 - out), transform: `scale(${(0.7 + 0.3 * first).toFixed(4)})`}}>
-      <div style={{display: 'flex', alignItems: 'center', gap: 16, padding: '12px 30px 12px 14px', borderRadius: 999, background: '#fff', boxShadow: '0 16px 40px rgba(14,0,30,.4), 0 0 0 6px rgba(195,174,242,.28)', transform: `scale(${bump.toFixed(4)})`}}>
-        <span style={{width: 58, height: 58, borderRadius: 29, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #8A00E6, #E6007E)', color: '#fff', fontFamily: SANS, fontWeight: 800, fontSize: l.n ? 32 : 30}}>
-          {l.n ? (
-            <span style={{opacity: tx, transform: `translateY(${ty.toFixed(1)}px)`}}>{l.n}</span>
-          ) : (
-            <svg width={30} height={30} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" style={{opacity: tx}}>
-              <path d="M20 6 9 17l-5-5" />
-            </svg>
+    <div style={{position: 'absolute', left: 0, right: 0, top: 424, display: 'flex', justifyContent: 'center', zIndex: 50, opacity: Math.min(1, first * 2) * (1 - out), transform: `scale(${(0.7 + 0.3 * first).toFixed(4)})`}}>
+      <div style={{width: w, boxSizing: 'border-box', display: 'flex', alignItems: 'center', gap: 16, padding: '12px 30px 12px 14px', borderRadius: 999, background: '#fff', boxShadow: '0 16px 40px rgba(14,0,30,.4), 0 0 0 6px rgba(195,174,242,.28)'}}>
+        <span style={{flex: 'none', width: 58, height: 58, borderRadius: 29, display: 'grid', background: 'linear-gradient(135deg, #8A00E6, #E6007E)', color: '#fff', fontFamily: SANS, fontWeight: 800, fontSize: 32}}>
+          {LABELS.map((l, k) =>
+            vis[k].v > 0.001 ? (
+              <span key={k} style={{...stack, opacity: vis[k].v, transform: `translateY(${((1 - vis[k].vin) * 12 - vis[k].vout * 12).toFixed(1)}px)`}}>
+                {l.n ?? (
+                  <svg width={30} height={30} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20 6 9 17l-5-5" />
+                  </svg>
+                )}
+              </span>
+            ) : null,
           )}
         </span>
-        <span style={{fontFamily: SANS, fontWeight: 800, fontSize: 40, color: '#2B0054', whiteSpace: 'nowrap', opacity: tx, transform: `translateY(${ty.toFixed(1)}px)`}}>{l.text}</span>
-        {l.n ? <span style={{fontFamily: SANS, fontWeight: 700, fontSize: 24, color: '#8E7AA8', marginLeft: 4}}>en iPhone</span> : null}
+        <span style={{flex: 1, minWidth: 0, display: 'grid', overflow: 'hidden'}}>
+          {LABELS.map((l, k) =>
+            vis[k].v > 0.001 ? (
+              <span key={k} style={{...stack, fontFamily: SANS, fontWeight: 800, fontSize: 40, color: '#2B0054', whiteSpace: 'nowrap', opacity: vis[k].v, transform: `translateY(${((1 - vis[k].vin) * 12 - vis[k].vout * 12).toFixed(1)}px)`}}>
+                {l.text}
+              </span>
+            ) : null,
+          )}
+        </span>
+        {iPhone > 0.001 ? <span style={{flex: 'none', fontFamily: SANS, fontWeight: 700, fontSize: 30, color: '#5E4D7A', opacity: iPhone}}>en iPhone</span> : null}
       </div>
     </div>
   );
 };
 
-// Pantalla de inicio de iOS dibujada en código: fondo de marca, íconos de vidrio sin marca (otras apps) y el ícono
-// real de SCHOT que aparece con un resorte en `tIcon`.
+// Pantalla de inicio de iOS dibujada en código: fondo azul violeta (se distingue del fondo de marca del video), íconos
+// de colores sin marca (otras apps) y el ícono real de SCHOT que aparece con un resorte en `tIcon`. Encima, al llegar,
+// Safari se cierra encogiéndose; al tocar el ícono, la app se abre creciendo desde él.
 const COLS = 4;
 const ICON = 62; // pt
 const X0 = 27;
@@ -182,9 +231,19 @@ const PITCH_X = (390 - 2 * X0 - ICON) / (COLS - 1);
 const Y0 = 78;
 const PITCH_Y = 96;
 const SLOT = {c: 1, r: 2}; // donde queda SCHOT
-const HomeScreen: React.FC<{f: number; fps: number}> = ({f, fps}) => {
+const TILE_COLORS = ['#3D7BF2', '#2FB86A', '#F2A33A', '#E5534B', '#8E6CF0', '#1FB5C9', '#F07A3A', '#7A8597', '#E8C33A', '#26A88C', '#5A64E8', '#E0609E', '#4C9BE8', '#9AA3B2', '#38B2A0', '#D9784F', '#6F7CF2', '#C9A13A', '#3FA2D9', '#B46CE0'];
+const iconBox = {x: X0 + SLOT.c * PITCH_X, y: Y0 + SLOT.r * PITCH_Y, w: ICON, h: ICON};
+const HomeScreen: React.FC<{f: number}> = ({f}) => {
+  const {fps} = useVideoConfig();
   const pop = spring({frame: f - tIcon, fps, config: {damping: 11, stiffness: 150}});
-  const glass = (key: string, x: number, y: number, a = 1) => (
+  // Toque en el ícono: se hunde y se oscurece un instante, como en iOS.
+  const press = pr(f, tTapIcon - 1, 3, io) * (1 - pr(f, tTapIcon + 3, 5, io));
+  // Safari se cierra: la página se encoge hacia abajo y se apaga; la pantalla de inicio se asienta (de 1,06 a 1).
+  const close = pr(f, tHome, CLOSE_DUR);
+  const home = 1.06 - 0.06 * close;
+  // La app se abre: un rectángulo crece desde el ícono hasta la pantalla completa, con la app adentro.
+  const open = pr(f, tOpen, OPEN_DUR);
+  const tile = (key: string, x: number, y: number, k: number) => (
     <div
       key={key}
       style={{
@@ -194,39 +253,59 @@ const HomeScreen: React.FC<{f: number; fps: number}> = ({f, fps}) => {
         width: ICON * PT,
         height: ICON * PT,
         borderRadius: 15 * PT,
-        background: 'linear-gradient(160deg, rgba(255,255,255,.34), rgba(255,255,255,.12))',
-        boxShadow: 'inset 0 0 0 1.5px rgba(255,255,255,.35), 0 6px 18px rgba(26,0,51,.25)',
-        opacity: a,
+        background: `linear-gradient(160deg, ${TILE_COLORS[k % TILE_COLORS.length]}, ${TILE_COLORS[(k + 7) % TILE_COLORS.length]})`,
+        boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.18), 0 6px 18px rgba(10,10,40,.3)',
+        opacity: 0.92,
       }}
     />
   );
   const icons: React.ReactNode[] = [];
+  let k = 0;
   for (let r = 0; r < 5; r++)
     for (let c = 0; c < COLS; c++) {
       if (r === SLOT.r && c === SLOT.c) continue;
       if (r === 4 && c > 1) continue; // última fila incompleta
-      icons.push(glass(`g${r}-${c}`, X0 + c * PITCH_X, Y0 + r * PITCH_Y, 0.9));
+      icons.push(tile(`g${r}-${c}`, X0 + c * PITCH_X, Y0 + r * PITCH_Y, k++));
     }
-  const sx = X0 + SLOT.c * PITCH_X;
-  const sy = Y0 + SLOT.r * PITCH_Y;
+  const {x: sx, y: sy} = iconBox;
+  const ox = interpolate(open, [0, 1], [sx, 0]);
+  const oy = interpolate(open, [0, 1], [sy, 0]);
+  const ow = interpolate(open, [0, 1], [ICON, 390]);
+  const oh = interpolate(open, [0, 1], [ICON, 844]);
   return (
-    <div style={{position: 'absolute', inset: 0, overflow: 'hidden', background: 'radial-gradient(120% 70% at 85% 0%, #A200FF 0%, rgba(162,0,255,0) 60%), radial-gradient(110% 70% at 100% 100%, #E6007E 0%, rgba(230,0,126,0) 60%), linear-gradient(160deg, #2B0054 0%, #41027A 60%, #5A0690 100%)'}}>
-      {icons}
-      {/* SCHOT */}
-      <div style={{position: 'absolute', left: sx * PT, top: sy * PT, width: ICON * PT, textAlign: 'center', transform: `scale(${(0.2 + 0.8 * pop).toFixed(3)})`, opacity: Math.min(1, pop * 1.5), transformOrigin: '50% 40%'}}>
-        <Img src={staticFile('schot/brand/apple-touch-icon.png')} style={{width: ICON * PT, height: ICON * PT, borderRadius: 15 * PT, boxShadow: '0 10px 26px rgba(14,0,30,.45), 0 0 0 1px rgba(255,255,255,.15)'}} />
-        <div style={{marginTop: 5 * PT, marginLeft: -20 * PT, marginRight: -20 * PT, fontFamily: '-apple-system, "Barlow", system-ui, sans-serif', fontWeight: 500, fontSize: 12 * PT, color: '#fff', textShadow: '0 1px 4px rgba(0,0,0,.4)'}}>SCHOT</div>
+    <div style={{position: 'absolute', inset: 0, overflow: 'hidden', background: 'radial-gradient(90% 60% at 80% 5%, #6C7BFF 0%, rgba(108,123,255,0) 60%), radial-gradient(90% 60% at 10% 100%, #7A4CC8 0%, rgba(122,76,200,0) 60%), linear-gradient(165deg, #142266 0%, #233A9A 50%, #3B3FB0 100%)'}}>
+      <div style={{position: 'absolute', inset: 0, transform: `scale(${home.toFixed(4)})`}}>
+        {icons}
+        {/* SCHOT */}
+        <div style={{position: 'absolute', left: sx * PT, top: sy * PT, width: ICON * PT, textAlign: 'center', transform: `scale(${((0.2 + 0.8 * pop) * (1 - 0.1 * press)).toFixed(3)})`, opacity: Math.min(1, pop * 1.5), transformOrigin: '50% 40%'}}>
+          <div style={{position: 'relative', width: ICON * PT, height: ICON * PT}}>
+            <Img src={staticFile('schot/brand/apple-touch-icon.png')} style={{width: ICON * PT, height: ICON * PT, borderRadius: 15 * PT, boxShadow: '0 10px 26px rgba(14,0,30,.45), 0 0 0 1px rgba(255,255,255,.15)'}} />
+            {press > 0.001 ? <div style={{position: 'absolute', inset: 0, borderRadius: 15 * PT, background: `rgba(0,0,0,${(0.28 * press).toFixed(3)})`}} /> : null}
+          </div>
+          <div style={{marginTop: 5 * PT, marginLeft: -20 * PT, marginRight: -20 * PT, fontFamily: '-apple-system, "Barlow", system-ui, sans-serif', fontWeight: 500, fontSize: 12 * PT, color: '#fff', textShadow: '0 1px 4px rgba(0,0,0,.4)'}}>SCHOT</div>
+        </div>
+        {/* Halo que marca el ícono recién agregado, con su nombre adentro; se va antes del toque */}
+        <div style={{position: 'absolute', left: (sx - 14) * PT, top: (sy - 12) * PT, width: (ICON + 28) * PT, height: (ICON + 44) * PT, borderRadius: 24 * PT, border: '3px solid rgba(255,255,255,.85)', opacity: pr(f, tIcon + 8, 8) * (1 - pr(f, tIcon + 28, 10)), transform: `scale(${(1.15 - 0.15 * pr(f, tIcon + 8, 12)).toFixed(3)})`}} />
+        {/* Dock */}
+        <div style={{position: 'absolute', left: 12 * PT, right: 12 * PT, bottom: 14 * PT, height: 92 * PT, borderRadius: 34 * PT, background: 'rgba(255,255,255,.16)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.22)'}}>
+          {[0, 1, 2, 3].map((c) => tile(`d${c}`, 21.5 + c * 87, 15, 3 + c * 5))}
+        </div>
+        <div style={{position: 'absolute', left: SCREEN_W / 2 - 40 * PT, top: SCREEN_H - 130 * PT, width: 80 * PT, height: 26 * PT, borderRadius: 13 * PT, background: 'rgba(255,255,255,.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontFamily: SANS, fontSize: 12 * PT, color: 'rgba(255,255,255,.9)'}}>
+          <svg width={12 * PT} height={12 * PT} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" /></svg>
+          Buscar
+        </div>
       </div>
-      {/* Halo que marca el ícono recién agregado, con su nombre adentro */}
-      <div style={{position: 'absolute', left: (sx - 14) * PT, top: (sy - 12) * PT, width: (ICON + 28) * PT, height: (ICON + 44) * PT, borderRadius: 24 * PT, border: '3px solid rgba(255,255,255,.85)', opacity: pr(f, tIcon + 8, 8) * (1 - pr(f, tIcon + 40, 14)), transform: `scale(${(1.15 - 0.15 * pr(f, tIcon + 8, 12)).toFixed(3)})`}} />
-      {/* Dock */}
-      <div style={{position: 'absolute', left: 12 * PT, right: 12 * PT, bottom: 14 * PT, height: 92 * PT, borderRadius: 34 * PT, background: 'rgba(255,255,255,.16)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.22)', backdropFilter: 'blur(18px)'}}>
-        {[0, 1, 2, 3].map((c) => glass(`d${c}`, 15 + c * 87 - 12, 15, 0.95))}
-      </div>
-      <div style={{position: 'absolute', left: SCREEN_W / 2 - 40 * PT, top: SCREEN_H - 130 * PT, width: 80 * PT, height: 26 * PT, borderRadius: 13 * PT, background: 'rgba(255,255,255,.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontFamily: SANS, fontSize: 12 * PT, color: 'rgba(255,255,255,.9)'}}>
-        <svg width={12 * PT} height={12 * PT} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" /></svg>
-        Buscar
-      </div>
+      {close < 1 ? (
+        <div style={{position: 'absolute', inset: 0, overflow: 'hidden', transform: `scale(${(1 - 0.84 * close).toFixed(4)})`, transformOrigin: '50% 92%', borderRadius: 60 * close * PT, opacity: 1 - pr(f, tHome + CLOSE_DUR * 0.5, CLOSE_DUR * 0.5, io), boxShadow: '0 20px 60px rgba(10,10,40,.4)'}}>
+          <InstallFlow f={f} />
+        </div>
+      ) : null}
+      {f >= tOpen ? (
+        <div style={{position: 'absolute', left: ox * PT, top: oy * PT, width: ow * PT, height: oh * PT, overflow: 'hidden', borderRadius: interpolate(open, [0, 1], [15, 0]) * PT, boxShadow: '0 20px 60px rgba(10,10,40,.4)'}}>
+          <Img src={staticFile(shot('programa'))} style={{position: 'absolute', left: 0, top: 0, width: '100%', height: (844 / 390) * ow * PT, opacity: pr(f, tOpen + 2, 5, io)}} />
+          {open < 0.5 ? <Img src={staticFile('schot/brand/apple-touch-icon.png')} style={{position: 'absolute', left: 0, top: 0, width: ow * PT, height: ow * PT, opacity: 1 - pr(f, tOpen + 2, 5, io)}} /> : null}
+        </div>
+      ) : null}
     </div>
   );
 };
@@ -237,8 +316,8 @@ const Overlay: React.FC = () => {
   // La cápsula salta justo antes de que la voz diga la dirección (vacía se vería como un error).
   const pill = spring({frame: f - (tType0 - 7), fps, config: {damping: 12, stiffness: 150, mass: 0.9}});
   const eyebrow = pr(f, tUrl + 4, 14);
-  // El objetivo («y agrégala a tu pantalla de inicio») aparece con el primer paso, antes de que la voz lo diga: quien
-  // lo ve sin sonido sabe para qué son los pasos.
+  // El objetivo («y agrégala a tu pantalla de inicio») aparece al terminar de escribirse la dirección, antes de que la
+  // voz lo diga: quien lo ve sin sonido sabe para qué son los pasos.
   const subIn = pr(f, tType1 + 4, 14);
   const end = pr(f, tEndCard + 8, 18);
   const blur = (p: number) => ((1 - p) * 12 > 0.3 ? `blur(${((1 - p) * 12).toFixed(1)}px)` : undefined);
@@ -293,41 +372,45 @@ const Overlay: React.FC = () => {
   );
 };
 
-const iconBox = {x: X0 + SLOT.c * PITCH_X, y: Y0 + SLOT.r * PITCH_Y, w: ICON, h: ICON};
-
-// Cámara: sigue lo que se toca, con el teléfono más grande que en el resto del cierre.
-const SHOW = (box: {x: number; y: number; w: number; h: number}, z: number) => focus(box, z, {x: 540, y: 1250});
-// Pose de los pasos: el teléfono entero, lo más grande posible bajo la etiqueta (borde de arriba en y≈526, bajo la
-// etiqueta que termina en 520) y con la barra de Safari y la hoja de compartir completas abajo.
+// SHOW: acercamiento al ícono nuevo en la pantalla de inicio.
+const SHOW = (box: Box, z: number) => focus(box, z, {x: 540, y: 1250});
+// Pose de los pasos: el teléfono entero, lo más grande posible bajo la etiqueta (borde de arriba en y≈526) y con la
+// barra de Safari y la hoja de compartir completas abajo. No se mueve durante los pasos: todo pasa dentro de la
+// pantalla, como una grabación continua (si la cámara saltara de un botón a otro, el movimiento desenfoca).
 const FLOW = {x: 540, y: 1229, s: 1.06, r: 0};
+const ICON_POSE = SHOW(iconBox, 1.3);
+const END_POSE = {...REST, y: 1215, s: 0.74};
+const iconAt = toCanvas(ICON_POSE, iconBox.x + ICON / 2, iconBox.y + ICON / 2);
+const stepTap = (at: number, p: {x: number; y: number}): Tap => ({at, ...p, fade: 5, dot: 0.35});
 
 export const cierre: SceneDef = {
   screens: [
     {at: sc.from, render: (f) => <InstallFlow f={f} />, enter: 'fade', enterDur: 16, ink: 'dark'},
-    {at: tHome, render: (f) => <HomeScreen f={f} fps={30} />, enter: 'zoom', enterDur: 18, ink: 'light'},
-    // Al tocar el ícono la app se abre como app: a pantalla completa, sin la barra de Safari.
-    {at: tOpen, src: shot('programa'), enter: 'zoom', enterDur: 16, ink: 'dark'},
+    {at: tHome, render: (f) => <HomeScreen f={f} />, enter: 'cut', ink: 'light'},
+    // Al terminar de crecer desde el ícono queda la app abierta como app: a pantalla completa, sin la barra de Safari.
+    {at: tOpen + OPEN_DUR, src: shot('programa'), enter: 'cut', ink: 'dark'},
   ],
   cam: [
     {at: sc.from, dur: 30, pose: PHONE_POSE, ease: 'out'},
-    // Durante los pasos el teléfono no se mueve: todo pasa dentro de la pantalla, como una grabación continua, y
-    // cada cosa que se toca queda a la vista (si la cámara saltara de un elemento a otro, el movimiento desenfoca).
-    {at: tGuide, dur: 24, pose: FLOW},
-    // En la pantalla de inicio la cámara se acerca, despacio, al ícono nuevo.
-    {at: tHome, dur: 26, pose: SHOW(iconBox, 1.3)},
-    {at: tOpen + 2, dur: 22, pose: PHONE_POSE},
-    {at: tEndCard - 16, dur: 26, pose: {...REST, y: 1215, s: 0.74}, ease: 'io'},
+    // El teléfono se acerca cuando ya se escribió la dirección y queda quieto antes del primer paso.
+    {at: tGuide - 24, dur: 24, pose: FLOW},
+    // En la pantalla de inicio, cuando Safari ya se cerró, la cámara se acerca despacio al lugar del ícono nuevo.
+    {at: tHome + CLOSE_DUR - 4, dur: 36, pose: ICON_POSE, blur: 0.3},
+    // Con la app ya abierta, el teléfono se aleja hasta la pose de la tarjeta final.
+    {at: tOpen + OPEN_DUR + 2, dur: 40, pose: END_POSE, blur: 0.3},
   ],
   taps: [
-    {at: T.dots, ...TAPS.dots},
-    {at: T.compartir, ...TAPS.compartir},
-    {at: T.verMas, ...TAPS.verMas},
-    {at: T.inicio, ...TAPS.inicio},
-    {at: T.agregar, ...TAPS.agregar},
-    {at: tTapIcon, x: iconBox.x + ICON / 2, y: iconBox.y + ICON / 2},
+    stepTap(T.dots, TAPS.dots),
+    stepTap(T.compartir, TAPS.compartir),
+    stepTap(T.verMas, TAPS.verMas),
+    stepTap(T.inicio, TAPS.inicio),
+    stepTap(T.agregar, TAPS.agregar),
+    // El toque del ícono: un anillo más grande que el ícono (el de siempre coincidiría con el sello blanco del logo).
+    {at: tTapIcon, x: iconBox.x + ICON / 2, y: iconBox.y + ICON / 2, size: 1.75, fade: 4, dot: 0.3},
   ],
-  badges: [{at: tIcon + 6, out: tEndCard - 6, x: 540, y: 1700, text: 'En Android, la app también te guía', icon: 'check', tone: 'glass', size: 32, r: 1, gain: 0.18}],
-  bursts: [{at: tIcon + 2, ...toCanvas(SHOW(iconBox, 1.3), iconBox.x + ICON / 2, iconBox.y + ICON / 2), n: 12, r: 220, star: true}],
+  glows: GLOWS,
+  badges: [{at: tIcon + 18, out: tEndCard - 6, x: 540, y: 1750, text: 'En Android, la app también te guía', icon: 'check', tone: 'glass', size: 32, r: 1, gain: 0.18}],
+  bursts: [{at: tIcon + 2, ...iconAt, n: 12, r: 220, star: true}],
   Overlay,
   sfx: [
     {name: 'whoosh-soft', at: sc.from, gain: 0.25},

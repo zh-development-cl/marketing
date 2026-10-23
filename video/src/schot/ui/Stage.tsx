@@ -26,10 +26,14 @@ export type ScreenEvent = {
   ink?: 'dark' | 'light'; // tinta de la barra de estado sobre esta pantalla
   render?: (f: number) => React.ReactNode; // pantalla dibujada en código (px de pantalla, 585 x 1266)
 };
-export type Tap = {at: number; x: number; y: number};
+// fade: frames en que se apaga el anillo después del toque (12 por omisión; corto si la pantalla se mueve justo
+// después y el anillo quedaría sobre otra cosa). size: escala del anillo. dot: opacidad del punto central (0,62).
+export type Tap = {at: number; x: number; y: number; fade?: number; size?: number; dot?: number};
 export type Glow = {at: number; until: number; box: Box; radius?: number};
 export type PushNote = {at: number; until: number; title: string; body: string; app?: string; when?: string};
-export type CamKey = {at: number; dur: number; pose: Pose; ease?: 'io' | 'out' | 'in' | 'whipIn' | 'whipOut'};
+// blur: cuánto desenfoque de movimiento deja este movimiento (1 por omisión; menos en los movimientos tranquilos,
+// donde la estela solo ensuciaría lo que se está mostrando).
+export type CamKey = {at: number; dur: number; pose: Pose; ease?: 'io' | 'out' | 'in' | 'whipIn' | 'whipOut'; blur?: number};
 // Temblor de cámara (impactos): amplitud en px que decae en `dur` frames.
 export type Shake = {at: number; dur: number; amp: number};
 // Zona de la pantalla que se oscurece mientras su contenido «sale» del teléfono (Lift).
@@ -173,17 +177,19 @@ const Screens: React.FC<{screens: ScreenEvent[]; f: number}> = ({screens, f}) =>
 // ---------- dedo ----------
 const TapView: React.FC<{tap: Tap; f: number}> = ({tap, f}) => {
   const d = f - tap.at; // 0 = toque
-  if (d < -10 || d > 16) return null;
+  const fd = tap.fade ?? 12;
+  const st = tap.fade ? 2 : 4; // con salida corta, empieza a apagarse apenas termina la presión
+  if (d < -10 || d > st + fd) return null;
   const inP = pr(f, tap.at - 10, 8); // aparece y se cierra
   const press = d >= 0 && d < 4 ? 1 - Math.abs(d - 1.5) / 2.5 : 0; // presión de 4 frames
-  const out = pr(f, tap.at + 4, 12, io);
+  const out = pr(f, tap.at + st, fd, io);
   const ring = (1.45 - 0.45 * inP) * (1 - 0.12 * press) + 0.5 * out;
   const o = inP * (1 - out);
-  const R = 44 * PT;
+  const R = 44 * PT * (tap.size ?? 1);
   return (
     <div style={{position: 'absolute', left: tap.x * PT, top: tap.y * PT, width: 0, height: 0, zIndex: 20, opacity: o}}>
       <div style={{position: 'absolute', left: -R / 2, top: -R / 2, width: R, height: R, borderRadius: '50%', border: '4px solid rgba(255,255,255,.95)', transform: `scale(${ring.toFixed(3)})`, boxShadow: '0 0 0 8px rgba(162,0,255,.22), 0 0 34px rgba(162,0,255,.55)'}} />
-      <div style={{position: 'absolute', left: -20, top: -20, width: 40, height: 40, borderRadius: '50%', background: 'rgba(255,255,255,.62)', transform: `scale(${(1 + 0.25 * press).toFixed(3)})`, boxShadow: '0 4px 14px rgba(28,18,36,.25)'}} />
+      <div style={{position: 'absolute', left: -20, top: -20, width: 40, height: 40, borderRadius: '50%', background: `rgba(255,255,255,${tap.dot ?? 0.62})`, transform: `scale(${(1 + 0.25 * press).toFixed(3)})`, boxShadow: '0 4px 14px rgba(28,18,36,.25)'}} />
     </div>
   );
 };
@@ -325,8 +331,10 @@ export const Stage: React.FC<StageProps> = ({screens, taps = [], glows = [], pus
   // Un giro 3D rápido (volteo) también deja estela, en x.
   const vx = Math.abs(p0.x - pp.x) + Math.abs(p0.s - pp.s) * 300 + Math.abs((p0.ry ?? 0) - (pp.ry ?? 0)) * 5;
   const vy = Math.abs(p0.y - pp.y) + Math.abs(p0.s - pp.s) * 300 + Math.abs((p0.rx ?? 0) - (pp.rx ?? 0)) * 5;
-  const bx = Math.min(34, vx * 0.3);
-  const by = Math.min(34, vy * 0.3);
+  const moving = cam.filter((k) => f >= k.at && f < k.at + k.dur);
+  const bk = moving.length ? Math.min(...moving.map((k) => k.blur ?? 1)) : 1;
+  const bx = Math.min(34, vx * 0.3 * bk);
+  const by = Math.min(34, vy * 0.3 * bk);
   const o = opacity ? opacity(f) : 1;
   if (o <= 0.001) return null;
   // El teléfono se dibuja con su esquina superior izquierda en (0,0) y se lleva a la pose con transform.
