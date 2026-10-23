@@ -1,6 +1,6 @@
 # Video demo · App del 62º Congreso SCHOT
 
-Video vertical (1080x1920, 30 fps, ~87 s) para el lanzamiento de la web app oficial del 62º Congreso Chileno de
+Video vertical (1080x1920, 30 fps, ~84 s) para el lanzamiento de la web app oficial del 62º Congreso Chileno de
 Ortopedia y Traumatología (SCHOT, Viña del Mar, noviembre 2026). SCHOT lo envía a los asistentes al lanzar la app
 para que entiendan qué es, cómo se abre y qué pueden hacer. Mismo lenguaje que el reel de ZH
 (`docs/reels/01-que-es-zh.md`): composición continua, un solo teléfono que recorre todo el video con la app real
@@ -33,7 +33,7 @@ antes de que la voz los diga, y efectos y música más bajos bajo la voz. Pasó 
   asistencia con QR ni certificados (sin confirmar por SCHOT), panel de administración.
 - La URL que se comunica es **app.congresoschot2026.com** (congreso-schot.web.app se elimina).
 
-## Voz en off (una toma, voz «Juan Carlos» de ElevenLabs, eleven_v4)
+## Voz en off (una toma, voz «Alejandro – Corporate and Elegant» de ElevenLabs, eleven_v4)
 
 La toma está en caché (`/tmp/zh-vo-raw`): cambiar velocidad o pausas no vuelve a generar la voz, solo la
 transcribe de nuevo. Las palabras de `VO_PAUSES` son las que oye el STT («2026», la URL sin puntos).
@@ -42,6 +42,20 @@ La primera versión usaba «Juan» (eleven_v3), la voz ganadora del reel de ZH; 
 un casting con eleven_v4 (el modelo más expresivo) y ganó «Juan Carlos» (`G4IAP30yc6c1gK0csDfu`): la mejor
 inteligibilidad medida con STT, la mayor variación de entonación y timbre cálido. Muestras en
 `video/out/casting-schot/` (no se versionan).
+
+**Cuenta Starter (23-10-2026).** Nicolás compró el plan Starter de ElevenLabs. Según el centro de ayuda de ElevenLabs,
+lo generado con el plan gratuito no tiene licencia comercial (y este video es para un cliente); con un plan pagado sí.
+Por eso la voz se regeneró con la cuenta Starter (clave en `video/.env`, que no se versiona). El plan también habilita
+las voces de la biblioteca marcadas `free_users_allowed: false` (189 en español). Nuevo casting
+(`video/out/casting-starter/`, 11 voces latinas y chilenas con el mismo texto) y tomas completas de las 4 mejores,
+medidas con `voicemetrics` (ritmo, entonación, temblor del tono, artefactos, brillo/sibilancia, STT):
+«Alejandro – Corporate and Elegant» (`sDh3eviBhiuHKi0MjTNq`, mexicano adulto, solo planes pagados, la voz de pago
+más usada en español) quedó con el mismo ritmo que «Juan Carlos» (+3 %), la misma variación de entonación, el tono
+más estable (temblor 0,16 vs 0,20 semitonos), menos artefactos (0,58 vs 0,73 picos/s), más dinámica, el timbre más
+cálido y sin «s» silbantes. Descartadas: «Alejandro Ballesteros» (14 % más rápido y sibilante), «Santiago» (sibilante)
+y «Enrique M. Nieto» (más rápido y menos melódico). Comparación para escuchar: `video/out/voces/`.
+Pendiente de Nicolás: confirmar la voz de oído, y decidir si se regenera la música (también se hizo con el plan
+gratuito; ver «Audio y render»).
 
 > Esta es la app oficial del Congreso SCHOT 2026. Todo el congreso, en tu celular.
 > No se descarga: se abre en el navegador, y entras con tu correo y un código. Sin contraseñas.
@@ -57,8 +71,8 @@ inteligibilidad medida con STT, la mayor variación de entonación y timbre cál
 cd video
 VO_SCRIPT=schot VO_SET=schot VO_JSON=src/schot/vo.json VO_MODEL=eleven_v4 VO_TAG='' VO_STABILITY=0.5 \
 VO_TREBLE=0 VO_TEMPO=1 \
-VO_PAUSES='2026:0.6,navegador:0.7,código:1.4,interesa:0.65,ahora:0.6,toque:0.65,duda:0.45,artificial:0.25,stands:1.25,appcongresoshot2026com:0.6' \
-node scripts/voiceover-single.mjs G4IAP30yc6c1gK0csDfu
+VO_PAUSES='2026:0.6,navegador:0.7,código:1.4,interesa:0.75,ahora:0.6,toque:0.65,duda:0.45,artificial:0.25,expo:0.25,stands:1.4,appcongresoshot2026com:0.6' \
+node scripts/voiceover-single.mjs sDh3eviBhiuHKi0MjTNq
 ```
 
 «SCHOT» se pronuncia «Schot» (verificado con Whisper: «Shot», también dentro de la URL). «QR» se evitó en la voz
@@ -78,7 +92,7 @@ node scripts/voiceover-single.mjs G4IAP30yc6c1gK0csDfu
 | 6 | Avisos | Además, te avisa diez minutos antes… | Mi agenda; la notificación real del backend sale en grande y queda sola un momento; en «minutos» aparece debajo el dial «10 min» (el 10 fijo, el anillo se llena). |
 | 7 | Asistente | ¿Una duda? Pregúntale a TibIA… | Insignia «¿Una duda?» y el chat sube desde el botón flotante; la mascota salta; la pregunta «¿Cuándo es la fiesta de clausura?» sale en grande, se lee unos dos segundos y se envía tocándola; insignia «Asistente con IA»; la respuesta con la tarjeta del lugar sale de la pantalla, sola, con tiempo para leerla. |
 | 8 | Expo | En la expo, junta sellos… escaneando su código. | La tarjeta del Pasaporte Virtual salta y se toca «Escanear sello» sobre ella; sube la hoja real y, ya quieta, el sello de AO Trauma cae desde la cámara y se estampa (golpe leve y estallido); después salta el avance «13 de 35 sellos»; «Mi código QR»: el QR salta girando y una línea de escaneo lo recorre; insignia «Conecta con colegas». |
-| 9 | Cierre | Entra a app.congresoschot2026.com y agrégala… | El teléfono muestra la app abierta en Safari (barra real de iOS 26); la dirección en una cápsula que se escribe letra a letra con la voz y debajo «y agrégala a tu pantalla de inicio». Luego el proceso completo dentro del teléfono, como una grabación de pantalla continua (sin cortes ni capturas sueltas): las piezas son las capturas reales de iOS 26 de la guía «Instalar la app» de la propia app (`public/schot/guia/`, las mismas de `InstallGuide.tsx`), recortadas por elemento y animadas como en iOS: se toca ⋯ y el menú crece desde el botón; se toca «Compartir» y sube la hoja; se toca «Ver más» y la hoja se expande con la lista (su fila pasa a «Ver menos», como en el iPhone); se toca «Agregar a Inicio» y sube esa hoja; se toca «Agregar» y Safari se cierra encogiéndose. El teléfono queda quieto y completo durante los pasos, y cada paso dura unos 2 s: arriba una sola etiqueta numerada de ancho fijo cambia con un fundido cruzado (texto de la guía y «en iPhone»): «1 Toca el botón ⋯» → «2 Toca «Compartir»» → «3 Toca «Ver más»» → «4 Toca «Agregar a Inicio»» → «5 Toca «Agregar»»; un marco señala el botón 1,3 s antes de que el dedo lo toque, y el anillo del dedo se apaga antes de que la pantalla responda. La pantalla de inicio (fondo azul violeta, íconos de colores sin marca) recibe el ícono de SCHOT cuando la cámara terminó de acercarse («El ícono SCHOT queda en tu pantalla de inicio»); el ícono se hunde al tocarlo y la app se abre creciendo desde él, a pantalla completa y sin la barra de Safari; «En Android, la app también te guía». Termina en la tarjeta con la dirección, el sello y «Viña del Mar · 18–21 nov 2026» (sin fundido a negro: WhatsApp se queda en el último cuadro). |
+| 9 | Cierre | Entra a app.congresoschot2026.com y agrégala… | El teléfono muestra la app abierta en Safari (barra real de iOS 26); la dirección en una cápsula que se escribe letra a letra con la voz y debajo «y agrégala a tu pantalla de inicio». Luego el proceso completo dentro del teléfono, como una grabación de pantalla continua (sin cortes ni capturas sueltas): las piezas son las capturas reales de iOS 26 de la guía «Instalar la app» de la propia app (`public/schot/guia/`, las mismas de `InstallGuide.tsx`), recortadas por elemento y animadas como en iOS: se toca ⋯ y el menú crece desde el botón; se toca «Compartir» y sube la hoja; se toca «Ver más» y la hoja se expande con la lista (su fila pasa a «Ver menos», como en el iPhone); se toca «Agregar a Inicio» y sube esa hoja; se toca «Agregar» y Safari se cierra encogiéndose. El teléfono queda quieto y completo durante los pasos, y cada paso dura unos 2 s: arriba una sola etiqueta numerada de ancho fijo cambia con un fundido cruzado (texto de la guía y «en iPhone»): «1 Toca el botón ⋯» → «2 Toca «Compartir»» → «3 Toca «Ver más»» → «4 Toca «Agregar a Inicio»» → «5 Toca «Agregar»»; un marco señala el botón 1,3 s antes de que el dedo lo toque, y el anillo del dedo se apaga antes de que la pantalla responda. La etiqueta pasa a «El ícono SCHOT queda en tu pantalla de inicio» apenas se cierra Safari; la pantalla de inicio (fondo azul violeta, íconos de colores sin marca) recibe el ícono de SCHOT después de la última app, como en la captura real, cuando la cámara terminó de acercarse; el ícono se hunde al tocarlo y la app se abre creciendo desde él, a pantalla completa y sin la barra de Safari. Termina en la tarjeta con la dirección, «En Android, la app también te guía» (quieta, donde estuvieron los pasos), el sello y «Viña del Mar · 18–21 nov 2026» (sin fundido a negro: WhatsApp se queda en el último cuadro). |
 
 Piezas de animación en `video/src/schot/ui/Pop.tsx` (Lift, Badge, Burst, Rolling, Flash, toques sobre piezas
 flotantes) y `ui/Stage.tsx` (inclinación 3D, latigazos, temblor, huecos oscurecidos, desenfoque por velocidad).
@@ -109,6 +123,13 @@ manifiestos (cajas de cada botón tocado) en `src/schot/shots.json`.
   flotante, la respuesta de TibIA sale junto con su pregunta y con más tiempo, menos efectos sobre «junta sellos»,
   el objetivo del cierre aparece con el primer paso).
 
+- Cierre con el flujo continuo de instalación (23-10-2026): dos rondas independientes (comprensión de un médico de
+  50 a 70 años, fidelidad a iOS 26, calidad cuadro a cuadro, código y audio), cada hallazgo intentado refutar por un
+  verificador escéptico. Primera ronda: pasos demasiado rápidos (44 cuadros), toque del ícono invisible, anillos que
+  quedaban sobre lo que se movía, unión visible en la hoja expandida, cápsula vacía entre pasos, entre otros; todo
+  corregido. Segunda ronda (sobre el render final, con audio): confirmó las correcciones y dejó detalles menores
+  (parpadeo de la cápsula, la nota de Android sobre la app al abrirse, el ícono en un hueco de la grilla), también
+  corregidos. Sin problemas de audio confirmados.
 - Capturas: control de calidad independiente de cada toma (barra de pestañas opaca porque el desenfoque no se dibuja
   en headless, sugerencias de TibIA fijas entre tomas, brillo de los botones apagado, sin typos de los datos) y una
   ronda de recaptura.
@@ -125,9 +146,12 @@ manifiestos (cajas de cada botón tocado) en `src/schot/shots.json`.
   de ElevenLabs (US$0,15 por minuto) con un plan por secciones que pide bajo y batería hasta el final (plan en
   `video/scripts/schot-music-plan.json`). Edición: se recortan 8,64 s de la introducción para que el drop caiga a los
   8,5 s (se tacha «Descargar la app») y se repiten 2 compases exactos (4,284 s, corte en 22,68 s de la pista con
-  25 ms de fundido), otros 4 compases (8,571 s, corte en 52,14 s) y 1 compás más (2,143 s, en 69,0 s de la pista, el
-  compás más parecido a sí mismo de la parte final) para cubrir la demostración de instalación; se apaga sola al
-  asentarse la tarjeta final (83,9 s). Normalizada a −20 LUFS. Bajo la voz queda
+  25 ms de fundido) y otros 4 compases (8,571 s, corte en 52,14 s) para cubrir la demostración de instalación; con la
+  voz nueva el drop cae en el tachado a los 8,37 s y la música se apaga sola al asentarse la tarjeta final (81,6 s).
+  Licencia: la pista se generó cuando la cuenta estaba en el plan gratuito, que según ElevenLabs no da licencia
+  comercial (la música del plan gratuito además exige atribución); para un video de cliente conviene regenerarla con
+  la cuenta Starter (sería otra pista con el mismo plan, y habría que volver a editarla). Decisión pendiente de
+  Nicolás. Normalizada a −20 LUFS. Bajo la voz queda
   ~15 dB por debajo (`MUSIC_LO` 0,3) y un poco más baja en el cierre, donde se dice la dirección.
 - Efectos: los de `public/sfx/` más variantes hechas con ffmpeg (sin API): `pop-hi`, `pop-mid`, `pop-lo` (el pop
   con otra altura, para que una serie de piezas no suene igual), `swish`, `sparkle` y `boom` (impacto grave

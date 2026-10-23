@@ -48,7 +48,9 @@ const LABELS: Array<{at: number; n?: number; text: string}> = [
   {at: T.share + 12, n: 3, text: 'Toca «Ver más»'},
   {at: T.expand + 14, n: 4, text: 'Toca «Agregar a Inicio»'},
   {at: T.add + 14, n: 5, text: 'Toca «Agregar»'},
-  {at: tIcon - 2, text: 'El ícono SCHOT queda en tu pantalla de inicio'},
+  // El resultado entra apenas se cerró Safari, mientras la cámara se acerca al lugar del ícono (no queda la instrucción
+  // «Toca «Agregar»» sobre la pantalla de inicio).
+  {at: tHome + CLOSE_DUR, text: 'El ícono SCHOT queda en tu pantalla de inicio'},
 ];
 const PHONE_POSE = {...REST, y: 1330, s: 0.86};
 
@@ -169,8 +171,8 @@ const STEP_TAPS = [T.dots, T.compartir, T.verMas, T.inicio, T.agregar];
 const GLOWS: Glow[] = TARGETS.map((t, i) => ({at: LABELS[i].at + 4, until: STEP_TAPS[i] - 4, box: t.box, radius: t.radius}));
 
 // La etiqueta del paso, arriba del teléfono. Los pasos 1 a 5 usan una cápsula de ancho fijo y el texto cambia con un
-// fundido cruzado en el mismo lugar (la cápsula nunca queda vacía ni salta de ancho); para el resultado final la
-// cápsula se ensancha.
+// fundido cruzado en el mismo lugar: el que sale y el que entra usan la misma ventana, así que sus opacidades suman 1
+// y la cápsula nunca queda vacía. Para el resultado final la cápsula se ensancha antes del cambio de texto.
 const W_STEP = 700;
 const W_DONE = 930;
 const StepLabel: React.FC = () => {
@@ -180,17 +182,15 @@ const StepLabel: React.FC = () => {
   const out = pr(f, tEndCard - 14, 12);
   const first = spring({frame: f - LABELS[0].at, fps, config: {damping: 15, stiffness: 120}});
   const last = LABELS[LABELS.length - 1];
-  const w = interpolate(f, [last.at - 8, last.at + 2], [W_STEP, W_DONE], {...clampOpt, easing: io});
-  // Visibilidad de cada etiqueta: entra en [at−2, at+4] y sale en [siguiente−6, siguiente]; la final entra un poco
-  // después, cuando la cápsula ya se ensanchó.
+  const w = interpolate(f, [last.at - 16, last.at - 6], [W_STEP, W_DONE], {...clampOpt, easing: io});
+  // Visibilidad de cada etiqueta: entra en [at−6, at] y sale en [siguiente−6, siguiente].
   const vis = LABELS.map((l, k) => {
     const next = LABELS[k + 1];
-    const inAt = k === LABELS.length - 1 ? l.at : l.at - 2;
-    const vin = k === 0 ? 1 : pr(f, inAt, 6, io);
-    const vout = next ? pr(f, next.at - (next === last ? 10 : 6), 6, io) : 0;
+    const vin = k === 0 ? 1 : pr(f, l.at - 6, 6, io);
+    const vout = next ? pr(f, next.at - 6, 6, io) : 0;
     return {v: vin * (1 - vout), vin, vout};
   });
-  const iPhone = LABELS.reduce((a, l, k) => (l.n ? Math.max(a, vis[k].v) : a), 0);
+  const iPhone = 1 - vis[LABELS.length - 1].vin; // fijo durante los pasos; se va con el resultado final
   const stack: React.CSSProperties = {gridArea: '1 / 1', display: 'flex', alignItems: 'center', justifyContent: 'center'};
   return (
     <div style={{position: 'absolute', left: 0, right: 0, top: 424, display: 'flex', justifyContent: 'center', zIndex: 50, opacity: Math.min(1, first * 2) * (1 - out), transform: `scale(${(0.7 + 0.3 * first).toFixed(4)})`}}>
@@ -198,7 +198,7 @@ const StepLabel: React.FC = () => {
         <span style={{flex: 'none', width: 58, height: 58, borderRadius: 29, display: 'grid', background: 'linear-gradient(135deg, #8A00E6, #E6007E)', color: '#fff', fontFamily: SANS, fontWeight: 800, fontSize: 32}}>
           {LABELS.map((l, k) =>
             vis[k].v > 0.001 ? (
-              <span key={k} style={{...stack, opacity: vis[k].v, transform: `translateY(${((1 - vis[k].vin) * 12 - vis[k].vout * 12).toFixed(1)}px)`}}>
+              <span key={k} style={{...stack, opacity: vis[k].v, transform: `translateY(${((1 - vis[k].vin) * 6 - vis[k].vout * 6).toFixed(1)}px)`}}>
                 {l.n ?? (
                   <svg width={30} height={30} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">
                     <path d="M20 6 9 17l-5-5" />
@@ -211,7 +211,7 @@ const StepLabel: React.FC = () => {
         <span style={{flex: 1, minWidth: 0, display: 'grid', overflow: 'hidden'}}>
           {LABELS.map((l, k) =>
             vis[k].v > 0.001 ? (
-              <span key={k} style={{...stack, fontFamily: SANS, fontWeight: 800, fontSize: 40, color: '#2B0054', whiteSpace: 'nowrap', opacity: vis[k].v, transform: `translateY(${((1 - vis[k].vin) * 12 - vis[k].vout * 12).toFixed(1)}px)`}}>
+              <span key={k} style={{...stack, fontFamily: SANS, fontWeight: 800, fontSize: 40, color: '#2B0054', whiteSpace: 'nowrap', opacity: vis[k].v, transform: `translateY(${((1 - vis[k].vin) * 6 - vis[k].vout * 6).toFixed(1)}px)`}}>
                 {l.text}
               </span>
             ) : null,
@@ -232,7 +232,7 @@ const X0 = 27;
 const PITCH_X = (390 - 2 * X0 - ICON) / (COLS - 1);
 const Y0 = 78;
 const PITCH_Y = 96;
-const SLOT = {c: 1, r: 2}; // donde queda SCHOT
+const SLOT = {c: 2, r: 4}; // donde queda SCHOT: después de la última app, como en la captura real (ios26-6-inicio)
 const TILE_COLORS = ['#3D7BF2', '#2FB86A', '#F2A33A', '#E5534B', '#8E6CF0', '#1FB5C9', '#F07A3A', '#7A8597', '#E8C33A', '#26A88C', '#5A64E8', '#E0609E', '#4C9BE8', '#9AA3B2', '#38B2A0', '#D9784F', '#6F7CF2', '#C9A13A', '#3FA2D9', '#B46CE0'];
 const iconBox = {x: X0 + SLOT.c * PITCH_X, y: Y0 + SLOT.r * PITCH_Y, w: ICON, h: ICON};
 const HomeScreen: React.FC<{f: number}> = ({f}) => {
@@ -324,6 +324,7 @@ const Overlay: React.FC = () => {
   // voz lo diga: quien lo ve sin sonido sabe para qué son los pasos.
   const subIn = pr(f, tType1 + 4, 14);
   const end = pr(f, tEndCard + 8, 18);
+  const note = pr(f, tEndCard + 20, 14, io);
   const blur = (p: number) => ((1 - p) * 12 > 0.3 ? `blur(${((1 - p) * 12).toFixed(1)}px)` : undefined);
   // Letras de la dirección: cada una salta en su lugar (las posiciones no se mueven mientras se escribe).
   const n = URL.length;
@@ -364,6 +365,18 @@ const Overlay: React.FC = () => {
         </div>
       </div>
       <StepLabel />
+      {/* En la tarjeta final, donde estuvieron los pasos: la nota para Android, quieta y sin sonido. Antes aparecía junto
+          al ícono, el momento más cargado, y quedaba sobre la app al abrirse. Se queda hasta el último cuadro. */}
+      <div style={{position: 'absolute', left: 0, right: 0, top: 430, display: 'flex', justifyContent: 'center', zIndex: 50, opacity: note, transform: `translateY(${((1 - note) * 12).toFixed(1)}px)`}}>
+        <div style={{display: 'flex', alignItems: 'center', gap: 14, padding: '10px 28px 10px 12px', borderRadius: 999, background: 'rgba(255,255,255,.12)', boxShadow: 'inset 0 0 0 1.5px rgba(255,255,255,.28)'}}>
+          <span style={{width: 48, height: 48, borderRadius: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #8A00E6, #E6007E)'}}>
+            <svg width={26} height={26} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 6 9 17l-5-5" />
+            </svg>
+          </span>
+          <span style={{fontFamily: SANS, fontWeight: 700, fontSize: 38, color: '#fff', whiteSpace: 'nowrap'}}>En Android, la app también te guía</span>
+        </div>
+      </div>
       {/* Pie: sello y datos del congreso */}
       <div style={{position: 'absolute', left: 0, right: 0, bottom: 64, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 22, opacity: end, transform: `translateY(${((1 - end) * 20).toFixed(1)}px)`, zIndex: 50}}>
         <Img src={staticFile('schot/brand/schot-sello-blanco.svg')} style={{width: 92, height: 92}} />
@@ -400,7 +413,7 @@ export const cierre: SceneDef = {
   cam: [
     {at: sc.from, dur: 30, pose: PHONE_POSE, ease: 'out'},
     // El teléfono se acerca cuando ya se escribió la dirección y queda quieto antes del primer paso.
-    {at: tGuide - 24, dur: 24, pose: FLOW},
+    {at: tGuide - 24, dur: 24, pose: FLOW, blur: 0.3},
     // En la pantalla de inicio, cuando Safari ya se cerró, la cámara se acerca despacio al lugar del ícono nuevo.
     {at: tHome + 12, dur: 36, pose: ICON_POSE, blur: 0.3},
     // Con la app ya abierta, el teléfono se aleja hasta la pose de la tarjeta final.
@@ -416,7 +429,6 @@ export const cierre: SceneDef = {
     {at: tTapIcon, x: iconBox.x + ICON / 2, y: iconBox.y + ICON / 2, size: 1.75, fade: 4, dot: 0.3},
   ],
   glows: GLOWS,
-  badges: [{at: tIcon + 18, out: tEndCard - 6, x: 540, y: 1750, text: 'En Android, la app también te guía', icon: 'check', tone: 'glass', size: 32, r: 1, gain: 0.18}],
   bursts: [{at: tIcon + 2, ...iconAt, n: 12, r: 220, star: true}],
   Overlay,
   sfx: [
