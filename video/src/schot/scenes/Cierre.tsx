@@ -44,7 +44,7 @@ const tOpen = tTapIcon + 4; // la app se abre creciendo desde el ícono, sin la 
 const OPEN_DUR = 18;
 const tEndCard = tOpen + 40; // la app abierta se alcanza a ver
 // Final: el teléfono se funde en el fondo y salta el sello de SCHOT con el sonido de la apertura (lo pidió Nicolás).
-// Cae en el corte de la música (83,1 s con la edición actual, el tiempo fuerte donde se detiene el ritmo); si cambia la
+// Cae en el corte de la música (89,5 s, cuadro 2686, con la edición actual, el tiempo fuerte donde se detiene el ritmo); si cambia la
 // duración de las escenas anteriores, volver a medirlo.
 const tLogo = tEndCard + 63;
 // La etiqueta de arriba: un solo texto que cambia con cada paso (los de la guía de la app).

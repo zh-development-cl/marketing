@@ -47,6 +47,10 @@ antes de que la voz los diga, y efectos y música más bajos bajo la voz. Pasó 
   #266 (gráficos, sin fotos clínicas) y la tarjeta del video #248 (degradé de la app, sin cuadros de cirugía). Quedan
   a la vista, como en el programa, nombres reales de autores y, en la cabecera del póster, el logo pequeño de la
   institución de los autores (no es un auspiciador). No hizo falta la cuenta de Nicolás: la sesión es la simulada.
+  El póster es de columna aunque la lista es de Rodilla: en producción ningún e-póster tiene especialidad todavía y la
+  app los muestra en todas («561 sin especialidad»). Los de rodilla con PDF son peores para el video: #313 trae tres
+  logos grandes de clínicas y una jeringa con sangre, y #46, fotos de la cirugía. Si SCHOT asigna especialidades a los
+  e-pósters, conviene volver a capturar uno de rodilla.
 
 ## Voz en off (una toma, voz «Oscar – Fluid pitch, easy to listen» de ElevenLabs, eleven_v4)
 
@@ -131,7 +135,7 @@ VO_SCENE=ciencia VO_SET=schot VO_JSON=src/schot/vo.json VO_TAKE=2 node scripts/v
 | 5 | Charlas | Agregas una charla con un toque… hasta la puerta de la sala. | Ficha «Lesiones meniscales»: el botón «Agregar a mi agenda» salta, el dedo lo toca en grande y pasa a «En tu agenda» con estallido y temblor; «Cómo llegar» y el plano del Piso 3 sale inclinado como sobre una mesa; ahí, ya quieto y en grande, se dibuja la ruta real y cae el pin «Pacífico · Piso 3». |
 | 6 | Avisos | Además, te avisa diez minutos antes… | Mi agenda; la notificación real del backend sale en grande y queda sola un momento; en «minutos» aparece debajo el dial «10 min» (el 10 fijo, el anillo se llena). |
 | 7 | Asistente | ¿Una duda? Pregúntale a TibIA… | Insignia «¿Una duda?» y el chat sube desde el botón flotante; la mascota salta; la pregunta «¿Cuándo es la fiesta de clausura?» sale en grande, se lee unos dos segundos y se envía tocándola; insignia «Asistente con IA»; la respuesta con la tarjeta del lugar sale de la pantalla, sola, con tiempo para leerla. |
-| 8 | Ciencia | En Ciencia están los trabajos seleccionados: abstracts, e-pósters y videos. | La pestaña Ciencia real (Rodilla, «Destacados»: «Orales 23 · E-pósters 561 · Videos 25» y los orales a premio de hoy). En «trabajos seleccionados» un halo marca «Trabajos libres seleccionados por el comité científico del 62º Congreso». Con «abstracts, e-pósters y videos» el teléfono se aleja y salta una pieza real por palabra, cada una desde su lugar en la pantalla: el resumen del primer trabajo de la lista (#458) arriba y ancho, para que se lea; un e-póster (#266, el PDF que dibuja la app) desde la pestaña «E-pósters», y la tarjeta de un video (#248) desde «Videos». Las tres quedan juntas algo más de un segundo y se encogen hacia la expo. |
+| 8 | Ciencia | En Ciencia están los trabajos seleccionados: abstracts, e-pósters y videos. | La pestaña Ciencia real (Rodilla, «Destacados»: «Orales 23 · E-pósters 561 · Videos 25» y los orales a premio de hoy). En «trabajos seleccionados» un halo marca «Trabajos libres seleccionados por el comité científico del 62º Congreso». El teléfono se aleja y, ya quieto, con «abstracts, e-pósters y videos» salta una pieza real por palabra, cada una desde su lugar en la pantalla: la tarjeta del primer trabajo (#458) se levanta de la lista (queda su hueco oscurecido) y en el aire se vuelve su resumen, arriba y ancho, para que se lea; un e-póster (#266, el PDF que dibuja la app) sale de la pestaña «E-pósters» hacia la izquierda, y la tarjeta de un video (#248) crece casi encima de la pestaña «Videos», a la derecha. Las tres quedan juntas algo más de un segundo y se encogen hacia la expo. |
 | 9 | Expo | En la expo, junta sellos… escaneando su código. | La tarjeta del Pasaporte Virtual salta y se toca «Escanear sello» sobre ella; sube la hoja real y, ya quieta, el sello cae desde la cámara y se estampa (golpe leve y estallido); después salta el avance «13 de 35 sellos»; «Mi código QR»: el QR salta girando y una línea de escaneo lo recorre; insignia «Conecta con colegas». |
 | 10 | Cierre | Entra a app.congresoschot2026.com y agrégala… | El teléfono muestra la app abierta en Safari (barra real de iOS 26); la dirección en una cápsula que se escribe letra a letra con la voz y debajo «y agrégala a tu pantalla de inicio». Luego el proceso completo dentro del teléfono, como una grabación de pantalla continua (sin cortes ni capturas sueltas): las piezas son las capturas reales de iOS 26 de la guía «Instalar la app» de la propia app (`public/schot/guia/`, las mismas de `InstallGuide.tsx`), recortadas por elemento y animadas como en iOS: se toca ⋯ y el menú crece desde el botón; se toca «Compartir» y sube la hoja; se toca «Ver más» y la hoja se expande con la lista (su fila pasa a «Ver menos», como en el iPhone); se toca «Agregar a Inicio» y sube esa hoja; se toca «Agregar» y Safari se cierra encogiéndose. El teléfono queda quieto y completo durante los pasos, y cada paso dura unos 2 s: arriba una sola etiqueta numerada de ancho fijo cambia con un fundido cruzado (texto de la guía y «en iPhone»): «1 Toca el botón ⋯» → «2 Toca «Compartir»» → «3 Toca «Ver más»» → «4 Toca «Agregar a Inicio»» → «5 Toca «Agregar»»; un marco señala el botón 1,3 s antes de que el dedo lo toque, y el anillo del dedo se apaga antes de que la pantalla responda. La etiqueta pasa a «El ícono SCHOT queda en tu pantalla de inicio» apenas se cierra Safari; la pantalla de inicio (fondo azul violeta, íconos de colores sin marca) recibe el ícono de SCHOT después de la última app, como en la captura real, cuando la cámara terminó de acercarse; el ícono se hunde al tocarlo y la app se abre creciendo desde él, a pantalla completa y sin la barra de Safari. Termina en la tarjeta con la dirección, «y agrégala a tu pantalla de inicio / para usarla como una app» y «En Android, la app también te guía» (quieta, donde estuvieron los pasos). Para cerrar (lo pidió Nicolás el 23-10-2026), el teléfono se funde en el fondo y salta en grande el sello de SCHOT con el mismo sonido de la apertura, con su luz y un estallido, justo cuando se detiene la música (89,5 s); debajo, «62º Congreso SCHOT · Viña del Mar · 18–21 nov 2026». La dirección se queda arriba (sin fundido a negro: WhatsApp se queda en el último cuadro). |
 
@@ -185,6 +189,15 @@ manifiestos (cajas de cada botón tocado) en `src/schot/shots.json`.
   doble imagen al entrar el código (corte directo al código completo); «Sin contraseñas» tapaba el sello de la
   bienvenida (se va antes); el subtítulo dejaba «Sin» solo al final de una línea (espacio duro tras una palabra corta
   que abre oración).
+- Escena de Ciencia (23-10-2026): revisión independiente con cuatro lentes (la escena cuadro a cuadro, comprensión de
+  un médico de 50 a 70 años con y sin sonido, sincronía del resto del video tras el corrimiento de 193 cuadros, audio
+  medido), cada una con verificador escéptico. Sin problemas en la sincronía del resto, el sello final (cae en el corte
+  de la música, 89,5 s), la voz nueva (−16,5 LUFS contra −16,2/−16,1 de sus vecinas, tono y espectro dentro de lo de la
+  toma aprobada, cortes limpios) ni el empalme de los 3 compases (sobre el tiempo fuerte, sin clic ni salto). Corregido:
+  el resumen no se veía salir de la tarjeta #458 (nacía chico y transparente mientras el teléfono se movía; ahora la
+  tarjeta se levanta con el teléfono quieto y se funde en su resumen), el video parecía salir del póster (cambiaron de
+  lado) y un comentario con el tiempo viejo del sello. Póster de columna bajo Rodilla: se deja (ver «Público y
+  criterios»).
 - Voz de Oscar (23-10-2026): revisión independiente del video completo (sincronía voz–imagen y subtítulos en cada
   escena, cierre, mezcla medida) con verificador escéptico. Sin problemas de sincronía, subtítulos ni cierre; un
   hallazgo de audio confirmado (el compás repetido en la música empezaba a mitad de compás), corregido. Como solo
@@ -211,7 +224,11 @@ manifiestos (cajas de cada botón tocado) en `src/schot/shots.json`.
   con 25 ms de fundido) y otros 4 compases (8,571 s, corte en 52,14 s) para cubrir la demostración de instalación; la
   música se apaga sola 2 s después de la tarjeta final (89,8 s). Para la escena de Ciencia se repiten 3 compases
   (6,4286 s) justo antes del compás 19 de la pista (57,88 s, tiempo fuerte verificado con el bombo), y la escena dura
-  193 cuadros (3 compases redondeados): desde la expo todo suena igual que antes (correlación 0,999, desfase 5 ms). La
+  193 cuadros (3 compases redondeados): desde la expo la música es la misma, en el mismo lugar (correlación 0,999,
+  desfase 5 ms). El nivel de la cama cambió hasta ±1,5 dB, lento y sin saltos: la pista aprobada (v13) había salido de
+  `loudnorm` con ganancia dinámica y la nueva con ganancia lineal (la composición con su dinámica propia); medido, la
+  voz sigue 12–15 dB sobre la música en cada escena. Para la próxima edición: cortar desde la edición sin normalizar y
+  aplicar una sola ganancia fija o `loudnorm` lineal con valores medidos, y comprobar que sea lineal. La
   pista tiene un ciclo de 4 compases (La bemol – Sol – La bemol – Fa menor); 3 compases solo calzan donde un La bemol
   sigue a otro La bemol, que es justo ese punto. Si hace falta un compás más, repetir uno entero desde
   un tiempo fuerte (p. ej. 68,61–70,755 s de la pista, con el fundido terminando antes del golpe de bombo): en la
