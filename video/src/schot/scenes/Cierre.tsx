@@ -190,15 +190,17 @@ const StepLabel: React.FC = () => {
     const vout = next ? pr(f, next.at - 6, 6, io) : 0;
     return {v: vin * (1 - vout), vin, vout};
   });
-  const iPhone = 1 - vis[LABELS.length - 1].vin; // fijo durante los pasos; se va con el resultado final
+  // «en iPhone» queda fijo durante los pasos y se va mientras la cápsula se ensancha, antes del texto final (su espacio
+  // se libera de a poco: el texto final nunca queda cortado).
+  const iPhone = 1 - pr(f, last.at - 16, 8, io);
   const stack: React.CSSProperties = {gridArea: '1 / 1', display: 'flex', alignItems: 'center', justifyContent: 'center'};
   return (
     <div style={{position: 'absolute', left: 0, right: 0, top: 424, display: 'flex', justifyContent: 'center', zIndex: 50, opacity: Math.min(1, first * 2) * (1 - out), transform: `scale(${(0.7 + 0.3 * first).toFixed(4)})`}}>
-      <div style={{width: w, boxSizing: 'border-box', display: 'flex', alignItems: 'center', gap: 16, padding: '12px 30px 12px 14px', borderRadius: 999, background: '#fff', boxShadow: '0 16px 40px rgba(14,0,30,.4), 0 0 0 6px rgba(195,174,242,.28)'}}>
+      <div style={{position: 'relative', width: w, boxSizing: 'border-box', display: 'flex', alignItems: 'center', gap: 16, padding: '12px 30px 12px 14px', borderRadius: 999, background: '#fff', boxShadow: '0 16px 40px rgba(14,0,30,.4), 0 0 0 6px rgba(195,174,242,.28)'}}>
         <span style={{flex: 'none', width: 58, height: 58, borderRadius: 29, display: 'grid', background: 'linear-gradient(135deg, #8A00E6, #E6007E)', color: '#fff', fontFamily: SANS, fontWeight: 800, fontSize: 32}}>
           {LABELS.map((l, k) =>
             vis[k].v > 0.001 ? (
-              <span key={k} style={{...stack, opacity: vis[k].v, transform: `translateY(${((1 - vis[k].vin) * 6 - vis[k].vout * 6).toFixed(1)}px)`}}>
+              <span key={k} style={{...stack, opacity: vis[k].v, transform: `translateY(${((1 - vis[k].vin) * 22 - vis[k].vout * 22).toFixed(1)}px)`}}>
                 {l.n ?? (
                   <svg width={30} height={30} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">
                     <path d="M20 6 9 17l-5-5" />
@@ -208,16 +210,18 @@ const StepLabel: React.FC = () => {
             ) : null,
           )}
         </span>
-        <span style={{flex: 1, minWidth: 0, display: 'grid', overflow: 'hidden'}}>
+        {/* El texto sube al cambiar (el que sale sube y se va, el que entra sube desde abajo): se lee como un rodillo y
+            no como dos textos encimados. */}
+        <span style={{flex: 1, minWidth: 0, marginRight: 150 * iPhone, display: 'grid', overflow: 'hidden'}}>
           {LABELS.map((l, k) =>
             vis[k].v > 0.001 ? (
-              <span key={k} style={{...stack, fontFamily: SANS, fontWeight: 800, fontSize: 40, color: '#2B0054', whiteSpace: 'nowrap', opacity: vis[k].v, transform: `translateY(${((1 - vis[k].vin) * 6 - vis[k].vout * 6).toFixed(1)}px)`}}>
+              <span key={k} style={{...stack, fontFamily: SANS, fontWeight: 800, fontSize: 40, color: '#2B0054', whiteSpace: 'nowrap', opacity: vis[k].v, transform: `translateY(${((1 - vis[k].vin) * 22 - vis[k].vout * 22).toFixed(1)}px)`}}>
                 {l.text}
               </span>
             ) : null,
           )}
         </span>
-        {iPhone > 0.001 ? <span style={{flex: 'none', fontFamily: SANS, fontWeight: 700, fontSize: 30, color: '#5E4D7A', opacity: iPhone}}>en iPhone</span> : null}
+        {iPhone > 0.001 ? <span style={{position: 'absolute', right: 30, top: '50%', transform: 'translateY(-50%)', fontFamily: SANS, fontWeight: 700, fontSize: 30, color: '#5E4D7A', whiteSpace: 'nowrap', opacity: iPhone}}>en iPhone</span> : null}
       </div>
     </div>
   );
