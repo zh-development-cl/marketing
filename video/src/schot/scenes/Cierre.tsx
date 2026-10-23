@@ -3,6 +3,8 @@ import {Easing, Img, interpolate, spring, staticFile, useCurrentFrame, useVideoC
 import {beat, captionsOf, scenes} from '../timeline';
 import {Box, focus, PT, REST, SCREEN_H, SCREEN_W, toCanvas} from '../ui/geometry';
 import {GRAD_TEXT} from '../ui/Text';
+import {Backdrop} from '../ui/Backdrop';
+import {BurstView} from '../ui/Pop';
 import type {Glow, Tap} from '../ui/Stage';
 import {SceneDef, shot} from './types';
 
@@ -41,6 +43,10 @@ const tTapIcon = tIcon + 44; // se lee la etiqueta y se ve el ícono quieto ante
 const tOpen = tTapIcon + 4; // la app se abre creciendo desde el ícono, sin la barra de Safari
 const OPEN_DUR = 18;
 const tEndCard = tOpen + 40; // la app abierta se alcanza a ver
+// Final: el teléfono se funde en el fondo y salta el sello de SCHOT con el sonido de la apertura (lo pidió Nicolás).
+// Cae en el corte de la música (83,1 s con la edición actual, el tiempo fuerte donde se detiene el ritmo); si cambia la
+// duración de las escenas anteriores, volver a medirlo.
+const tLogo = tEndCard + 63;
 // La etiqueta de arriba: un solo texto que cambia con cada paso (los de la guía de la app).
 const LABELS: Array<{at: number; n?: number; text: string}> = [
   {at: tGuide, n: 1, text: 'Toca el botón ⋯'},
@@ -384,13 +390,53 @@ const Overlay: React.FC = () => {
           <span style={{fontFamily: SANS, fontWeight: 700, fontSize: 38, color: '#fff', whiteSpace: 'nowrap'}}>En Android, la app también te guía</span>
         </div>
       </div>
-      {/* Pie: sello y datos del congreso */}
-      <div style={{position: 'absolute', left: 0, right: 0, bottom: 64, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 22, opacity: end, transform: `translateY(${((1 - end) * 20).toFixed(1)}px)`, zIndex: 50}}>
+      {/* Pie: sello y datos del congreso (deja su lugar al sello grande del final) */}
+      <div style={{position: 'absolute', left: 0, right: 0, bottom: 64, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 22, opacity: end * (1 - pr(f, tLogo - 14, 12)), transform: `translateY(${((1 - end) * 20).toFixed(1)}px)`, zIndex: 50}}>
         <Img src={staticFile('schot/brand/schot-sello-blanco.svg')} style={{width: 92, height: 92}} />
         <div style={{fontFamily: SANS, color: '#fff'}}>
           <div style={{fontWeight: 800, fontSize: 34, letterSpacing: '0.01em'}}>62º Congreso SCHOT</div>
           <div style={{fontWeight: 500, fontSize: 28, color: 'rgba(255,255,255,.8)'}}>Viña del Mar · 18–21 nov 2026</div>
         </div>
+      </div>
+      <LogoFinale />
+    </>
+  );
+};
+
+// El sello de SCHOT salta al final: el fondo del video (el mismo Backdrop) cubre el teléfono y el sello entra con un
+// resorte que se pasa un poco y vuelve, con su luz; debajo, el nombre y la fecha del congreso. La dirección de arriba se
+// queda: el último cuadro es la miniatura de WhatsApp.
+const LogoFinale: React.FC = () => {
+  const f = useCurrentFrame();
+  const {fps} = useVideoConfig();
+  if (f < tLogo - 16) return null;
+  const curtain = pr(f, tLogo - 14, 14, io);
+  const p = spring({frame: f - tLogo, fps, config: {damping: 10, stiffness: 140, mass: 0.8}});
+  const glow = pr(f, tLogo, 20) * (0.85 + 0.15 * Math.sin((f - tLogo) / 9));
+  const rise = (at: number) => {
+    const t = pr(f, at, 14);
+    return {opacity: t, transform: `translateY(${((1 - t) * 22).toFixed(1)}px)`} as React.CSSProperties;
+  };
+  const D = 460;
+  const Y = 1080;
+  return (
+    <>
+      <div style={{position: 'absolute', inset: 0, zIndex: 48, opacity: curtain}}>
+        <Backdrop plexus veil="top" turn={26} />
+      </div>
+      {/* El estallido va aquí, sobre el fondo que tapa el teléfono (los de FxLayer quedan debajo). */}
+      <div style={{position: 'absolute', inset: 0, zIndex: 49}}>
+        <BurstView d={{at: tLogo + 2, x: 540, y: Y, n: 16, r: 380, star: true}} f={f} />
+      </div>
+      {f >= tLogo - 1 ? (
+        <div style={{position: 'absolute', left: 540 - D / 2, top: Y - D / 2, width: D, height: D, zIndex: 49, transform: `scale(${(0.2 + 0.8 * p).toFixed(4)}) rotate(${((1 - p) * -12).toFixed(2)}deg)`, opacity: Math.min(1, p * 2)}}>
+          <div style={{position: 'absolute', inset: -190, borderRadius: '50%', background: 'radial-gradient(closest-side, rgba(195,174,242,.5), rgba(162,0,255,.2) 55%, rgba(162,0,255,0))', opacity: glow}} />
+          <Img src={staticFile('schot/brand/schot-sello-blanco.svg')} style={{position: 'absolute', inset: 0, width: D, height: D}} />
+        </div>
+      ) : null}
+      <div style={{position: 'absolute', left: 0, right: 0, top: Y + D / 2 + 44, textAlign: 'center', zIndex: 49, fontFamily: SANS, color: '#fff'}}>
+        <div style={{fontWeight: 800, fontSize: 84, lineHeight: 1.05, letterSpacing: '-0.01em', ...rise(tLogo + 10)}}>62º Congreso SCHOT</div>
+        <div style={{marginTop: 14, fontWeight: 500, fontSize: 40, color: 'rgba(255,255,255,.86)', ...rise(tLogo + 16)}}>Viña del Mar · 18–21 nov 2026</div>
       </div>
     </>
   );
@@ -436,7 +482,9 @@ export const cierre: SceneDef = {
     {at: tTapIcon, x: iconBox.x + ICON / 2, y: iconBox.y + ICON / 2, size: 1.75, fade: 4, dot: 0.3},
   ],
   glows: GLOWS,
-  bursts: [{at: tIcon + 2, ...iconAt, n: 12, r: 220, star: true}],
+  bursts: [
+    {at: tIcon + 2, ...iconAt, n: 12, r: 220, star: true},
+  ],
   Overlay,
   sfx: [
     {name: 'whoosh-soft', at: sc.from, gain: 0.25},
@@ -455,6 +503,6 @@ export const cierre: SceneDef = {
     {name: 'sparkle', at: tIcon + 2, gain: 0.24},
     {name: 'click', at: tTapIcon, gain: 0.36},
     {name: 'whoosh-soft', at: tOpen, gain: 0.22},
-    {name: 'logo', at: tEndCard - 4, gain: 0.5},
+    {name: 'logo', at: tLogo, gain: 0.55}, // el mismo sonido del sello de la apertura
   ],
 };
