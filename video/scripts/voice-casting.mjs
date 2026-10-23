@@ -12,6 +12,8 @@ const key = process.env.ELEVENLABS_API_KEY || env.match(/ELEVENLABS_API_KEY=(.+)
 if (!key) throw new Error('Falta ELEVENLABS_API_KEY');
 const MODEL = process.env.VO_MODEL || 'eleven_v3';
 const TAG = process.env.VO_TAG ?? '[confident, warm]';
+// Estabilidad (0 más expresiva … 1 más pareja); una candidata puede traer la suya como cuarto elemento.
+const STABILITY = Number(process.env.VO_STABILITY || '0.5');
 // CAST_FILE=archivo.json con {candidates: [[slug, voiceId, etiqueta]…], lines: […], pronounce: {…}} para otra pieza;
 // CAST_OUT=carpeta de salida (por defecto out/casting).
 const CAST = process.env.CAST_FILE ? JSON.parse(fs.readFileSync(process.env.CAST_FILE, 'utf8')) : null;
@@ -34,14 +36,15 @@ const outDir = process.env.CAST_OUT ? path.resolve(root, process.env.CAST_OUT) :
 fs.mkdirSync(outDir, {recursive: true});
 const ffmpeg = (args) => execFileSync('ffmpeg', ['-v', 'error', '-y', ...args], {stdio: ['ignore', 'pipe', 'inherit']});
 const files = [];
-for (const [i, [slug, voiceId, label]] of CANDIDATES.entries()) {
+for (const [i, [slug, voiceId, label, stability]] of CANDIDATES.entries()) {
+  const c = {stability};
   const n = String(i + 1).padStart(2, '0');
   const raw = path.join(outDir, `${n}-${slug}.raw.mp3`);
   const out = path.join(outDir, `${n}-${slug}.mp3`);
   const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}?output_format=mp3_44100_128`, {
     method: 'POST',
     headers: {'xi-api-key': key, 'content-type': 'application/json'},
-    body: JSON.stringify({text, model_id: MODEL, voice_settings: {stability: 0.5, similarity_boost: 0.8, use_speaker_boost: true}}),
+    body: JSON.stringify({text, model_id: MODEL, voice_settings: {stability: c.stability ?? STABILITY, similarity_boost: 0.8, use_speaker_boost: true}}),
   });
   if (!res.ok) {
     console.error(`${n} ${slug}: ${res.status} ${(await res.text()).slice(0, 200)}`);
