@@ -136,6 +136,11 @@ manifiestos (cajas de cada botón tocado) en `src/schot/shots.json`.
   corregido. Segunda ronda (sobre el render final, con audio): confirmó las correcciones y dejó detalles menores
   (parpadeo de la cápsula, la nota de Android sobre la app al abrirse, el ícono en un hueco de la grilla), también
   corregidos. Sin problemas de audio confirmados.
+- Voz de Oscar (23-10-2026): revisión independiente del video completo (sincronía voz–imagen y subtítulos en cada
+  escena, cierre, mezcla medida) con verificador escéptico. Sin problemas de sincronía, subtítulos ni cierre; un
+  hallazgo de audio confirmado (el compás repetido en la música empezaba a mitad de compás), corregido. Como solo
+  cambió la música, se volvió a generar solo el audio (`remotion render … --codec=wav` con una configuración sin CRF)
+  y se unió al video ya renderizado; el audio nuevo coincide con el anterior (desfase 0) salvo en 74,5–75,5 s.
 - Capturas: control de calidad independiente de cada toma (barra de pestañas opaca porque el desenfoque no se dibuja
   en headless, sugerencias de TibIA fijas entre tomas, brillo de los botones apagado, sin typos de los datos) y una
   ronda de recaptura.
@@ -152,8 +157,9 @@ manifiestos (cajas de cada botón tocado) en `src/schot/shots.json`.
   de ElevenLabs (US$0,15 por minuto) con un plan por secciones que pide bajo y batería hasta el final (plan en
   `video/scripts/schot-music-plan.json`). Edición: se recortan 8,64 s de la introducción para que el drop caiga a los
   8,5 s (se tacha «Descargar la app») y se repiten 2 compases exactos (4,284 s, corte en 22,68 s de la pista con
-  25 ms de fundido), otros 4 compases (8,571 s, corte en 52,14 s) y 1 compás (2,143 s, en 69,0 s de la pista, el más
-  parecido a sí mismo de la parte final) para cubrir la demostración de instalación; con la voz de Oscar el drop cae
+  25 ms de fundido), otros 4 compases (8,571 s, corte en 52,14 s) y 1 compás (2,143 s: se repite el compás de 68,61 a
+  70,755 s de la pista, con el fundido de 25 ms terminando justo antes del golpe de bombo; en la revisión
+  independiente se vio que cortado a mitad de compás se oía 0,4 s del acorde siguiente y luego volvía atrás) para cubrir la demostración de instalación; con la voz de Oscar el drop cae
   en el tachado a los 8,17 s y la música se apaga sola 2 s después de la tarjeta final (83,5 s).
   Licencia: la pista se generó cuando la cuenta estaba en el plan gratuito, que según ElevenLabs no da licencia
   comercial (la música del plan gratuito además exige atribución); para un video de cliente conviene regenerarla con
