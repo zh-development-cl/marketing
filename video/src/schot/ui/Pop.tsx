@@ -46,6 +46,7 @@ export type LiftDef = {
   from?: Target; // origen propio cuando no sale del teléfono
   shine?: boolean; // destello que cruza al llegar (por defecto sí)
   z?: number;
+  maxBlur?: number; // tope del desenfoque de movimiento (px; 30 por omisión): menos en una pieza que se tiene que ver mientras vuela
 };
 
 const lerpT = (a: Target, b: Target, t: number): Target => ({
@@ -127,8 +128,8 @@ const LiftView: React.FC<{d: LiftDef; f: number; cam: CamKey[]; shakes: Shake[]}
   const w = d.box.w * K;
   const h = d.box.h * K;
   const sh = shakeAt(shakes, f);
-  const sx = Math.min(30, Math.abs(s.x - s1.x) * 0.28 + (Math.abs(s.k - s1.k) / s.k) * 50);
-  const sy = Math.min(30, Math.abs(s.y - s1.y) * 0.28 + (Math.abs(s.k - s1.k) / s.k) * 50);
+  const sx = Math.min(d.maxBlur ?? 30, Math.abs(s.x - s1.x) * 0.28 + (Math.abs(s.k - s1.k) / s.k) * 50);
+  const sy = Math.min(d.maxBlur ?? 30, Math.abs(s.y - s1.y) * 0.28 + (Math.abs(s.k - s1.k) / s.k) * 50);
   const src = typeof d.src === 'function' ? d.src(f) : d.src;
   const R = (d.radius ?? 12) * K;
   const shine = d.shine === false ? -1 : pr(f, d.at + 10, 24, Easing.inOut(Easing.quad));

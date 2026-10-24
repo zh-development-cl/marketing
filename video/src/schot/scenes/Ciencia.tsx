@@ -11,7 +11,7 @@ import {dipIn, dipOut} from './Intro';
 // Escena 8 · ciencia. La pestaña Ciencia real (Rodilla, «Destacados»). «trabajos seleccionados» → halo sobre «Trabajos
 // libres seleccionados por el comité científico del 62º Congreso». El teléfono se aleja y, ya quieto, con «abstracts,
 // e-pósters y videos» salta una pieza real por palabra, cada una desde su lugar en la pantalla: la tarjeta del primer
-// trabajo (#458) se levanta y en el aire se vuelve su resumen; un e-póster (#266, el PDF que la app dibuja) sale de la
+// trabajo (#458) se levanta, llega arriba y ahí se vuelve su resumen; un e-póster (#266, el PDF que la app dibuja) sale de la
 // pestaña «E-pósters» y la tarjeta de un video (#248), de «Videos». Las tres quedan juntas un momento y se encogen
 // hacia la expo. El póster es de columna aunque la lista es de Rodilla: en la app ningún e-póster tiene especialidad
 // todavía y todos salen en todas; los de rodilla con PDF traen fotos de cirugía o logos grandes de clínicas.
@@ -66,9 +66,11 @@ const POSTER_TO = {x: 300, y: 1310, k: 1.15, r: -3};
 const VIDEO_TO = {x: 770, y: 1290, k: 1.3, r: 3};
 
 // La tarjeta del trabajo #458 se levanta de la lista tal cual (centrada en el recorte del resumen, que mide casi lo
-// mismo) y a los pocos cuadros se funde en su resumen: así se entiende que el resumen es de ese trabajo.
+// mismo), llega arriba todavía como tarjeta y, ya quieta y nítida, se funde en su resumen (antes de que salga el
+// póster): así se ve que el resumen es de ese trabajo. Mientras vuela, la estela es más corta (maxBlur) para que se
+// siga leyendo como la tarjeta.
 const cardIntoAbstract = (f: number, k: number) => {
-  const t = Math.min(1, Math.max(0, (f - tAbs - 4) / 8));
+  const t = Math.min(1, Math.max(0, (f - tAbs - 12) / 10));
   const cx = primerTrabajo.x + primerTrabajo.w / 2 - resumen.w / 2;
   const cy = primerTrabajo.y + primerTrabajo.h / 2 - resumen.h / 2;
   return (
@@ -80,7 +82,7 @@ const cardIntoAbstract = (f: number, k: number) => {
 };
 
 const LIFTS: LiftDef[] = [
-  piece(tAbs, tOut, resumen, shot('ciencia-resumen-full'), primerTrabajo, ABS_TO, {from: undefined, src: undefined, view: primerTrabajo, dim: true, render: cardIntoAbstract}),
+  piece(tAbs, tOut, resumen, shot('ciencia-resumen-full'), primerTrabajo, ABS_TO, {from: undefined, src: undefined, view: primerTrabajo, dim: true, render: cardIntoAbstract, maxBlur: 14}),
   // El póster es el único que cruza con un destello: es el que más se luce.
   piece(tPoster, tOut + 2, poster, shot('ciencia-poster-full'), vistaEposters, POSTER_TO, {shine: true}),
   piece(tVideo, tOut + 4, video, shot('ciencia-video'), vistaVideos, VIDEO_TO),
